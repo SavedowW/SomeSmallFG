@@ -46,6 +46,9 @@ void Char1::loadAnimations(Application &application_)
     m_animations[ANIMATIONS::CHAR1_GROUND_DASH] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_GROUND_DASH, LOOPMETHOD::JUMP_LOOP);
     m_animations[ANIMATIONS::CHAR1_GROUND_DASH_RECOVERY] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_GROUND_DASH_RECOVERY);
     m_animations[ANIMATIONS::CHAR1_MOVE_A] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_MOVE_A, LOOPMETHOD::NOLOOP);
+    m_animations[ANIMATIONS::CHAR1_HITSTUN_LOW] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_HITSTUN_LOW, LOOPMETHOD::NOLOOP);
+    m_animations[ANIMATIONS::CHAR1_HITSTUN_MID] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_HITSTUN_MID, LOOPMETHOD::NOLOOP);
+    m_animations[ANIMATIONS::CHAR1_HITSTUN_HIGH] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_HITSTUN_HIGH, LOOPMETHOD::NOLOOP);
 
     m_currentAnimation = m_animations[ANIMATIONS::CHAR1_IDLE].get();
     m_currentAnimation->reset();
@@ -84,27 +87,37 @@ void Char1::updateState()
     }
     if (m_playerId == 1)
     {
-        //std::cout << "(" << framesInState << "): " << (int)m_currentState << " [" << m_airborne << "]" << std::endl;
+        std::cout << "(" << framesInState << "): " << (int)m_currentState << " [" << m_airborne << "]" << std::endl;
         framesInState++;
     }
 
-    auto timerRes = m_timer.update();
-
-    if (timerRes)
+    if (m_inHitstop)
     {
-        switch (m_currentState)
+        if (m_playerId == 1)
+            std::cout << "In hitstop!\n";
+    }
+    else
+    {
+        auto timerRes = m_timer.update();
+
+        if (timerRes)
         {
-            case (CHAR1_STATE::PREJUMP):
-                jumpUsingAction();
-                break;
-            
-            case (CHAR1_STATE::MOVE_A):
-                [[fallthrough]];
-            case (CHAR1_STATE::GROUND_DASH_RECOVERY):
-                [[fallthrough]];
-            case (CHAR1_STATE::SOFT_LANDING_RECOVERY):
-                switchToIdle();
-                break;
+            switch (m_currentState)
+            {
+                case (CHAR1_STATE::PREJUMP):
+                    jumpUsingAction();
+                    break;
+
+                case (CHAR1_STATE::MOVE_A):
+                    [[fallthrough]];
+                case (CHAR1_STATE::GROUND_DASH_RECOVERY):
+                    [[fallthrough]];
+                case (CHAR1_STATE::HITSTUN):
+                    [[fallthrough]];
+                case (CHAR1_STATE::SOFT_LANDING_RECOVERY):
+                    switchToIdle();
+                    break;
+            }
         }
     }
 
@@ -206,6 +219,7 @@ void Char1::updateState()
                 m_currentAnimation = m_animations[ANIMATIONS::CHAR1_MOVE_A].get();
                 m_currentAnimation->reset();
                 m_currentAction = resolverRes;
+                m_appliedHits.clear();
                 break;
             }
 
@@ -300,6 +314,7 @@ Char1Data Char1::generateCharData()
     charData.state = m_currentState;
     charData.usedDoubleJump = m_usedDoubleJump;
     charData.usedAirDash = m_usedAirDash;
+    charData.inHitstop = m_inHitstop;
 
     return charData;
 }
@@ -347,8 +362,18 @@ HitsVec Char1::getHits()
 {
     if (m_currentState == CHAR1_STATE::MOVE_A)
     {
-        auto hboxes = dynamic_cast<const Action_attack<CHAR1_STATE, Char1Data>*>(m_currentAction)->getCurrentHits(m_timer.getCurrentFrame() + 1, m_pos, m_ownOrientation);
-        return hboxes;
+        auto hits = dynamic_cast<const Action_attack<CHAR1_STATE, Char1Data>*>(m_currentAction)->getCurrentHits(m_timer.getCurrentFrame() + 1, m_pos, m_ownOrientation);
+        int i = 0;
+        while (i < hits.size())
+        {
+            if (m_appliedHits.contains(hits[i].m_hitId))
+            {
+                hits.erase(hits.begin() + i);
+            }
+            i++;
+        }
+
+        return hits;
     }
     return {};
 }
@@ -374,4 +399,29 @@ HurtboxVec Char1::getHurtboxes()
         currentHBox.x = m_pos.x - currentHBox.x - currentHBox.w;
 
     return {currentHBox};
+}
+
+void Char1::applyHit(const HitEvent &hitEvent)
+{
+    if (m_playerId == 1)
+        std::cout << "";
+    applyHitstop(hitEvent.m_hitData.hitstop);
+
+    if (hitEvent.m_hittingPlayerId == m_playerId)
+    {
+        m_appliedHits.insert(hitEvent.m_hitData.m_hitId);
+    }
+    else
+    {
+        std::cout << "Took hit!\n";
+        m_currentState = CHAR1_STATE::HITSTUN;
+        m_timer.begin(hitEvent.m_hitData.hitstun);
+        if (hitEvent.m_hitData.hitstunAnimation == HITSTUN_ANIMATION::HIGH)
+            m_currentAnimation = m_animations[ANIMATIONS::CHAR1_HITSTUN_HIGH].get();
+        else if (hitEvent.m_hitData.hitstunAnimation == HITSTUN_ANIMATION::MID)
+            m_currentAnimation = m_animations[ANIMATIONS::CHAR1_HITSTUN_MID].get();
+        else
+            m_currentAnimation = m_animations[ANIMATIONS::CHAR1_HITSTUN_LOW].get();
+        m_currentAnimation->reset(0);
+    }
 }

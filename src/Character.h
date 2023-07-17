@@ -7,6 +7,7 @@
 #include "Application.h"
 #include "AnimationManager.h"
 #include "ActionResolver.h"
+#include "FrameTimer.h"
 
 struct CharacterUpdateRes
 {
@@ -60,6 +61,9 @@ public:
     virtual HurtboxVec getHurtboxes() = 0;
     virtual void updateOwnOrientation();
 
+    virtual void applyHit(const HitEvent &hitEvent) = 0;
+    virtual void applyHitstop(int hitstopLength);
+
     virtual bool canApplyDrag() const;
     virtual bool canApplyGravity() const;
     virtual bool canBeDraggedByInertia() const;
@@ -72,6 +76,9 @@ protected:
     float m_inertiaDrag = 1;
     float m_gravity = 1.5;
     bool m_airborne = false;
+
+    bool m_inHitstop = false;
+    FrameTimer m_hitstopTimer;
 
     Hitbox m_pushbox;
     Character *m_otherCharacter;

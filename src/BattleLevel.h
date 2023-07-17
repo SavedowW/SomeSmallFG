@@ -189,6 +189,39 @@ protected:
             m_characters[0]->setPos(m_characters[0]->getPos() + directionToPush[0] * rangeToPush[0]);
             m_characters[1]->setPos(m_characters[1]->getPos() + directionToPush[1] * rangeToPush[1]);
         }
+
+        // Check for hitbox interactions
+        //auto hits1 = m_characters[0]->getHits();
+        //auto hits2 = m_characters[1]->getHits();
+        std::array<HitsVec, 2> hits = {m_characters[0]->getHits(), m_characters[1]->getHits()};
+        //auto hurtboxes1 = m_characters[0]->getHurtboxes();
+        //auto hurtboxes2 = m_characters[1]->getHurtboxes();
+        std::array<HurtboxVec, 2> hurtboxes = {m_characters[0]->getHurtboxes(), m_characters[1]->getHurtboxes()};
+
+        for (int pid = 0; pid <= 1; ++pid)
+        {
+            int p2id = 1 - pid;
+            bool hitFound = false;
+            for (int ihit = 0; ihit < hits[pid].size() && !hitFound; ++ihit)
+            {
+                auto hboxes = hits[pid][ihit].getHitboxes();
+                for (int ihitbox = 0; ihitbox < hboxes.size() && !hitFound; ++ihitbox)
+                {
+                    for (int ihurtbox = 0; ihurtbox < hurtboxes[p2id].size() && !hitFound; ++ihurtbox)
+                    {
+                        if (hboxes[ihitbox].isCollideWith(hurtboxes[p2id][ihurtbox]))
+                        {
+                            hitFound = true;
+                            HitEvent ev;
+                            ev.m_hittingPlayerId = 1;
+                            ev.m_hitData = hits[pid][ihit].getHitData();
+                            m_characters[pid]->applyHit(ev);
+                            m_characters[p2id]->applyHit(ev);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     void draw() override

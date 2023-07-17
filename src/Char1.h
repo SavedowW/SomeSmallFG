@@ -15,13 +15,15 @@ enum class CHAR1_STATE {
     SOFT_LANDING_RECOVERY,
     GROUND_DASH,
     GROUND_DASH_RECOVERY,
-    MOVE_A
+    MOVE_A,
+    HITSTUN
     };
 
 struct Char1Data : public CharData<CHAR1_STATE>
 {
     bool usedDoubleJump;
     bool usedAirDash;
+    bool inHitstop;
 };
 
 class ActionResolver_Char1 : public ActionResolver<CHAR1_STATE, Char1Data>
@@ -46,6 +48,7 @@ public:
     bool canBeDraggedByInertia() const final;
     HitsVec getHits() final;
     HurtboxVec getHurtboxes() final;
+    void applyHit(const HitEvent &hitEvent) final;
 
 protected:
     void switchToIdle();
@@ -53,6 +56,8 @@ protected:
     void jumpUsingAirjumpAction();
     void switchToSoftLandingRecovery();
     Char1Data generateCharData();
+
+    std::set<int> m_appliedHits;
 
     const Action<CHAR1_STATE, Char1Data> *m_currentAction;
     ActionResolver_Char1 m_actionResolver;

@@ -1,0 +1,5 @@
+LowHitstun_
+1
+1
+1
+0

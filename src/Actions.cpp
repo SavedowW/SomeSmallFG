@@ -78,6 +78,9 @@ Action_jump<CharState_t, CharData>::Action_jump(CharState_t actionState_, const 
 template <typename CharState_t, typename CharData>
 int Action_jump<CharState_t, CharData>::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
 {
+    if (charData_.inHitstop)
+        return 0;
+
     switch (charData_.state)
     {
         case (CHAR1_STATE::PREJUMP):
@@ -118,6 +121,9 @@ Action_attack<CharState_t, CharData>::Action_attack(CharState_t actionState_, In
 template <typename CharState_t, typename CharData>
 int Action_attack<CharState_t, CharData>::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
 {
+    if (charData_.inHitstop)
+        return 0;
+
     if (charData_.state == Action<CharState_t, CharData>::actionState)
         return -1;
 
@@ -156,7 +162,7 @@ const HitsVec Action_attack<CharState_t, CharData>::getCurrentHits(int currentFr
         if (el.first.first <= currentFrame_ && el.first.second >= currentFrame_)
         {
             auto hit = el.second;
-            for (auto &hbox : hit.hitboxes)
+            for (auto &hbox : hit.m_hitboxes)
             {
                 if (ownOrientation_ == ORIENTATION::RIGHT)
                 {
@@ -191,6 +197,9 @@ Action_char1_idle::Action_char1_idle() :
 
 int Action_char1_idle::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
 {
+    if (charData_.inHitstop)
+        return 0;
+
     switch (charData_.state)
     {
         case (CHAR1_STATE::IDLE):
@@ -230,6 +239,9 @@ Action_char1_walk_fwd::Action_char1_walk_fwd() :
 
 int Action_char1_walk_fwd::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
 {
+    if (charData_.inHitstop)
+        return 0;
+
     switch (charData_.state)
     {
         case (CHAR1_STATE::WALK_FWD):
@@ -264,6 +276,9 @@ Action_char1_walk_bwd::Action_char1_walk_bwd() :
 
 int Action_char1_walk_bwd::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
 {
+    if (charData_.inHitstop)
+        return 0;
+
     switch (charData_.state)
     {
         case (CHAR1_STATE::WALK_BWD):
@@ -365,6 +380,9 @@ Action_char1_airjump::Action_char1_airjump(const Vector2<float> &impulse_, Input
 
 int Action_char1_airjump::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
 {
+    if (charData_.inHitstop)
+        return 0;
+
     switch (charData_.state)
     {
         case (CHAR1_STATE::JUMP):
@@ -418,6 +436,9 @@ Action_char1_ground_dash::Action_char1_ground_dash() :
 
 int Action_char1_ground_dash::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
 {
+    if (charData_.inHitstop)
+        return 0;
+
     switch (charData_.state)
     {
         case (CHAR1_STATE::GROUND_DASH):
@@ -455,6 +476,9 @@ Action_char1_ground_dash_recovery::Action_char1_ground_dash_recovery() :
 
 int Action_char1_ground_dash_recovery::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
 {
+    if (charData_.inHitstop)
+        return 0;
+
     switch (charData_.state)
     {
         case (CHAR1_STATE::GROUND_DASH_RECOVERY):
@@ -482,7 +506,7 @@ Action_char1_jab::Action_char1_jab() :
     {
         {
             {5, 7},
-            {10.0f, {{50.0f, -300.0f, 120.0f, 30.0f}}}
+            hitgeneration::generate_char1_jab()
         }
     },
     {

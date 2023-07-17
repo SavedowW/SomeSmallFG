@@ -1,13 +1,18 @@
 #include "Hit.h"
 
-Hit::Hit(float damage_, const std::vector<Hitbox> &hitboxes_) :
-    damage(damage_),
-    hitboxes(hitboxes_)
+Hit::Hit(const HitData &hitData_, const std::vector<Hitbox> &hitboxes_) :
+    HitData(hitData_),
+    m_hitboxes(hitboxes_)
 {
         
 }
 
 std::vector<Hitbox> Hit::getHitboxes() const
 {
-    return hitboxes;
+    return m_hitboxes;
+}
+
+HitData Hit::getHitData() const
+{
+    return *static_cast<const HitData*>(this);
 }

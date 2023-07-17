@@ -32,50 +32,63 @@ CharacterUpdateRes Character::update()
 {
     auto initPos = m_pos;
 
-    auto vecToEnemy = getHorDirToEnemy();
-    if (vecToEnemy.x > 0)
-        m_dirToEnemy = ORIENTATION::RIGHT;
-    else if (vecToEnemy.x < 0)
-        m_dirToEnemy = ORIENTATION::LEFT;
+    auto hstopTimerRes = m_hitstopTimer.update();
+    if (hstopTimerRes)
+    {
+        m_inHitstop = false;
+        m_hitstopTimer.begin(0);
+    }
+
+    if (!m_inHitstop)
+    {
+        auto vecToEnemy = getHorDirToEnemy();
+        if (vecToEnemy.x > 0)
+            m_dirToEnemy = ORIENTATION::RIGHT;
+        else if (vecToEnemy.x < 0)
+            m_dirToEnemy = ORIENTATION::LEFT;
+    }
 
     updateState();
 
 
-    // Apply velocity and inertia
-    auto posAddition = m_velocity;
-    if (canBeDraggedByInertia())
-        posAddition += m_inertia;
-    setPos(m_pos + posAddition);
-
-    // Define if character is airborne
-    if (m_pos.y < gamedata::stages::levelOfGround)
+    if (!m_inHitstop)
     {
-        m_airborne = true;
-    }
-    else if (m_airborne)
-    {
-        m_pos.y = gamedata::stages::levelOfGround;
-        m_airborne = false;
-        m_inertia.y = 0;
-        land();
-    }
+        // Apply velocity and inertia
+        auto posAddition = m_velocity;
+        if (canBeDraggedByInertia())
+            posAddition += m_inertia;
+        setPos(m_pos + posAddition);
 
-    if (m_airborne)
-    {
-        if (canApplyGravity())
-            m_inertia.y += m_gravity;
-    }
+        // Define if character is airborne
+        if (m_pos.y < gamedata::stages::levelOfGround)
+        {
+            m_airborne = true;
+        }
+        else if (m_airborne)
+        {
+            m_pos.y = gamedata::stages::levelOfGround;
+            m_airborne = false;
+            m_inertia.y = 0;
+            land();
+        }
 
-    // Apply drag for grounded character
-    if (m_inertia.x != 0.0f && !m_airborne && canApplyDrag())
-    {
-        auto absInertia = abs(m_inertia.x);
-        auto m_inertiaSign = m_inertia.x / abs(m_inertia.x);
-        absInertia = std::max(absInertia - m_inertiaDrag, 0.0f);
-        m_inertia.x = m_inertiaSign * absInertia;
-    }
+        if (m_airborne)
+        {
+            if (canApplyGravity())
+                m_inertia.y += m_gravity;
+        }
 
-    m_currentAnimation->update();
+        // Apply drag for grounded character
+        if (m_inertia.x != 0.0f && !m_airborne && canApplyDrag())
+        {
+            auto absInertia = abs(m_inertia.x);
+            auto m_inertiaSign = m_inertia.x / abs(m_inertia.x);
+            absInertia = std::max(absInertia - m_inertiaDrag, 0.0f);
+            m_inertia.x = m_inertiaSign * absInertia;
+        }
+    
+        m_currentAnimation->update();
+    }
 
     CharacterUpdateRes res;
     res.moveOffset = m_pos - initPos;
@@ -194,4 +207,10 @@ void Character::turnVelocityToInertia()
 {
     m_inertia += m_velocity;
     m_velocity = {0.0f, 0.0f};
+}
+
+void Character::applyHitstop(int hitstopLength)
+{
+    m_inHitstop = true;
+    m_hitstopTimer.begin(hitstopLength);
 }
