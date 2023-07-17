@@ -78,19 +78,8 @@ void Char1::initiate()
     m_standingHurtbox = {-70, -375, 140, 375};
 }
 
-void Char1::updateState()
+void Char1::proceedCurrentState()
 {
-    if (lastState != m_currentState)
-    {
-        lastState = m_currentState;
-        framesInState = 1;
-    }
-    if (m_playerId == 1)
-    {
-        std::cout << "(" << framesInState << "): " << (int)m_currentState << " [" << m_airborne << "]" << std::endl;
-        framesInState++;
-    }
-
     if (m_inHitstop)
     {
         if (m_playerId == 1)
@@ -119,6 +108,20 @@ void Char1::updateState()
                     break;
             }
         }
+    }
+}
+
+void Char1::updateState()
+{
+    if (lastState != m_currentState)
+    {
+        lastState = m_currentState;
+        framesInState = 1;
+    }
+    if (m_playerId == 1)
+    {
+        std::cout << "(" << framesInState << "): " << (int)m_currentState << " [" << m_airborne << "]" << std::endl;
+        framesInState++;
     }
 
     auto resolverRes = m_actionResolver.update(generateCharData());

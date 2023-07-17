@@ -42,6 +42,7 @@ public:
 
     void loadAnimations(Application &application_) final;
     void initiate() final;
+    void proceedCurrentState() final;
     void updateState() final;
     void land() final;
     bool canApplyDrag() const final;

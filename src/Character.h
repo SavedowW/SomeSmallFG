@@ -54,12 +54,15 @@ public:
     virtual ~Character() {};
 
     virtual void loadAnimations(Application &application_) = 0;
+    virtual void proceedCurrentState() = 0;
     virtual void updateState() = 0;
     virtual void initiate() = 0;
     virtual void land() = 0;
     virtual HitsVec getHits() = 0;
     virtual HurtboxVec getHurtboxes() = 0;
+
     virtual void updateOwnOrientation();
+    virtual void updatePosition();
 
     virtual void applyHit(const HitEvent &hitEvent) = 0;
     virtual void applyHitstop(int hitstopLength);
