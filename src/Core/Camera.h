@@ -1,0 +1,40 @@
+#ifndef CAMERA_H_
+#define CAMERA_H_
+
+#include "Vector2.h"
+
+class Camera
+{
+public:
+    Camera(const Vector2<float> &pos_, const Vector2<float> &cameraBaseSize_, const Vector2<float> &areaSize_);
+
+    Vector2<float> getPos() const;
+    void setPos(const Vector2<float> &pos_);
+    Vector2<float> getTopLeft() const;
+
+    Vector2<float> getSize() const;
+    void setBaseSize(const Vector2<float> &cameraSize_);
+    Vector2<float> getBaseSize() const;
+
+    Vector2<float> getAreaSize() const;
+    void setAreaSize(const Vector2<float> &areaSize_);
+
+    float getScale() const;
+    void setScale(const float scale_);
+
+    void smoothMoveTowards(const Vector2<float> &pos_, float pow_ = 0.5f, float divider_ = 1.0f);
+    void smoothScaleTowards(const float tarScale_, float pow_ = 0.5f, float divider_ = 50.0f);
+
+    Vector2<float> getPositionNormalizedValues();
+
+private:
+    Vector2<float> m_pos;
+    Vector2<float> m_cameraBaseSize;
+    Vector2<float> m_areaSize;
+    float m_scale = 1.0f;
+
+    void normalizePosition();
+    Vector2<float> getCamPositionInBoundaries(const Vector2<float> &pos_);
+};
+
+#endif
