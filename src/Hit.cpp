@@ -1,14 +1,14 @@
 #include "Hit.h"
 #include "Char1.h"
 
-Hit::Hit(const HitData &hitData_, const std::vector<Hitbox> &hitboxes_) :
+Hit::Hit(const HitData &hitData_, const std::vector<Collider> &hitboxes_) :
     HitData(hitData_),
     m_hitboxes(hitboxes_)
 {
         
 }
 
-std::vector<Hitbox> Hit::getHitboxes() const
+std::vector<Collider> Hit::getHitboxes() const
 {
     return m_hitboxes;
 }

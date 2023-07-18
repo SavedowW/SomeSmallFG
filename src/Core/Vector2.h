@@ -148,21 +148,21 @@ struct HorizontalOverlapResult
 };
 
 //Only rectangle hitbox
-struct Hitbox
+struct Collider
 {
 	float x, y, w, h;
-	inline Hitbox(float nx = 0, float ny = 0, float nw = 0, float nh = 0)
+	inline Collider(float nx = 0, float ny = 0, float nw = 0, float nh = 0)
 	{
 		x = nx;
 		y = ny;
 		w = nw;
 		h = nh;
 	}
-	inline Hitbox operator+(const Vector2<float>& rhs) const
+	inline Collider operator+(const Vector2<float>& rhs) const
 	{
 		return { x + rhs.x, y + rhs.y, w, h };
 	}
-	inline int isCollideWith_x(const Hitbox& hbox) const
+	inline int isCollideWith_x(const Collider& hbox) const
 	{
 		if (x <= hbox.x && x + w > hbox.x)
 			return 1;
@@ -173,7 +173,7 @@ struct Hitbox
 		else
 			return 0;
 	}
-	inline int isCollideWith_y(const Hitbox& hbox) const
+	inline int isCollideWith_y(const Collider& hbox) const
 	{
 		if (y <= hbox.y && y + h > hbox.y)
 			return 1;
@@ -184,7 +184,7 @@ struct Hitbox
 		else
 			return 0;
 	}
-	inline bool isCollideWith(const Hitbox& hbox) const
+	inline bool isCollideWith(const Collider& hbox) const
 	{
 		return isCollideWith_x(hbox) && isCollideWith_y(hbox);
 	}
@@ -224,7 +224,7 @@ struct Hitbox
 		return false;
 	}
 
-	inline HorizontalOverlapResult getHorizontalOverlap(const Hitbox &rhs) const
+	inline HorizontalOverlapResult getHorizontalOverlap(const Collider &rhs) const
 	{
 		HorizontalOverlapResult res;
 
@@ -249,9 +249,9 @@ struct Hitbox
 		return res;
 	}
 
-	inline Hitbox getHitboxAtOffset(const Vector2<float> &offset_, ORIENTATION side_)
+	inline Collider getHitboxAtOffset(const Vector2<float> &offset_, ORIENTATION side_)
 	{
-		Hitbox hbox = *this;
+		Collider hbox = *this;
 		if (side_ == ORIENTATION::RIGHT)
         {
             hbox.x += offset_.x;

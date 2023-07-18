@@ -38,19 +38,19 @@ struct HitData
 
 struct Hit : public HitData
 {
-    Hit(const HitData &hitData_, const std::vector<Hitbox> &hitboxes_);
+    Hit(const HitData &hitData_, const std::vector<Collider> &hitboxes_);
 
-    std::vector<Hitbox> getHitboxes() const;
+    std::vector<Collider> getHitboxes() const;
     HitData getHitData() const;
     
-    std::vector<Hitbox> m_hitboxes;
+    std::vector<Collider> m_hitboxes;
 };
 
 using ActiveFramesVec = std::vector<std::pair<FrameWindow, Hit>>;
 using HitsVec = std::vector<Hit>;
 
-using HurtboxFramesVec = std::vector<std::pair<FrameWindow, Hitbox>>;
-using HurtboxVec = std::vector<Hitbox>;
+using HurtboxFramesVec = std::vector<std::pair<FrameWindow, Collider>>;
+using HurtboxVec = std::vector<Collider>;
 
 struct HitEvent
 {

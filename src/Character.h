@@ -13,7 +13,7 @@ struct CharacterUpdateRes
 {
     Vector2<float> moveOffset;
     Vector2<float> newPos;
-    Hitbox pushbox;
+    Collider pushbox;
 };
 
 template <typename CharState_t>
@@ -43,7 +43,7 @@ public:
 
     Vector2<float> getPos() const;
     void setPos(Vector2<float> pos_);
-    Hitbox getPushbox() const;
+    Collider getPushbox() const;
 
     Vector2<float> getVelocity() const;
     Vector2<float> getInertia() const;
@@ -84,7 +84,7 @@ protected:
     bool m_inHitstop = false;
     FrameTimer m_hitstopTimer;
 
-    Hitbox m_pushbox;
+    Collider m_pushbox;
     Character *m_otherCharacter;
     int m_playerId;
 

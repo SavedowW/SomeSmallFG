@@ -156,7 +156,7 @@ void Character::setPos(Vector2<float> pos_)
     m_pos = pos_;
 }
 
-Hitbox Character::getPushbox() const
+Collider Character::getPushbox() const
 {
     auto pb = m_pushbox;
     pb.x += m_pos.x;

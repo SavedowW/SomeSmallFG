@@ -69,7 +69,7 @@ protected:
     bool m_usedDoubleJump = false;
     bool m_usedAirDash = false;
 
-    Hitbox m_standingHurtbox;
+    Collider m_standingHurtbox;
 
     int framesInState = 1;
     CHAR1_STATE lastState = CHAR1_STATE::IDLE;
