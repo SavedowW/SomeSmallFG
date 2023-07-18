@@ -72,7 +72,6 @@ class Action_jump : public Action<CharState_t, CharData>
 {
 public:
     Action_jump(CharState_t actionState_, const Vector2<float> &impulse_, float prejumpLen_, float maxHorInertia_, InputComparator_ptr incmp_, HurtboxFramesVec hurtboxes_);
-    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_) const override;
     const Vector2<float> m_impulse;
     const float m_prejumpLen;
     const float m_maxHorInertia;
@@ -89,13 +88,9 @@ class Action_attack : public Action<CharState_t, CharData>
 {
 public:
     Action_attack(CharState_t actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec hurtboxes_);
-    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_) const override;
     virtual const HitsVec getCurrentHits(int currentFrame_, const Vector2<float>& offset_, ORIENTATION ownOrientation_) const;
     const int m_fullDuration;
     const ActiveFramesVec m_hits;
-
-protected:
-    InputComparator_ptr incmp_prolonged;
 };
 
 
@@ -126,20 +121,30 @@ public:
     virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_) const override;
 };
 
-class Action_char1_neutral_jump : public Action_jump<CHAR1_STATE, Char1Data>
+class Action_char1_jump : public Action_jump<CHAR1_STATE, Char1Data>
+{
+public:
+    Action_char1_jump(CHAR1_STATE actionState_, const Vector2<float> &impulse_, float prejumpLen_, float maxHorInertia_, InputComparator_ptr incmp_, HurtboxFramesVec hurtboxes_);
+    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_) const override;
+    const Vector2<float> m_impulse;
+    const float m_prejumpLen;
+    const float m_maxHorInertia;
+};
+
+class Action_char1_neutral_jump : public Action_char1_jump
 {
 public:
     Action_char1_neutral_jump();
 };
 
-class Action_char1_forward_jump : public Action_jump<CHAR1_STATE, Char1Data>
+class Action_char1_forward_jump : public Action_char1_jump
 {
 public:
     Action_char1_forward_jump();
     //virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_) const override;
 };
 
-class Action_char1_backward_jump : public Action_jump<CHAR1_STATE, Char1Data>
+class Action_char1_backward_jump : public Action_char1_jump
 {
 public:
     Action_char1_backward_jump();
@@ -189,7 +194,14 @@ public:
     const int m_recoveryLen;
 };
 
-class Action_char1_jab : public Action_attack<CHAR1_STATE, Char1Data>
+class Action_char1_attack : public Action_attack<CHAR1_STATE, Char1Data>
+{
+public:
+    Action_char1_attack(CHAR1_STATE actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec hurtboxes_);
+    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_) const override;
+};
+
+class Action_char1_jab : public Action_char1_attack
 {
 public:
     Action_char1_jab();

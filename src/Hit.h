@@ -5,11 +5,15 @@
 #include <array>
 #include <utility>
 #include <vector>
+#include <set>
 
 using FrameWindow = std::pair<int, int>;
 
 enum class HIT_RESULT {HIT, BLOCK}; // Potentially more options with guard points, parries, etc
 enum class HITSTUN_ANIMATION {HIGH, MID, LOW};
+
+// Integers in set are values of character-specific state ENUMs
+using CancelWindow = std::pair<FrameWindow, std::set<int>>;
 
 struct HitData
 {
@@ -28,6 +32,8 @@ struct HitData
     int chHitstun = 0;
     int chHitstop = 0;
     HITSTUN_ANIMATION hitstunAnimation = HITSTUN_ANIMATION::MID;
+
+    CancelWindow hitCancel;
 };
 
 struct Hit : public HitData
@@ -55,22 +61,7 @@ struct HitEvent
 
 namespace hitgeneration
 {
-    inline Hit generate_char1_jab()
-    {
-        HitData hdata;
-        hdata.m_hitId = 1;
-        hdata.damage = 5.0f;
-        hdata.opponentPushbackOnBlock = 2.0f;
-        hdata.opponentPushbackOnHit = 1.0f;
-        hdata.blockstun = 15;
-        hdata.hitstun = 15;
-        hdata.chHitstun = 20;
-        hdata.hitstop = 10;
-        hdata.chHitstop = 12;
-
-        Hit hit(hdata, {{50.0f, -300.0f, 120.0f, 30.0f}});
-        return hit;
-    }
+    Hit generate_char1_jab();
 }
 
 #endif

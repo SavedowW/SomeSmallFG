@@ -75,39 +75,6 @@ Action_jump<CharState_t, CharData>::Action_jump(CharState_t actionState_, const 
 {
 }
 
-template <typename CharState_t, typename CharData>
-int Action_jump<CharState_t, CharData>::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
-{
-    if (charData_.inHitstop)
-        return 0;
-
-    switch (charData_.state)
-    {
-        case (CHAR1_STATE::PREJUMP):
-            return -1;
-            break;
-
-        case (CHAR1_STATE::GROUND_DASH):
-            [[fallthrough]];
-        case (CHAR1_STATE::GROUND_DASH_RECOVERY):
-            [[fallthrough]];
-        case (CHAR1_STATE::WALK_BWD):
-            [[fallthrough]];
-        case (CHAR1_STATE::WALK_FWD):
-            [[fallthrough]];
-        case (CHAR1_STATE::IDLE):
-            return (Action<CharState_t, CharData>::isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
-            break;
-
-        default:
-            return 0;
-            break;
-    }
-
-    throw std::runtime_error("Undefined state transition");
-    return false;
-}
-
 
 // ABSTRACT ATTACK ACTION
 template <typename CharState_t, typename CharData>
@@ -116,41 +83,6 @@ Action_attack<CharState_t, CharData>::Action_attack(CharState_t actionState_, In
     m_fullDuration(fullDuration_),
     m_hits(hits_)
 {
-}
-
-template <typename CharState_t, typename CharData>
-int Action_attack<CharState_t, CharData>::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
-{
-    if (charData_.inHitstop)
-        return 0;
-
-    if (charData_.state == Action<CharState_t, CharData>::actionState)
-        return -1;
-
-    switch (charData_.state)
-    {
-
-        case (CHAR1_STATE::SOFT_LANDING_RECOVERY):
-            [[fallthrough]];
-        case (CHAR1_STATE::GROUND_DASH):
-            [[fallthrough]];
-        case (CHAR1_STATE::GROUND_DASH_RECOVERY):
-            [[fallthrough]];
-        case (CHAR1_STATE::WALK_BWD):
-            [[fallthrough]];
-        case (CHAR1_STATE::WALK_FWD):
-            [[fallthrough]];
-        case (CHAR1_STATE::IDLE):
-            return (Action<CharState_t, CharData>::isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
-            break;
-
-        default:
-            return 0;
-            break;
-    }
-
-    throw std::runtime_error("Undefined state transition");
-    return false;
 }
 
 template <typename CharState_t, typename CharData>
@@ -164,16 +96,7 @@ const HitsVec Action_attack<CharState_t, CharData>::getCurrentHits(int currentFr
             auto hit = el.second;
             for (auto &hbox : hit.m_hitboxes)
             {
-                if (ownOrientation_ == ORIENTATION::RIGHT)
-                {
-                    hbox.x += offset_.x;
-                    hbox.y += offset_.y;
-                }
-                else
-                {
-                    hbox.x = offset_.x - hbox.x - hbox.w;
-                    hbox.y += offset_.y;
-                }
+                hbox = hbox.getHitboxAtOffset(offset_, ownOrientation_);
             }
             vec.push_back(hit);
         }
@@ -302,12 +225,58 @@ int Action_char1_walk_bwd::isPossible(const InputQueue &inputQueue_, Char1Data c
 
 
 
+// ABSTRACT CHAR1 JUMP ACTION
+Action_char1_jump::Action_char1_jump(CHAR1_STATE actionState_, const Vector2<float> &impulse_, float prejumpLen_, float maxHorInertia_, InputComparator_ptr incmp_, HurtboxFramesVec hurtboxes_) :
+    Action_jump<CHAR1_STATE, Char1Data>(actionState_, impulse_, prejumpLen_, maxHorInertia_, std::move(incmp_), hurtboxes_),
+    m_impulse(impulse_),
+    m_prejumpLen(prejumpLen_),
+    m_maxHorInertia(maxHorInertia_)
+{
+}
 
+int Action_char1_jump::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+{
+    if (charData_.inHitstop)
+        return 0;
 
+    if (charData_.cancelOptions)
+    {
+        if (charData_.cancelOptions->contains((int)actionState))
+        {
+            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+        }
+    }
+
+    switch (charData_.state)
+    {
+        case (CHAR1_STATE::PREJUMP):
+            return -1;
+            break;
+
+        case (CHAR1_STATE::GROUND_DASH):
+            [[fallthrough]];
+        case (CHAR1_STATE::GROUND_DASH_RECOVERY):
+            [[fallthrough]];
+        case (CHAR1_STATE::WALK_BWD):
+            [[fallthrough]];
+        case (CHAR1_STATE::WALK_FWD):
+            [[fallthrough]];
+        case (CHAR1_STATE::IDLE):
+            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+            break;
+
+        default:
+            return 0;
+            break;
+    }
+
+    throw std::runtime_error("Undefined state transition");
+    return false;
+}
 
 // NEUTRAL JUMP ACTION
 Action_char1_neutral_jump::Action_char1_neutral_jump() :
-    Action_jump(CHAR1_STATE::PREJUMP,
+    Action_char1_jump(CHAR1_STATE::PREJUMP,
     {0.0f, -gamedata::characters::char1::groundJumpVerticalImpulse},
     gamedata::characters::char1::prejumpFrames, gamedata::characters::char1::groundJumpMaxHorizontalInertia,
     std::make_unique<InputComparatorUpHold>(),
@@ -326,7 +295,7 @@ Action_char1_neutral_jump::Action_char1_neutral_jump() :
 
 // FORWARD JUMP ACTION
 Action_char1_forward_jump::Action_char1_forward_jump() :
-    Action_jump(CHAR1_STATE::PREJUMP,
+    Action_char1_jump(CHAR1_STATE::PREJUMP,
     {gamedata::characters::char1::groundJumpHorizontalImpulse, -gamedata::characters::char1::groundJumpVerticalImpulse},
     gamedata::characters::char1::prejumpFrames, gamedata::characters::char1::groundJumpMaxHorizontalInertia,
     std::make_unique<InputComparatorUpForwardHold>(),
@@ -345,7 +314,7 @@ Action_char1_forward_jump::Action_char1_forward_jump() :
 
 // BACKWARD JUMP ACTION
 Action_char1_backward_jump::Action_char1_backward_jump() :
-    Action_jump(CHAR1_STATE::PREJUMP,
+    Action_char1_jump(CHAR1_STATE::PREJUMP,
     {-gamedata::characters::char1::groundJumpHorizontalImpulse, -gamedata::characters::char1::groundJumpVerticalImpulse},
     gamedata::characters::char1::prejumpFrames, gamedata::characters::char1::groundJumpMaxHorizontalInertia,
     std::make_unique<InputComparatorUpBackwardHold>(),
@@ -439,6 +408,14 @@ int Action_char1_ground_dash::isPossible(const InputQueue &inputQueue_, Char1Dat
     if (charData_.inHitstop)
         return 0;
 
+    if (charData_.cancelOptions)
+    {
+        if (charData_.cancelOptions->contains((int)actionState))
+        {
+            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+        }
+    }
+
     switch (charData_.state)
     {
         case (CHAR1_STATE::GROUND_DASH):
@@ -499,10 +476,54 @@ int Action_char1_ground_dash_recovery::isPossible(const InputQueue &inputQueue_,
 }
 
 
+// ABSTRACT ATTACK ACTION
+Action_char1_attack::Action_char1_attack(CHAR1_STATE actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec hurtboxes_) :
+    Action_attack<CHAR1_STATE, Char1Data>(actionState_, std::move(incmp_), fullDuration_, hits_, hurtboxes_)
+{
+}
+
+int Action_char1_attack::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+{
+    if (charData_.inHitstop)
+        return 0;
+
+    if (charData_.cancelOptions)
+    {
+        if (charData_.cancelOptions->contains((int)actionState))
+        {
+            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+        }
+    }
+
+    switch (charData_.state)
+    {
+
+        case (CHAR1_STATE::SOFT_LANDING_RECOVERY):
+            [[fallthrough]];
+        case (CHAR1_STATE::GROUND_DASH):
+            [[fallthrough]];
+        case (CHAR1_STATE::GROUND_DASH_RECOVERY):
+            [[fallthrough]];
+        case (CHAR1_STATE::WALK_BWD):
+            [[fallthrough]];
+        case (CHAR1_STATE::WALK_FWD):
+            [[fallthrough]];
+        case (CHAR1_STATE::IDLE):
+            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+            break;
+
+        default:
+            return 0;
+            break;
+    }
+
+    throw std::runtime_error("Undefined state transition");
+    return false;
+}
 
 // JAB ACTION
 Action_char1_jab::Action_char1_jab() :
-    Action_attack(CHAR1_STATE::MOVE_A, std::make_unique<InputComparatorAPress>(), 16,
+    Action_char1_attack(CHAR1_STATE::MOVE_A, std::make_unique<InputComparatorAPress>(), 16,
     {
         {
             {5, 7},

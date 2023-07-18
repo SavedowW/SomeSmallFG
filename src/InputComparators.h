@@ -6,7 +6,6 @@
 #include "InputState.h"
 
 using InputQueue = FixedQueue<InputState, 30>;
-enum class ORIENTATION {RIGHT, LEFT};
 
 class InputComparator
 {

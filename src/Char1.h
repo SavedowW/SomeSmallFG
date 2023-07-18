@@ -8,6 +8,7 @@
 enum class CHAR1_STATE {
     NONE = 0,
     IDLE,
+    HITSTUN,
     WALK_FWD,
     WALK_BWD,
     PREJUMP,
@@ -16,7 +17,6 @@ enum class CHAR1_STATE {
     GROUND_DASH,
     GROUND_DASH_RECOVERY,
     MOVE_A,
-    HITSTUN
     };
 
 struct Char1Data : public CharData<CHAR1_STATE>
@@ -24,6 +24,7 @@ struct Char1Data : public CharData<CHAR1_STATE>
     bool usedDoubleJump;
     bool usedAirDash;
     bool inHitstop;
+    std::set<int> *cancelOptions = nullptr;
 };
 
 class ActionResolver_Char1 : public ActionResolver<CHAR1_STATE, Char1Data>
@@ -72,6 +73,9 @@ protected:
 
     int framesInState = 1;
     CHAR1_STATE lastState = CHAR1_STATE::IDLE;
+
+    CancelWindow m_currentCancelWindow;
+    FrameTimer m_cancelTimer;
 };
 
 #endif

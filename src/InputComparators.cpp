@@ -1,4 +1,5 @@
 #include "InputComparators.h"
+#include "GameData.h"
 
 bool InputComparatorIdle::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_) const
 {
@@ -150,23 +151,27 @@ bool InputComparator66::operator()(const InputQueue &inputQueue_, ORIENTATION fa
     if (inputQueue_.getFilled() <= 1)
         return false;
 
-    auto lastInput = inputQueue_[0];
-    int inputsToParse = std::min(10, inputQueue_.getFilled());
-
     Vector2<float> forwardVec;
     forwardVec.x = (faceDirection_ == ORIENTATION::RIGHT ? 1.0f : -1.0f);
     Vector2<float> upForwardVec = {forwardVec.x, -1.0f};
     INPUT_BUTTON forwardButton = (faceDirection_ == ORIENTATION::RIGHT ? INPUT_BUTTON::RIGHT : INPUT_BUTTON::LEFT);
 
-    if (!(lastInput.dir == forwardVec) || !(lastInput.inputs[forwardButton] == INPUT_BUTTON_STATE::PRESSED))
-        return false;
-    
-
-    for (int i = 1; i < inputsToParse; ++i)
+    int lookAt = std::min(inputQueue_.getFilled() - 1, gamedata::global::inputBufferLength);
+    for (int i = 0; i <= lookAt; ++i)
     {
         const auto &in = inputQueue_[i];
-        if ((in.dir == forwardVec || in.dir == upForwardVec) && in.inputs.at(forwardButton) == INPUT_BUTTON_STATE::PRESSED)
-            return true;
+
+        if (in.dir == forwardVec && in.inputs.at(forwardButton) == INPUT_BUTTON_STATE::PRESSED)
+        {
+            int lastToParse = std::min(i + 10, inputQueue_.getFilled() - 1);
+
+            for (int k = i + 1; k <= lastToParse; ++k)
+            {
+                const auto &in2 = inputQueue_[k];
+                if ((in2.dir == forwardVec || in2.dir == upForwardVec) && in2.inputs.at(forwardButton) == INPUT_BUTTON_STATE::PRESSED)
+                    return true;
+            }
+        }
     }
 
     return false;
@@ -177,7 +182,15 @@ bool InputComparatorAPress::operator()(const InputQueue &inputQueue_, ORIENTATIO
     if (inputQueue_.getFilled() == 0)
         return false;
 
-    auto lastInput = inputQueue_[0];
+    int lookAt = std::min(inputQueue_.getFilled() - 1, gamedata::global::inputBufferLength);
+    for (int i = 0; i <= lookAt; ++i)
+    {
+        auto &in = inputQueue_[i];
+        if (in.inputs.at(INPUT_BUTTON::A) == INPUT_BUTTON_STATE::PRESSED)
+        {
+            return true;
+        }
+    }
 
-    return lastInput.inputs.at(INPUT_BUTTON::A) == INPUT_BUTTON_STATE::PRESSED;
+    return false;
 }

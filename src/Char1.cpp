@@ -124,6 +124,22 @@ void Char1::updateState()
         framesInState++;
     }
 
+    if (!m_currentCancelWindow.second.empty() && !m_inHitstop)
+    {
+        m_cancelTimer.update();
+        int timer = m_cancelTimer.getCurrentFrame();
+        if (timer >= m_currentCancelWindow.first.first && timer <= m_currentCancelWindow.first.second)
+        {
+            if (m_playerId == 1)
+                std::cout << "CANCELLABLE\n";
+        }
+        else if (timer > m_currentCancelWindow.first.second)
+        {
+            m_cancelTimer.begin(0);
+            m_currentCancelWindow = {};
+        }
+    }
+
     auto resolverRes = m_actionResolver.update(generateCharData());
 
     if (resolverRes)
@@ -319,6 +335,9 @@ Char1Data Char1::generateCharData()
     charData.usedAirDash = m_usedAirDash;
     charData.inHitstop = m_inHitstop;
 
+    if (!m_currentCancelWindow.second.empty())
+        charData.cancelOptions = &m_currentCancelWindow.second;
+
     return charData;
 }
 
@@ -413,6 +432,11 @@ void Char1::applyHit(const HitEvent &hitEvent)
     if (hitEvent.m_hittingPlayerId == m_playerId)
     {
         m_appliedHits.insert(hitEvent.m_hitData.m_hitId);
+        m_currentCancelWindow = hitEvent.m_hitData.hitCancel;
+        if (!m_currentCancelWindow.second.empty())
+            m_cancelTimer.begin(m_currentCancelWindow.first.second + 1);
+
+        m_inertia += getOwnHorDir() * -1 * hitEvent.m_hitData.ownPushbackOnHit;
     }
     else
     {
@@ -426,5 +450,6 @@ void Char1::applyHit(const HitEvent &hitEvent)
         else
             m_currentAnimation = m_animations[ANIMATIONS::CHAR1_HITSTUN_LOW].get();
         m_currentAnimation->reset(0);
+        m_inertia += getHorDirToEnemy() * -1 * hitEvent.m_hitData.opponentPushbackOnHit;
     }
 }

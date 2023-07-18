@@ -4,6 +4,8 @@
 #include <iostream>
 #include "Utils.h"
 
+enum class ORIENTATION {RIGHT, LEFT};
+
 template <typename T>
 struct Vector2
 {
@@ -245,6 +247,22 @@ struct Hitbox
 		}
 
 		return res;
+	}
+
+	inline Hitbox getHitboxAtOffset(const Vector2<float> &offset_, ORIENTATION side_)
+	{
+		Hitbox hbox = *this;
+		if (side_ == ORIENTATION::RIGHT)
+        {
+            hbox.x += offset_.x;
+            hbox.y += offset_.y;
+        }
+        else
+        {
+            hbox.x = offset_.x - hbox.x - hbox.w;
+            hbox.y += offset_.y;
+        }
+		return hbox;
 	}
 
 

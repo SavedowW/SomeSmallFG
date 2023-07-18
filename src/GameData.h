@@ -46,6 +46,7 @@ namespace gamedata
         inline constexpr float cameraWidth = 1600.0f;
         inline constexpr float cameraHeight = 900.0f;
         inline constexpr float maxCameraScale = std::min(gamedata::stages::stageWidth / cameraWidth, gamedata::stages::stageHeight / cameraHeight);
+        inline constexpr int inputBufferLength = 4;
     }
 
     namespace characters
