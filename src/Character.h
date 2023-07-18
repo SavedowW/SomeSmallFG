@@ -30,6 +30,7 @@ struct CharData
     CharState_t state;
 };
 
+// TODO: messy interface, should move something to protected or private
 class Character
 {
 public:
