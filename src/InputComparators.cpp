@@ -194,3 +194,21 @@ bool InputComparatorAPress::operator()(const InputQueue &inputQueue_, ORIENTATIO
 
     return false;
 }
+
+bool InputComparatorCPress::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_) const
+{
+    if (inputQueue_.getFilled() == 0)
+        return false;
+
+    int lookAt = std::min(inputQueue_.getFilled() - 1, gamedata::global::inputBufferLength);
+    for (int i = 0; i <= lookAt; ++i)
+    {
+        auto &in = inputQueue_[i];
+        if (in.inputs.at(INPUT_BUTTON::C) == INPUT_BUTTON_STATE::PRESSED)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}

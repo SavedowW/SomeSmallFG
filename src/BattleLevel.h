@@ -213,7 +213,7 @@ protected:
                         {
                             hitFound = true;
                             HitEvent ev;
-                            ev.m_hittingPlayerId = 1;
+                            ev.m_hittingPlayerId = pid + 1;
                             ev.m_hitData = hits[pid][ihit].getHitData();
                             m_characters[pid]->applyHit(ev);
                             m_characters[p2id]->applyHit(ev);

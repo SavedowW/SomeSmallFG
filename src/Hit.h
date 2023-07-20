@@ -62,6 +62,7 @@ struct HitEvent
 namespace hitgeneration
 {
     Hit generate_char1_jab();
+    Hit generate_char1_moveC();
 }
 
 #endif

@@ -78,10 +78,11 @@ Action_jump<CharState_t, CharData>::Action_jump(CharState_t actionState_, const 
 
 // ABSTRACT ATTACK ACTION
 template <typename CharState_t, typename CharData>
-Action_attack<CharState_t, CharData>::Action_attack(CharState_t actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec hurtboxes_) :
+Action_attack<CharState_t, CharData>::Action_attack(CharState_t actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec hurtboxes_, std::vector<std::pair<std::pair<int, int>, Vector2<float>>> velocity_) :
     Action<CharState_t, CharData>(actionState_, std::move(incmp_), hurtboxes_),
     m_fullDuration(fullDuration_),
-    m_hits(hits_)
+    m_hits(hits_),
+    m_velocity(velocity_)
 {
 }
 
@@ -103,6 +104,18 @@ const HitsVec Action_attack<CharState_t, CharData>::getCurrentHits(int currentFr
     }
 
     return vec;
+}
+
+template <typename CharState_t, typename CharData>
+const Vector2<float> &Action_attack<CharState_t, CharData>::getCurrentVelocity(int currentFrame_) const
+{
+    for (const auto &el : m_velocity)
+    {
+        if (el.first.first <= currentFrame_ && el.first.second >= currentFrame_)
+            return el.second;
+    }
+
+    return {};
 }
 
 
@@ -476,9 +489,9 @@ int Action_char1_ground_dash_recovery::isPossible(const InputQueue &inputQueue_,
 }
 
 
-// ABSTRACT ATTACK ACTION
-Action_char1_attack::Action_char1_attack(CHAR1_STATE actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec hurtboxes_) :
-    Action_attack<CHAR1_STATE, Char1Data>(actionState_, std::move(incmp_), fullDuration_, hits_, hurtboxes_)
+// ABSTRACT CHAR1 ATTACK ACTION
+Action_char1_attack::Action_char1_attack(CHAR1_STATE actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec hurtboxes_, std::vector<std::pair<std::pair<int, int>, Vector2<float>>> velocity_) :
+    Action_attack<CHAR1_STATE, Char1Data>(actionState_, std::move(incmp_), fullDuration_, hits_, hurtboxes_, velocity_)
 {
 }
 
@@ -538,6 +551,56 @@ Action_char1_jab::Action_char1_jab() :
         {
             {4, 12},
             {40.0f, -310.0f, 140.0f, 50.0f}
+        }
+    },
+    {})
+    //{ { 1.0f, {{0.0f, 0.0f, 10.0f, 10.0f}}} })
+{
+}
+
+// JAB ACTION
+Action_char1_move_C::Action_char1_move_C() :
+    Action_char1_attack(CHAR1_STATE::MOVE_C, std::make_unique<InputComparatorCPress>(), 30,
+    {
+        {
+            {13, 16},
+            hitgeneration::generate_char1_moveC()
+        }
+    },
+    {
+        {
+            {1, 30},
+            {-70, -200, 140, 200}
+        },
+        {
+            {1, 4},
+            {-70.0f, -300.0f, 140.0f, 100.0f}
+        },
+        {
+            {13, 30},
+            {-70.0f, -300.0f, 140.0f, 100.0f}
+        },
+        {
+            {17, 22},
+            {60.0f, -350.0f, 40.0f, 150.0f}
+        },
+    },
+    {
+        {
+            {1, 5},
+            {10.0f, 0.0f}
+        },
+        {
+            {6, 8},
+            {8.0f, 0.0f}
+        },
+        {
+            {9, 11},
+            {4.0f, 0.0f},
+        },
+        {
+            {12, 12},
+            {1.0f, 0.0f}
         }
     })
     //{ { 1.0f, {{0.0f, 0.0f, 10.0f, 10.0f}}} })

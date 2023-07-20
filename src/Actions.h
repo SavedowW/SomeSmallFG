@@ -87,10 +87,12 @@ template <typename CharState_t, typename CharData>
 class Action_attack : public Action<CharState_t, CharData>
 {
 public:
-    Action_attack(CharState_t actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec hurtboxes_);
+    Action_attack(CharState_t actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec hurtboxes_, std::vector<std::pair<std::pair<int, int>, Vector2<float>>> velocity_);
     virtual const HitsVec getCurrentHits(int currentFrame_, const Vector2<float>& offset_, ORIENTATION ownOrientation_) const;
+    virtual const Vector2<float> &getCurrentVelocity(int currentFrame_) const;
     const int m_fullDuration;
     const ActiveFramesVec m_hits;
+    const std::vector<std::pair<std::pair<int, int>, Vector2<float>>> m_velocity;
 };
 
 
@@ -197,7 +199,7 @@ public:
 class Action_char1_attack : public Action_attack<CHAR1_STATE, Char1Data>
 {
 public:
-    Action_char1_attack(CHAR1_STATE actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec hurtboxes_);
+    Action_char1_attack(CHAR1_STATE actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec hurtboxes_, std::vector<std::pair<std::pair<int, int>, Vector2<float>>> velocity_);
     virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_) const override;
 };
 
@@ -205,6 +207,12 @@ class Action_char1_jab : public Action_char1_attack
 {
 public:
     Action_char1_jab();
+};
+
+class Action_char1_move_C : public Action_char1_attack
+{
+public:
+    Action_char1_move_C();
 };
 
 #endif

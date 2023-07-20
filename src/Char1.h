@@ -9,6 +9,7 @@ enum class CHAR1_STATE {
     NONE = 0,
     IDLE,
     HITSTUN,
+    HITSTUN_AIR,
     WALK_FWD,
     WALK_BWD,
     PREJUMP,
@@ -17,6 +18,7 @@ enum class CHAR1_STATE {
     GROUND_DASH,
     GROUND_DASH_RECOVERY,
     MOVE_A,
+    MOVE_C,
     };
 
 struct Char1Data : public CharData<CHAR1_STATE>

@@ -15,6 +15,7 @@ enum class ANIMATIONS
 	CHAR1_GROUND_DASH,
 	CHAR1_GROUND_DASH_RECOVERY,
 	CHAR1_MOVE_A,
+	CHAR1_MOVE_C,
 	CHAR1_HITSTUN_LOW,
 	CHAR1_HITSTUN_MID,
 	CHAR1_HITSTUN_HIGH,
@@ -76,6 +77,7 @@ private:
 		"Resources/Sprites/Char1/GroundDash/",
 		"Resources/Sprites/Char1/GroundDashRecovery/",
 		"Resources/Sprites/Char1/Jab/",
+		"Resources/Sprites/Char1/MoveC/",
 		"Resources/Sprites/Char1/LowHitstun/",
 		"Resources/Sprites/Char1/MidHitstun/",
 		"Resources/Sprites/Char1/HighHitstun/"
