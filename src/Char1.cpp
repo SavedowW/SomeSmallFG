@@ -24,6 +24,7 @@ void ActionResolver_Char1::createActions()
     m_actions.push_back(std::make_unique<Action_char1_walk_bwd>());
     m_actions.push_back(std::make_unique<Action_char1_walk_fwd>());
     m_actions.push_back(std::make_unique<Action_char1_ground_dash_recovery>());
+    m_actions.push_back(std::make_unique<Action_char1_crouch>());
     m_actions.push_back(std::make_unique<Action_char1_idle>());
     
 }
@@ -39,6 +40,7 @@ Char1::Char1(Application &application_, Vector2<float> pos_) :
 void Char1::loadAnimations(Application &application_)
 {
     m_animations[ANIMATIONS::CHAR1_IDLE] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_IDLE, LOOPMETHOD::SWITCH_DIR_LOOP);
+    m_animations[ANIMATIONS::CHAR1_CROUCH_IDLE] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_CROUCH_IDLE, LOOPMETHOD::JUMP_LOOP);
     m_animations[ANIMATIONS::CHAR1_WALK_FWD] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_WALK_FWD, LOOPMETHOD::JUMP_LOOP);
     m_animations[ANIMATIONS::CHAR1_WALK_BWD] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_WALK_BWD, LOOPMETHOD::JUMP_LOOP, 65, -1);
     m_animations[ANIMATIONS::CHAR1_PREJUMP] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_PREJUMP);
@@ -80,6 +82,7 @@ void Char1::initiate()
 
     m_standingHurtbox = {-70, -375, 140, 375};
     m_airHitstunHurtbox = {-350/2, -120, 350, 80};
+    m_crouchingHurtbox = {-70, -200, 140, 200};
 }
 
 void Char1::proceedCurrentState()
@@ -161,6 +164,16 @@ void Char1::updateState()
                 switchToIdle();
                 break;
 
+            case (CHAR1_STATE::CROUCH):
+                if (m_playerId == 1)
+                    std::cout << "Switch state to CROUCH\n";
+                m_currentState = resolverRes->actionState;
+                m_velocity = {0.0f, 0.0f};
+                m_currentAnimation = m_animations[ANIMATIONS::CHAR1_CROUCH_IDLE].get();
+                m_currentAnimation->reset();
+                m_currentAction = resolverRes;
+                break;
+
             case (CHAR1_STATE::WALK_FWD):
                 if (m_playerId == 1)
                     std::cout << "Switch state to WALK_FWD\n";
@@ -192,6 +205,8 @@ void Char1::updateState()
                 m_currentAnimation = m_animations[ANIMATIONS::CHAR1_PREJUMP].get();
                 m_currentAnimation->reset();
                 m_currentAction = resolverRes;
+                m_currentCancelWindow = {};
+                m_cancelTimer.begin(0);
                 break;
             }
 
@@ -273,7 +288,10 @@ void Char1::updateState()
         }
     }
 
-    if (m_currentState == CHAR1_STATE::IDLE || m_currentState == CHAR1_STATE::WALK_BWD || m_currentState == CHAR1_STATE::WALK_FWD)
+    if (m_currentState == CHAR1_STATE::IDLE ||
+    m_currentState == CHAR1_STATE::WALK_BWD ||
+    m_currentState == CHAR1_STATE::WALK_FWD ||
+    m_currentState == CHAR1_STATE::CROUCH)
         updateOwnOrientation();
 
     if (m_currentState == CHAR1_STATE::GROUND_DASH)
@@ -388,7 +406,7 @@ void Char1::land()
             break;
 
         default:
-            throw std::runtime_error("");
+            switchToSoftLandingRecovery();
     }
 }
 
@@ -416,7 +434,7 @@ bool Char1::canBeDraggedByInertia() const
     }
 }
 
-HitsVec Char1::getHits()
+HitsVec Char1::getHits(bool allHits_)
 {
     if (m_currentState == CHAR1_STATE::MOVE_A || m_currentState == CHAR1_STATE::MOVE_C)
     {
@@ -424,7 +442,7 @@ HitsVec Char1::getHits()
         int i = 0;
         while (i < hits.size())
         {
-            if (m_appliedHits.contains(hits[i].m_hitId))
+            if (!allHits_ && m_appliedHits.contains(hits[i].m_hitId))
             {
                 hits.erase(hits.begin() + i);
             }
@@ -438,7 +456,27 @@ HitsVec Char1::getHits()
 
 HurtboxVec Char1::getHurtboxes()
 {
-    if (m_currentAction)
+    if (m_currentState == CHAR1_STATE::IDLE ||
+    m_currentState == CHAR1_STATE::CROUCH ||
+    m_currentState == CHAR1_STATE::HITSTUN ||
+    m_currentState == CHAR1_STATE::HITSTUN_AIR ||
+    m_currentState == CHAR1_STATE::SOFT_LANDING_RECOVERY)
+    {
+        auto currentHBox = m_standingHurtbox;
+        if (m_currentState == CHAR1_STATE::HITSTUN_AIR)
+            currentHBox = m_airHitstunHurtbox;
+        else if (m_currentState == CHAR1_STATE::CROUCH)
+            currentHBox = m_crouchingHurtbox;
+
+        currentHBox.y += m_pos.y;
+        if (m_ownOrientation == ORIENTATION::RIGHT)
+            currentHBox.x += m_pos.x;
+        else
+            currentHBox.x = m_pos.x - currentHBox.x - currentHBox.w;
+
+        return {currentHBox};
+    }
+    else if (m_currentAction)
     {
         auto currentFrame = m_timer.getCurrentFrame() + 1;
         if (m_timer.isOver())
@@ -448,17 +486,8 @@ HurtboxVec Char1::getHurtboxes()
         return m_currentAction->getCurrentHurtboxes(currentFrame, m_pos, m_ownOrientation);
     }
 
-    auto currentHBox = m_standingHurtbox;
-    if (m_currentState == CHAR1_STATE::HITSTUN_AIR)
-        currentHBox = m_airHitstunHurtbox;
+    return {};
 
-    currentHBox.y += m_pos.y;
-    if (m_ownOrientation == ORIENTATION::RIGHT)
-        currentHBox.x += m_pos.x;
-    else
-        currentHBox.x = m_pos.x - currentHBox.x - currentHBox.w;
-
-    return {currentHBox};
 }
 
 void Char1::applyHit(const HitEvent &hitEvent)

@@ -59,7 +59,7 @@ public:
     virtual void updateState() = 0;
     virtual void initiate() = 0;
     virtual void land() = 0;
-    virtual HitsVec getHits() = 0;
+    virtual HitsVec getHits(bool allHits_ = false) = 0;
     virtual HurtboxVec getHurtboxes() = 0;
 
     virtual void updateOwnOrientation();

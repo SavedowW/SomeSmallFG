@@ -130,7 +130,7 @@ void Character::draw(Renderer &renderer_, Camera &camera_)
             renderer_.drawRectangle({hb.x, hb.y}, {hb.w, hb.h}, gamedata::characters::hurtboxColor, camera_);
         }
 
-        auto hits = getHits();
+        auto hits = getHits(true);
         for (const auto &el : hits)
         {
             auto hitboxes = el.getHitboxes();

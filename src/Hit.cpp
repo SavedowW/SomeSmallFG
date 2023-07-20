@@ -37,7 +37,7 @@ Hit hitgeneration::generate_char1_jab()
     Hit hit(hdata, {{50.0f, -300.0f, 120.0f, 30.0f}});
 
     hit.hitCancel.first.first = 1;
-    hit.hitCancel.first.second = 5;
+    hit.hitCancel.first.second = 8;
     hit.hitCancel.second = {(int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::PREJUMP, (int)CHAR1_STATE::MOVE_A, (int)CHAR1_STATE::MOVE_C};
 
     return hit;

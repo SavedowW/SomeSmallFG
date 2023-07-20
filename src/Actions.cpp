@@ -142,6 +142,8 @@ int Action_char1_idle::isPossible(const InputQueue &inputQueue_, Char1Data charD
             return -1;
             break;
 
+        case (CHAR1_STATE::CROUCH):
+            [[fallthrough]];
         case (CHAR1_STATE::WALK_FWD):
             [[fallthrough]];
         case (CHAR1_STATE::WALK_BWD):
@@ -158,7 +160,39 @@ int Action_char1_idle::isPossible(const InputQueue &inputQueue_, Char1Data charD
 }
 
 
+// IDLE ACTION
+Action_char1_crouch::Action_char1_crouch() :
+    Action(CHAR1_STATE::CROUCH, std::make_unique<InputComparatorDownHold>(), {})
+{
+}
 
+int Action_char1_crouch::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+{
+    if (charData_.inHitstop)
+        return 0;
+
+    switch (charData_.state)
+    {
+        case (CHAR1_STATE::CROUCH):
+            return (isInputPossible(inputQueue_, charData_.ownDirection) ? -1 : 0);
+            break;
+
+        case (CHAR1_STATE::IDLE):
+            [[fallthrough]];
+        case (CHAR1_STATE::WALK_FWD):
+            [[fallthrough]];
+        case (CHAR1_STATE::WALK_BWD):
+            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+            break;
+
+        default:
+            return 0;
+            break;
+    }
+
+    throw std::runtime_error("Undefined state transition");
+    return false;
+}
 
 
 // WALK FORWARD ACTION

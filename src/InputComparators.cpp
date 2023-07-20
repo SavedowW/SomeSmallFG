@@ -146,6 +146,16 @@ bool InputComparatorUpBackwardHold::operator()(const InputQueue &inputQueue_, OR
     return false;
 }
 
+bool InputComparatorDownHold::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_) const
+{
+    if (inputQueue_.getFilled() == 0)
+        return false;
+
+    auto lastInput = inputQueue_[0];
+
+    return (lastInput.dir.y == 1);
+}
+
 bool InputComparator66::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_) const
 {
     if (inputQueue_.getFilled() <= 1)

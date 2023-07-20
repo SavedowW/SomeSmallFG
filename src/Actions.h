@@ -109,6 +109,13 @@ public:
     virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_) const override;
 };
 
+class Action_char1_crouch : public Action<CHAR1_STATE, Char1Data>
+{
+public:
+    Action_char1_crouch();
+    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_) const override;
+};
+
 class Action_char1_walk_fwd : public Action<CHAR1_STATE, Char1Data>
 {
 public:

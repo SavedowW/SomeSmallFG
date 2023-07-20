@@ -7,6 +7,7 @@
 enum class ANIMATIONS
 {
 	CHAR1_IDLE,
+	CHAR1_CROUCH_IDLE,
 	CHAR1_WALK_FWD,
 	CHAR1_WALK_BWD,
 	CHAR1_PREJUMP,
@@ -70,6 +71,7 @@ private:
 	Renderer* m_renderer;
 	const std::string m_filePaths[(int)ANIMATIONS::NONE] = {
 		"Resources/Sprites/Char1/Idle/",
+		"Resources/Sprites/Char1/CrouchIdle/",
 		"Resources/Sprites/Char1/WalkForward/",
 		"Resources/Sprites/Char1/WalkForward/",
 		"Resources/Sprites/Char1/Prejump/",

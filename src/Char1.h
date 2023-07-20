@@ -8,6 +8,7 @@
 enum class CHAR1_STATE {
     NONE = 0,
     IDLE,
+    CROUCH,
     HITSTUN,
     HITSTUN_AIR,
     WALK_FWD,
@@ -50,7 +51,7 @@ public:
     void land() final;
     bool canApplyDrag() const final;
     bool canBeDraggedByInertia() const final;
-    HitsVec getHits() final;
+    HitsVec getHits(bool allHits_ = false) final;
     HurtboxVec getHurtboxes() final;
     void applyHit(const HitEvent &hitEvent) final;
 
@@ -72,6 +73,7 @@ protected:
     bool m_usedAirDash = false;
 
     Collider m_standingHurtbox;
+    Collider m_crouchingHurtbox;
     Collider m_airHitstunHurtbox;
 
     int framesInState = 1;
