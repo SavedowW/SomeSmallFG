@@ -51,6 +51,7 @@ void Char1::loadAnimations(Application &application_)
     m_animations[ANIMATIONS::CHAR1_HITSTUN_LOW] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_HITSTUN_LOW, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_HITSTUN_MID] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_HITSTUN_MID, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_HITSTUN_HIGH] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_HITSTUN_HIGH, LOOPMETHOD::NOLOOP);
+    m_animations[ANIMATIONS::CHAR1_HITSTUN_AIR] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_HITSTUN_AIR, LOOPMETHOD::NOLOOP);
 
     m_currentAnimation = m_animations[ANIMATIONS::CHAR1_IDLE].get();
     m_currentAnimation->reset();
@@ -78,6 +79,7 @@ void Char1::initiate()
     m_gravity = gamedata::characters::char1::gravity;
 
     m_standingHurtbox = {-70, -375, 140, 375};
+    m_airHitstunHurtbox = {-350/2, -120, 350, 80};
 }
 
 void Char1::proceedCurrentState()
@@ -380,7 +382,10 @@ void Char1::land()
             switchToSoftLandingRecovery();
             break;
 
-        // TODO airborne hitstun to knd
+        // TODO: airborne hitstun to knd
+        case (CHAR1_STATE::HITSTUN_AIR):
+            switchToSoftLandingRecovery();
+            break;
 
         default:
             throw std::runtime_error("");
@@ -444,6 +449,8 @@ HurtboxVec Char1::getHurtboxes()
     }
 
     auto currentHBox = m_standingHurtbox;
+    if (m_currentState == CHAR1_STATE::HITSTUN_AIR)
+        currentHBox = m_airHitstunHurtbox;
 
     currentHBox.y += m_pos.y;
     if (m_ownOrientation == ORIENTATION::RIGHT)
@@ -462,26 +469,51 @@ void Char1::applyHit(const HitEvent &hitEvent)
 
     if (hitEvent.m_hittingPlayerId == m_playerId)
     {
-        m_appliedHits.insert(hitEvent.m_hitData.m_hitId);
-        m_currentCancelWindow = hitEvent.m_hitData.hitCancel;
-        if (!m_currentCancelWindow.second.empty())
-            m_cancelTimer.begin(m_currentCancelWindow.first.second + 1);
+        if (m_currentState != CHAR1_STATE::HITSTUN && m_currentState != CHAR1_STATE::HITSTUN)
+        {
+            m_appliedHits.insert(hitEvent.m_hitData.m_hitId);
+            m_currentCancelWindow = hitEvent.m_hitData.hitCancel;
+            if (!m_currentCancelWindow.second.empty())
+                m_cancelTimer.begin(m_currentCancelWindow.first.second + 1);
+        }
 
         m_inertia += getOwnHorDir() * -1 * hitEvent.m_hitData.ownPushbackOnHit;
     }
     else
     {
         std::cout << "Took hit!\n";
-        m_currentState = CHAR1_STATE::HITSTUN;
-        m_timer.begin(hitEvent.m_hitData.hitstun);
-        if (hitEvent.m_hitData.hitstunAnimation == HITSTUN_ANIMATION::HIGH)
-            m_currentAnimation = m_animations[ANIMATIONS::CHAR1_HITSTUN_HIGH].get();
-        else if (hitEvent.m_hitData.hitstunAnimation == HITSTUN_ANIMATION::MID)
-            m_currentAnimation = m_animations[ANIMATIONS::CHAR1_HITSTUN_MID].get();
+
+        if (m_airborne)
+        {
+            m_inertia = hitEvent.m_hitData.opponentImpulseOnAirHit.mulComponents(Vector2{getHorDirToEnemy().x * -1.0f, 1.0f});
+        }
         else
-            m_currentAnimation = m_animations[ANIMATIONS::CHAR1_HITSTUN_LOW].get();
+        {
+            m_inertia = hitEvent.m_hitData.opponentImpulseOnHit.mulComponents(Vector2{getHorDirToEnemy().x * -1.0f, 1.0f});
+            if (m_inertia.y < 0)
+                m_airborne = true;
+        }
+        
+
+        if (m_airborne)
+        {
+            m_currentState = CHAR1_STATE::HITSTUN_AIR;
+            m_currentAnimation = m_animations[ANIMATIONS::CHAR1_HITSTUN_AIR].get();
+        }
+        else
+        {
+            m_currentState = CHAR1_STATE::HITSTUN;
+            m_timer.begin(hitEvent.m_hitData.hitstun);
+            if (hitEvent.m_hitData.hitstunAnimation == HITSTUN_ANIMATION::HIGH)
+                m_currentAnimation = m_animations[ANIMATIONS::CHAR1_HITSTUN_HIGH].get();
+            else if (hitEvent.m_hitData.hitstunAnimation == HITSTUN_ANIMATION::MID)
+                m_currentAnimation = m_animations[ANIMATIONS::CHAR1_HITSTUN_MID].get();
+            else
+                m_currentAnimation = m_animations[ANIMATIONS::CHAR1_HITSTUN_LOW].get();
+        }
         m_currentAnimation->reset(0);
-        m_inertia += getHorDirToEnemy() * -1 * hitEvent.m_hitData.opponentPushbackOnHit;
         m_currentAction = nullptr;
+        m_currentCancelWindow = {};
+        m_cancelTimer.begin(0);
     }
 }

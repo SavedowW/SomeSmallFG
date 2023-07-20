@@ -72,6 +72,7 @@ protected:
     bool m_usedAirDash = false;
 
     Collider m_standingHurtbox;
+    Collider m_airHitstunHurtbox;
 
     int framesInState = 1;
     CHAR1_STATE lastState = CHAR1_STATE::IDLE;

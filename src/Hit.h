@@ -24,7 +24,8 @@ struct HitData
     float ownPushbackOnBlock = 0;
     float ownPushbackOnHit = 0;
     float opponentPushbackOnBlock = 0;
-    float opponentPushbackOnHit = 0;
+    Vector2<float> opponentImpulseOnHit = 0;
+    Vector2<float> opponentImpulseOnAirHit = 0;
 
     int blockstun = 0;
     int hitstun = 0;

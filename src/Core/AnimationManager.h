@@ -19,6 +19,7 @@ enum class ANIMATIONS
 	CHAR1_HITSTUN_LOW,
 	CHAR1_HITSTUN_MID,
 	CHAR1_HITSTUN_HIGH,
+	CHAR1_HITSTUN_AIR,
 	NONE
 };
 
@@ -80,7 +81,8 @@ private:
 		"Resources/Sprites/Char1/MoveC/",
 		"Resources/Sprites/Char1/LowHitstun/",
 		"Resources/Sprites/Char1/MidHitstun/",
-		"Resources/Sprites/Char1/HighHitstun/"
+		"Resources/Sprites/Char1/HighHitstun/",
+		"Resources/Sprites/Char1/AirHitstun/"
 	};
 	std::map<ANIMATIONS, std::weak_ptr<TextureArr>> m_textureArrPointers;
 

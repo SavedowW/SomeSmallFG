@@ -24,7 +24,8 @@ Hit hitgeneration::generate_char1_jab()
     hdata.m_hitId = 1;
     hdata.damage = 5.0f;
     hdata.opponentPushbackOnBlock = 7.0f;
-    hdata.opponentPushbackOnHit = 6.0f;
+    hdata.opponentImpulseOnHit = {6.0f, 0.0f};
+    hdata.opponentImpulseOnAirHit = {8.0f, -5.0f};
     hdata.ownPushbackOnBlock = 7.0f;
     hdata.ownPushbackOnHit = 6.0f;
     hdata.blockstun = 15;
@@ -48,7 +49,8 @@ Hit hitgeneration::generate_char1_moveC()
     hdata.m_hitId = 1;
     hdata.damage = 20.0f;
     hdata.opponentPushbackOnBlock = 7.0f;
-    hdata.opponentPushbackOnHit = 1.0f;
+    hdata.opponentImpulseOnHit = {10.0f, -35.0f};
+    hdata.opponentImpulseOnAirHit = {5.0f, -20.0f};
     hdata.ownPushbackOnBlock = 1.0f;
     hdata.ownPushbackOnHit = 1.0f;
     hdata.blockstun = 15;
