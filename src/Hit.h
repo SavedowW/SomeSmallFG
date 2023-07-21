@@ -34,7 +34,8 @@ struct HitData
     int chHitstop = 0;
     HITSTUN_ANIMATION hitstunAnimation = HITSTUN_ANIMATION::MID;
 
-    CancelWindow hitCancel;
+    CancelWindow cancelsOnHit;
+    CancelWindow cancelsOnBlock;
 };
 
 struct Hit : public HitData

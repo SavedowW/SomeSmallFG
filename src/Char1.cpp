@@ -503,9 +503,20 @@ HIT_RESULT Char1::applyHit(const HitEvent &hitEvent, HIT_RESULT hitRes_)
         if (m_currentState != CHAR1_STATE::HITSTUN && m_currentState != CHAR1_STATE::HITSTUN)
         {
             m_appliedHits.insert(hitEvent.m_hitData.m_hitId);
-            m_currentCancelWindow = hitEvent.m_hitData.hitCancel;
-            if (!m_currentCancelWindow.second.empty())
-                m_cancelTimer.begin(m_currentCancelWindow.first.second + 1);
+
+            if (hitRes_ == HIT_RESULT::HIT)
+            {
+                m_currentCancelWindow = hitEvent.m_hitData.cancelsOnHit;
+                if (!m_currentCancelWindow.second.empty())
+                    m_cancelTimer.begin(m_currentCancelWindow.first.second + 1);
+            }
+            else
+            {
+                m_currentCancelWindow = hitEvent.m_hitData.cancelsOnBlock;
+                if (!m_currentCancelWindow.second.empty())
+                    m_cancelTimer.begin(m_currentCancelWindow.first.second + 1);
+            }
+
         }
 
         if (hitRes_ == HIT_RESULT::HIT)

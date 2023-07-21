@@ -36,9 +36,13 @@ Hit hitgeneration::generate_char1_jab()
 
     Hit hit(hdata, {{50.0f, -300.0f, 120.0f, 30.0f}});
 
-    hit.hitCancel.first.first = 1;
-    hit.hitCancel.first.second = 8;
-    hit.hitCancel.second = {(int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::PREJUMP, (int)CHAR1_STATE::MOVE_A, (int)CHAR1_STATE::MOVE_C};
+    hit.cancelsOnHit.first.first = 1;
+    hit.cancelsOnHit.first.second = 8;
+    hit.cancelsOnHit.second = {(int)CHAR1_STATE::PREJUMP, (int)CHAR1_STATE::MOVE_A, (int)CHAR1_STATE::MOVE_C};
+
+    hit.cancelsOnBlock.first.first = 1;
+    hit.cancelsOnBlock.first.second = 8;
+    hit.cancelsOnBlock.second = {(int)CHAR1_STATE::MOVE_A, (int)CHAR1_STATE::MOVE_C};
 
     return hit;
 }
@@ -61,9 +65,9 @@ Hit hitgeneration::generate_char1_moveC()
 
     Hit hit(hdata, {{60.0f, -400.0f, 80.0f, 220.0f}});
 
-    hit.hitCancel.first.first = 1;
-    hit.hitCancel.first.second = 5;
-    hit.hitCancel.second = {};
+    hit.cancelsOnHit.first.first = 1;
+    hit.cancelsOnHit.first.second = 1;
+    hit.cancelsOnHit.second = {};
 
     return hit;
 }
