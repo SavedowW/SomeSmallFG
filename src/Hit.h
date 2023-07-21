@@ -9,7 +9,7 @@
 
 using FrameWindow = std::pair<int, int>;
 
-enum class HIT_RESULT {HIT, BLOCK_HIGH, BLOCK_LOW}; // Potentially more options with guard points, parries, etc
+enum class HIT_RESULT {HIT, BLOCK_HIGH, BLOCK_LOW, BLOCK_AIR, NONE}; // Potentially more options with guard points, parries, etc
 enum class HITSTUN_ANIMATION {HIGH, MID, LOW};
 
 // Integers in set are values of character-specific state ENUMs

@@ -133,4 +133,10 @@ const Action<CharState_t, CharData> *ActionResolver<CharState_t, CharData>::upda
     return availableAction;
 }
 
+template <typename CharState_t, typename CharData>
+Vector2<int> ActionResolver<CharState_t, CharData>::getCurrentInputDir() const
+{
+    return m_currentInput.dir;
+}
+
 template ActionResolver<CHAR1_STATE, Char1Data>;

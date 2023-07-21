@@ -8,6 +8,7 @@
 #include "AnimationManager.h"
 #include "ActionResolver.h"
 #include "FrameTimer.h"
+#include "BlockHandler.h"
 
 struct CharacterUpdateRes
 {
@@ -61,11 +62,12 @@ public:
     virtual void land() = 0;
     virtual HitsVec getHits(bool allHits_ = false) = 0;
     virtual HurtboxVec getHurtboxes() = 0;
+    virtual void updateBlockState() = 0;
 
     virtual void updateOwnOrientation();
     virtual void updatePosition();
 
-    virtual void applyHit(const HitEvent &hitEvent) = 0;
+    virtual HIT_RESULT applyHit(const HitEvent &hitEvent_, HIT_RESULT hitRes_ = HIT_RESULT::NONE) = 0;
     virtual void applyHitstop(int hitstopLength);
 
     virtual bool canApplyDrag() const;
@@ -87,6 +89,8 @@ protected:
     Collider m_pushbox;
     Character *m_otherCharacter;
     int m_playerId;
+
+    BlockHandler m_blockHandler;
 
     std::map<ANIMATIONS, std::unique_ptr<Animation>> m_animations;
     Animation *m_currentAnimation;

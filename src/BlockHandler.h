@@ -18,6 +18,7 @@ class BlockHandler
 public:
     BlockHandler();
     void update(const Vector2<int> &inputDir_, bool airborne_, const Vector2<float> &vecToEnemy_, bool inBlockStun_, bool canBlock_);
+    BLOCK_STATE getBlockState() const;
 
 private:
     BLOCK_STATE m_currentBlockState;

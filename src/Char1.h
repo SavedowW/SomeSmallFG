@@ -20,6 +20,9 @@ enum class CHAR1_STATE {
     GROUND_DASH_RECOVERY,
     MOVE_A,
     MOVE_C,
+    BLOCKSTUN_STANDING,
+    BLOCKSTUN_CROUCHING,
+    BLOCKSTUN_AIR
     };
 
 struct Char1Data : public CharData<CHAR1_STATE>
@@ -53,7 +56,8 @@ public:
     bool canBeDraggedByInertia() const final;
     HitsVec getHits(bool allHits_ = false) final;
     HurtboxVec getHurtboxes() final;
-    void applyHit(const HitEvent &hitEvent) final;
+    HIT_RESULT applyHit(const HitEvent &hitEvent, HIT_RESULT hitRes_ = HIT_RESULT::NONE) final;
+    void updateBlockState() final;
 
 protected:
     void switchToIdle();
@@ -81,6 +85,8 @@ protected:
 
     CancelWindow m_currentCancelWindow;
     FrameTimer m_cancelTimer;
+
+
 };
 
 #endif

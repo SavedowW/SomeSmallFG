@@ -54,6 +54,8 @@ void Char1::loadAnimations(Application &application_)
     m_animations[ANIMATIONS::CHAR1_HITSTUN_MID] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_HITSTUN_MID, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_HITSTUN_HIGH] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_HITSTUN_HIGH, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_HITSTUN_AIR] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_HITSTUN_AIR, LOOPMETHOD::NOLOOP);
+    m_animations[ANIMATIONS::CHAR1_BLOCKSTUN_STANDING] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_BLOCKSTUN_STANDING, LOOPMETHOD::NOLOOP);
+    m_animations[ANIMATIONS::CHAR1_BLOCKSTUN_CROUCHING] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_BLOCKSTUN_CROUCHING, LOOPMETHOD::NOLOOP);
 
     m_currentAnimation = m_animations[ANIMATIONS::CHAR1_IDLE].get();
     m_currentAnimation->reset();
@@ -111,6 +113,10 @@ void Char1::proceedCurrentState()
                 case (CHAR1_STATE::GROUND_DASH_RECOVERY):
                     [[fallthrough]];
                 case (CHAR1_STATE::HITSTUN):
+                    [[fallthrough]];
+                case (CHAR1_STATE::BLOCKSTUN_CROUCHING):
+                    [[fallthrough]];
+                case (CHAR1_STATE::BLOCKSTUN_STANDING):
                     [[fallthrough]];
                 case (CHAR1_STATE::SOFT_LANDING_RECOVERY):
                     switchToIdle();
@@ -260,6 +266,8 @@ void Char1::updateState()
                 m_currentAnimation->reset();
                 m_currentAction = resolverRes;
                 m_appliedHits.clear();
+                m_currentAction = resolverRes;
+                m_currentCancelWindow = {};
                 break;
             }
 
@@ -279,6 +287,8 @@ void Char1::updateState()
                 m_currentAnimation->reset();
                 m_currentAction = resolverRes;
                 m_appliedHits.clear();
+                m_currentAction = resolverRes;
+                m_currentCancelWindow = {};
                 break;
             }
 
@@ -460,12 +470,15 @@ HurtboxVec Char1::getHurtboxes()
     m_currentState == CHAR1_STATE::CROUCH ||
     m_currentState == CHAR1_STATE::HITSTUN ||
     m_currentState == CHAR1_STATE::HITSTUN_AIR ||
-    m_currentState == CHAR1_STATE::SOFT_LANDING_RECOVERY)
+    m_currentState == CHAR1_STATE::SOFT_LANDING_RECOVERY ||
+    m_currentState == CHAR1_STATE::BLOCKSTUN_CROUCHING ||
+    m_currentState == CHAR1_STATE::BLOCKSTUN_STANDING ||
+    m_currentState == CHAR1_STATE::BLOCKSTUN_AIR)
     {
         auto currentHBox = m_standingHurtbox;
-        if (m_currentState == CHAR1_STATE::HITSTUN_AIR)
+        if (m_currentState == CHAR1_STATE::HITSTUN_AIR || m_currentState == CHAR1_STATE::BLOCKSTUN_AIR)
             currentHBox = m_airHitstunHurtbox;
-        else if (m_currentState == CHAR1_STATE::CROUCH)
+        else if (m_currentState == CHAR1_STATE::CROUCH || m_currentState == CHAR1_STATE::BLOCKSTUN_CROUCHING)
             currentHBox = m_crouchingHurtbox;
 
         currentHBox.y += m_pos.y;
@@ -490,7 +503,7 @@ HurtboxVec Char1::getHurtboxes()
 
 }
 
-void Char1::applyHit(const HitEvent &hitEvent)
+HIT_RESULT Char1::applyHit(const HitEvent &hitEvent, HIT_RESULT hitRes_)
 {
     if (m_playerId == 1)
         std::cout << "";
@@ -506,43 +519,107 @@ void Char1::applyHit(const HitEvent &hitEvent)
                 m_cancelTimer.begin(m_currentCancelWindow.first.second + 1);
         }
 
-        m_inertia += getOwnHorDir() * -1 * hitEvent.m_hitData.ownPushbackOnHit;
+        if (hitRes_ == HIT_RESULT::HIT)
+        {
+            m_inertia += getOwnHorDir() * -1 * hitEvent.m_hitData.ownPushbackOnHit;
+        }
+        else
+        {
+            m_inertia += getOwnHorDir() * -1 * hitEvent.m_hitData.ownPushbackOnBlock;
+        }
+
+        return HIT_RESULT::NONE;
     }
     else
     {
-        std::cout << "Took hit!\n";
+        auto blockState = m_blockHandler.getBlockState();
+        if (blockState == BLOCK_STATE::NONE)
+        {
+            std::cout << "Took hit!\n";
 
-        if (m_airborne)
-        {
-            m_inertia = hitEvent.m_hitData.opponentImpulseOnAirHit.mulComponents(Vector2{getHorDirToEnemy().x * -1.0f, 1.0f});
-        }
-        else
-        {
-            m_inertia = hitEvent.m_hitData.opponentImpulseOnHit.mulComponents(Vector2{getHorDirToEnemy().x * -1.0f, 1.0f});
-            if (m_inertia.y < 0)
-                m_airborne = true;
-        }
-        
-
-        if (m_airborne)
-        {
-            m_currentState = CHAR1_STATE::HITSTUN_AIR;
-            m_currentAnimation = m_animations[ANIMATIONS::CHAR1_HITSTUN_AIR].get();
-        }
-        else
-        {
-            m_currentState = CHAR1_STATE::HITSTUN;
-            m_timer.begin(hitEvent.m_hitData.hitstun);
-            if (hitEvent.m_hitData.hitstunAnimation == HITSTUN_ANIMATION::HIGH)
-                m_currentAnimation = m_animations[ANIMATIONS::CHAR1_HITSTUN_HIGH].get();
-            else if (hitEvent.m_hitData.hitstunAnimation == HITSTUN_ANIMATION::MID)
-                m_currentAnimation = m_animations[ANIMATIONS::CHAR1_HITSTUN_MID].get();
+            if (m_airborne)
+            {
+                m_inertia = hitEvent.m_hitData.opponentImpulseOnAirHit.mulComponents(Vector2{getHorDirToEnemy().x * -1.0f, 1.0f});
+            }
             else
-                m_currentAnimation = m_animations[ANIMATIONS::CHAR1_HITSTUN_LOW].get();
+            {
+                m_inertia = hitEvent.m_hitData.opponentImpulseOnHit.mulComponents(Vector2{getHorDirToEnemy().x * -1.0f, 1.0f});
+                if (m_inertia.y < 0)
+                    m_airborne = true;
+            }
+
+
+            if (m_airborne)
+            {
+                m_currentState = CHAR1_STATE::HITSTUN_AIR;
+                m_currentAnimation = m_animations[ANIMATIONS::CHAR1_HITSTUN_AIR].get();
+            }
+            else
+            {
+                m_currentState = CHAR1_STATE::HITSTUN;
+                m_timer.begin(hitEvent.m_hitData.hitstun);
+                if (hitEvent.m_hitData.hitstunAnimation == HITSTUN_ANIMATION::HIGH)
+                    m_currentAnimation = m_animations[ANIMATIONS::CHAR1_HITSTUN_HIGH].get();
+                else if (hitEvent.m_hitData.hitstunAnimation == HITSTUN_ANIMATION::MID)
+                    m_currentAnimation = m_animations[ANIMATIONS::CHAR1_HITSTUN_MID].get();
+                else
+                    m_currentAnimation = m_animations[ANIMATIONS::CHAR1_HITSTUN_LOW].get();
+            }
+            m_currentAnimation->reset(0);
+            m_currentAction = nullptr;
+            m_currentCancelWindow = {};
+            m_cancelTimer.begin(0);
+
+            return HIT_RESULT::HIT;
         }
-        m_currentAnimation->reset(0);
-        m_currentAction = nullptr;
-        m_currentCancelWindow = {};
-        m_cancelTimer.begin(0);
+        else
+        {
+            turnVelocityToInertia();
+            m_inertia += getHorDirToEnemy() * -1.0f * hitEvent.m_hitData.opponentPushbackOnBlock;
+            m_timer.begin(hitEvent.m_hitData.blockstun);
+            HIT_RESULT res = HIT_RESULT::BLOCK_HIGH;
+
+            switch (blockState)
+            {
+                case (BLOCK_STATE::AUTO):
+                    [[fallthrough]];
+                case (BLOCK_STATE::HIGH):
+                    m_currentAnimation = m_animations[ANIMATIONS::CHAR1_BLOCKSTUN_STANDING].get();
+                    m_currentState = CHAR1_STATE::BLOCKSTUN_STANDING;
+                    res = HIT_RESULT::BLOCK_HIGH;
+                    break;
+
+                case (BLOCK_STATE::LOW):
+                    m_currentAnimation = m_animations[ANIMATIONS::CHAR1_BLOCKSTUN_CROUCHING].get();
+                    m_currentState = CHAR1_STATE::BLOCKSTUN_CROUCHING;
+                    res = HIT_RESULT::BLOCK_LOW;
+                    break;
+
+                case (BLOCK_STATE::AIR):
+                    m_currentAnimation = m_animations[ANIMATIONS::CHAR1_BLOCKSTUN_STANDING].get();
+                    m_currentState = CHAR1_STATE::BLOCKSTUN_AIR;
+                    res = HIT_RESULT::BLOCK_AIR;
+                    break;
+            }
+
+            m_currentAnimation->reset(0);
+            m_currentAction = nullptr;
+
+            return res;
+        }
     }
+}
+
+void Char1::updateBlockState()
+{
+    bool inBlockstun = (m_currentState == CHAR1_STATE::BLOCKSTUN_STANDING ||
+                        m_currentState == CHAR1_STATE::BLOCKSTUN_CROUCHING ||
+                        m_currentState == CHAR1_STATE::BLOCKSTUN_AIR);
+
+    bool canBlock = !(m_currentState == CHAR1_STATE::HITSTUN ||
+                    m_currentState == CHAR1_STATE::HITSTUN_AIR ||
+                    m_currentState == CHAR1_STATE::MOVE_A ||
+                    m_currentState == CHAR1_STATE::MOVE_C);
+
+    m_blockHandler.update(m_actionResolver.getCurrentInputDir(), m_airborne, getHorDirToEnemy(), inBlockstun, canBlock);
 }

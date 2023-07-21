@@ -20,6 +20,7 @@ InputState.cpp
 Actions.cpp
 ActionResolver.cpp
 Hit.cpp
+BlockHandler.cpp
 )
 
 set(INCLUDE_DIRS

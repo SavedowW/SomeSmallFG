@@ -19,6 +19,8 @@ public:
     void unsubscribe_all();
     void receiveInput(EVENTS event_, const float scale_) override;
 
+    Vector2<int> getCurrentInputDir() const;
+
     virtual void createActions() = 0;
 
     const Action<CharState_t, CharData> *update(Char1Data charData);

@@ -190,6 +190,11 @@ protected:
             m_characters[1]->setPos(m_characters[1]->getPos() + directionToPush[1] * rangeToPush[1]);
         }
 
+
+        // Update block state
+        for (int pid = 0; pid <= 1; ++pid)
+            m_characters[pid]->updateBlockState();
+
         // Check for hitbox interactions
         //auto hits1 = m_characters[0]->getHits();
         //auto hits2 = m_characters[1]->getHits();
@@ -215,8 +220,8 @@ protected:
                             HitEvent ev;
                             ev.m_hittingPlayerId = pid + 1;
                             ev.m_hitData = hits[pid][ihit].getHitData();
-                            m_characters[pid]->applyHit(ev);
-                            m_characters[p2id]->applyHit(ev);
+                            auto hitres = m_characters[p2id]->applyHit(ev);
+                            m_characters[pid]->applyHit(ev, hitres);
                         }
                     }
                 }

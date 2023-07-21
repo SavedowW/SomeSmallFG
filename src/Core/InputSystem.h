@@ -66,6 +66,7 @@ private:
 		{SDLK_i, EVENTS::A_P1},
 		{SDLK_z, EVENTS::A_P2},
 		{SDLK_o, EVENTS::B_P1},
+		{SDLK_x, EVENTS::C_P2},
 		{SDLK_l, EVENTS::C_P1},
 		{SDLK_k, EVENTS::S_P1}
 	};

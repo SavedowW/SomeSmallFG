@@ -592,9 +592,9 @@ Action_char1_jab::Action_char1_jab() :
 {
 }
 
-// JAB ACTION
+// MOVE C ACTION
 Action_char1_move_C::Action_char1_move_C() :
-    Action_char1_attack(CHAR1_STATE::MOVE_C, std::make_unique<InputComparatorCPress>(), 30,
+    Action_char1_attack(CHAR1_STATE::MOVE_C, std::make_unique<InputComparatorCPress>(), 34,
     {
         {
             {13, 16},
@@ -603,7 +603,7 @@ Action_char1_move_C::Action_char1_move_C() :
     },
     {
         {
-            {1, 30},
+            {1, 34},
             {-70, -200, 140, 200}
         },
         {
@@ -611,7 +611,7 @@ Action_char1_move_C::Action_char1_move_C() :
             {-70.0f, -300.0f, 140.0f, 100.0f}
         },
         {
-            {13, 30},
+            {13, 34},
             {-70.0f, -300.0f, 140.0f, 100.0f}
         },
         {
@@ -637,7 +637,7 @@ Action_char1_move_C::Action_char1_move_C() :
             {6.0f, 0.0f}
         },
         {
-            {23, 30},
+            {23, 34},
             {-1.5f, 0.0f}
         }
     })

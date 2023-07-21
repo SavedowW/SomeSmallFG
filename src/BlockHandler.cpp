@@ -36,16 +36,20 @@ void BlockHandler::update(const Vector2<int> &inputDir_, bool airborne_, const V
     if (!airborne_)
     {
         if (simplifiedDir == Vector2{-1, 0})
-            m_currentBlockState == BLOCK_STATE::HIGH;
+            m_currentBlockState = BLOCK_STATE::HIGH;
         else if (simplifiedDir == Vector2{-1, 1})
-            m_currentBlockState == BLOCK_STATE::LOW;
+            m_currentBlockState = BLOCK_STATE::LOW;
     }
     else
     {
         if (simplifiedDir.x == -1)
         {
-            m_currentBlockState == BLOCK_STATE::AIR;
+            m_currentBlockState = BLOCK_STATE::AIR;
         }
     }
 }
 
+BLOCK_STATE BlockHandler::getBlockState() const
+{
+    return m_currentBlockState;
+}
