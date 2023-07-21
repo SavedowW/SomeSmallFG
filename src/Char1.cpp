@@ -89,11 +89,7 @@ void Char1::initiate()
 
 void Char1::proceedCurrentState()
 {
-    if (m_inHitstop)
-    {
-        // TODO: 
-    }
-    else
+    if (!m_inHitstop)
     {
         auto timerRes = m_timer.update();
 
@@ -141,11 +137,7 @@ void Char1::updateState()
     {
         m_cancelTimer.update();
         int timer = m_cancelTimer.getCurrentFrame();
-        if (timer >= m_currentCancelWindow.first.first && timer <= m_currentCancelWindow.first.second)
-        {
-            // TODO
-        }
-        else if (timer > m_currentCancelWindow.first.second)
+        if (timer > m_currentCancelWindow.first.second)
         {
             m_cancelTimer.begin(0);
             m_currentCancelWindow = {};
@@ -532,6 +524,7 @@ HIT_RESULT Char1::applyHit(const HitEvent &hitEvent, HIT_RESULT hitRes_)
         auto blockState = m_blockHandler.getBlockState();
         if (blockState == BLOCK_STATE::NONE)
         {
+            m_velocity = {0.0f, 0.0f};
             std::cout << "Took hit!\n";
 
             if (m_airborne)

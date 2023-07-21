@@ -43,7 +43,6 @@ Hit hitgeneration::generate_char1_jab()
     return hit;
 }
 
-// TODO: when hits airborne opponent not during hitstun sends them way too high
 Hit hitgeneration::generate_char1_moveC()
 {
     HitData hdata;
