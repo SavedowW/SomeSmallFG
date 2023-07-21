@@ -91,8 +91,7 @@ void Char1::proceedCurrentState()
 {
     if (m_inHitstop)
     {
-        if (m_playerId == 1)
-            std::cout << "In hitstop!\n";
+        // TODO: 
     }
     else
     {
@@ -135,7 +134,6 @@ void Char1::updateState()
     }
     if (m_playerId == 1)
     {
-        std::cout << "(" << framesInState << "): " << (int)m_currentState << " [" << m_airborne << "]" << std::endl;
         framesInState++;
     }
 
@@ -145,8 +143,7 @@ void Char1::updateState()
         int timer = m_cancelTimer.getCurrentFrame();
         if (timer >= m_currentCancelWindow.first.first && timer <= m_currentCancelWindow.first.second)
         {
-            if (m_playerId == 1)
-                std::cout << "CANCELLABLE\n";
+            // TODO
         }
         else if (timer > m_currentCancelWindow.first.second)
         {
@@ -622,4 +619,115 @@ void Char1::updateBlockState()
                     m_currentState == CHAR1_STATE::MOVE_C);
 
     m_blockHandler.update(m_actionResolver.getCurrentInputDir(), m_airborne, getHorDirToEnemy(), inBlockstun, canBlock);
+}
+
+std::string Char1::CharStateData() const
+{
+    std::string res;
+    res += "P" + std::to_string(m_playerId) + ": ";
+
+    std::string stateName = "";
+    switch (m_currentState)
+    {
+        case (CHAR1_STATE::IDLE):
+            stateName = "IDLE";
+            break;
+        
+        case (CHAR1_STATE::CROUCH):
+            stateName = "CROUCH";
+            break;
+
+        case (CHAR1_STATE::HITSTUN):
+            stateName = "HITSTUN";
+            break;
+
+        case (CHAR1_STATE::HITSTUN_AIR):
+            stateName = "HITSTUN_AIR";
+            break;
+
+        case (CHAR1_STATE::WALK_FWD):
+            stateName = "WALK_FWD";
+            break;
+
+        case (CHAR1_STATE::WALK_BWD):
+            stateName = "WALK_BWD";
+            break;
+
+        case (CHAR1_STATE::PREJUMP):
+            stateName = "PREJUMP";
+            break;
+        
+        case (CHAR1_STATE::JUMP):
+            stateName = "JUMP";
+            break;
+
+        case (CHAR1_STATE::SOFT_LANDING_RECOVERY):
+            stateName = "SOFT_LANDING_RECOVERY";
+            break;
+
+        case (CHAR1_STATE::GROUND_DASH):
+            stateName = "GROUND_DASH";
+            break;
+
+        case (CHAR1_STATE::GROUND_DASH_RECOVERY):
+            stateName = "GROUND_DASH_RECOVERY";
+            break;
+        
+        case (CHAR1_STATE::MOVE_A):
+            stateName = "MOVE_A";
+            break;
+
+        case (CHAR1_STATE::MOVE_C):
+            stateName = "MOVE_C";
+            break;
+        
+        case (CHAR1_STATE::BLOCKSTUN_STANDING):
+            stateName = "BLOCKSTUN_STANDING";
+            break;
+
+        case (CHAR1_STATE::BLOCKSTUN_CROUCHING):
+            stateName = "BLOCKSTUN_CROUCHING";
+            break;
+        
+        case (CHAR1_STATE::BLOCKSTUN_AIR):
+            stateName = "BLOCKSTUN_AIR";
+            break;
+
+        default:
+            stateName = "OTHER_STATE";
+    }
+
+    res += "(" + std::to_string(framesInState) + ") ";
+    res += stateName;
+
+    if (m_inHitstop)
+        res += "[##] ";
+    else
+        res += "[>>] ";
+    
+    if (m_airborne)
+        res += "[^] ";
+    else
+        res += "[_] ";
+
+    bool isActive = isInActiveFrames();
+    if (isActive)
+        res += "[!] ";
+    else
+        res += "[-] ";
+
+
+    return res;
+}
+
+bool Char1::isInActiveFrames() const
+{
+    if (m_currentState == CHAR1_STATE::MOVE_A ||
+    m_currentState == CHAR1_STATE::MOVE_C)
+    {
+        auto atkAction = dynamic_cast<const Action_attack<CHAR1_STATE, Char1Data>*>(m_currentAction);
+        return atkAction->getCurrentHits(m_timer.getCurrentFrame() + 1, m_pos, m_ownOrientation).size();
+    }
+
+    return false;
 }

@@ -64,6 +64,8 @@ public:
     virtual HurtboxVec getHurtboxes() = 0;
     virtual void updateBlockState() = 0;
 
+    virtual std::string CharStateData() const = 0;
+
     virtual void updateOwnOrientation();
     virtual void updatePosition();
 

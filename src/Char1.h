@@ -59,12 +59,15 @@ public:
     HIT_RESULT applyHit(const HitEvent &hitEvent, HIT_RESULT hitRes_ = HIT_RESULT::NONE) final;
     void updateBlockState() final;
 
+    std::string CharStateData() const final;
+
 protected:
     void switchToIdle();
     void jumpUsingAction();
     void jumpUsingAirjumpAction();
     void switchToSoftLandingRecovery();
     Char1Data generateCharData();
+    bool isInActiveFrames() const;
 
     std::set<int> m_appliedHits;
 

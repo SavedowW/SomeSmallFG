@@ -227,6 +227,8 @@ protected:
                 }
             }
         }
+
+        std::cout << m_characters[0]->CharStateData() << " | " << m_characters[1]->CharStateData() << std::endl;
     }
 
     void draw() override
