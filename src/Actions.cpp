@@ -588,7 +588,38 @@ Action_char1_jab::Action_char1_jab() :
         }
     },
     {})
-    //{ { 1.0f, {{0.0f, 0.0f, 10.0f, 10.0f}}} })
+{
+}
+
+// MOVE B ACTION
+Action_char1_move_B::Action_char1_move_B() :
+    Action_char1_attack(CHAR1_STATE::MOVE_B, std::make_unique<InputComparatorBPress>(), 22,
+    {
+        {
+            {7, 10},
+            hitgeneration::generate_char1_moveB()
+        }
+    },
+    {
+        {
+            {1, 22},
+            {-70, -375, 140, 375}
+        },
+        {
+            {7, 19},
+            {50.0f, -275.0f, 175.0f, 80.0f}
+        }
+    },
+    {
+        {
+            {1, 6},
+            {3.5f, 0.0f}
+        },
+        {
+            {20, 22},
+            {-2.0f, 0.0f}
+        }
+    })
 {
 }
 

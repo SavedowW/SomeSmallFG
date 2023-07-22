@@ -21,6 +21,9 @@ struct HitData
     float damage = 0;
     float chipDamage = 0;
 
+    // TODO: change pushback logic
+    // There should be no "own pushback"
+    // Character should be pushed back only if he pushes opponent into the corner
     float ownPushbackOnBlock = 0;
     float ownPushbackOnHit = 0;
     float opponentPushbackOnBlock = 0;
@@ -64,6 +67,7 @@ struct HitEvent
 namespace hitgeneration
 {
     Hit generate_char1_jab();
+    Hit generate_char1_moveB();
     Hit generate_char1_moveC();
 }
 

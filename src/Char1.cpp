@@ -13,6 +13,7 @@ ActionResolver_Char1::ActionResolver_Char1(InputSystem *input_) :
 void ActionResolver_Char1::createActions()
 {
     m_actions.push_back(std::make_unique<Action_char1_move_C>());
+    m_actions.push_back(std::make_unique<Action_char1_move_B>());
     m_actions.push_back(std::make_unique<Action_char1_jab>());
     m_actions.push_back(std::make_unique<Action_char1_ground_dash>());
     m_actions.push_back(std::make_unique<Action_char1_backward_doublejump>());
@@ -49,6 +50,7 @@ void Char1::loadAnimations(Application &application_)
     m_animations[ANIMATIONS::CHAR1_GROUND_DASH] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_GROUND_DASH, LOOPMETHOD::JUMP_LOOP);
     m_animations[ANIMATIONS::CHAR1_GROUND_DASH_RECOVERY] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_GROUND_DASH_RECOVERY);
     m_animations[ANIMATIONS::CHAR1_MOVE_A] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_MOVE_A, LOOPMETHOD::NOLOOP);
+    m_animations[ANIMATIONS::CHAR1_MOVE_B] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_MOVE_B, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_MOVE_C] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_MOVE_C, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_HITSTUN_LOW] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_HITSTUN_LOW, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_HITSTUN_MID] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_HITSTUN_MID, LOOPMETHOD::NOLOOP);
@@ -101,7 +103,10 @@ void Char1::proceedCurrentState()
                     jumpUsingAction();
                     break;
 
+                // TODO: universalize this logic
                 case (CHAR1_STATE::MOVE_A):
+                    [[fallthrough]];
+                case (CHAR1_STATE::MOVE_B):
                     [[fallthrough]];
                 case (CHAR1_STATE::MOVE_C):
                     [[fallthrough]];
@@ -281,6 +286,27 @@ void Char1::updateState()
                 break;
             }
 
+            case (CHAR1_STATE::MOVE_B):
+            {
+                if (m_playerId == 1)
+                    std::cout << "Switch state to normal B\n";
+
+                if (m_currentState == CHAR1_STATE::SOFT_LANDING_RECOVERY)
+                    updateOwnOrientation();
+                
+                auto atkAction = dynamic_cast<const Action_attack<CHAR1_STATE, Char1Data>*>(resolverRes);
+                m_currentState = resolverRes->actionState;
+                m_timer.begin(atkAction->m_fullDuration);
+                turnVelocityToInertia();
+                m_currentAnimation = m_animations[ANIMATIONS::CHAR1_MOVE_B].get();
+                m_currentAnimation->reset();
+                m_currentAction = resolverRes;
+                m_appliedHits.clear();
+                m_currentAction = resolverRes;
+                m_currentCancelWindow = {};
+                break;
+            }
+
             default:
                 throw std::runtime_error("Undefined state conversion");
                 break;
@@ -299,7 +325,8 @@ void Char1::updateState()
         auto newXVelocity = (abs(m_velocity.x) + dashAction->m_accel);
         m_velocity.x = getOwnHorDir().x * std::min(abs(newXVelocity), abs(dashAction->m_maxspd));
     }
-    else if (m_currentState == CHAR1_STATE::MOVE_C)
+    // TODO: make universal solution (many moves can have built-in movement)
+    else if (m_currentState == CHAR1_STATE::MOVE_C || m_currentState == CHAR1_STATE::MOVE_B)
     {
         auto atkAction = dynamic_cast<const Action_char1_attack*>(m_currentAction);
         auto newVelocity = atkAction->getCurrentVelocity(m_timer.getCurrentFrame());
@@ -435,7 +462,8 @@ bool Char1::canBeDraggedByInertia() const
 
 HitsVec Char1::getHits(bool allHits_)
 {
-    if (m_currentState == CHAR1_STATE::MOVE_A || m_currentState == CHAR1_STATE::MOVE_C)
+    // TODO: make it better
+    if (m_currentState == CHAR1_STATE::MOVE_A || m_currentState == CHAR1_STATE::MOVE_B || m_currentState == CHAR1_STATE::MOVE_C)
     {
         auto hits = dynamic_cast<const Action_attack<CHAR1_STATE, Char1Data>*>(m_currentAction)->getCurrentHits(m_timer.getCurrentFrame() + 1, m_pos, m_ownOrientation);
         int i = 0;
@@ -681,6 +709,10 @@ std::string Char1::CharStateData() const
             stateName = "MOVE_A";
             break;
 
+        case (CHAR1_STATE::MOVE_B):
+            stateName = "MOVE_B";
+            break;
+
         case (CHAR1_STATE::MOVE_C):
             stateName = "MOVE_C";
             break;
@@ -727,6 +759,7 @@ std::string Char1::CharStateData() const
 bool Char1::isInActiveFrames() const
 {
     if (m_currentState == CHAR1_STATE::MOVE_A ||
+    m_currentState == CHAR1_STATE::MOVE_B ||
     m_currentState == CHAR1_STATE::MOVE_C)
     {
         auto atkAction = dynamic_cast<const Action_attack<CHAR1_STATE, Char1Data>*>(m_currentAction);

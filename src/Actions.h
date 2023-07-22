@@ -216,6 +216,12 @@ public:
     Action_char1_jab();
 };
 
+class Action_char1_move_B : public Action_char1_attack
+{
+public:
+    Action_char1_move_B();
+};
+
 class Action_char1_move_C : public Action_char1_attack
 {
 public:
