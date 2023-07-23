@@ -14,6 +14,17 @@ Application::Application()
 		throw std::runtime_error("Cannot initialize SDL image");
 	}
 
+    if (TTF_Init() == -1)
+	{
+		std::cout << "TTF initialization error: " << TTF_GetError() << std::endl;
+	}
+
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 0, 512))
+	{
+		std::cout << "MIX ititialization error: " << Mix_GetError() << std::endl;
+	}
+
+
     m_appRoot = getBasePath();
 
     m_window = std::make_unique<Window>(Vector2{1600.0f, 900.0f}, "GameName");
@@ -30,6 +41,8 @@ Application::~Application()
     m_inputSystem.reset();
     m_renderer.reset();
     m_window.reset();
+    Mix_Quit();
+    TTF_Quit();
     IMG_Quit();
 	SDL_Quit();
 }
