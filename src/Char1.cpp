@@ -27,6 +27,7 @@ void ActionResolver_Char1::createActions()
     m_actions.push_back(std::make_unique<Action_char1_ground_dash_recovery>());
     m_actions.push_back(std::make_unique<Action_char1_crouch>());
     m_actions.push_back(std::make_unique<Action_char1_idle>());
+    m_actions.push_back(std::make_unique<Action_char1_soft_landing_recovery>());
     
 }
 
@@ -104,6 +105,8 @@ void Char1::proceedCurrentState()
                     break;
 
                 // TODO: universalize this logic
+                case (CHAR1_STATE::SOFT_LANDING_RECOVERY):
+                    [[fallthrough]];
                 case (CHAR1_STATE::MOVE_A):
                     [[fallthrough]];
                 case (CHAR1_STATE::MOVE_B):
@@ -111,14 +114,15 @@ void Char1::proceedCurrentState()
                 case (CHAR1_STATE::MOVE_C):
                     [[fallthrough]];
                 case (CHAR1_STATE::GROUND_DASH_RECOVERY):
-                    [[fallthrough]];
+                    m_currentAction->outdated(*this);
+                    break;
+
+                
                 case (CHAR1_STATE::HITSTUN):
                     [[fallthrough]];
                 case (CHAR1_STATE::BLOCKSTUN_CROUCHING):
                     [[fallthrough]];
-                case (CHAR1_STATE::BLOCKSTUN_STANDING):
-                    [[fallthrough]];
-                case (CHAR1_STATE::SOFT_LANDING_RECOVERY):
+                case (CHAR1_STATE::BLOCKSTUN_STANDING):                
                     switchToIdle();
                     break;
             }
@@ -153,164 +157,7 @@ void Char1::updateState()
 
     if (resolverRes)
     {
-        switch (resolverRes->actionState)
-        {
-            case (CHAR1_STATE::NONE):
-                break;
-
-            case (CHAR1_STATE::IDLE):
-                if (m_playerId == 1)
-                    std::cout << "Switch state to IDLE\n";
-                switchToIdle();
-                break;
-
-            case (CHAR1_STATE::CROUCH):
-                if (m_playerId == 1)
-                    std::cout << "Switch state to CROUCH\n";
-                m_currentState = resolverRes->actionState;
-                m_velocity = {0.0f, 0.0f};
-                m_currentAnimation = m_animations[ANIMATIONS::CHAR1_CROUCH_IDLE].get();
-                m_currentAnimation->reset();
-                m_currentAction = resolverRes;
-                break;
-
-            case (CHAR1_STATE::WALK_FWD):
-                if (m_playerId == 1)
-                    std::cout << "Switch state to WALK_FWD\n";
-                m_currentState = resolverRes->actionState;
-                m_currentAnimation = m_animations[ANIMATIONS::CHAR1_WALK_FWD].get();
-                m_currentAnimation->reset();
-                m_velocity = getHorDirToEnemy().mulComponents(Vector2{6.0f, 0.0f});
-                m_currentAction = resolverRes;
-                break;
-
-            case (CHAR1_STATE::WALK_BWD):
-                if (m_playerId == 1)
-                    std::cout << "Switch state to WALK_BWD\n";
-                m_currentState = resolverRes->actionState;
-                m_currentAnimation = m_animations[ANIMATIONS::CHAR1_WALK_BWD].get();
-                m_currentAnimation->reset(65, -1);
-                m_velocity = getHorDirToEnemy().mulComponents(Vector2{-6.0f, 0.0f});
-                m_currentAction = resolverRes;
-                break;
-
-            case (CHAR1_STATE::PREJUMP):
-            {
-                if (m_playerId == 1)
-                    std::cout << "Switch state to PREJUMP\n";
-                auto jumpAction = dynamic_cast<const Action_jump<CHAR1_STATE, Char1Data>*>(resolverRes);
-                m_currentState = resolverRes->actionState;
-                m_timer.begin(jumpAction->m_prejumpLen);
-                turnVelocityToInertia();
-                m_currentAnimation = m_animations[ANIMATIONS::CHAR1_PREJUMP].get();
-                m_currentAnimation->reset();
-                m_currentAction = resolverRes;
-                m_currentCancelWindow = {};
-                m_cancelTimer.begin(0);
-                break;
-            }
-
-            case (CHAR1_STATE::JUMP):
-            {
-                if (m_playerId == 1)
-                    std::cout << "Switch state to JUMP (DJ)\n";
-                m_currentAction = resolverRes;
-                jumpUsingAirjumpAction();
-                break;
-            }
-
-            case (CHAR1_STATE::GROUND_DASH):
-            {
-                if (m_playerId == 1)
-                    std::cout << "Switch state to GROUND DASH\n";
-                m_currentState = resolverRes->actionState;
-                m_currentAction = resolverRes;
-                m_currentAnimation = m_animations[ANIMATIONS::CHAR1_GROUND_DASH].get();
-                m_currentAnimation->reset();
-                break;
-            }
-
-            case (CHAR1_STATE::GROUND_DASH_RECOVERY):
-            {
-                if (m_playerId == 1)
-                    std::cout << "Switch state to PREJUMP\n";
-                auto gdrecoveryAction = dynamic_cast<const Action_char1_ground_dash_recovery*>(resolverRes);
-                m_currentState = resolverRes->actionState;
-                m_timer.begin(gdrecoveryAction->m_recoveryLen);
-                turnVelocityToInertia();
-                m_currentAnimation = m_animations[ANIMATIONS::CHAR1_GROUND_DASH_RECOVERY].get();
-                m_currentAnimation->reset();
-                m_currentAction = resolverRes;
-                break;
-            }
-
-            case (CHAR1_STATE::MOVE_A):
-            {
-                if (m_playerId == 1)
-                    std::cout << "Switch state to JAB\n";
-
-                if (m_currentState == CHAR1_STATE::SOFT_LANDING_RECOVERY)
-                    updateOwnOrientation();
-                
-                auto atkAction = dynamic_cast<const Action_attack<CHAR1_STATE, Char1Data>*>(resolverRes);
-                m_currentState = resolverRes->actionState;
-                m_timer.begin(atkAction->m_fullDuration);
-                turnVelocityToInertia();
-                m_currentAnimation = m_animations[ANIMATIONS::CHAR1_MOVE_A].get();
-                m_currentAnimation->reset();
-                m_currentAction = resolverRes;
-                m_appliedHits.clear();
-                m_currentAction = resolverRes;
-                m_currentCancelWindow = {};
-                break;
-            }
-
-            case (CHAR1_STATE::MOVE_C):
-            {
-                if (m_playerId == 1)
-                    std::cout << "Switch state to normal C\n";
-
-                if (m_currentState == CHAR1_STATE::SOFT_LANDING_RECOVERY)
-                    updateOwnOrientation();
-                
-                auto atkAction = dynamic_cast<const Action_attack<CHAR1_STATE, Char1Data>*>(resolverRes);
-                m_currentState = resolverRes->actionState;
-                m_timer.begin(atkAction->m_fullDuration);
-                turnVelocityToInertia();
-                m_currentAnimation = m_animations[ANIMATIONS::CHAR1_MOVE_C].get();
-                m_currentAnimation->reset();
-                m_currentAction = resolverRes;
-                m_appliedHits.clear();
-                m_currentAction = resolverRes;
-                m_currentCancelWindow = {};
-                break;
-            }
-
-            case (CHAR1_STATE::MOVE_B):
-            {
-                if (m_playerId == 1)
-                    std::cout << "Switch state to normal B\n";
-
-                if (m_currentState == CHAR1_STATE::SOFT_LANDING_RECOVERY)
-                    updateOwnOrientation();
-                
-                auto atkAction = dynamic_cast<const Action_attack<CHAR1_STATE, Char1Data>*>(resolverRes);
-                m_currentState = resolverRes->actionState;
-                m_timer.begin(atkAction->m_fullDuration);
-                turnVelocityToInertia();
-                m_currentAnimation = m_animations[ANIMATIONS::CHAR1_MOVE_B].get();
-                m_currentAnimation->reset();
-                m_currentAction = resolverRes;
-                m_appliedHits.clear();
-                m_currentAction = resolverRes;
-                m_currentCancelWindow = {};
-                break;
-            }
-
-            default:
-                throw std::runtime_error("Undefined state conversion");
-                break;
-        }
+        resolverRes->switchTo(*this);
     }
 
     if (m_currentState == CHAR1_STATE::IDLE ||
@@ -325,8 +172,7 @@ void Char1::updateState()
         auto newXVelocity = (abs(m_velocity.x) + dashAction->m_accel);
         m_velocity.x = getOwnHorDir().x * std::min(abs(newXVelocity), abs(dashAction->m_maxspd));
     }
-    // TODO: make universal solution (many moves can have built-in movement)
-    else if (m_currentState == CHAR1_STATE::MOVE_C || m_currentState == CHAR1_STATE::MOVE_B)
+    else if (m_currentAction && m_currentAction->m_isAttack)
     {
         auto atkAction = dynamic_cast<const Action_char1_attack*>(m_currentAction);
         auto newVelocity = atkAction->getCurrentVelocity(m_timer.getCurrentFrame());
@@ -336,12 +182,7 @@ void Char1::updateState()
 
 void Char1::switchToIdle()
 {
-    m_currentState = CHAR1_STATE::IDLE;
-    m_currentAnimation = m_animations[ANIMATIONS::CHAR1_IDLE].get();
-    m_currentAnimation->reset();
-    turnVelocityToInertia();
-    m_currentAction = nullptr;
-    updateOwnOrientation();
+    m_actionResolver.getAction(CHAR1_STATE::IDLE)->switchTo(*this);
 }
 
 void Char1::jumpUsingAction()
@@ -350,7 +191,7 @@ void Char1::jumpUsingAction()
 
     auto ownOrientationVector = getOwnHorDir();
     ownOrientationVector.y = 1;
-    auto jumpAction = dynamic_cast<const Action_jump<CHAR1_STATE, Char1Data>*>(m_currentAction);
+    auto jumpAction = dynamic_cast<const Action_jump<CHAR1_STATE, Char1Data, Char1>*>(m_currentAction);
     m_velocity = (jumpAction)->m_impulse.mulComponents(ownOrientationVector);
     if (m_inertia.y > 0)
         m_inertia.y = 0;
@@ -368,31 +209,9 @@ void Char1::jumpUsingAction()
     m_currentAnimation->reset();
 }
 
-void Char1::jumpUsingAirjumpAction()
-{
-    updateOwnOrientation();
-    auto ownOrientationVector = getOwnHorDir();
-    ownOrientationVector.y = 1;
-    m_velocity = (dynamic_cast<const Action_char1_airjump*>(m_currentAction))->m_impulse.mulComponents(ownOrientationVector);
-    
-    if (m_inertia.y > 0)
-        m_inertia.y = 0;
-
-    m_currentState = CHAR1_STATE::JUMP;
-    m_usedDoubleJump = true;
-    m_currentAnimation = m_animations[ANIMATIONS::CHAR1_JUMP].get();
-    m_currentAnimation->reset();
-}
-
 void Char1::switchToSoftLandingRecovery()
 {
-    m_currentState = CHAR1_STATE::SOFT_LANDING_RECOVERY;
-    m_currentAnimation = m_animations[ANIMATIONS::CHAR1_LANDING_RECOVERY].get();
-    m_currentAnimation->reset();
-    m_velocity = {0.0f, 0.0f};
-    m_inertia = {0.0f, 0.0f};
-    m_currentAction = nullptr;
-    m_timer.begin(6);
+    m_actionResolver.getAction(CHAR1_STATE::SOFT_LANDING_RECOVERY)->switchTo(*this);
 }
 
 Char1Data Char1::generateCharData()
@@ -463,9 +282,9 @@ bool Char1::canBeDraggedByInertia() const
 HitsVec Char1::getHits(bool allHits_)
 {
     // TODO: make it better
-    if (m_currentState == CHAR1_STATE::MOVE_A || m_currentState == CHAR1_STATE::MOVE_B || m_currentState == CHAR1_STATE::MOVE_C)
+    if (m_currentAction && m_currentAction->m_isAttack)
     {
-        auto hits = dynamic_cast<const Action_attack<CHAR1_STATE, Char1Data>*>(m_currentAction)->getCurrentHits(m_timer.getCurrentFrame() + 1, m_pos, m_ownOrientation);
+        auto hits = dynamic_cast<const Action_attack<CHAR1_STATE, Char1Data, Char1>*>(m_currentAction)->getCurrentHits(m_timer.getCurrentFrame() + 1, m_pos, m_ownOrientation);
         int i = 0;
         while (i < hits.size())
         {
@@ -762,7 +581,7 @@ bool Char1::isInActiveFrames() const
     m_currentState == CHAR1_STATE::MOVE_B ||
     m_currentState == CHAR1_STATE::MOVE_C)
     {
-        auto atkAction = dynamic_cast<const Action_attack<CHAR1_STATE, Char1Data>*>(m_currentAction);
+        auto atkAction = dynamic_cast<const Action_attack<CHAR1_STATE, Char1Data, Char1>*>(m_currentAction);
         return atkAction->getCurrentHits(m_timer.getCurrentFrame() + 1, m_pos, m_ownOrientation).size();
     }
 

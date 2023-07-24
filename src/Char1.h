@@ -5,9 +5,10 @@
 #include "ActionResolver.h"
 #include "FrameTimer.h"
 
+class Char1;
+
 enum class CHAR1_STATE {
-    NONE = 0,
-    IDLE,
+    IDLE = 0,
     CROUCH,
     HITSTUN,
     HITSTUN_AIR,
@@ -34,7 +35,7 @@ struct Char1Data : public CharData<CHAR1_STATE>
     std::set<int> *cancelOptions = nullptr;
 };
 
-class ActionResolver_Char1 : public ActionResolver<CHAR1_STATE, Char1Data>
+class ActionResolver_Char1 : public ActionResolver<CHAR1_STATE, Char1Data, Char1>
 {
 public:
     ActionResolver_Char1(InputSystem *input_);
@@ -65,14 +66,13 @@ public:
 protected:
     void switchToIdle();
     void jumpUsingAction();
-    void jumpUsingAirjumpAction();
     void switchToSoftLandingRecovery();
     Char1Data generateCharData();
     bool isInActiveFrames() const;
 
     std::set<int> m_appliedHits;
 
-    const Action<CHAR1_STATE, Char1Data> *m_currentAction;
+    const Action<CHAR1_STATE, Char1Data, Char1> *m_currentAction;
     ActionResolver_Char1 m_actionResolver;
 
     CHAR1_STATE m_currentState = CHAR1_STATE::IDLE;
@@ -90,7 +90,18 @@ protected:
     CancelWindow m_currentCancelWindow;
     FrameTimer m_cancelTimer;
 
-
+    friend Action<CHAR1_STATE, Char1Data, Char1>;
+    friend Action_jump<CHAR1_STATE, Char1Data, Char1>;
+    friend Action_prolonged<CHAR1_STATE, Char1Data, Char1>;
+    friend Action_attack<CHAR1_STATE, Char1Data, Char1>;
+    friend Action_char1_attack;
+    friend Action_char1_crouch;
+    friend Action_char1_idle;
+    friend Action_char1_walk_fwd;
+    friend Action_char1_walk_bwd;
+    friend Action_char1_airjump;
+    friend Action_char1_ground_dash_recovery;
+    friend Action_char1_soft_landing_recovery;
 };
 
 #endif
