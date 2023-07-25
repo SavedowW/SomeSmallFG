@@ -80,7 +80,6 @@ class Action_jump : public Action<CharState_t, CharData, Char_t>
 {
 public:
     Action_jump(CharState_t actionState_, const Vector2<float> &impulse_, float prejumpLen_, float maxHorInertia_, InputComparator_ptr incmp_, HurtboxFramesVec hurtboxes_, ANIMATIONS anim_);
-    virtual void switchTo(Char_t &character_) const override;
     const Vector2<float> m_impulse;
     const float m_prejumpLen;
     const float m_maxHorInertia;
@@ -149,6 +148,7 @@ class Action_char1_jump : public Action_jump<CHAR1_STATE, Char1Data, Char1>
 public:
     Action_char1_jump(CHAR1_STATE actionState_, const Vector2<float> &impulse_, float prejumpLen_, float maxHorInertia_, InputComparator_ptr incmp_, HurtboxFramesVec hurtboxes_);
     virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_) const override;
+    virtual void switchTo(Char1 &character_) const override;
     const Vector2<float> m_impulse;
     const float m_prejumpLen;
     const float m_maxHorInertia;

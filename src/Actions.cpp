@@ -92,13 +92,7 @@ Action_jump<CharState_t, CharData, Char_t>::Action_jump(CharState_t actionState_
 {
 }
 
-template <typename CharState_t, typename CharData, typename Char_t>
-void Action_jump<CharState_t, CharData, Char_t>::switchTo(Char_t &character_) const
-{
-    Action<CharState_t, CharData, Char_t>::switchTo(character_);
-    character_.m_timer.begin(m_prejumpLen);
-    character_.turnVelocityToInertia();
-}
+
 
 
 // ABSTRACT ATTACK ACTION
@@ -375,6 +369,18 @@ int Action_char1_jump::isPossible(const InputQueue &inputQueue_, Char1Data charD
 
     throw std::runtime_error("Undefined state transition");
     return false;
+}
+
+void Action_char1_jump::switchTo(Char1 &character_) const
+{
+    auto oldState = character_.m_currentState;
+    Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    character_.m_timer.begin(m_prejumpLen);
+
+    if (oldState != CHAR1_STATE::WALK_BWD && oldState != CHAR1_STATE::WALK_FWD)
+        character_.turnVelocityToInertia();
+    else
+        character_.m_velocity = {0.0f, 0.0f};
 }
 
 // NEUTRAL JUMP ACTION

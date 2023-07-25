@@ -103,6 +103,7 @@ protected:
     friend Action_char1_walk_fwd;
     friend Action_char1_walk_bwd;
     friend Action_char1_airjump;
+    friend Action_char1_jump;
     friend Action_char1_ground_dash_recovery;
     friend Action_char1_soft_landing_recovery;
 };

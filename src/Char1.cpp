@@ -104,19 +104,6 @@ void Char1::proceedCurrentState()
                     jumpUsingAction();
                     break;
 
-                // TODO: universalize this logic
-                case (CHAR1_STATE::SOFT_LANDING_RECOVERY):
-                    [[fallthrough]];
-                case (CHAR1_STATE::MOVE_A):
-                    [[fallthrough]];
-                case (CHAR1_STATE::MOVE_B):
-                    [[fallthrough]];
-                case (CHAR1_STATE::MOVE_C):
-                    [[fallthrough]];
-                case (CHAR1_STATE::GROUND_DASH_RECOVERY):
-                    m_currentAction->outdated(*this);
-                    break;
-
                 
                 case (CHAR1_STATE::HITSTUN):
                     [[fallthrough]];
@@ -126,6 +113,10 @@ void Char1::proceedCurrentState()
                     switchToIdle();
                     m_currentTakenHit.m_hitId = -1;
                     break;
+
+                default:
+                    if (m_currentAction)
+                        m_currentAction->outdated(*this);
             }
         }
     }
@@ -283,7 +274,6 @@ bool Char1::canBeDraggedByInertia() const
 
 HitsVec Char1::getHits(bool allHits_)
 {
-    // TODO: make it better
     if (m_currentAction && m_currentAction->m_isAttack)
     {
         auto hits = dynamic_cast<const Action_attack<CHAR1_STATE, Char1Data, Char1>*>(m_currentAction)->getCurrentHits(m_timer.getCurrentFrame() + 1, m_pos, m_ownOrientation);
