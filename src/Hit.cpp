@@ -35,6 +35,7 @@ Hit hitgeneration::generate_char1_jab()
     hdata.hitstop = 10;
     hdata.chHitstop = 12;
     hdata.hitBlockShakeAmp = 0;
+    hdata.canBeBlockedAs = {BLOCK_STATE::HIGH, BLOCK_STATE::LOW, BLOCK_STATE::AIR, BLOCK_STATE::AUTO};
 
     Hit hit(hdata, {{50.0f, -300.0f, 120.0f, 30.0f}});
 
@@ -66,6 +67,7 @@ Hit hitgeneration::generate_char1_moveB()
     hdata.hitstop = 11;
     hdata.chHitstop = 13;
     hdata.hitBlockShakeAmp = 20;
+    hdata.canBeBlockedAs = {BLOCK_STATE::HIGH, BLOCK_STATE::LOW, BLOCK_STATE::AIR, BLOCK_STATE::AUTO};
 
     Hit hit(hdata, {{50.0f, -265.0f, 192.0f, 70.0f}});
 
@@ -97,6 +99,7 @@ Hit hitgeneration::generate_char1_moveC()
     hdata.hitstop = 13;
     hdata.chHitstop = 12;
     hdata.hitBlockShakeAmp = 40;
+    hdata.canBeBlockedAs = {BLOCK_STATE::HIGH, BLOCK_STATE::LOW, BLOCK_STATE::AIR, BLOCK_STATE::AUTO};
 
     Hit hit(hdata, {{60.0f, -400.0f, 80.0f, 220.0f}});
 
@@ -128,15 +131,16 @@ Hit hitgeneration::generate_char1_move2B()
     hdata.hitstop = 11;
     hdata.chHitstop = 13;
     hdata.hitBlockShakeAmp = 15;
+    hdata.canBeBlockedAs = {BLOCK_STATE::LOW, BLOCK_STATE::AIR, BLOCK_STATE::AUTO};
 
     Hit hit(hdata, {{10.0f, -100.0f, 110.0f, 100.0f}, {120.0f, -40.0f, 70.0f, 40.0f}});
 
     hit.cancelsOnHit.first.first = 1;
-    hit.cancelsOnHit.first.second = 8;
+    hit.cancelsOnHit.first.second = 15;
     hit.cancelsOnHit.second = {(int)CHAR1_STATE::PREJUMP, (int)CHAR1_STATE::MOVE_C};
 
     hit.cancelsOnBlock.first.first = 1;
-    hit.cancelsOnBlock.first.second = 8;
+    hit.cancelsOnBlock.first.second = 15;
     hit.cancelsOnBlock.second = {(int)CHAR1_STATE::MOVE_C};
 
     return hit;

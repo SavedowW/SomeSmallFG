@@ -366,7 +366,8 @@ HIT_RESULT Char1::applyHit(const HitEvent &hitEvent, HIT_RESULT hitRes_)
     {
         auto blockState = m_blockHandler.getBlockState();
         m_currentTakenHit = hitEvent.m_hitData;
-        if (blockState == BLOCK_STATE::NONE)
+        bool blocked = hitEvent.m_hitData.canBeBlockedAs.contains(blockState);
+        if (!blocked)
         {
             m_velocity = {0.0f, 0.0f};
             std::cout << "Took hit!\n";

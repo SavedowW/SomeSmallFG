@@ -6,6 +6,7 @@
 #include <utility>
 #include <vector>
 #include <set>
+#include "BlockHandler.h"
 
 using FrameWindow = std::pair<int, int>;
 
@@ -38,6 +39,7 @@ struct HitData
     int chHitstop = 0;
     int hitBlockShakeAmp;
     HITSTUN_ANIMATION hitstunAnimation = HITSTUN_ANIMATION::MID;
+    std::set<BLOCK_STATE> canBeBlockedAs;
 
     CancelWindow cancelsOnHit;
     CancelWindow cancelsOnBlock;
