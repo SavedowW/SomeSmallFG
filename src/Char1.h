@@ -60,6 +60,7 @@ public:
     HurtboxVec getHurtboxes() final;
     HIT_RESULT applyHit(const HitEvent &hitEvent, HIT_RESULT hitRes_ = HIT_RESULT::NONE) final;
     void updateBlockState() final;
+    bool isInHitstun() const final;
 
     std::string CharStateData() const final;
 
@@ -89,6 +90,8 @@ protected:
 
     CancelWindow m_currentCancelWindow;
     FrameTimer m_cancelTimer;
+
+    
 
     friend Action<CHAR1_STATE, Char1Data, Char1>;
     friend Action_jump<CHAR1_STATE, Char1Data, Char1>;

@@ -26,8 +26,9 @@ Hit hitgeneration::generate_char1_jab()
     hdata.opponentPushbackOnBlock = 7.0f;
     hdata.opponentImpulseOnHit = {6.0f, 0.0f};
     hdata.opponentImpulseOnAirHit = {8.0f, -5.0f};
-    hdata.ownPushbackOnBlock = 6.0f;
-    hdata.ownPushbackOnHit = 5.5f;
+    hdata.cornerPushbackMaxRange = 300.0f;
+    hdata.cornerPushbackMinImpulse = 8.0f;
+    hdata.cornerPushbackMaxImpulse = 30.0f;
     hdata.blockstun = 7;
     hdata.hitstun = 12;
     hdata.chHitstun = 20;
@@ -55,15 +56,16 @@ Hit hitgeneration::generate_char1_moveB()
     hdata.opponentPushbackOnBlock = 5.6f;
     hdata.opponentImpulseOnHit = {3.0f, 0.0f};
     hdata.opponentImpulseOnAirHit = {10.0f, -5.0f};
-    hdata.ownPushbackOnBlock = 5.0f;
-    hdata.ownPushbackOnHit = 0.0f;
+    hdata.cornerPushbackMaxRange = 380.0f;
+    hdata.cornerPushbackMinImpulse = 8.0f;
+    hdata.cornerPushbackMaxImpulse = 30.0f;
     hdata.blockstun = 8;
     hdata.hitstun = 15;
     hdata.chHitstun = 25;
     hdata.hitstop = 11;
     hdata.chHitstop = 13;
 
-    Hit hit(hdata, {{50.0f, -265.0f, 192.0f, 60.0f}});
+    Hit hit(hdata, {{50.0f, -265.0f, 192.0f, 70.0f}});
 
     hit.cancelsOnHit.first.first = 1;
     hit.cancelsOnHit.first.second = 8;
@@ -84,8 +86,9 @@ Hit hitgeneration::generate_char1_moveC()
     hdata.opponentPushbackOnBlock = 3.0f;
     hdata.opponentImpulseOnHit = {10.0f, -35.0f};
     hdata.opponentImpulseOnAirHit = {5.0f, -20.0f};
-    hdata.ownPushbackOnBlock = 3.0f;
-    hdata.ownPushbackOnHit = 1.0f;
+    hdata.cornerPushbackMaxRange = 300.0f;
+    hdata.cornerPushbackMinImpulse = 8.0f;
+    hdata.cornerPushbackMaxImpulse = 30.0f;
     hdata.blockstun = 15;
     hdata.hitstun = 21;
     hdata.chHitstun = 25;

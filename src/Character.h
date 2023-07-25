@@ -63,6 +63,7 @@ public:
     virtual HitsVec getHits(bool allHits_ = false) = 0;
     virtual HurtboxVec getHurtboxes() = 0;
     virtual void updateBlockState() = 0;
+    virtual bool isInHitstun() const = 0;
 
     virtual std::string CharStateData() const = 0;
 
@@ -71,6 +72,8 @@ public:
 
     virtual HIT_RESULT applyHit(const HitEvent &hitEvent_, HIT_RESULT hitRes_ = HIT_RESULT::NONE) = 0;
     virtual void applyHitstop(int hitstopLength);
+    HitData getCurrentTakenHit();
+    void takeCornerPushback(HitData fromHit_, float rangeToCorner_, const Vector2<int> dirFromCorner_);
 
     virtual bool canApplyDrag() const;
     virtual bool canApplyGravity() const;
@@ -98,6 +101,8 @@ protected:
     Animation *m_currentAnimation;
     ORIENTATION m_dirToEnemy;
     ORIENTATION m_ownOrientation;
+
+    HitData m_currentTakenHit;
 
 };
 

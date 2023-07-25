@@ -124,6 +124,7 @@ void Char1::proceedCurrentState()
                     [[fallthrough]];
                 case (CHAR1_STATE::BLOCKSTUN_STANDING):                
                     switchToIdle();
+                    m_currentTakenHit.m_hitId = -1;
                     break;
             }
         }
@@ -248,6 +249,7 @@ void Char1::land()
         // TODO: airborne hitstun to knd
         case (CHAR1_STATE::HITSTUN_AIR):
             switchToSoftLandingRecovery();
+            m_currentTakenHit.m_hitId = -1;
             break;
 
         default:
@@ -366,20 +368,12 @@ HIT_RESULT Char1::applyHit(const HitEvent &hitEvent, HIT_RESULT hitRes_)
 
         }
 
-        if (hitRes_ == HIT_RESULT::HIT)
-        {
-            m_inertia += getOwnHorDir() * -1 * hitEvent.m_hitData.ownPushbackOnHit;
-        }
-        else
-        {
-            m_inertia += getOwnHorDir() * -1 * hitEvent.m_hitData.ownPushbackOnBlock;
-        }
-
         return HIT_RESULT::NONE;
     }
     else
     {
         auto blockState = m_blockHandler.getBlockState();
+        m_currentTakenHit = hitEvent.m_hitData;
         if (blockState == BLOCK_STATE::NONE)
         {
             m_velocity = {0.0f, 0.0f};
@@ -586,4 +580,9 @@ bool Char1::isInActiveFrames() const
     }
 
     return false;
+}
+
+bool Char1::isInHitstun() const
+{
+    return (m_currentState == CHAR1_STATE::HITSTUN || m_currentState == CHAR1_STATE::HITSTUN_AIR);
 }

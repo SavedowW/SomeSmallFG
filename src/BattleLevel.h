@@ -68,17 +68,27 @@ protected:
             int stageBoundResult = results[i].pushbox.isWithinHorizontalBounds(0.0f, m_size.x);
             if (stageBoundResult < 0)
             {
-                auto newPos = Vector2<float>{results[i].newPos.x - results[i].pushbox.x, results[i].newPos.y};
-                std::cout << "Moving char " << i << " to " << newPos << std::endl;
+                auto newPos = Vector2<float>{results[i].pushbox.w / 2, results[i].newPos.y};
                 m_characters[i]->setPos(newPos);
                 hitsWall[i] = true;
+
+                const Vector2 dirFromWall{1, 0};
+                float rangeFromWall = m_characters[1-i]->getPos().x;
+                auto hit = m_characters[i]->getCurrentTakenHit();
+                if (hit.m_hitId != -1)
+                    m_characters[1-i]->takeCornerPushback(hit, rangeFromWall, dirFromWall);
             }
             else if (stageBoundResult > 0)
             {
                 auto newPos = Vector2<float>{m_size.x - (results[i].pushbox.x + results[i].pushbox.w - results[i].newPos.x), results[i].newPos.y};
-                //td::cout << "Moving char " << i << " to " << newPos << std::endl;
                 m_characters[i]->setPos(newPos);
                 hitsWall[i] = true;
+
+                const Vector2 dirFromWall{-1, 0};
+                float rangeFromWall = m_size.x - m_characters[1-i]->getPos().x;
+                auto hit = m_characters[i]->getCurrentTakenHit();
+                if (hit.m_hitId != -1)
+                    m_characters[1-i]->takeCornerPushback(hit, rangeFromWall, dirFromWall);
             }
         }
 

@@ -26,6 +26,7 @@ void Character::setOnStage(Application &application_, int playerId_, Character *
     m_otherCharacter = otherCharacter_;
     loadAnimations(application_);
     initiate();
+    m_currentTakenHit.m_hitId = -1;
 }
 
 CharacterUpdateRes Character::update()
@@ -113,7 +114,14 @@ void Character::draw(Renderer &renderer_, Camera &camera_)
         if (m_ownOrientation == ORIENTATION::LEFT)
             flip = SDL_FLIP_HORIZONTAL;
 
-        renderer_.renderTexture(m_currentAnimation->getSprite(), texPos.x, texPos.y, camera_, flip);
+        float xoffset = 0;
+
+        if (isInHitstun() && m_inHitstop)
+        {
+            xoffset = rand() % 13 - 6;
+        }
+
+        renderer_.renderTexture(m_currentAnimation->getSprite(), texPos.x + xoffset, texPos.y, camera_, flip);
     }
 
     // render pushboxes with macro DEBUG
@@ -220,4 +228,24 @@ void Character::applyHitstop(int hitstopLength)
 {
     m_inHitstop = true;
     m_hitstopTimer.begin(hitstopLength);
+}
+
+HitData Character::getCurrentTakenHit()
+{
+    auto temp = m_currentTakenHit;
+    m_currentTakenHit.m_hitId = -1;
+    return temp;
+}
+
+void Character::takeCornerPushback(HitData fromHit_, float rangeToCorner_, const Vector2<int> dirFromCorner_)
+{
+    if (fromHit_.m_hitId != -1 && fromHit_.cornerPushbackMaxRange > rangeToCorner_)
+    {
+        if (utils::sameSign((int)m_inertia.x, dirFromCorner_.x))
+            m_inertia.x = 0;
+
+        float pbimpulse = std::max((1 - rangeToCorner_ / fromHit_.cornerPushbackMaxRange) * fromHit_.cornerPushbackMaxImpulse, fromHit_.cornerPushbackMinImpulse);
+
+        m_inertia += dirFromCorner_ * pbimpulse;
+    }
 }

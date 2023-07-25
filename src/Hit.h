@@ -24,8 +24,9 @@ struct HitData
     // TODO: change pushback logic
     // There should be no "own pushback"
     // Character should be pushed back only if he pushes opponent into the corner
-    float ownPushbackOnBlock = 0;
-    float ownPushbackOnHit = 0;
+    float cornerPushbackMaxRange;
+    float cornerPushbackMinImpulse;
+    float cornerPushbackMaxImpulse;
     float opponentPushbackOnBlock = 0;
     Vector2<float> opponentImpulseOnHit = 0;
     Vector2<float> opponentImpulseOnAirHit = 0;
