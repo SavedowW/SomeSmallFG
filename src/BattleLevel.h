@@ -232,12 +232,14 @@ protected:
                             ev.m_hitData = hits[pid][ihit].getHitData();
                             auto hitres = m_characters[p2id]->applyHit(ev);
                             m_characters[pid]->applyHit(ev, hitres);
+                            m_camera.startShake(ev.m_hitData.hitBlockShakeAmp, ev.m_hitData.hitstop + 1);
                         }
                     }
                 }
             }
         }
 
+        m_camera.update();
         std::cout << m_characters[0]->CharStateData() << " | " << m_characters[1]->CharStateData() << std::endl;
     }
 

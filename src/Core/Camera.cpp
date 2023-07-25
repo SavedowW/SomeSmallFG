@@ -12,7 +12,7 @@ Camera::Camera(const Vector2<float> &pos_, const Vector2<float> &cameraBaseSize_
 
 Vector2<float> Camera::getPos() const
 {
-    return m_pos;
+    return m_pos + Vector2{m_thisFrameAmp, 0.0f};
 }
 
 void Camera::setPos(const Vector2<float> &pos_)
@@ -23,7 +23,7 @@ void Camera::setPos(const Vector2<float> &pos_)
 
 Vector2<float> Camera::getTopLeft() const
 {
-    return m_pos - getSize() / 2.0f;
+    return getPos() - getSize() / 2.0f;
 }
 
 Vector2<float> Camera::getSize() const
@@ -131,4 +131,29 @@ Vector2<float> Camera::getCamPositionInBoundaries(const Vector2<float> &pos_)
 
     return utils::clamp(pos_, minPos, maxPos);
 
+}
+
+void Camera::update()
+{
+    if (m_shakeTimer.update())
+    {
+        m_thisFrameAmp = 0;
+        m_xShakeAmp = 0;
+    }
+    else if (m_xShakeAmp)
+    {
+        int realAmp = m_xShakeAmp * (1 - m_shakeTimer.getProgressNormalized());
+        if (realAmp)
+            m_thisFrameAmp = (rand() % realAmp) - (realAmp / 2.0f);
+        else
+            m_thisFrameAmp = 0;
+
+        std::cout << "RealAmp: " << realAmp << std::endl;
+    }
+}
+
+void Camera::startShake(int xAmp, int period)
+{
+    m_xShakeAmp = xAmp;
+    m_shakeTimer.begin(period);
 }

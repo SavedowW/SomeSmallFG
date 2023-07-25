@@ -255,4 +255,10 @@ public:
     Action_char1_move_C();
 };
 
+class Action_char1_move_2B : public Action_char1_attack
+{
+public:
+    Action_char1_move_2B();
+};
+
 #endif

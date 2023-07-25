@@ -36,6 +36,7 @@ struct HitData
     int hitstop = 0;
     int chHitstun = 0;
     int chHitstop = 0;
+    int hitBlockShakeAmp;
     HITSTUN_ANIMATION hitstunAnimation = HITSTUN_ANIMATION::MID;
 
     CancelWindow cancelsOnHit;
@@ -70,6 +71,7 @@ namespace hitgeneration
     Hit generate_char1_jab();
     Hit generate_char1_moveB();
     Hit generate_char1_moveC();
+    Hit generate_char1_move2B();
 }
 
 #endif

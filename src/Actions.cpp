@@ -672,6 +672,8 @@ int Action_char1_attack::isPossible(const InputQueue &inputQueue_, Char1Data cha
             [[fallthrough]];
         case (CHAR1_STATE::WALK_FWD):
             [[fallthrough]];
+        case (CHAR1_STATE::CROUCH):
+            [[fallthrough]];
         case (CHAR1_STATE::IDLE):
             return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
             break;
@@ -687,7 +689,9 @@ int Action_char1_attack::isPossible(const InputQueue &inputQueue_, Char1Data cha
 
 void Action_char1_attack::outdated(Char1 &character_) const
 {
+    character_.m_velocity = {0.0f, 0.0f};
     character_.switchToIdle();
+
 }
 
 void Action_char1_attack::switchTo(Char1 &character_) const
@@ -803,6 +807,38 @@ Action_char1_move_C::Action_char1_move_C() :
         }
     })
     //{ { 1.0f, {{0.0f, 0.0f, 10.0f, 10.0f}}} })
+{
+}
+
+// MOVE 2B ACTION
+Action_char1_move_2B::Action_char1_move_2B() :
+    Action_char1_attack(CHAR1_STATE::MOVE_2B, ANIMATIONS::CHAR1_MOVE_2B, std::make_unique<InputComparator2BPress>(), 29,
+    {
+        {
+            {10, 12},
+            hitgeneration::generate_char1_move2B()
+        }
+    },
+    {
+        {
+            {1, 29},
+            {-70, -200, 140, 200}
+        },
+        {
+            {9, 21},
+            {10.0f, -110.0f, 200.0f, 110.0f}
+        }
+    },
+    {
+        {
+            {1, 8},
+            {15.0f, 0.0f}
+        },
+        {
+            {22, 29},
+            {-15.0f, 0.0f}
+        }
+    })
 {
 }
 

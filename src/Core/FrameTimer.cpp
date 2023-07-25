@@ -34,3 +34,11 @@ uint32_t FrameTimer::getCurrentFrame() const
 {
     return m_currentFrame;
 }
+
+float FrameTimer::getProgressNormalized() const
+{
+    if (m_framesToWait == 0)
+        return 0;
+
+    return (float)m_currentFrame / m_framesToWait;
+}

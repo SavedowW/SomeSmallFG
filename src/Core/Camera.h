@@ -2,6 +2,7 @@
 #define CAMERA_H_
 
 #include "Vector2.h"
+#include "FrameTimer.h"
 
 class Camera
 {
@@ -27,11 +28,18 @@ public:
 
     Vector2<float> getPositionNormalizedValues();
 
+    void update();
+    void startShake(int xAmp, int period);
+
 private:
     Vector2<float> m_pos;
     Vector2<float> m_cameraBaseSize;
     Vector2<float> m_areaSize;
     float m_scale = 1.0f;
+
+    FrameTimer m_shakeTimer;
+    int m_xShakeAmp = 0;
+    float m_thisFrameAmp = 0;
 
     void normalizePosition();
     Vector2<float> getCamPositionInBoundaries(const Vector2<float> &pos_);

@@ -10,6 +10,44 @@
 #include "FrameTimer.h"
 #include "BlockHandler.h"
 
+/*
+ * TODO: LIST
+ * crouching and jumping attacks
+ * lows, overheads, unblockables
+ * hard and soft knockdown
+ * different types of landing recovery
+ * * Hard when blocks attack in the air (can only block during recovery)
+ * * Vulnerable when uses air attacks (cannot block or do any attack for a period of time)
+ * airdash, backdash, air backdash
+ * counter hit (with CH hitstun, hitstop and impulse)
+ * Particles
+ * 
+ * Projectiles
+ * Clash, forced clash property
+ * parries, guard points
+ * Wallbounce, wallsplat, wallbang (?)
+ * * Wallbang (?): when character blocks an attack with wallbang (?) property, he gets into a wallbang blockstun.
+ * * When character in wallbang blockstun touches the wall, he takes an unblockable hit with very low damage and hitstun,
+ * * but 100% proratio. He can be comboed from this hit, but it should depend on spacing 
+ * 
+ * blockstun scaling
+ * knockdown state
+ * ground recovery
+ * gravity scaling
+ * health
+ * damage scaling
+ * proratio
+ * overheat gauge
+ * HUD and HUD widgets
+ * sounds
+ * Buffs system
+ * 
+ * Other characters and stages
+ * Character / stage select screen
+ * Input settings
+ * Resolution settings
+*/
+
 struct CharacterUpdateRes
 {
     Vector2<float> moveOffset;

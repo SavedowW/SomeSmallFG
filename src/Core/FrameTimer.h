@@ -10,6 +10,7 @@ public:
     bool update();
 	bool isOver() const;
 	uint32_t getCurrentFrame() const;
+	float getProgressNormalized() const;
 
 private:
 	uint32_t m_framesToWait;
