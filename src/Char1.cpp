@@ -169,7 +169,7 @@ void Char1::updateState()
     else if (m_currentAction && m_currentAction->m_isAttack)
     {
         auto atkAction = dynamic_cast<const Action_char1_attack*>(m_currentAction);
-        auto newVelocity = atkAction->getCurrentVelocity(m_timer.getCurrentFrame());
+        auto newVelocity = atkAction->getCurrentVelocity(m_timer.getCurrentFrame() + 1);
         m_velocity = newVelocity * getOwnHorDir().x;
     }
 }

@@ -12,8 +12,8 @@
 
 /*
  * TODO: LIST
- * crouching and jumping attacks
- * lows, overheads, unblockables
+ * crouching and jumping attacks [1/2 DONE]
+ * lows, overheads, unblockables [DONE]
  * hard and soft knockdown
  * different types of landing recovery
  * * Hard when blocks attack in the air (can only block during recovery)

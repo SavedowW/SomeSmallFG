@@ -56,6 +56,7 @@ const HurtboxVec Action<CharState_t, CharData, Char_t>::getCurrentHurtboxes(int 
 template <typename CharState_t, typename CharData, typename Char_t>
 void Action<CharState_t, CharData, Char_t>::switchTo(Char_t &character_) const
 {
+    character_.m_timer.begin(0);
     character_.m_currentState = actionState;
     character_.m_currentAnimation = character_.m_animations[m_anim].get();
     character_.m_currentAnimation->reset();
@@ -831,12 +832,20 @@ Action_char1_move_2B::Action_char1_move_2B() :
     },
     {
         {
-            {1, 8},
-            {15.0f, 0.0f}
+            {1, 4},
+            {23.0f, 0.0f}
         },
         {
-            {22, 29},
-            {-15.0f, 0.0f}
+            {5, 8},
+            {7.0f, 0.0f}
+        },
+        {
+            {22, 25},
+            {-7.0f, 0.0f}
+        },
+        {
+            {26, 29},
+            {-23.0f, 0.0f}
         }
     })
 {
