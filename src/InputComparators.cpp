@@ -49,9 +49,18 @@ bool InputComparatorUpPress::operator()(const InputQueue &inputQueue_, ORIENTATI
     if (inputQueue_.getFilled() == 0)
         return false;
 
-    auto lastInput = inputQueue_[0];
+    int lookAt = std::min(inputQueue_.getFilled() - 1, gamedata::global::inputBufferLength);
+    for (int i = 0; i <= lookAt; ++i)
+    {
+        auto &in = inputQueue_[i];
+        bool valid = in.dir == Vector2{0.0f, -1.0f} && in.inputs.at(INPUT_BUTTON::UP) == INPUT_BUTTON_STATE::PRESSED;
+        if (valid)
+            return true;
+    }
 
-    return (lastInput.dir == Vector2{0.0f, -1.0f} && lastInput.inputs[INPUT_BUTTON::UP] == INPUT_BUTTON_STATE::PRESSED);
+    return false;
+
+    //return (lastInput.dir == Vector2{0.0f, -1.0f} && lastInput.inputs[INPUT_BUTTON::UP] == INPUT_BUTTON_STATE::PRESSED);
 }
 
 bool InputComparatorUpHold::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_) const
@@ -67,17 +76,25 @@ bool InputComparatorUpForwardPress::operator()(const InputQueue &inputQueue_, OR
     if (inputQueue_.getFilled() == 0)
         return false;
 
-    auto lastInput = inputQueue_[0];
-
-    switch (faceDirection_)
+    int lookAt = std::min(inputQueue_.getFilled() - 1, gamedata::global::inputBufferLength);
+    for (int i = 0; i <= lookAt; ++i)
     {
-        case (ORIENTATION::RIGHT):
-            return (lastInput.dir == Vector2{1.0f, -1.0f} && lastInput.inputs[INPUT_BUTTON::UP] == INPUT_BUTTON_STATE::PRESSED);
-            break;
+        auto &in = inputQueue_[i];
+        bool valid = false;
 
-        case (ORIENTATION::LEFT):
-            return (lastInput.dir == Vector2{-1.0f, -1.0f} && lastInput.inputs[INPUT_BUTTON::UP] == INPUT_BUTTON_STATE::PRESSED);
-            break;
+        switch (faceDirection_)
+        {
+            case (ORIENTATION::RIGHT):
+                valid = (in.dir == Vector2{1.0f, -1.0f} && in.inputs.at(INPUT_BUTTON::UP) == INPUT_BUTTON_STATE::PRESSED);
+                break;
+
+            case (ORIENTATION::LEFT):
+                valid = (in.dir == Vector2{-1.0f, -1.0f} && in.inputs.at(INPUT_BUTTON::UP) == INPUT_BUTTON_STATE::PRESSED);
+                break;
+        }
+
+        if (valid)
+            return true;
     }
 
     return false;
@@ -109,17 +126,25 @@ bool InputComparatorUpBackwardPress::operator()(const InputQueue &inputQueue_, O
     if (inputQueue_.getFilled() == 0)
         return false;
 
-    auto lastInput = inputQueue_[0];
-
-    switch (faceDirection_)
+    int lookAt = std::min(inputQueue_.getFilled() - 1, gamedata::global::inputBufferLength);
+    for (int i = 0; i <= lookAt; ++i)
     {
-        case (ORIENTATION::RIGHT):
-            return (lastInput.dir == Vector2{-1.0f, -1.0f} && lastInput.inputs[INPUT_BUTTON::UP] == INPUT_BUTTON_STATE::PRESSED);
-            break;
+        auto &in = inputQueue_[i];
+        bool valid = false;
 
-        case (ORIENTATION::LEFT):
-            return (lastInput.dir == Vector2{1.0f, -1.0f} && lastInput.inputs[INPUT_BUTTON::UP] == INPUT_BUTTON_STATE::PRESSED);
-            break;
+        switch (faceDirection_)
+        {
+            case (ORIENTATION::RIGHT):
+                valid = (in.dir == Vector2{-1.0f, -1.0f} && in.inputs.at(INPUT_BUTTON::UP) == INPUT_BUTTON_STATE::PRESSED);
+                break;
+
+            case (ORIENTATION::LEFT):
+                valid = (in.dir == Vector2{1.0f, -1.0f} && in.inputs.at(INPUT_BUTTON::UP) == INPUT_BUTTON_STATE::PRESSED);
+                break;
+        }
+
+        if (valid)
+            return true;
     }
 
     return false;

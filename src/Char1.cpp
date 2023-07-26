@@ -12,6 +12,7 @@ ActionResolver_Char1::ActionResolver_Char1(InputSystem *input_) :
 
 void ActionResolver_Char1::createActions()
 {
+    m_actions.push_back(std::make_unique<Action_char1_move_JA>());
     m_actions.push_back(std::make_unique<Action_char1_move_2B>());
     m_actions.push_back(std::make_unique<Action_char1_move_C>());
     m_actions.push_back(std::make_unique<Action_char1_move_B>());
@@ -57,6 +58,7 @@ void Char1::loadAnimations(Application &application_)
     m_animations[ANIMATIONS::CHAR1_MOVE_B] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_MOVE_B, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_MOVE_C] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_MOVE_C, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_MOVE_2B] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_MOVE_2B, LOOPMETHOD::NOLOOP);
+    m_animations[ANIMATIONS::CHAR1_MOVE_JA] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_MOVE_JA, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_HITSTUN_LOW] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_HITSTUN_LOW, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_HITSTUN_MID] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_HITSTUN_MID, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_HITSTUN_HIGH] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_HITSTUN_HIGH, LOOPMETHOD::NOLOOP);
@@ -92,12 +94,15 @@ void Char1::initiate()
     m_gravity = gamedata::characters::char1::gravity;
 
     m_standingHurtbox = {-70, -375, 140, 375};
-    m_airHitstunHurtbox = {-350/2, -120, 350, 80};
+    m_airHitstunHurtbox = {-350/2, -160, 350, 120};
     m_crouchingHurtbox = {-70, -200, 140, 200};
 }
 
 void Char1::proceedCurrentState()
 {
+    if (m_jumpFramesCounter && m_currentState == CHAR1_STATE::JUMP)
+        m_jumpFramesCounter--;
+
     if (!m_inHitstop)
     {
         auto timerRes = m_timer.update();
@@ -171,9 +176,10 @@ void Char1::updateState()
     }
     else if (m_currentAction && m_currentAction->m_isAttack)
     {
-        auto atkAction = dynamic_cast<const Action_char1_attack*>(m_currentAction);
+        auto atkAction = dynamic_cast<const Action_attack<CHAR1_STATE, Char1Data, Char1>*>(m_currentAction);
         auto newVelocity = atkAction->getCurrentVelocity(m_timer.getCurrentFrame() + 1);
-        m_velocity = newVelocity * getOwnHorDir().x;
+        if (newVelocity)
+            m_velocity = *newVelocity * getOwnHorDir().x;
     }
 }
 
@@ -225,6 +231,7 @@ Char1Data Char1::generateCharData()
     charData.usedDoubleJump = m_usedDoubleJump;
     charData.usedAirDash = m_usedAirDash;
     charData.inHitstop = m_inHitstop;
+    charData.canDoubleJumpAfterPrejump = (m_jumpFramesCounter == 0);
 
     if (!m_currentCancelWindow.second.empty())
         charData.cancelOptions = &m_currentCancelWindow.second;

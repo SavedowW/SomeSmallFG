@@ -88,7 +88,7 @@ public:
 
 /* ============================
  *
- *       ABSTRACT ATTACK
+ *       ABSTRACT GROUND ATTACK
  *
  *========================== */
 template <typename CharState_t, typename CharData, typename Char_t>
@@ -97,11 +97,14 @@ class Action_attack : public Action<CharState_t, CharData, Char_t>
 public:
     Action_attack(CharState_t actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec hurtboxes_, std::vector<std::pair<std::pair<int, int>, Vector2<float>>> velocity_, ANIMATIONS anim_);
     virtual const HitsVec getCurrentHits(int currentFrame_, const Vector2<float>& offset_, ORIENTATION ownOrientation_) const;
-    virtual const Vector2<float> &getCurrentVelocity(int currentFrame_) const;
+    virtual const Vector2<float> *getCurrentVelocity(int currentFrame_) const;
     virtual void switchTo(Char_t &character_) const override;
     const int m_fullDuration;
     const ActiveFramesVec m_hits;
     const std::vector<std::pair<std::pair<int, int>, Vector2<float>>> m_velocity;
+
+private:
+    const Vector2<float> nullvec = {0.0f, 0.0f};
 };
 
 
@@ -246,37 +249,52 @@ public:
     virtual void switchTo(Char1 &character_) const;
 };
 
-class Action_char1_attack : public Action_attack<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_ground_attack : public Action_attack<CHAR1_STATE, Char1Data, Char1>
 {
 public:
-    Action_char1_attack(CHAR1_STATE actionState_, ANIMATIONS anim_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec hurtboxes_, std::vector<std::pair<std::pair<int, int>, Vector2<float>>> velocity_);
+    Action_char1_ground_attack(CHAR1_STATE actionState_, ANIMATIONS anim_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec hurtboxes_, std::vector<std::pair<std::pair<int, int>, Vector2<float>>> velocity_);
     virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_) const override;
     virtual void outdated(Char1 &character_) const override;
     virtual void switchTo(Char1 &character_) const;
 };
 
-class Action_char1_jab : public Action_char1_attack
+class Action_char1_air_attack : public Action_attack<CHAR1_STATE, Char1Data, Char1>
+{
+public:
+    Action_char1_air_attack(CHAR1_STATE actionState_, ANIMATIONS anim_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec hurtboxes_);
+    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_) const override;
+    virtual void outdated(Char1 &character_) const override;
+    virtual void switchTo(Char1 &character_) const;
+};
+
+class Action_char1_jab : public Action_char1_ground_attack
 {
 public:
     Action_char1_jab();
 };
 
-class Action_char1_move_B : public Action_char1_attack
+class Action_char1_move_B : public Action_char1_ground_attack
 {
 public:
     Action_char1_move_B();
 };
 
-class Action_char1_move_C : public Action_char1_attack
+class Action_char1_move_C : public Action_char1_ground_attack
 {
 public:
     Action_char1_move_C();
 };
 
-class Action_char1_move_2B : public Action_char1_attack
+class Action_char1_move_2B : public Action_char1_ground_attack
 {
 public:
     Action_char1_move_2B();
+};
+
+class Action_char1_move_JA : public Action_char1_air_attack
+{
+public:
+    Action_char1_move_JA();
 };
 
 #endif

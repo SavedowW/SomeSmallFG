@@ -23,6 +23,7 @@ enum class CHAR1_STATE {
     MOVE_B,
     MOVE_C,
     MOVE_2B,
+    MOVE_JA,
     BLOCKSTUN_STANDING,
     BLOCKSTUN_CROUCHING,
     BLOCKSTUN_AIR,
@@ -33,6 +34,7 @@ enum class CHAR1_STATE {
 struct Char1Data : public CharData<CHAR1_STATE>
 {
     bool usedDoubleJump;
+    bool canDoubleJumpAfterPrejump;
     bool usedAirDash;
     bool inHitstop;
     std::set<int> *cancelOptions = nullptr;
@@ -78,6 +80,7 @@ protected:
     std::set<int> m_appliedHits;
 
     const Action<CHAR1_STATE, Char1Data, Char1> *m_currentAction;
+    const Action<CHAR1_STATE, Char1Data, Char1> *m_reservedAction = nullptr;
     ActionResolver_Char1 m_actionResolver;
 
     CHAR1_STATE m_currentState = CHAR1_STATE::IDLE;
@@ -95,13 +98,14 @@ protected:
     CancelWindow m_currentCancelWindow;
     FrameTimer m_cancelTimer;
 
+    int m_jumpFramesCounter = 0;
     
 
     friend Action<CHAR1_STATE, Char1Data, Char1>;
     friend Action_jump<CHAR1_STATE, Char1Data, Char1>;
     friend Action_prolonged<CHAR1_STATE, Char1Data, Char1>;
     friend Action_attack<CHAR1_STATE, Char1Data, Char1>;
-    friend Action_char1_attack;
+    friend Action_char1_ground_attack;
     friend Action_char1_crouch;
     friend Action_char1_idle;
     friend Action_char1_walk_fwd;
@@ -112,6 +116,7 @@ protected:
     friend Action_char1_soft_landing_recovery;
     friend Action_char1_hard_knockdown;
     friend Action_char1_knockdown_recovery;
+    friend Action_char1_air_attack;
 };
 
 #endif

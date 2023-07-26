@@ -127,15 +127,18 @@ const HitsVec Action_attack<CharState_t, CharData, Char_t>::getCurrentHits(int c
 }
 
 template <typename CharState_t, typename CharData, typename Char_t>
-const Vector2<float> &Action_attack<CharState_t, CharData, Char_t>::getCurrentVelocity(int currentFrame_) const
+const Vector2<float> *Action_attack<CharState_t, CharData, Char_t>::getCurrentVelocity(int currentFrame_) const
 {
     for (const auto &el : m_velocity)
     {
         if (el.first.first <= currentFrame_ && el.first.second >= currentFrame_)
-            return el.second;
+            return &el.second;
     }
 
-    return {};
+    if (m_velocity.empty())
+        return nullptr;
+    else
+        return &nullvec;
 }
 
 template <typename CharState_t, typename CharData, typename Char_t>
@@ -382,6 +385,8 @@ void Action_char1_jump::switchTo(Char1 &character_) const
         character_.turnVelocityToInertia();
     else
         character_.m_velocity = {0.0f, 0.0f};
+
+    character_.m_jumpFramesCounter = 5;
 }
 
 // NEUTRAL JUMP ACTION
@@ -459,8 +464,16 @@ Action_char1_airjump::Action_char1_airjump(const Vector2<float> &impulse_, Input
 
 int Action_char1_airjump::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
 {
-    if (charData_.inHitstop)
+    if (charData_.inHitstop || charData_.usedDoubleJump || !charData_.canDoubleJumpAfterPrejump)
         return 0;
+
+    if (charData_.cancelOptions)
+    {
+        if (charData_.cancelOptions->contains((int)actionState))
+        {
+            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+        }
+    }
 
     switch (charData_.state)
     {
@@ -687,13 +700,13 @@ void Action_char1_knockdown_recovery::switchTo(Char1 &character_) const
     character_.turnVelocityToInertia();
 }
 
-// ABSTRACT CHAR1 ATTACK ACTION
-Action_char1_attack::Action_char1_attack(CHAR1_STATE actionState_, ANIMATIONS anim_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec hurtboxes_, std::vector<std::pair<std::pair<int, int>, Vector2<float>>> velocity_) :
+// ABSTRACT CHAR1 GROUND ATTACK ACTION
+Action_char1_ground_attack::Action_char1_ground_attack(CHAR1_STATE actionState_, ANIMATIONS anim_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec hurtboxes_, std::vector<std::pair<std::pair<int, int>, Vector2<float>>> velocity_) :
     Action_attack<CHAR1_STATE, Char1Data, Char1>(actionState_, std::move(incmp_), fullDuration_, hits_, hurtboxes_, velocity_, anim_)
 {
 }
 
-int Action_char1_attack::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+int Action_char1_ground_attack::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
 {
     if (charData_.inHitstop)
         return 0;
@@ -734,14 +747,14 @@ int Action_char1_attack::isPossible(const InputQueue &inputQueue_, Char1Data cha
     return false;
 }
 
-void Action_char1_attack::outdated(Char1 &character_) const
+void Action_char1_ground_attack::outdated(Char1 &character_) const
 {
     character_.m_velocity = {0.0f, 0.0f};
     character_.switchToIdle();
 
 }
 
-void Action_char1_attack::switchTo(Char1 &character_) const
+void Action_char1_ground_attack::switchTo(Char1 &character_) const
 {
     if (character_.m_currentState == CHAR1_STATE::SOFT_LANDING_RECOVERY)
                     character_.updateOwnOrientation();
@@ -749,9 +762,59 @@ void Action_char1_attack::switchTo(Char1 &character_) const
     Action_attack<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
 }
 
+// ABSTRACT CHAR1 AIR ATTACK ACTION
+Action_char1_air_attack::Action_char1_air_attack(CHAR1_STATE actionState_, ANIMATIONS anim_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec hurtboxes_) :
+    Action_attack<CHAR1_STATE, Char1Data, Char1>(actionState_, std::move(incmp_), fullDuration_, hits_, hurtboxes_, {}, anim_)
+{
+}
+
+int Action_char1_air_attack::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+{
+    if (charData_.inHitstop)
+        return 0;
+
+    if (charData_.cancelOptions)
+    {
+        if (charData_.cancelOptions->contains((int)actionState))
+        {
+            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+        }
+    }
+
+    switch (charData_.state)
+    {
+
+        case (CHAR1_STATE::JUMP):
+            [[fallthrough]];
+            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+            break;
+
+        default:
+            return 0;
+            break;
+    }
+
+    throw std::runtime_error("Undefined state transition");
+    return false;
+}
+
+void Action_char1_air_attack::outdated(Char1 &character_) const
+{
+    character_.m_currentState = CHAR1_STATE::JUMP;
+    character_.m_currentAnimation = character_.m_animations[ANIMATIONS::CHAR1_JUMP].get();
+    character_.m_currentAction = character_.m_reservedAction;
+}
+
+void Action_char1_air_attack::switchTo(Char1 &character_) const
+{
+    character_.m_reservedAction = character_.m_currentAction;
+    Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    character_.m_timer.begin(m_fullDuration);
+}
+
 // JAB ACTION
 Action_char1_jab::Action_char1_jab() :
-    Action_char1_attack(CHAR1_STATE::MOVE_A, ANIMATIONS::CHAR1_MOVE_A, std::make_unique<InputComparatorAPress>(), 16,
+    Action_char1_ground_attack(CHAR1_STATE::MOVE_A, ANIMATIONS::CHAR1_MOVE_A, std::make_unique<InputComparatorAPress>(), 16,
     {
         {
             {5, 7},
@@ -774,7 +837,7 @@ Action_char1_jab::Action_char1_jab() :
 
 // MOVE B ACTION
 Action_char1_move_B::Action_char1_move_B() :
-    Action_char1_attack(CHAR1_STATE::MOVE_B, ANIMATIONS::CHAR1_MOVE_B, std::make_unique<InputComparatorBPress>(), 22,
+    Action_char1_ground_attack(CHAR1_STATE::MOVE_B, ANIMATIONS::CHAR1_MOVE_B, std::make_unique<InputComparatorBPress>(), 22,
     {
         {
             {7, 10},
@@ -806,7 +869,7 @@ Action_char1_move_B::Action_char1_move_B() :
 
 // MOVE C ACTION
 Action_char1_move_C::Action_char1_move_C() :
-    Action_char1_attack(CHAR1_STATE::MOVE_C, ANIMATIONS::CHAR1_MOVE_C, std::make_unique<InputComparatorCPress>(), 34,
+    Action_char1_ground_attack(CHAR1_STATE::MOVE_C, ANIMATIONS::CHAR1_MOVE_C, std::make_unique<InputComparatorCPress>(), 34,
     {
         {
             {13, 16},
@@ -859,7 +922,7 @@ Action_char1_move_C::Action_char1_move_C() :
 
 // MOVE 2B ACTION
 Action_char1_move_2B::Action_char1_move_2B() :
-    Action_char1_attack(CHAR1_STATE::MOVE_2B, ANIMATIONS::CHAR1_MOVE_2B, std::make_unique<InputComparator2BPress>(), 29,
+    Action_char1_ground_attack(CHAR1_STATE::MOVE_2B, ANIMATIONS::CHAR1_MOVE_2B, std::make_unique<InputComparator2BPress>(), 29,
     {
         {
             {10, 12},
@@ -892,6 +955,28 @@ Action_char1_move_2B::Action_char1_move_2B() :
         {
             {26, 29},
             {-23.0f, 0.0f}
+        }
+    })
+{
+}
+
+// j.A ACTION
+Action_char1_move_JA::Action_char1_move_JA() :
+    Action_char1_air_attack(CHAR1_STATE::MOVE_JA, ANIMATIONS::CHAR1_MOVE_JA, std::make_unique<InputComparatorAPress>(), 17,
+    {
+        {
+            {6, 8},
+            hitgeneration::generate_char1_JA()
+        }
+    },
+    {
+        {
+            {1, 17},
+            {-70, -350, 140, 300}
+        },
+        {
+            {5, 11},
+            {40.0f, -290.0f, 100.0f, 100.0f}
         }
     })
 {

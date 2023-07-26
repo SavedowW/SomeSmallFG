@@ -12,7 +12,8 @@
 
 /*
  * TODO: LIST
- * crouching and jumping attacks [1/2 DONE]
+ * crouching and jumping attacks [DONE]
+ * air attacks that alter inertia
  * lows, overheads, unblockables [DONE]
  * hard and soft knockdown [1/2 DONE, soft knd needs its own animation]
  * different types of landing recovery
@@ -29,6 +30,12 @@
  * * Wallbang (?): when character blocks an attack with wallbang (?) property, he gets into a wallbang blockstun.
  * * When character in wallbang blockstun touches the wall, he takes an unblockable hit with very low damage and hitstun,
  * * but 100% proratio. He can be comboed from this hit, but it should depend on spacing 
+ * from above / from below property (probably rename)
+ * aerial hitstun scaling
+ * Aerial breakaway and fatal counter
+ * * This game has no airtech, but aerial breakaway is a kind of combo breaker. If the character tries to guess if the next attack
+ * * will be "from above" or "from below" and guesses correctly, he enters fully invulnerable state, escapes the combo and potentially punishes it.
+ * * If he guesses wrong, he takes a "fatal counter" that has different properties and resets gravity scaling
  * 
  * blockstun scaling
  * knockdown state

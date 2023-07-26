@@ -131,7 +131,7 @@ Hit hitgeneration::generate_char1_move2B()
     hdata.hitstop = 11;
     hdata.chHitstop = 13;
     hdata.hitBlockShakeAmp = 15;
-    hdata.canBeBlockedAs = {BLOCK_STATE::LOW, BLOCK_STATE::AIR, BLOCK_STATE::AUTO};
+    hdata.canBeBlockedAs = {BLOCK_STATE::LOW, BLOCK_STATE::AIR};
 
     Hit hit(hdata, {{10.0f, -100.0f, 110.0f, 100.0f}, {120.0f, -40.0f, 70.0f, 40.0f}});
 
@@ -142,6 +142,38 @@ Hit hitgeneration::generate_char1_move2B()
     hit.cancelsOnBlock.first.first = 1;
     hit.cancelsOnBlock.first.second = 15;
     hit.cancelsOnBlock.second = {(int)CHAR1_STATE::MOVE_C};
+
+    return hit;
+}
+
+Hit hitgeneration::generate_char1_JA()
+{
+    HitData hdata;
+    hdata.m_hitId = 1;
+    hdata.damage = 5.0f;
+    hdata.opponentPushbackOnBlock = 7.0f;
+    hdata.opponentImpulseOnHit = {6.0f, 0.0f};
+    hdata.opponentImpulseOnAirHit = {8.0f, -5.0f};
+    hdata.cornerPushbackMaxRange = 390.0f;
+    hdata.cornerPushbackMinImpulse = 8.0f;
+    hdata.cornerPushbackMaxImpulse = 25.0f;
+    hdata.blockstun = 7;
+    hdata.hitstun = 12;
+    hdata.chHitstun = 20;
+    hdata.hitstop = 10;
+    hdata.chHitstop = 12;
+    hdata.hitBlockShakeAmp = 0;
+    hdata.canBeBlockedAs = {BLOCK_STATE::HIGH, BLOCK_STATE::AIR};
+
+    Hit hit(hdata, {{50.0f, -280.0f, 80.0f, 80.0f}, {110.0f, -220.0f, 50.0f, 50.0f}});
+
+    hit.cancelsOnHit.first.first = 1;
+    hit.cancelsOnHit.first.second = 9;
+    hit.cancelsOnHit.second = {(int)CHAR1_STATE::JUMP, (int)CHAR1_STATE::MOVE_JA};
+
+    hit.cancelsOnBlock.first.first = 1;
+    hit.cancelsOnBlock.first.second = 9;
+    hit.cancelsOnBlock.second = {(int)CHAR1_STATE::JUMP, (int)CHAR1_STATE::MOVE_JA};
 
     return hit;
 }

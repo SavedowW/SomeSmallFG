@@ -106,6 +106,9 @@ const Action<CharState_t, CharData, Char_t> *ActionResolver<CharState_t, CharDat
 {
    //std::cout << "=== UPDATE RESOLVER ===\n";
 
+    if (!charData.inHitstop && charData.state == CHAR1_STATE::MOVE_JA && m_currentInput.isInputActive(INPUT_BUTTON::UP))
+        std::cout << "";
+
     m_currentInput.setDirFromButtons();
 
     m_inputQueue.push(m_currentInput);
