@@ -23,9 +23,11 @@
  * counter hit (with CH hitstun, hitstop and impulse)
  * Particles
  * 
+ * throws
  * Projectiles
  * Clash, forced clash property
  * parries, guard points
+ * Ground bounce
  * Wallbounce, wallsplat, wallbang (?)
  * * Wallbang (?): when character blocks an attack with wallbang (?) property, he gets into a wallbang blockstun.
  * * When character in wallbang blockstun touches the wall, he takes an unblockable hit with very low damage and hitstun,
