@@ -14,7 +14,7 @@
  * TODO: LIST
  * crouching and jumping attacks [1/2 DONE]
  * lows, overheads, unblockables [DONE]
- * hard and soft knockdown
+ * hard and soft knockdown [1/2 DONE, soft knd needs its own animation]
  * different types of landing recovery
  * * Hard when blocks attack in the air (can only block during recovery)
  * * Vulnerable when uses air attacks (cannot block or do any attack for a period of time)

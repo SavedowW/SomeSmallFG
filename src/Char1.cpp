@@ -29,6 +29,8 @@ void ActionResolver_Char1::createActions()
     m_actions.push_back(std::make_unique<Action_char1_crouch>());
     m_actions.push_back(std::make_unique<Action_char1_idle>());
     m_actions.push_back(std::make_unique<Action_char1_soft_landing_recovery>());
+    m_actions.push_back(std::make_unique<Action_char1_hard_knockdown>());
+    m_actions.push_back(std::make_unique<Action_char1_knockdown_recovery>());
     
 }
 
@@ -61,6 +63,8 @@ void Char1::loadAnimations(Application &application_)
     m_animations[ANIMATIONS::CHAR1_HITSTUN_AIR] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_HITSTUN_AIR, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_BLOCKSTUN_STANDING] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_BLOCKSTUN_STANDING, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_BLOCKSTUN_CROUCHING] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_BLOCKSTUN_CROUCHING, LOOPMETHOD::NOLOOP);
+    m_animations[ANIMATIONS::CHAR1_KNOCKDOWN] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_KNOCKDOWN, LOOPMETHOD::NOLOOP);
+    m_animations[ANIMATIONS::CHAR1_KNOCKDOWN_RECOVERY] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_KNOCKDOWN_RECOVERY, LOOPMETHOD::NOLOOP);
 
     m_currentAnimation = m_animations[ANIMATIONS::CHAR1_IDLE].get();
     m_currentAnimation->reset();
@@ -105,7 +109,6 @@ void Char1::proceedCurrentState()
                 case (CHAR1_STATE::PREJUMP):
                     jumpUsingAction();
                     break;
-
                 
                 case (CHAR1_STATE::HITSTUN):
                     [[fallthrough]];
@@ -241,7 +244,7 @@ void Char1::land()
 
         // TODO: airborne hitstun to knd
         case (CHAR1_STATE::HITSTUN_AIR):
-            switchToSoftLandingRecovery();
+            enterKndRecovery();
             m_currentTakenHit.m_hitId = -1;
             break;
 
@@ -522,6 +525,10 @@ std::string Char1::CharStateData() const
         case (CHAR1_STATE::MOVE_C):
             stateName = "MOVE_C";
             break;
+
+        case (CHAR1_STATE::MOVE_2B):
+            stateName = "MOVE_2B";
+            break;
         
         case (CHAR1_STATE::BLOCKSTUN_STANDING):
             stateName = "BLOCKSTUN_STANDING";
@@ -533,6 +540,14 @@ std::string Char1::CharStateData() const
         
         case (CHAR1_STATE::BLOCKSTUN_AIR):
             stateName = "BLOCKSTUN_AIR";
+            break;
+
+        case (CHAR1_STATE::HARD_KNOCKDOWN):
+            stateName = "HARD_KNOCKDOWN";
+            break;
+
+        case (CHAR1_STATE::KNOCKDOWN_RECOVERY):
+            stateName = "KNOCKDOWN_RECOVERY";
             break;
 
         default:
@@ -564,9 +579,7 @@ std::string Char1::CharStateData() const
 
 bool Char1::isInActiveFrames() const
 {
-    if (m_currentState == CHAR1_STATE::MOVE_A ||
-    m_currentState == CHAR1_STATE::MOVE_B ||
-    m_currentState == CHAR1_STATE::MOVE_C)
+    if (m_currentAction && m_currentAction->m_isAttack)
     {
         auto atkAction = dynamic_cast<const Action_attack<CHAR1_STATE, Char1Data, Char1>*>(m_currentAction);
         return atkAction->getCurrentHits(m_timer.getCurrentFrame() + 1, m_pos, m_ownOrientation).size();
@@ -578,4 +591,9 @@ bool Char1::isInActiveFrames() const
 bool Char1::isInHitstun() const
 {
     return (m_currentState == CHAR1_STATE::HITSTUN || m_currentState == CHAR1_STATE::HITSTUN_AIR);
+}
+
+void Char1::enterKndRecovery()
+{
+    m_actionResolver.getAction(CHAR1_STATE::KNOCKDOWN_RECOVERY)->switchTo(*this);
 }

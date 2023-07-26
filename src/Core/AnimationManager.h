@@ -25,6 +25,8 @@ enum class ANIMATIONS
 	CHAR1_HITSTUN_AIR,
 	CHAR1_BLOCKSTUN_STANDING,
 	CHAR1_BLOCKSTUN_CROUCHING,
+	CHAR1_KNOCKDOWN,
+	CHAR1_KNOCKDOWN_RECOVERY,
 	NONE
 };
 
@@ -92,7 +94,9 @@ private:
 		"Resources/Sprites/Char1/HighHitstun/",
 		"Resources/Sprites/Char1/AirHitstun/",
 		"Resources/Sprites/Char1/StandingBlock/",
-		"Resources/Sprites/Char1/CrouchBlock/"
+		"Resources/Sprites/Char1/CrouchBlock/",
+		"Resources/Sprites/Char1/Knockdown/",
+		"Resources/Sprites/Char1/KnockdownRecovery/"
 	};
 	std::map<ANIMATIONS, std::weak_ptr<TextureArr>> m_textureArrPointers;
 

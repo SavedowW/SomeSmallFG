@@ -641,6 +641,52 @@ void Action_char1_soft_landing_recovery::switchTo(Char1 &character_) const
     character_.m_timer.begin(6);
 }
 
+// HARD KNOCKDOWN ACTION
+Action_char1_hard_knockdown::Action_char1_hard_knockdown() :
+    Action(CHAR1_STATE::HARD_KNOCKDOWN, nullptr, {}, ANIMATIONS::CHAR1_KNOCKDOWN)
+{
+}
+
+int Action_char1_hard_knockdown::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+{
+    return false;
+}
+
+void Action_char1_hard_knockdown::outdated(Char1 &character_) const
+{
+    character_.enterKndRecovery();
+}
+
+void Action_char1_hard_knockdown::switchTo(Char1 &character_) const
+{
+    Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    character_.m_timer.begin(30);
+    character_.m_velocity = {0.0f, 0.0f};
+}
+
+// KNOCKDOWN RECOVERY ACTION
+Action_char1_knockdown_recovery::Action_char1_knockdown_recovery() :
+    Action(CHAR1_STATE::KNOCKDOWN_RECOVERY, nullptr, {}, ANIMATIONS::CHAR1_KNOCKDOWN_RECOVERY)
+{
+}
+
+int Action_char1_knockdown_recovery::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+{
+    return false;
+}
+
+void Action_char1_knockdown_recovery::outdated(Char1 &character_) const
+{
+    character_.switchToIdle();
+}
+
+void Action_char1_knockdown_recovery::switchTo(Char1 &character_) const
+{
+    Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    character_.m_timer.begin(21);
+    character_.turnVelocityToInertia();
+}
+
 // ABSTRACT CHAR1 ATTACK ACTION
 Action_char1_attack::Action_char1_attack(CHAR1_STATE actionState_, ANIMATIONS anim_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec hurtboxes_, std::vector<std::pair<std::pair<int, int>, Vector2<float>>> velocity_) :
     Action_attack<CHAR1_STATE, Char1Data, Char1>(actionState_, std::move(incmp_), fullDuration_, hits_, hurtboxes_, velocity_, anim_)

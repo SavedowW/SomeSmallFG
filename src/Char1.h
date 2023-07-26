@@ -25,7 +25,9 @@ enum class CHAR1_STATE {
     MOVE_2B,
     BLOCKSTUN_STANDING,
     BLOCKSTUN_CROUCHING,
-    BLOCKSTUN_AIR
+    BLOCKSTUN_AIR,
+    HARD_KNOCKDOWN,
+    KNOCKDOWN_RECOVERY
     };
 
 struct Char1Data : public CharData<CHAR1_STATE>
@@ -69,6 +71,7 @@ protected:
     void switchToIdle();
     void jumpUsingAction();
     void switchToSoftLandingRecovery();
+    void enterKndRecovery();
     Char1Data generateCharData();
     bool isInActiveFrames() const;
 
@@ -107,6 +110,8 @@ protected:
     friend Action_char1_jump;
     friend Action_char1_ground_dash_recovery;
     friend Action_char1_soft_landing_recovery;
+    friend Action_char1_hard_knockdown;
+    friend Action_char1_knockdown_recovery;
 };
 
 #endif
