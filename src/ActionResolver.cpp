@@ -79,6 +79,7 @@ void ActionResolver<CharState_t, CharData, Char_t>::receiveInput(EVENTS event_, 
             [[fallthrough]];
         case (EVENTS::UP_P2):
             m_currentInput.inputs[INPUT_BUTTON::UP] = (scale_ == 1.0f ? INPUT_BUTTON_STATE::PRESSED : INPUT_BUTTON_STATE::RELEASED);
+            std::cout << "UP RECEIVED!" << std::endl;
             break;
 
         case (EVENTS::DOWN_P1):

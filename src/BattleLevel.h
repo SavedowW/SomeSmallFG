@@ -27,6 +27,11 @@ public:
         Level::enter();
         m_camera.setPos(gamedata::stages::startingCameraPos);
         m_camera.setScale(gamedata::stages::startingCameraScale);
+
+        auto &renderer = *m_application->getRenderer();
+
+        tex = renderer.loadTexture("bartex.png");
+        back = renderer.loadTexture("barback.png"); 
     }
 
     virtual ~BattleLevel()
@@ -254,6 +259,54 @@ protected:
         for (auto &el : m_characters)
             el->draw(*m_application->getRenderer(), m_camera);
 
+        float center = gamedata::global::cameraWidth / 2;
+        float centerOffset = 70.0f;
+        float width = 600.0f;
+        float diagonalOffset = 20.0f;
+        float height = 50.0f;
+        float topOffset = 50.0f;
+        float backWidth = 10;
+
+        SDL_Vertex vertices1[] =
+        {
+            {{center - centerOffset - diagonalOffset - width * len, topOffset}, {255, 255, 255, 255}, {1.0f - len, 0.0f}},
+            {{center - centerOffset - diagonalOffset, topOffset}, {255, 255, 255, 255}, {1.0f, 0.0f}},
+            {{center - centerOffset, topOffset + height}, {255, 255, 255, 255}, {1.0f, 1.0f}},
+            {{center - centerOffset - width * len, topOffset + height}, {255, 255, 255, 255}, {1.0f - len, 1.0f}}
+        };
+        SDL_Vertex verticesBack1[] =
+        {
+            {{center - centerOffset - diagonalOffset - width - backWidth, topOffset - backWidth}, {255, 255, 255, 255}, {0.0f, 0.0f}},
+            {{center - centerOffset - diagonalOffset + backWidth, topOffset - backWidth}, {255, 255, 255, 255}, {1.0f, 0.0f}},
+            {{center - centerOffset + backWidth, topOffset + height + backWidth}, {255, 255, 255, 255}, {1.0f, 1.0f}},
+            {{center - centerOffset - width - backWidth, topOffset + height + backWidth}, {255, 255, 255, 255}, {0.0f, 1.0f}}
+        };
+
+        SDL_Vertex vertices2[] =
+        {
+            {{center + centerOffset + diagonalOffset + width * len, topOffset}, {255, 255, 255, 255}, {1.0f - len, 0.0f}},
+            {{center + centerOffset + diagonalOffset, topOffset}, {255, 255, 255, 255}, {1.0f, 0.0f}},
+            {{center + centerOffset, topOffset + height}, {255, 255, 255, 255}, {1.0f, 1.0f}},
+            {{center + centerOffset + width * len, topOffset + height}, {255, 255, 255, 255}, {1.0f - len, 1.0f}}
+        };
+        int indices1[] = {0, 1, 2};
+        int indices2[] = {0, 2, 3};
+
+        SDL_RenderGeometry(renderer.m_renderer, back, verticesBack1, 4, indices1, 3);
+        SDL_RenderGeometry(renderer.m_renderer, back, verticesBack1, 4, indices2, 3);
+
+        SDL_RenderGeometry(renderer.m_renderer, tex, vertices1, 4, indices1, 3);
+        SDL_RenderGeometry(renderer.m_renderer, tex, vertices1, 4, indices2, 3);
+
+        SDL_RenderGeometry(renderer.m_renderer, tex, vertices2, 4, indices1, 3);
+        SDL_RenderGeometry(renderer.m_renderer, tex, vertices2, 4, indices2, 3);
+
+        renderer.renderTexture(tex, 10, 150);
+
+        //len += 0.01f;
+        if (len > 1.0f)
+            len = 0;
+
     	renderer.updateScreen();
     }
 
@@ -264,6 +317,11 @@ protected:
 
     std::array<std::unique_ptr<Character>, 2> m_characters;
     int m_maxCharRange;
+
+    SDL_Texture *tex;
+    SDL_Texture *back;
+
+    float len = 1.0f;
 };
 
 #endif

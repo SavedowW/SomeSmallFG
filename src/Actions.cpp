@@ -387,6 +387,7 @@ void Action_char1_jump::switchTo(Char1 &character_) const
         character_.m_velocity = {0.0f, 0.0f};
 
     character_.m_jumpFramesCounter = 5;
+    character_.m_airadashFramesCounter = 6;
 }
 
 // NEUTRAL JUMP ACTION
@@ -447,6 +448,29 @@ Action_char1_backward_jump::Action_char1_backward_jump() :
 }
 
 
+// FLOAT ACTION
+Action_char1_float::Action_char1_float() :
+    Action(CHAR1_STATE::FLOAT, std::move(std::make_unique<InputComparatorUpHold>()), {
+        {
+            {0, 1},
+            {-70, -350, 140, 300}
+        }
+    }, ANIMATIONS::CHAR1_JUMP)
+{
+}
+
+int Action_char1_float::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+{
+    return false;
+}
+
+void Action_char1_float::switchTo(Char1 &character_) const
+{
+    Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+
+    //character_.turnVelocityToInertia();
+    character_.m_currentState = CHAR1_STATE::JUMP;
+}
 
 
 
@@ -574,6 +598,65 @@ int Action_char1_ground_dash::isPossible(const InputQueue &inputQueue_, Char1Dat
 
     throw std::runtime_error("Undefined state transition");
     return false;
+}
+
+// AIR DASH ACTION
+Action_char1_air_dash::Action_char1_air_dash() :
+    Action(CHAR1_STATE::AIR_DASH, std::move(std::make_unique<InputComparator66>()), {
+        {
+            {1, gamedata::characters::char1::airdashDuration},
+            {-70, -350, 140, 300}
+        }
+    }, ANIMATIONS::CHAR1_AIRDASH),
+    m_duration(gamedata::characters::char1::airdashDuration)
+{
+}
+
+int Action_char1_air_dash::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+{
+    if (charData_.inHitstop || charData_.usedAirDash || !charData_.canAirdashAfterPrejump)
+        return 0;
+
+        if (charData_.cancelOptions)
+    {
+        if (charData_.cancelOptions->contains((int)actionState))
+        {
+            return (isInputPossible(inputQueue_, charData_.ownDirection) && !charData_.usedAirDash ? 1 : 0);
+        }
+    }
+
+    switch (charData_.state)
+    {
+        case (CHAR1_STATE::AIR_DASH):
+            return -1;
+            break;
+
+        case (CHAR1_STATE::JUMP):
+            return (isInputPossible(inputQueue_, charData_.ownDirection) && !charData_.usedAirDash ? 1 : 0);
+            break;
+
+        default:
+            return 0;
+            break;
+    }
+
+    throw std::runtime_error("Undefined state transition");
+    return false;
+}
+
+void Action_char1_air_dash::outdated(Char1 &character_) const
+{
+    character_.m_actionResolver.getAction(CHAR1_STATE::FLOAT)->switchTo(character_);
+    character_.m_currentAnimation = character_.m_animations[m_anim].get();
+}
+
+void Action_char1_air_dash::switchTo(Char1 &character_) const
+{
+    character_.m_velocity = {0, 0};
+    character_.m_inertia = {0, 0};
+    character_.m_velocity = character_.getOwnHorDir().mulComponents(Vector2{gamedata::characters::char1::airdashSpeed, 0.0f});
+    Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    character_.m_timer.begin(m_duration);
 }
 
 // GROUND DASH RECOVERY ACTION
@@ -800,9 +883,7 @@ int Action_char1_air_attack::isPossible(const InputQueue &inputQueue_, Char1Data
 
 void Action_char1_air_attack::outdated(Char1 &character_) const
 {
-    character_.m_currentState = CHAR1_STATE::JUMP;
-    character_.m_currentAnimation = character_.m_animations[ANIMATIONS::CHAR1_JUMP].get();
-    character_.m_currentAction = character_.m_reservedAction;
+    character_.m_actionResolver.getAction(CHAR1_STATE::FLOAT)->switchTo(character_);
 }
 
 void Action_char1_air_attack::switchTo(Char1 &character_) const

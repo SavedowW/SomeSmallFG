@@ -175,6 +175,14 @@ public:
     Action_char1_backward_jump();
 };
 
+class Action_char1_float : public Action<CHAR1_STATE, Char1Data, Char1>
+{
+public:
+    Action_char1_float();
+    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_) const override;
+    virtual void switchTo(Char1 &character_) const;
+};
+
 class Action_char1_airjump : public Action<CHAR1_STATE, Char1Data, Char1>
 {
 public:
@@ -219,6 +227,16 @@ public:
     virtual void outdated(Char1 &character_) const override;
     virtual void switchTo(Char1 &character_) const;
     const int m_recoveryLen;
+};
+
+class Action_char1_air_dash : public Action<CHAR1_STATE, Char1Data, Char1>
+{
+public:
+    Action_char1_air_dash();
+    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_) const override;
+    virtual void outdated(Char1 &character_) const override;
+    virtual void switchTo(Char1 &character_) const;
+    const int m_duration;
 };
 
 class Action_char1_soft_landing_recovery : public Action<CHAR1_STATE, Char1Data, Char1>

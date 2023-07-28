@@ -12,15 +12,16 @@ ActionResolver_Char1::ActionResolver_Char1(InputSystem *input_) :
 
 void ActionResolver_Char1::createActions()
 {
+    m_actions.push_back(std::make_unique<Action_char1_air_dash>());
+    m_actions.push_back(std::make_unique<Action_char1_backward_doublejump>());
+    m_actions.push_back(std::make_unique<Action_char1_forward_doublejump>());
+    m_actions.push_back(std::make_unique<Action_char1_neutral_doublejump>());
     m_actions.push_back(std::make_unique<Action_char1_move_JA>());
     m_actions.push_back(std::make_unique<Action_char1_move_2B>());
     m_actions.push_back(std::make_unique<Action_char1_move_C>());
     m_actions.push_back(std::make_unique<Action_char1_move_B>());
     m_actions.push_back(std::make_unique<Action_char1_jab>());
     m_actions.push_back(std::make_unique<Action_char1_ground_dash>());
-    m_actions.push_back(std::make_unique<Action_char1_backward_doublejump>());
-    m_actions.push_back(std::make_unique<Action_char1_forward_doublejump>());
-    m_actions.push_back(std::make_unique<Action_char1_neutral_doublejump>());
     m_actions.push_back(std::make_unique<Action_char1_backward_jump>());
     m_actions.push_back(std::make_unique<Action_char1_forward_jump>());
     m_actions.push_back(std::make_unique<Action_char1_neutral_jump>());
@@ -32,6 +33,7 @@ void ActionResolver_Char1::createActions()
     m_actions.push_back(std::make_unique<Action_char1_soft_landing_recovery>());
     m_actions.push_back(std::make_unique<Action_char1_hard_knockdown>());
     m_actions.push_back(std::make_unique<Action_char1_knockdown_recovery>());
+    m_actions.push_back(std::make_unique<Action_char1_float>());
     
 }
 
@@ -54,6 +56,7 @@ void Char1::loadAnimations(Application &application_)
     m_animations[ANIMATIONS::CHAR1_LANDING_RECOVERY] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_LANDING_RECOVERY);
     m_animations[ANIMATIONS::CHAR1_GROUND_DASH] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_GROUND_DASH, LOOPMETHOD::JUMP_LOOP);
     m_animations[ANIMATIONS::CHAR1_GROUND_DASH_RECOVERY] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_GROUND_DASH_RECOVERY);
+    m_animations[ANIMATIONS::CHAR1_AIRDASH] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_AIRDASH, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_MOVE_A] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_MOVE_A, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_MOVE_B] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_MOVE_B, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_MOVE_C] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_MOVE_C, LOOPMETHOD::NOLOOP);
@@ -100,8 +103,11 @@ void Char1::initiate()
 
 void Char1::proceedCurrentState()
 {
-    if (m_jumpFramesCounter && m_currentState == CHAR1_STATE::JUMP)
+    if (m_jumpFramesCounter && m_airborne)
         m_jumpFramesCounter--;
+
+    if (m_airadashFramesCounter && m_airborne)
+        m_airadashFramesCounter--;
 
     if (!m_inHitstop)
     {
@@ -150,6 +156,7 @@ void Char1::updateState()
         int timer = m_cancelTimer.getCurrentFrame();
         if (timer > m_currentCancelWindow.first.second)
         {
+            std::cout << "Cancel window outdated\n";
             m_cancelTimer.begin(0);
             m_currentCancelWindow = {};
         }
@@ -232,6 +239,7 @@ Char1Data Char1::generateCharData()
     charData.usedAirDash = m_usedAirDash;
     charData.inHitstop = m_inHitstop;
     charData.canDoubleJumpAfterPrejump = (m_jumpFramesCounter == 0);
+    charData.canAirdashAfterPrejump = (m_airadashFramesCounter == 0);
 
     if (!m_currentCancelWindow.second.empty())
         charData.cancelOptions = &m_currentCancelWindow.second;
@@ -603,4 +611,11 @@ bool Char1::isInHitstun() const
 void Char1::enterKndRecovery()
 {
     m_actionResolver.getAction(CHAR1_STATE::KNOCKDOWN_RECOVERY)->switchTo(*this);
+}
+
+bool Char1::canApplyGravity() const
+{
+    if (m_currentState == CHAR1_STATE::AIR_DASH)
+        return false;
+    return true;
 }

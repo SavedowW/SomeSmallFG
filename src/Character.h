@@ -19,7 +19,7 @@
  * different types of landing recovery
  * * Hard when blocks attack in the air (can only block during recovery)
  * * Vulnerable when uses air attacks (cannot block or do any attack for a period of time)
- * airdash, backdash, air backdash
+ * airdash, backdash, air backdash [1/3 done]
  * counter hit (with CH hitstun, hitstop and impulse)
  * Particles
  * 

@@ -32,6 +32,7 @@ public:
 	//Primitives
 	void drawRectangle(const Vector2<float> &pos_, const Vector2<float> &size_, const SDL_Color& col_, const Camera &cam_);
 	void fillRectangle(const Vector2<float> &pos_, const Vector2<float> &size_, const SDL_Color& col_, const Camera &cam_);
+	//void renderGeometry(SDL_Texture *tex_, const SDL_Vertex *vertices_, int numOfVertices);
 
 	//Global render
 	void fillRenderer(const SDL_Color &col_);
@@ -40,7 +41,7 @@ public:
 	//Render target settings
 	void setRenderTarget(SDL_Texture* tex_ = NULL);
 
-private:
+//private:
     SDL_Renderer* m_renderer = nullptr;
 
 

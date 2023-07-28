@@ -16,9 +16,11 @@ enum class CHAR1_STATE {
     WALK_BWD,
     PREJUMP,
     JUMP,
+    FLOAT,
     SOFT_LANDING_RECOVERY,
     GROUND_DASH,
     GROUND_DASH_RECOVERY,
+    AIR_DASH,
     MOVE_A,
     MOVE_B,
     MOVE_C,
@@ -35,6 +37,7 @@ struct Char1Data : public CharData<CHAR1_STATE>
 {
     bool usedDoubleJump;
     bool canDoubleJumpAfterPrejump;
+    bool canAirdashAfterPrejump;
     bool usedAirDash;
     bool inHitstop;
     std::set<int> *cancelOptions = nullptr;
@@ -66,6 +69,7 @@ public:
     HIT_RESULT applyHit(const HitEvent &hitEvent, HIT_RESULT hitRes_ = HIT_RESULT::NONE) final;
     void updateBlockState() final;
     bool isInHitstun() const final;
+    bool canApplyGravity() const final;
 
     std::string CharStateData() const final;
 
@@ -99,6 +103,7 @@ protected:
     FrameTimer m_cancelTimer;
 
     int m_jumpFramesCounter = 0;
+    int m_airadashFramesCounter = 0;
     
 
     friend Action<CHAR1_STATE, Char1Data, Char1>;
@@ -117,6 +122,8 @@ protected:
     friend Action_char1_hard_knockdown;
     friend Action_char1_knockdown_recovery;
     friend Action_char1_air_attack;
+    friend Action_char1_air_dash;
+    friend Action_char1_float;
 };
 
 #endif
