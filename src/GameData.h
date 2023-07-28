@@ -75,7 +75,11 @@ namespace gamedata
             inline constexpr float dashMaxSpeed = 20.0f;
             inline constexpr float dashRecovery = 8;
             inline constexpr float airdashDuration = 10.0f;
+            inline constexpr float airdashExtentionDuration = 15.0f;
             inline constexpr float airdashSpeed = 25.0f;
+            inline constexpr float airdashExtentionMaxSpeed = 25.0f;
+            inline constexpr float airdashExtentionMinSpeed = 15.0f;
+            inline constexpr float doubleJumpInertiaDivider = 3.0f;
         }
     }
 }

@@ -21,6 +21,7 @@ enum class CHAR1_STATE {
     GROUND_DASH,
     GROUND_DASH_RECOVERY,
     AIR_DASH,
+    AIR_DASH_EXTENTION,
     MOVE_A,
     MOVE_B,
     MOVE_C,
@@ -78,6 +79,7 @@ protected:
     void jumpUsingAction();
     void switchToSoftLandingRecovery();
     void enterKndRecovery();
+    void switchToFloat();
     Char1Data generateCharData();
     bool isInActiveFrames() const;
 
@@ -123,6 +125,7 @@ protected:
     friend Action_char1_knockdown_recovery;
     friend Action_char1_air_attack;
     friend Action_char1_air_dash;
+    friend Action_char1_air_dash_extention;
     friend Action_char1_float;
 };
 

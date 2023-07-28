@@ -34,7 +34,7 @@ void ActionResolver_Char1::createActions()
     m_actions.push_back(std::make_unique<Action_char1_hard_knockdown>());
     m_actions.push_back(std::make_unique<Action_char1_knockdown_recovery>());
     m_actions.push_back(std::make_unique<Action_char1_float>());
-    
+    m_actions.push_back(std::make_unique<Action_char1_air_dash_extention>());
 }
 
 Char1::Char1(Application &application_, Vector2<float> pos_) :
@@ -187,6 +187,10 @@ void Char1::updateState()
         auto newVelocity = atkAction->getCurrentVelocity(m_timer.getCurrentFrame() + 1);
         if (newVelocity)
             m_velocity = *newVelocity * getOwnHorDir().x;
+    }
+    else if (m_currentState == CHAR1_STATE::AIR_DASH_EXTENTION)
+    {
+        dynamic_cast<const Action_char1_air_dash_extention*>(m_currentAction)->setVelocity(*this);
     }
 }
 
@@ -565,6 +569,14 @@ std::string Char1::CharStateData() const
             stateName = "KNOCKDOWN_RECOVERY";
             break;
 
+        case (CHAR1_STATE::AIR_DASH):
+            stateName = "AIR_DASH";
+            break;
+
+        case (CHAR1_STATE::AIR_DASH_EXTENTION):
+            stateName = "AIR_DASH_EXTENTION";
+            break;
+
         default:
             stateName = "OTHER_STATE";
     }
@@ -613,9 +625,15 @@ void Char1::enterKndRecovery()
     m_actionResolver.getAction(CHAR1_STATE::KNOCKDOWN_RECOVERY)->switchTo(*this);
 }
 
+void Char1::switchToFloat()
+{
+    m_actionResolver.getAction(CHAR1_STATE::FLOAT)->switchTo(*this);
+}
+
 bool Char1::canApplyGravity() const
 {
-    if (m_currentState == CHAR1_STATE::AIR_DASH)
+    // TODO: make property of state
+    if (m_currentState == CHAR1_STATE::AIR_DASH || m_currentState == CHAR1_STATE::AIR_DASH_EXTENTION)
         return false;
     return true;
 }

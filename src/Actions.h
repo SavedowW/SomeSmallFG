@@ -183,6 +183,19 @@ public:
     virtual void switchTo(Char1 &character_) const;
 };
 
+class Action_char1_air_dash_extention : public Action<CHAR1_STATE, Char1Data, Char1>
+{
+public:
+    Action_char1_air_dash_extention();
+    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_) const override;
+    virtual void outdated(Char1 &character_) const override;
+    virtual void switchTo(Char1 &character_) const;
+    virtual void setVelocity(Char1 &character_) const;
+    const int m_duration;
+    const float m_baseSpd;
+    const float m_spdMultiplier;
+};
+
 class Action_char1_airjump : public Action<CHAR1_STATE, Char1Data, Char1>
 {
 public:

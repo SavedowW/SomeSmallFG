@@ -467,6 +467,7 @@ int Action_char1_float::isPossible(const InputQueue &inputQueue_, Char1Data char
 void Action_char1_float::switchTo(Char1 &character_) const
 {
     Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    character_.m_currentAnimation->reset(20);
 
     //character_.turnVelocityToInertia();
     character_.m_currentState = CHAR1_STATE::JUMP;
@@ -501,8 +502,10 @@ int Action_char1_airjump::isPossible(const InputQueue &inputQueue_, Char1Data ch
 
     switch (charData_.state)
     {
+        case (CHAR1_STATE::AIR_DASH_EXTENTION):
+            [[fallthrough]];
         case (CHAR1_STATE::JUMP):
-            return ((!charData_.usedDoubleJump && !charData_.usedAirDash && isInputPossible(inputQueue_, charData_.dirToEnemy)) ? 1 : 0);
+            return ((isInputPossible(inputQueue_, charData_.dirToEnemy)) ? 1 : 0);
             break;
 
         default:
@@ -516,6 +519,12 @@ int Action_char1_airjump::isPossible(const InputQueue &inputQueue_, Char1Data ch
 
 void Action_char1_airjump::switchTo(Char1 &character_) const
 {
+    if (character_.m_currentState == CHAR1_STATE::AIR_DASH_EXTENTION || (character_.m_currentAction && character_.m_currentAction->m_isAttack))
+    {
+        character_.turnVelocityToInertia();
+        character_.m_inertia.x /= gamedata::characters::char1::doubleJumpInertiaDivider;
+    }
+
     Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
 
     character_.updateOwnOrientation();
@@ -646,7 +655,7 @@ int Action_char1_air_dash::isPossible(const InputQueue &inputQueue_, Char1Data c
 
 void Action_char1_air_dash::outdated(Char1 &character_) const
 {
-    character_.m_actionResolver.getAction(CHAR1_STATE::FLOAT)->switchTo(character_);
+    character_.m_actionResolver.getAction(CHAR1_STATE::AIR_DASH_EXTENTION)->switchTo(character_);
     character_.m_currentAnimation = character_.m_animations[m_anim].get();
 }
 
@@ -657,6 +666,47 @@ void Action_char1_air_dash::switchTo(Char1 &character_) const
     character_.m_velocity = character_.getOwnHorDir().mulComponents(Vector2{gamedata::characters::char1::airdashSpeed, 0.0f});
     Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
     character_.m_timer.begin(m_duration);
+    character_.m_usedAirDash = true;
+}
+
+// AIR DASH EXTENTION ACTION
+Action_char1_air_dash_extention::Action_char1_air_dash_extention() :
+    Action(CHAR1_STATE::AIR_DASH_EXTENTION, std::move(std::make_unique<InputComparatorIdle>()), {
+        {
+            {1, gamedata::characters::char1::airdashExtentionDuration},
+            {-70, -350, 140, 300}
+        }
+    }, ANIMATIONS::CHAR1_AIRDASH),
+    m_duration(gamedata::characters::char1::airdashExtentionDuration),
+    m_baseSpd(gamedata::characters::char1::airdashExtentionMaxSpeed),
+    m_spdMultiplier((gamedata::characters::char1::airdashExtentionMaxSpeed - gamedata::characters::char1::airdashExtentionMinSpeed) / gamedata::characters::char1::airdashExtentionDuration)
+{
+}
+
+int Action_char1_air_dash_extention::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+{
+    return false;
+}
+
+void Action_char1_air_dash_extention::outdated(Char1 &character_) const
+{
+    character_.switchToFloat();
+    character_.updateOwnOrientation();
+}
+
+void Action_char1_air_dash_extention::switchTo(Char1 &character_) const
+{
+    character_.m_velocity = {0, 0};
+    character_.m_inertia = {0, 0};
+    character_.m_velocity = character_.getOwnHorDir().mulComponents(Vector2{(float)m_baseSpd, 0.0f});
+    Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    character_.m_timer.begin(m_duration);
+}
+
+void Action_char1_air_dash_extention::setVelocity(Char1 &character_) const
+{
+    character_.m_velocity.x = character_.getOwnHorDir().x * (m_baseSpd - m_spdMultiplier * (character_.m_timer.getCurrentFrame() + 1));
+    std::cout << character_.m_velocity.x << std::endl;
 }
 
 // GROUND DASH RECOVERY ACTION
@@ -867,8 +917,9 @@ int Action_char1_air_attack::isPossible(const InputQueue &inputQueue_, Char1Data
     switch (charData_.state)
     {
 
-        case (CHAR1_STATE::JUMP):
+        case (CHAR1_STATE::AIR_DASH_EXTENTION):
             [[fallthrough]];
+        case (CHAR1_STATE::JUMP):
             return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
             break;
 
@@ -883,11 +934,16 @@ int Action_char1_air_attack::isPossible(const InputQueue &inputQueue_, Char1Data
 
 void Action_char1_air_attack::outdated(Char1 &character_) const
 {
-    character_.m_actionResolver.getAction(CHAR1_STATE::FLOAT)->switchTo(character_);
+    character_.switchToFloat();
 }
 
 void Action_char1_air_attack::switchTo(Char1 &character_) const
 {
+    if (character_.m_currentState == CHAR1_STATE::AIR_DASH_EXTENTION)
+    {
+        character_.turnVelocityToInertia();
+    }
+
     character_.m_reservedAction = character_.m_currentAction;
     Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
     character_.m_timer.begin(m_fullDuration);
