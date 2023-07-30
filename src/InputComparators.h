@@ -79,6 +79,12 @@ public:
     bool operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_) const final;
 };
 
+class InputComparator44 : public InputComparator
+{
+public:
+    bool operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_) const final;
+};
+
 class InputComparatorAPress : public InputComparator
 {
 public:

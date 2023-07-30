@@ -21,6 +21,7 @@ void ActionResolver_Char1::createActions()
     m_actions.push_back(std::make_unique<Action_char1_move_C>());
     m_actions.push_back(std::make_unique<Action_char1_move_B>());
     m_actions.push_back(std::make_unique<Action_char1_jab>());
+    m_actions.push_back(std::make_unique<Action_char1_ground_backdash>());
     m_actions.push_back(std::make_unique<Action_char1_ground_dash>());
     m_actions.push_back(std::make_unique<Action_char1_backward_jump>());
     m_actions.push_back(std::make_unique<Action_char1_forward_jump>());
@@ -56,6 +57,7 @@ void Char1::loadAnimations(Application &application_)
     m_animations[ANIMATIONS::CHAR1_LANDING_RECOVERY] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_LANDING_RECOVERY);
     m_animations[ANIMATIONS::CHAR1_GROUND_DASH] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_GROUND_DASH, LOOPMETHOD::JUMP_LOOP);
     m_animations[ANIMATIONS::CHAR1_GROUND_DASH_RECOVERY] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_GROUND_DASH_RECOVERY);
+    m_animations[ANIMATIONS::CHAR1_BACKDASH] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_BACKDASH, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_AIRDASH] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_AIRDASH, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_MOVE_A] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_MOVE_A, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_MOVE_B] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_MOVE_B, LOOPMETHOD::NOLOOP);
@@ -255,10 +257,19 @@ void Char1::land()
 {
     m_usedDoubleJump = false;
     m_usedAirDash = false;
+
+    if (m_currentAction && m_currentAction->m_noLandTransition)
+        return;
+
     switch (m_currentState)
     {
         case (CHAR1_STATE::JUMP):
             switchToSoftLandingRecovery();
+            break;
+
+        case (CHAR1_STATE::GROUND_BACKDASH):
+            m_velocity = {0.0f, 0.0f};
+            m_inertia = {0.0f, 0.0f};
             break;
 
         // TODO: airborne hitstun to knd
@@ -473,9 +484,13 @@ void Char1::updateBlockState()
                         m_currentState == CHAR1_STATE::BLOCKSTUN_CROUCHING ||
                         m_currentState == CHAR1_STATE::BLOCKSTUN_AIR);
 
+    // TODO: turn into action property
     bool canBlock = !(m_currentState == CHAR1_STATE::HITSTUN ||
                     m_currentState == CHAR1_STATE::HITSTUN_AIR ||
+                    m_currentState == CHAR1_STATE::GROUND_BACKDASH ||
                     m_currentState == CHAR1_STATE::MOVE_A ||
+                    m_currentState == CHAR1_STATE::MOVE_B ||
+                    m_currentState == CHAR1_STATE::MOVE_2B ||
                     m_currentState == CHAR1_STATE::MOVE_C);
 
     m_blockHandler.update(m_actionResolver.getCurrentInputDir(), m_airborne, getHorDirToEnemy(), inBlockstun, canBlock);

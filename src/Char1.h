@@ -20,6 +20,7 @@ enum class CHAR1_STATE {
     SOFT_LANDING_RECOVERY,
     GROUND_DASH,
     GROUND_DASH_RECOVERY,
+    GROUND_BACKDASH,
     AIR_DASH,
     AIR_DASH_EXTENTION,
     MOVE_A,
@@ -119,6 +120,7 @@ protected:
     friend Action_char1_walk_bwd;
     friend Action_char1_airjump;
     friend Action_char1_jump;
+    friend Action_char1_ground_backdash;
     friend Action_char1_ground_dash_recovery;
     friend Action_char1_soft_landing_recovery;
     friend Action_char1_hard_knockdown;

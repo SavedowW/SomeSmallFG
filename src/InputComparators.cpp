@@ -212,6 +212,37 @@ bool InputComparator66::operator()(const InputQueue &inputQueue_, ORIENTATION fa
     return false;
 }
 
+bool InputComparator44::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_) const
+{
+    if (inputQueue_.getFilled() <= 1)
+        return false;
+
+    Vector2<float> backwardVec;
+    backwardVec.x = (faceDirection_ == ORIENTATION::RIGHT ? -1.0f : 1.0f);
+    Vector2<float> upBackwardVec = {backwardVec.x, -1.0f};
+    INPUT_BUTTON backwardButton = (faceDirection_ == ORIENTATION::RIGHT ? INPUT_BUTTON::LEFT : INPUT_BUTTON::RIGHT);
+
+    int lookAt = std::min(inputQueue_.getFilled() - 1, gamedata::global::inputBufferLength);
+    for (int i = 0; i <= lookAt; ++i)
+    {
+        const auto &in = inputQueue_[i];
+
+        if (in.dir == backwardVec && in.inputs.at(backwardButton) == INPUT_BUTTON_STATE::PRESSED)
+        {
+            int lastToParse = std::min(i + 10, inputQueue_.getFilled() - 1);
+
+            for (int k = i + 1; k <= lastToParse; ++k)
+            {
+                const auto &in2 = inputQueue_[k];
+                if ((in2.dir == backwardVec || in2.dir == upBackwardVec) && in2.inputs.at(backwardButton) == INPUT_BUTTON_STATE::PRESSED)
+                    return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 bool InputComparatorAPress::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_) const
 {
     if (inputQueue_.getFilled() == 0)

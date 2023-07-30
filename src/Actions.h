@@ -22,7 +22,7 @@ template <typename CharState_t, typename CharData, typename Char_t>
 class Action
 {
 public:
-    Action(CharState_t actionState_, InputComparator_ptr incmp_, HurtboxFramesVec hurtboxes_, ANIMATIONS anim_, bool isAttack_ = false);
+    Action(CharState_t actionState_, InputComparator_ptr incmp_, HurtboxFramesVec hurtboxes_, ANIMATIONS anim_, bool isAttack_ = false, bool noLandTransition_ = false);
     virtual bool isInputPossible(const InputQueue &inputQueue_, ORIENTATION ownDirection_) const;
     virtual const HurtboxVec getCurrentHurtboxes(int currentFrame_, const Vector2<float>& offset_, ORIENTATION ownOrientation_) const;
     virtual void outdated(Char_t &character_) const {};
@@ -39,6 +39,7 @@ public:
     const HurtboxFramesVec m_hurtboxes;
     const ANIMATIONS m_anim;
     const bool m_isAttack;
+    bool m_noLandTransition;
 
 protected:
     InputComparator_ptr incmp;
@@ -230,6 +231,16 @@ public:
     virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_) const override;
     const float m_accel;
     const float m_maxspd;
+};
+
+class Action_char1_ground_backdash: public Action<CHAR1_STATE, Char1Data, Char1>
+{
+public:
+    Action_char1_ground_backdash();
+    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_) const override;
+    virtual void outdated(Char1 &character_) const override;
+    virtual void switchTo(Char1 &character_) const;
+    const int m_totalDuration;
 };
 
 class Action_char1_ground_dash_recovery : public Action<CHAR1_STATE, Char1Data, Char1>

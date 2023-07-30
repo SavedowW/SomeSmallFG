@@ -9,11 +9,12 @@
  *========================== */
 
 template <typename CharState_t, typename CharData, typename Char_t>
-Action<CharState_t, CharData, Char_t>::Action(CharState_t actionState_, InputComparator_ptr incmp_, HurtboxFramesVec hurtboxes_, ANIMATIONS anim_, bool isAttack_) :
+Action<CharState_t, CharData, Char_t>::Action(CharState_t actionState_, InputComparator_ptr incmp_, HurtboxFramesVec hurtboxes_, ANIMATIONS anim_, bool isAttack_, bool noLandTransition_) :
     actionState(actionState_),
     m_hurtboxes(hurtboxes_),
     m_anim(anim_),
-    m_isAttack(isAttack_)
+    m_isAttack(isAttack_),
+    m_noLandTransition(noLandTransition_)
 {
     incmp = std::move(incmp_);
 }
@@ -609,6 +610,66 @@ int Action_char1_ground_dash::isPossible(const InputQueue &inputQueue_, Char1Dat
     return false;
 }
 
+// GROUND BACKDASH ACTION
+Action_char1_ground_backdash::Action_char1_ground_backdash() :
+    Action(CHAR1_STATE::GROUND_BACKDASH, std::move(std::make_unique<InputComparator44>()), {
+        {
+            {gamedata::characters::char1::backdashInvulDuration, gamedata::characters::char1::backdashDuration},
+            {-100, -300, 200, 300}
+        }
+    }, ANIMATIONS::CHAR1_BACKDASH),
+    m_totalDuration(gamedata::characters::char1::backdashDuration)
+{
+}
+
+int Action_char1_ground_backdash::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+{
+    if (charData_.inHitstop || charData_.airborne)
+        return 0;
+
+    switch (charData_.state)
+    {
+        case (CHAR1_STATE::GROUND_BACKDASH):
+            return -1;
+            break;
+
+        case (CHAR1_STATE::WALK_BWD):
+            [[fallthrough]];
+        case (CHAR1_STATE::WALK_FWD):
+            [[fallthrough]];
+        case (CHAR1_STATE::SOFT_LANDING_RECOVERY):
+            [[fallthrough]];
+        case (CHAR1_STATE::CROUCH):
+            [[fallthrough]];
+        case (CHAR1_STATE::IDLE):
+            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+            break;
+
+        default:
+            return 0;
+            break;
+    }
+
+    throw std::runtime_error("Undefined state transition");
+    return false;
+}
+
+void Action_char1_ground_backdash::outdated(Char1 &character_) const
+{
+    character_.switchToIdle();
+}
+
+void Action_char1_ground_backdash::switchTo(Char1 &character_) const
+{
+    Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    character_.m_timer.begin(m_totalDuration);
+    auto dir = character_.getOwnHorDir();
+    dir.y = 1;
+    character_.m_velocity = dir.mulComponents(Vector2{-gamedata::characters::char1::backdashSpd, -14.0f});
+    character_.m_inertia = {0.0f, 0.0f};
+}
+
+
 // AIR DASH ACTION
 Action_char1_air_dash::Action_char1_air_dash() :
     Action(CHAR1_STATE::AIR_DASH, std::move(std::make_unique<InputComparator66>()), {
@@ -708,6 +769,7 @@ void Action_char1_air_dash_extention::setVelocity(Char1 &character_) const
     character_.m_velocity.x = character_.getOwnHorDir().x * (m_baseSpd - m_spdMultiplier * (character_.m_timer.getCurrentFrame() + 1));
     std::cout << character_.m_velocity.x << std::endl;
 }
+
 
 // GROUND DASH RECOVERY ACTION
 Action_char1_ground_dash_recovery::Action_char1_ground_dash_recovery() :

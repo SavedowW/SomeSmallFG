@@ -74,6 +74,9 @@ namespace gamedata
             inline constexpr float dashAccel = 3.0f;
             inline constexpr float dashMaxSpeed = 20.0f;
             inline constexpr float dashRecovery = 8;
+            inline constexpr int backdashDuration = 25;
+            inline constexpr int backdashInvulDuration = 5;
+            inline constexpr float backdashSpd = 13.0f;
             inline constexpr float airdashDuration = 10.0f;
             inline constexpr float airdashExtentionDuration = 15.0f;
             inline constexpr float airdashSpeed = 25.0f;

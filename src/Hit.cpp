@@ -45,7 +45,7 @@ Hit hitgeneration::generate_char1_jab()
 
     hit.cancelsOnBlock.first.first = 1;
     hit.cancelsOnBlock.first.second = 8;
-    hit.cancelsOnBlock.second = {(int)CHAR1_STATE::MOVE_A, (int)CHAR1_STATE::MOVE_B, (int)CHAR1_STATE::MOVE_C};
+    hit.cancelsOnBlock.second = {(int)CHAR1_STATE::MOVE_A, (int)CHAR1_STATE::MOVE_B, (int)CHAR1_STATE::MOVE_2B, (int)CHAR1_STATE::MOVE_C};
 
     return hit;
 }
