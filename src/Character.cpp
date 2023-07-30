@@ -166,7 +166,7 @@ void Character::setPos(Vector2<float> pos_)
 
 Collider Character::getPushbox() const
 {
-    auto pb = m_pushbox;
+    auto pb = (!m_airborne ? m_pushbox : m_airbornePushbox);
     pb.x += m_pos.x;
     pb.y += m_pos.y;
     return pb;

@@ -13,6 +13,7 @@ ActionResolver_Char1::ActionResolver_Char1(InputSystem *input_) :
 void ActionResolver_Char1::createActions()
 {
     m_actions.push_back(std::make_unique<Action_char1_air_dash>());
+    m_actions.push_back(std::make_unique<Action_char1_air_backdash>());
     m_actions.push_back(std::make_unique<Action_char1_backward_doublejump>());
     m_actions.push_back(std::make_unique<Action_char1_forward_doublejump>());
     m_actions.push_back(std::make_unique<Action_char1_neutral_doublejump>());
@@ -59,6 +60,7 @@ void Char1::loadAnimations(Application &application_)
     m_animations[ANIMATIONS::CHAR1_GROUND_DASH_RECOVERY] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_GROUND_DASH_RECOVERY);
     m_animations[ANIMATIONS::CHAR1_BACKDASH] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_BACKDASH, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_AIRDASH] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_AIRDASH, LOOPMETHOD::NOLOOP);
+    m_animations[ANIMATIONS::CHAR1_AIR_BACKDASH] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_AIR_BACKDASH, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_MOVE_A] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_MOVE_A, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_MOVE_B] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_MOVE_B, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_MOVE_C] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_MOVE_C, LOOPMETHOD::NOLOOP);
@@ -95,6 +97,12 @@ void Char1::initiate()
     m_pushbox.h = gamedata::characters::char1::standingPushboxHeight;
     m_pushbox.x = -m_pushbox.w / 2;
     m_pushbox.y = -m_pushbox.h;
+
+    m_airbornePushbox.w = gamedata::characters::char1::airbornePushboxWidth;
+    m_airbornePushbox.h = gamedata::characters::char1::airbornePushboxHeight;
+    m_airbornePushbox.x = -m_pushbox.w / 2;
+    m_airbornePushbox.y = -m_pushbox.h - gamedata::characters::char1::airbornePushboxOffset;
+
     m_inertiaDrag = gamedata::characters::char1::inertiaDrag;
     m_gravity = gamedata::characters::char1::gravity;
 
@@ -234,6 +242,7 @@ Char1Data Char1::generateCharData()
 {
     Char1Data charData;
     charData.pos = m_pos;
+    charData.airborne = m_airborne;
     charData.velocity = m_velocity;
     charData.inertia = m_inertia;
     charData.dirToEnemy = m_dirToEnemy;
@@ -648,7 +657,8 @@ void Char1::switchToFloat()
 bool Char1::canApplyGravity() const
 {
     // TODO: make property of state
-    if (m_currentState == CHAR1_STATE::AIR_DASH || m_currentState == CHAR1_STATE::AIR_DASH_EXTENTION)
+    if (m_currentState == CHAR1_STATE::AIR_DASH || m_currentState == CHAR1_STATE::AIR_DASH_EXTENTION ||
+    m_currentState == CHAR1_STATE::AIR_BACKDASH)
         return false;
     return true;
 }

@@ -730,6 +730,66 @@ void Action_char1_air_dash::switchTo(Char1 &character_) const
     character_.m_usedAirDash = true;
 }
 
+// AIR BACKDASH ACTION
+Action_char1_air_backdash::Action_char1_air_backdash() :
+    Action(CHAR1_STATE::AIR_BACKDASH, std::move(std::make_unique<InputComparator44>()), {
+        {
+            {1, gamedata::characters::char1::airBackdashDuration},
+            {-70, -350, 140, 300}
+        }
+    }, ANIMATIONS::CHAR1_AIR_BACKDASH),
+    m_duration(gamedata::characters::char1::airBackdashDuration)
+{
+}
+
+int Action_char1_air_backdash::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+{
+    if (charData_.inHitstop || charData_.usedAirDash || !charData_.canAirdashAfterPrejump || !charData_.airborne)
+        return 0;
+
+    if (charData_.cancelOptions)
+    {
+        if (charData_.cancelOptions->contains((int)actionState))
+        {
+            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+        }
+    }
+
+    switch (charData_.state)
+    {
+        case (CHAR1_STATE::AIR_BACKDASH):
+            return -1;
+            break;
+
+        case (CHAR1_STATE::JUMP):
+            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+            break;
+
+        default:
+            return 0;
+            break;
+    }
+
+    throw std::runtime_error("Undefined state transition");
+    return false;
+}
+
+void Action_char1_air_backdash::outdated(Char1 &character_) const
+{
+    character_.m_velocity.x /= 5.0f;
+    character_.switchToFloat();
+}
+
+void Action_char1_air_backdash::switchTo(Char1 &character_) const
+{
+    character_.m_velocity = {0, 0};
+    character_.m_inertia = {0, 0};
+    character_.m_velocity = character_.getOwnHorDir().mulComponents(Vector2{-gamedata::characters::char1::airBackdashSpeed, 0.0f});
+    Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    character_.m_timer.begin(m_duration);
+    character_.m_usedAirDash = true;
+}
+
 // AIR DASH EXTENTION ACTION
 Action_char1_air_dash_extention::Action_char1_air_dash_extention() :
     Action(CHAR1_STATE::AIR_DASH_EXTENTION, std::move(std::make_unique<InputComparatorIdle>()), {

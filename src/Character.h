@@ -13,15 +13,23 @@
 /*
  * TODO: LIST
  * crouching and jumping attacks [DONE]
+ * crouching pushbox, probably other pushboxes
  * air attacks that alter inertia
  * lows, overheads, unblockables [DONE]
  * hard and soft knockdown [1/2 DONE, soft knd needs its own animation]
  * different types of landing recovery
  * * Hard when blocks attack in the air (can only block during recovery)
  * * Vulnerable when uses air attacks (cannot block or do any attack for a period of time)
- * airdash, backdash, air backdash [2/3 done]
+ * airdash, backdash, air backdash [DONE]
+ * 
+ * HUD and HUD widgets
  * counter hit (with CH hitstun, hitstop and impulse)
- * Particles
+ * health
+ * blockstun scaling
+ * ground recovery
+ * gravity scaling
+ * damage scaling
+ * proratio
  * 
  * throws
  * Projectiles
@@ -33,21 +41,14 @@
  * * When character in wallbang blockstun touches the wall, he takes an unblockable hit with very low damage and hitstun,
  * * but 100% proratio. He can be comboed from this hit, but it should depend on spacing 
  * from above / from below property (probably rename)
+ * overheat gauge
  * aerial hitstun scaling
  * Aerial breakaway and fatal counter
  * * This game has no airtech, but aerial breakaway is a kind of combo breaker. If the character tries to guess if the next attack
  * * will be "from above" or "from below" and guesses correctly, he enters fully invulnerable state, escapes the combo and potentially punishes it.
  * * If he guesses wrong, he takes a "fatal counter" that has different properties and resets gravity scaling
  * 
- * blockstun scaling
- * knockdown state
- * ground recovery
- * gravity scaling
- * health
- * damage scaling
- * proratio
- * overheat gauge
- * HUD and HUD widgets
+ * Particles
  * sounds
  * Buffs system
  * 
@@ -55,6 +56,7 @@
  * Character / stage select screen
  * Input settings
  * Resolution settings
+ * more oomph overall
 */
 
 struct CharacterUpdateRes
@@ -139,6 +141,7 @@ protected:
     FrameTimer m_hitstopTimer;
 
     Collider m_pushbox;
+    Collider m_airbornePushbox;
     Character *m_otherCharacter;
     int m_playerId;
 

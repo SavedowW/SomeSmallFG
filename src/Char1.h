@@ -23,6 +23,7 @@ enum class CHAR1_STATE {
     GROUND_BACKDASH,
     AIR_DASH,
     AIR_DASH_EXTENTION,
+    AIR_BACKDASH,
     MOVE_A,
     MOVE_B,
     MOVE_C,
@@ -128,6 +129,7 @@ protected:
     friend Action_char1_air_attack;
     friend Action_char1_air_dash;
     friend Action_char1_air_dash_extention;
+    friend Action_char1_air_backdash;
     friend Action_char1_float;
 };
 

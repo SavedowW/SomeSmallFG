@@ -63,6 +63,9 @@ namespace gamedata
             inline constexpr float inertiaDrag = 1.0f;
             inline constexpr float standingPushboxWidth = 100.0f;
             inline constexpr float standingPushboxHeight = 300.0f;
+            inline constexpr float airbornePushboxWidth = 100.0f;
+            inline constexpr float airbornePushboxHeight = 200.0f;
+            inline constexpr float airbornePushboxOffset = 50.0f;
             inline constexpr float forwardWalkSpd = 6.0f;
             inline constexpr float backwardWalkSpd = 6.0f;
             inline constexpr float groundJumpVerticalImpulse = 30.0f;
@@ -83,6 +86,8 @@ namespace gamedata
             inline constexpr float airdashExtentionMaxSpeed = 25.0f;
             inline constexpr float airdashExtentionMinSpeed = 15.0f;
             inline constexpr float doubleJumpInertiaDivider = 3.0f;
+            inline constexpr float airBackdashDuration = 10.0f;
+            inline constexpr float airBackdashSpeed = 25.0f;
         }
     }
 }
