@@ -5,6 +5,7 @@
 #include "InputSystem.h"
 #include "Timer.h"
 #include "Vector2.h"
+#include "Hud.h"
 
 class Application;
 
@@ -40,6 +41,7 @@ protected:
     Timer m_frameTimer;
     Application *m_application;
     float m_timeForFrame;
+    HUD hud;
 };
 
 #endif

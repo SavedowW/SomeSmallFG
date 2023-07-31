@@ -15,6 +15,7 @@ Level.cpp
 Sprite.cpp
 AnimationManager.cpp
 FrameTimer.cpp
+HUD.cpp
 )
 
 add_library (Core ${CORE_SRC_FILES})
