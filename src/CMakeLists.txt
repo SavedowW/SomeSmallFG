@@ -23,6 +23,7 @@ Actions.cpp
 ActionResolver.cpp
 Hit.cpp
 BlockHandler.cpp
+HealthWidget.cpp
 )
 
 set(INCLUDE_DIRS

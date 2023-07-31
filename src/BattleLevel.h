@@ -242,6 +242,7 @@ protected:
         }
 
         m_camera.update();
+        m_hud.update();
         std::cout << m_characters[0]->CharStateData() << " | " << m_characters[1]->CharStateData() << std::endl;
     }
 
@@ -256,6 +257,8 @@ protected:
         for (auto &el : m_characters)
             el->draw(*m_application->getRenderer(), m_camera);
 
+        m_hud.draw(*m_application->getRenderer(), m_camera);
+
     	renderer.updateScreen();
     }
 
@@ -266,6 +269,7 @@ protected:
 
     std::array<std::unique_ptr<Character>, 2> m_characters;
     int m_maxCharRange;
+    HUD m_hud;
 };
 
 #endif

@@ -9,6 +9,9 @@ enum class TEXTURES
 {
 	STAGE1_BACKGROUND_1 = 0,
     STAGE1_BACKGROUND_2,
+	HEALTHBAR,
+	HEALTHBAR_BACK,
+	HEALTHBAR_FRONT,
 	NONE
 };
 
@@ -57,7 +60,10 @@ private:
 	std::map<TEXTURES, std::weak_ptr<Texture>> m_textures;
 	const std::string m_files[(int)TEXTURES::NONE] = {
 		"Resources/Sprites/Stage1/Background_p1.png",
-		"Resources/Sprites/Stage1/Background_p2.png"
+		"Resources/Sprites/Stage1/Background_p2.png",
+		"Resources/Sprites/HUD/healthbar.png",
+		"Resources/Sprites/HUD/healthbarBack.png",
+		"Resources/Sprites/HUD/healthbarFront.png"
 	};
 };
 

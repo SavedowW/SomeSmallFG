@@ -9,6 +9,7 @@
 #include "ActionResolver.h"
 #include "FrameTimer.h"
 #include "BlockHandler.h"
+#include "HealthWidget.h"
 
 /*
  * TODO: LIST
@@ -129,6 +130,8 @@ public:
     virtual bool canBeDraggedByInertia() const;
     void turnVelocityToInertia();
 
+    virtual void generateWidgets(Application &application_, HUD &hud_);
+
 protected:
     Vector2<float> m_pos;
     Vector2<float> m_velocity;
@@ -154,6 +157,8 @@ protected:
     ORIENTATION m_ownOrientation;
 
     HitData m_currentTakenHit;
+
+    HealthWidget *m_healthWidget = nullptr;
 
 };
 

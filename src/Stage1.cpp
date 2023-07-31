@@ -22,4 +22,7 @@ void Stage1::enter()
 
     m_characters[0]->setOnStage(*m_application, 1, m_characters[1].get());
     m_characters[1]->setOnStage(*m_application, 2, m_characters[0].get());
+
+    m_characters[0]->generateWidgets(*m_application, m_hud);
+    m_characters[1]->generateWidgets(*m_application, m_hud);
 }

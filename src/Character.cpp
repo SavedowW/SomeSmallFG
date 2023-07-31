@@ -249,3 +249,11 @@ void Character::takeCornerPushback(HitData fromHit_, float rangeToCorner_, const
         m_inertia += dirFromCorner_ * pbimpulse;
     }
 }
+
+void Character::generateWidgets(Application &application_, HUD &hud_)
+{
+    bool rs = m_playerId == 2;
+    auto ptr = std::make_unique<HealthWidget>(application_, rs);
+    m_healthWidget = ptr.get();
+    hud_.addWidget(std::move(ptr));
+}

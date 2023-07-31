@@ -74,6 +74,16 @@ void Renderer::renderTexture(SDL_Texture* tex_, float x_, float y_, float w_, fl
 	SDL_RenderCopyExF(m_renderer, tex_, NULL, &dst, angle_, center_, flip_);
 }
 
+void Renderer::renderTexture(SDL_Texture* tex_, const SDL_FRect *src_, const SDL_FRect *dst_, float angle_, SDL_FPoint* center_, SDL_RendererFlip flip_)
+{
+	SDL_Rect src;
+	src.x = src_->x;
+	src.y = src_->y;
+	src.w = src_->w;
+	src.h = src_->h;
+	SDL_RenderCopyExF(m_renderer, tex_, &src, dst_, angle_, center_, flip_);
+}
+
 void Renderer::renderTexture(SDL_Texture* tex_, float x_, float y_, const Camera &cam_, SDL_RendererFlip flip_)
 {
     //throw std::runtime_error("You shouldn't use this renderTexture yet");
@@ -125,12 +135,26 @@ void Renderer::drawRectangle(const Vector2<float> &pos_, const Vector2<float> &s
 	SDL_RenderDrawRectF(m_renderer, &rect);
 }
 
+void Renderer::drawRectangle(const Vector2<float> &pos_, const Vector2<float> &size_, const SDL_Color& col_)
+{
+	SDL_SetRenderDrawColor(m_renderer, col_.r, col_.g, col_.b, col_.a);
+	SDL_FRect rect = { pos_.x, pos_.y, size_.x, size_.y };
+	SDL_RenderDrawRectF(m_renderer, &rect);
+}
+
 void Renderer::fillRectangle(const Vector2<float> &pos_, const Vector2<float> &size_, const SDL_Color& col_, const Camera &cam_)
 {
 	auto rectTL = ((pos_ - cam_.getTopLeft()) / cam_.getScale());
 	auto rectSize = size_ / cam_.getScale();
 	SDL_SetRenderDrawColor(m_renderer, col_.r, col_.g, col_.b, col_.a);
 	SDL_FRect rect = { rectTL.x, rectTL.y, rectSize.x, rectSize.y };
+	SDL_RenderFillRectF(m_renderer, &rect);
+}
+
+void Renderer::fillRectangle(const Vector2<float> &pos_, const Vector2<float> &size_, const SDL_Color& col_)
+{
+	SDL_SetRenderDrawColor(m_renderer, col_.r, col_.g, col_.b, col_.a);
+	SDL_FRect rect = { pos_.x, pos_.y, size_.x, size_.y };
 	SDL_RenderFillRectF(m_renderer, &rect);
 }
 

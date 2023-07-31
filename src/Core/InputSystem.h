@@ -33,6 +33,8 @@ enum class EVENTS
 	B_P2,
 	C_P2,
 	S_P2,
+	FN1,
+	FN2,
 	NONE
 };
 
@@ -68,7 +70,9 @@ private:
 		{SDLK_o, EVENTS::B_P1},
 		{SDLK_x, EVENTS::C_P2},
 		{SDLK_l, EVENTS::C_P1},
-		{SDLK_k, EVENTS::S_P1}
+		{SDLK_k, EVENTS::S_P1},
+		{SDLK_MINUS, EVENTS::FN1},
+		{SDLK_EQUALS, EVENTS::FN2}
 	};
 };
 

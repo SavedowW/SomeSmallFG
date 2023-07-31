@@ -1,5 +1,5 @@
 #ifndef HUD_H_
-#define CHARACTER_H_HUD_H_
+#define HUD_H_
 #include <vector>
 #include <memory>
 #include "Renderer.h"
