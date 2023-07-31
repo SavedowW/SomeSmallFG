@@ -13,8 +13,8 @@
 /*
  * TODO: LIST
  * crouching and jumping attacks [DONE]
- * crouching pushbox, probably other pushboxes
- * air attacks that alter inertia
+ * crouching pushbox, probably other pushboxes [DONE]
+ * air attacks that alter inertia [DONE]
  * lows, overheads, unblockables [DONE]
  * hard and soft knockdown [1/2 DONE, soft knd needs its own animation]
  * different types of landing recovery

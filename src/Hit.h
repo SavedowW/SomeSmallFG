@@ -75,6 +75,7 @@ namespace hitgeneration
     Hit generate_char1_moveC();
     Hit generate_char1_move2B();
     Hit generate_char1_JA();
+    Hit generate_char1_JC();
 }
 
 #endif

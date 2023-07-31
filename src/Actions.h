@@ -358,4 +358,11 @@ public:
     Action_char1_move_JA();
 };
 
+class Action_char1_move_JC : public Action_char1_air_attack
+{
+public:
+    Action_char1_move_JC();
+    virtual void update(Char1 &character_) const override;
+};
+
 #endif

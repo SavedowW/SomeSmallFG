@@ -169,11 +169,43 @@ Hit hitgeneration::generate_char1_JA()
 
     hit.cancelsOnHit.first.first = 1;
     hit.cancelsOnHit.first.second = 9;
-    hit.cancelsOnHit.second = {(int)CHAR1_STATE::JUMP, (int)CHAR1_STATE::MOVE_JA, (int)CHAR1_STATE::AIR_DASH};
+    hit.cancelsOnHit.second = {(int)CHAR1_STATE::JUMP, (int)CHAR1_STATE::MOVE_JA, (int)CHAR1_STATE::MOVE_JC, (int)CHAR1_STATE::AIR_DASH};
 
     hit.cancelsOnBlock.first.first = 1;
     hit.cancelsOnBlock.first.second = 9;
-    hit.cancelsOnBlock.second = {(int)CHAR1_STATE::JUMP, (int)CHAR1_STATE::MOVE_JA, (int)CHAR1_STATE::AIR_DASH};
+    hit.cancelsOnBlock.second = {(int)CHAR1_STATE::JUMP, (int)CHAR1_STATE::MOVE_JA, (int)CHAR1_STATE::MOVE_JC, (int)CHAR1_STATE::AIR_DASH};
+
+    return hit;
+}
+
+Hit hitgeneration::generate_char1_JC()
+{
+    HitData hdata;
+    hdata.m_hitId = 1;
+    hdata.damage = 5.0f;
+    hdata.opponentPushbackOnBlock = 10.0f;
+    hdata.opponentImpulseOnHit = {13.0f, -35.0f};
+    hdata.opponentImpulseOnAirHit = {13.0f, -33.0f};
+    hdata.cornerPushbackMaxRange = 400.0f;
+    hdata.cornerPushbackMinImpulse = 5.0f;
+    hdata.cornerPushbackMaxImpulse = 15.0f;
+    hdata.blockstun = 15;
+    hdata.hitstun = 12;
+    hdata.chHitstun = 20;
+    hdata.hitstop = 10;
+    hdata.chHitstop = 12;
+    hdata.hitBlockShakeAmp = 0;
+    hdata.canBeBlockedAs = {BLOCK_STATE::HIGH, BLOCK_STATE::LOW, BLOCK_STATE::AUTO, BLOCK_STATE::AIR};
+
+    Hit hit(hdata, {{0.0f, -280.0f, 180.0f, 130.0f}, {-30.0f, -160.0f, 130.0f, 130.0f}, {100.0f, -385.0f, 40.0f, 300.0f}, {-30.0f, -440.0f, 130.0f, 160.0f}});
+
+    hit.cancelsOnHit.first.first = 1;
+    hit.cancelsOnHit.first.second = 9;
+    hit.cancelsOnHit.second = {};
+
+    hit.cancelsOnBlock.first.first = 1;
+    hit.cancelsOnBlock.first.second = 9;
+    hit.cancelsOnBlock.second = {};
 
     return hit;
 }

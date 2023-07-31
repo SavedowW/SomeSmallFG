@@ -1280,6 +1280,53 @@ Action_char1_move_JA::Action_char1_move_JA() :
 {
 }
 
+// j.C ACTION
+Action_char1_move_JC::Action_char1_move_JC() :
+    Action_char1_air_attack(CHAR1_STATE::MOVE_JC, ANIMATIONS::CHAR1_MOVE_JC, std::make_unique<InputComparatorCPress>(), 200,
+    {
+        {
+            {12, 17},
+            hitgeneration::generate_char1_JC()
+        }
+    },
+    {
+        {
+            {1, 200},
+            {-70, -350, 140, 300}
+        },
+        {
+            {10, 21},
+            {0, -450, 120, 250}
+        }
+    })
+{
+}
+
+void Action_char1_move_JC::update(Char1 &character_) const
+{
+    auto frame = character_.m_timer.getCurrentFrame() + 1;
+    if (frame <= 9)
+    {
+        //character_.m_inertia.y /= 10.0f - character_.m_gravity / 2.0f;
+        character_.m_inertia.y /= 3.0f;
+        character_.m_inertia.y -= character_.m_gravity;
+        character_.m_velocity.y /= 8.0f;
+
+        character_.m_velocity.x /= 1.1f;
+        character_.m_inertia.x /= 1.1f;
+    }
+    else if (frame >= 10 && frame <= 11)
+    {
+        character_.m_inertia.y = 0;
+    }
+    else if (frame == 12)
+    {
+        character_.m_velocity.y = -20.0f;
+        character_.m_velocity.x = character_.getOwnHorDir().x * 3.0f;
+    }
+}
+
+
 template Action<CHAR1_STATE, Char1Data, Char1>;
 template Action_jump<CHAR1_STATE, Char1Data, Char1>;
 template Action_prolonged<CHAR1_STATE, Char1Data, Char1>;

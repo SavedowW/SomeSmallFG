@@ -17,6 +17,7 @@ void ActionResolver_Char1::createActions()
     m_actions.push_back(std::make_unique<Action_char1_backward_doublejump>());
     m_actions.push_back(std::make_unique<Action_char1_forward_doublejump>());
     m_actions.push_back(std::make_unique<Action_char1_neutral_doublejump>());
+    m_actions.push_back(std::make_unique<Action_char1_move_JC>());
     m_actions.push_back(std::make_unique<Action_char1_move_JA>());
     m_actions.push_back(std::make_unique<Action_char1_move_2B>());
     m_actions.push_back(std::make_unique<Action_char1_move_C>());
@@ -66,6 +67,7 @@ void Char1::loadAnimations(Application &application_)
     m_animations[ANIMATIONS::CHAR1_MOVE_C] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_MOVE_C, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_MOVE_2B] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_MOVE_2B, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_MOVE_JA] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_MOVE_JA, LOOPMETHOD::NOLOOP);
+    m_animations[ANIMATIONS::CHAR1_MOVE_JC] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_MOVE_JC, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_HITSTUN_LOW] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_HITSTUN_LOW, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_HITSTUN_MID] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_HITSTUN_MID, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_HITSTUN_HIGH] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_HITSTUN_HIGH, LOOPMETHOD::NOLOOP);
@@ -501,7 +503,10 @@ void Char1::updateBlockState()
                     m_currentState == CHAR1_STATE::MOVE_A ||
                     m_currentState == CHAR1_STATE::MOVE_B ||
                     m_currentState == CHAR1_STATE::MOVE_2B ||
-                    m_currentState == CHAR1_STATE::MOVE_C);
+                    m_currentState == CHAR1_STATE::MOVE_C ||
+                    m_currentState == CHAR1_STATE::MOVE_JA ||
+                    m_currentState == CHAR1_STATE::MOVE_JC ||
+                    m_currentState == CHAR1_STATE::AIR_DASH);
 
     m_blockHandler.update(m_actionResolver.getCurrentInputDir(), m_airborne, getHorDirToEnemy(), inBlockstun, canBlock);
 }

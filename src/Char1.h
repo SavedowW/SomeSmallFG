@@ -29,6 +29,7 @@ enum class CHAR1_STATE {
     MOVE_C,
     MOVE_2B,
     MOVE_JA,
+    MOVE_JC,
     BLOCKSTUN_STANDING,
     BLOCKSTUN_CROUCHING,
     BLOCKSTUN_AIR,
@@ -133,6 +134,7 @@ protected:
     friend Action_char1_air_dash_extention;
     friend Action_char1_air_backdash;
     friend Action_char1_float;
+    friend Action_char1_move_JC;
 };
 
 #endif
