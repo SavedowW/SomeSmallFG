@@ -927,7 +927,7 @@ Action_char1_soft_landing_recovery::Action_char1_soft_landing_recovery() :
             {-100, -300, 200, 300}
         }
     }, ANIMATIONS::CHAR1_LANDING_RECOVERY),
-    m_recoveryLen(gamedata::characters::char1::dashRecovery)
+    m_recoveryLen(gamedata::characters::char1::softLandingRecovery)
 {
 }
 
@@ -946,7 +946,67 @@ void Action_char1_soft_landing_recovery::switchTo(Char1 &character_) const
     Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
     character_.m_velocity = {0.0f, 0.0f};
     character_.m_inertia = {0.0f, 0.0f};
-    character_.m_timer.begin(6);
+    character_.m_timer.begin(m_recoveryLen);
+}
+
+// HARD LANDING RECOVERY
+Action_char1_hard_landing_recovery::Action_char1_hard_landing_recovery() :
+    Action(CHAR1_STATE::HARD_LANDING_RECOVERY, nullptr, {
+        {
+            {1, 6},
+            {-100, -300, 200, 300}
+        }
+    }, ANIMATIONS::CHAR1_LANDING_RECOVERY),
+    m_recoveryLen(gamedata::characters::char1::hardLandingRecovery)
+{
+}
+
+int Action_char1_hard_landing_recovery::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+{
+    return false;
+}
+
+void Action_char1_hard_landing_recovery::outdated(Char1 &character_) const
+{
+    character_.switchToIdle();
+}
+
+void Action_char1_hard_landing_recovery::switchTo(Char1 &character_) const
+{
+    Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    character_.m_velocity = {0.0f, 0.0f};
+    character_.m_inertia = {0.0f, 0.0f};
+    character_.m_timer.begin(m_recoveryLen);
+}
+
+// VULNERABLE LANDING RECOVERY
+Action_char1_vulnerable_landing_recovery::Action_char1_vulnerable_landing_recovery() :
+    Action(CHAR1_STATE::VULNERABLE_LANDING_RECOVERY, nullptr, {
+        {
+            {1, 6},
+            {-100, -300, 200, 300}
+        }
+    }, ANIMATIONS::CHAR1_LANDING_RECOVERY),
+    m_recoveryLen(gamedata::characters::char1::vulnerableLandingRecovery)
+{
+}
+
+int Action_char1_vulnerable_landing_recovery::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+{
+    return false;
+}
+
+void Action_char1_vulnerable_landing_recovery::outdated(Char1 &character_) const
+{
+    character_.switchToIdle();
+}
+
+void Action_char1_vulnerable_landing_recovery::switchTo(Char1 &character_) const
+{
+    Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    character_.m_velocity = {0.0f, 0.0f};
+    character_.m_inertia = {0.0f, 0.0f};
+    character_.m_timer.begin(m_recoveryLen);
 }
 
 // HARD KNOCKDOWN ACTION
@@ -1100,6 +1160,7 @@ void Action_char1_air_attack::outdated(Char1 &character_) const
 
 void Action_char1_air_attack::switchTo(Char1 &character_) const
 {
+    character_.m_usedAirAttack = true;
     if (character_.m_currentState == CHAR1_STATE::AIR_DASH_EXTENTION)
     {
         character_.turnVelocityToInertia();

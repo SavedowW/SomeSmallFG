@@ -18,6 +18,8 @@ enum class CHAR1_STATE {
     JUMP,
     FLOAT,
     SOFT_LANDING_RECOVERY,
+    VULNERABLE_LANDING_RECOVERY,
+    HARD_LANDING_RECOVERY,
     GROUND_DASH,
     GROUND_DASH_RECOVERY,
     GROUND_BACKDASH,
@@ -97,6 +99,7 @@ protected:
     FrameTimer m_timer;
     bool m_usedDoubleJump = false;
     bool m_usedAirDash = false;
+    bool m_usedAirAttack = false;
 
     Collider m_standingHurtbox;
     Collider m_crouchingHurtbox;
@@ -135,6 +138,8 @@ protected:
     friend Action_char1_air_backdash;
     friend Action_char1_float;
     friend Action_char1_move_JC;
+    friend Action_char1_vulnerable_landing_recovery;
+    friend Action_char1_hard_landing_recovery;
 };
 
 #endif
