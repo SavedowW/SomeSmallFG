@@ -9,12 +9,13 @@
  *========================== */
 
 template <typename CharState_t, typename CharData, typename Char_t>
-Action<CharState_t, CharData, Char_t>::Action(CharState_t actionState_, InputComparator_ptr incmp_, HurtboxFramesVec hurtboxes_, ANIMATIONS anim_, bool isAttack_, bool noLandTransition_) :
+Action<CharState_t, CharData, Char_t>::Action(CharState_t actionState_, InputComparator_ptr incmp_, HurtboxFramesVec hurtboxes_, ANIMATIONS anim_, bool isAttack_, bool noLandTransition_, bool isCrouchState_) :
     actionState(actionState_),
     m_hurtboxes(hurtboxes_),
     m_anim(anim_),
     m_isAttack(isAttack_),
-    m_noLandTransition(noLandTransition_)
+    m_noLandTransition(noLandTransition_),
+    m_isCrouchState(isCrouchState_)
 {
     incmp = std::move(incmp_);
 }
@@ -99,8 +100,8 @@ Action_jump<CharState_t, CharData, Char_t>::Action_jump(CharState_t actionState_
 
 // ABSTRACT ATTACK ACTION
 template <typename CharState_t, typename CharData, typename Char_t>
-Action_attack<CharState_t, CharData, Char_t>::Action_attack(CharState_t actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec hurtboxes_, std::vector<std::pair<std::pair<int, int>, Vector2<float>>> velocity_, ANIMATIONS anim_) :
-    Action<CharState_t, CharData, Char_t>(actionState_, std::move(incmp_), hurtboxes_, anim_, true),
+Action_attack<CharState_t, CharData, Char_t>::Action_attack(CharState_t actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec hurtboxes_, std::vector<std::pair<std::pair<int, int>, Vector2<float>>> velocity_, ANIMATIONS anim_, bool noLandTransition_, bool isCrouchState_) :
+    Action<CharState_t, CharData, Char_t>(actionState_, std::move(incmp_), hurtboxes_, anim_, true, noLandTransition_, isCrouchState_),
     m_fullDuration(fullDuration_),
     m_hits(hits_),
     m_velocity(velocity_)
@@ -199,7 +200,7 @@ void Action_char1_idle::switchTo(Char1 &character_) const
 
 // CROUCH ACTION
 Action_char1_crouch::Action_char1_crouch() :
-    Action(CHAR1_STATE::CROUCH, std::make_unique<InputComparatorDownHold>(), {}, ANIMATIONS::CHAR1_CROUCH_IDLE)
+    Action(CHAR1_STATE::CROUCH, std::make_unique<InputComparatorDownHold>(), {}, ANIMATIONS::CHAR1_CROUCH_IDLE, false, false, true)
 {
 }
 
@@ -956,8 +957,8 @@ void Action_char1_knockdown_recovery::switchTo(Char1 &character_) const
 }
 
 // ABSTRACT CHAR1 GROUND ATTACK ACTION
-Action_char1_ground_attack::Action_char1_ground_attack(CHAR1_STATE actionState_, ANIMATIONS anim_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec hurtboxes_, std::vector<std::pair<std::pair<int, int>, Vector2<float>>> velocity_) :
-    Action_attack<CHAR1_STATE, Char1Data, Char1>(actionState_, std::move(incmp_), fullDuration_, hits_, hurtboxes_, velocity_, anim_)
+Action_char1_ground_attack::Action_char1_ground_attack(CHAR1_STATE actionState_, ANIMATIONS anim_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec hurtboxes_, std::vector<std::pair<std::pair<int, int>, Vector2<float>>> velocity_, bool noLandTransition_, bool isCrouchState_) :
+    Action_attack<CHAR1_STATE, Char1Data, Char1>(actionState_, std::move(incmp_), fullDuration_, hits_, hurtboxes_, velocity_, anim_, noLandTransition_, isCrouchState_)
 {
 }
 
@@ -1215,7 +1216,7 @@ Action_char1_move_2B::Action_char1_move_2B() :
             {26, 29},
             {-23.0f, 0.0f}
         }
-    })
+    }, false, true)
 {
 }
 

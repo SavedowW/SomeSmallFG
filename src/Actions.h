@@ -22,7 +22,7 @@ template <typename CharState_t, typename CharData, typename Char_t>
 class Action
 {
 public:
-    Action(CharState_t actionState_, InputComparator_ptr incmp_, HurtboxFramesVec hurtboxes_, ANIMATIONS anim_, bool isAttack_ = false, bool noLandTransition_ = false);
+    Action(CharState_t actionState_, InputComparator_ptr incmp_, HurtboxFramesVec hurtboxes_, ANIMATIONS anim_, bool isAttack_ = false, bool noLandTransition_ = false, bool isCrouchState_ = false);
     virtual bool isInputPossible(const InputQueue &inputQueue_, ORIENTATION ownDirection_) const;
     virtual const HurtboxVec getCurrentHurtboxes(int currentFrame_, const Vector2<float>& offset_, ORIENTATION ownOrientation_) const;
     virtual void outdated(Char_t &character_) const {};
@@ -39,7 +39,8 @@ public:
     const HurtboxFramesVec m_hurtboxes;
     const ANIMATIONS m_anim;
     const bool m_isAttack;
-    bool m_noLandTransition;
+    const bool m_noLandTransition;
+    const bool m_isCrouchState;
 
 protected:
     InputComparator_ptr incmp;
@@ -96,7 +97,7 @@ template <typename CharState_t, typename CharData, typename Char_t>
 class Action_attack : public Action<CharState_t, CharData, Char_t>
 {
 public:
-    Action_attack(CharState_t actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec hurtboxes_, std::vector<std::pair<std::pair<int, int>, Vector2<float>>> velocity_, ANIMATIONS anim_);
+    Action_attack(CharState_t actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec hurtboxes_, std::vector<std::pair<std::pair<int, int>, Vector2<float>>> velocity_, ANIMATIONS anim_, bool noLandTransition_ = false, bool isCrouchState_ = false);
     virtual const HitsVec getCurrentHits(int currentFrame_, const Vector2<float>& offset_, ORIENTATION ownOrientation_) const;
     virtual const Vector2<float> *getCurrentVelocity(int currentFrame_) const;
     virtual void switchTo(Char_t &character_) const override;
@@ -304,7 +305,7 @@ public:
 class Action_char1_ground_attack : public Action_attack<CHAR1_STATE, Char1Data, Char1>
 {
 public:
-    Action_char1_ground_attack(CHAR1_STATE actionState_, ANIMATIONS anim_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec hurtboxes_, std::vector<std::pair<std::pair<int, int>, Vector2<float>>> velocity_);
+    Action_char1_ground_attack(CHAR1_STATE actionState_, ANIMATIONS anim_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec hurtboxes_, std::vector<std::pair<std::pair<int, int>, Vector2<float>>> velocity_, bool noLandTransition_ = false, bool isCrouchState_ = false);
     virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_) const override;
     virtual void outdated(Char1 &character_) const override;
     virtual void switchTo(Char1 &character_) const;

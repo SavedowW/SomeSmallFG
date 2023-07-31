@@ -93,7 +93,7 @@ public:
 
     Vector2<float> getPos() const;
     void setPos(Vector2<float> pos_);
-    Collider getPushbox() const;
+    virtual Collider getPushbox() const;
 
     Vector2<float> getVelocity() const;
     Vector2<float> getInertia() const;
@@ -142,6 +142,7 @@ protected:
 
     Collider m_pushbox;
     Collider m_airbornePushbox;
+    Collider m_crouchingPushbox;
     Character *m_otherCharacter;
     int m_playerId;
 

@@ -98,10 +98,15 @@ void Char1::initiate()
     m_pushbox.x = -m_pushbox.w / 2;
     m_pushbox.y = -m_pushbox.h;
 
+    m_crouchingPushbox.w = gamedata::characters::char1::crouchingPushboxWidth;
+    m_crouchingPushbox.h = gamedata::characters::char1::crouchingPushboxHeight;
+    m_crouchingPushbox.x = -m_crouchingPushbox.w / 2;
+    m_crouchingPushbox.y = -m_crouchingPushbox.h;
+
     m_airbornePushbox.w = gamedata::characters::char1::airbornePushboxWidth;
     m_airbornePushbox.h = gamedata::characters::char1::airbornePushboxHeight;
-    m_airbornePushbox.x = -m_pushbox.w / 2;
-    m_airbornePushbox.y = -m_pushbox.h - gamedata::characters::char1::airbornePushboxOffset;
+    m_airbornePushbox.x = -m_airbornePushbox.w / 2;
+    m_airbornePushbox.y = -m_airbornePushbox.h - gamedata::characters::char1::airbornePushboxOffset;
 
     m_inertiaDrag = gamedata::characters::char1::inertiaDrag;
     m_gravity = gamedata::characters::char1::gravity;
@@ -661,4 +666,19 @@ bool Char1::canApplyGravity() const
     m_currentState == CHAR1_STATE::AIR_BACKDASH)
         return false;
     return true;
+}
+
+Collider Char1::getPushbox() const
+{
+    Collider pb;
+    if (m_currentAction && m_currentAction->m_isCrouchState)
+        pb = m_crouchingPushbox;
+    else if (m_airborne)
+        pb = m_airbornePushbox;
+    else
+        pb = m_pushbox;
+
+    pb.x += m_pos.x;
+    pb.y += m_pos.y;
+    return pb;
 }

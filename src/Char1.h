@@ -73,6 +73,7 @@ public:
     void updateBlockState() final;
     bool isInHitstun() const final;
     bool canApplyGravity() const final;
+    Collider getPushbox() const final;
 
     std::string CharStateData() const final;
 

@@ -63,6 +63,8 @@ namespace gamedata
             inline constexpr float inertiaDrag = 1.0f;
             inline constexpr float standingPushboxWidth = 100.0f;
             inline constexpr float standingPushboxHeight = 300.0f;
+            inline constexpr float crouchingPushboxWidth = 100.0f;
+            inline constexpr float crouchingPushboxHeight = 200.0f;
             inline constexpr float airbornePushboxWidth = 100.0f;
             inline constexpr float airbornePushboxHeight = 200.0f;
             inline constexpr float airbornePushboxOffset = 50.0f;
