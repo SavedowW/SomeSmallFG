@@ -36,6 +36,7 @@ void ActionResolver_Char1::createActions()
     m_actions.push_back(std::make_unique<Action_char1_soft_landing_recovery>());
     m_actions.push_back(std::make_unique<Action_char1_vulnerable_landing_recovery>());
     m_actions.push_back(std::make_unique<Action_char1_hard_landing_recovery>());
+    m_actions.push_back(std::make_unique<Action_char1_jc_landing_recovery>());
     m_actions.push_back(std::make_unique<Action_char1_hard_knockdown>());
     m_actions.push_back(std::make_unique<Action_char1_knockdown_recovery>());
     m_actions.push_back(std::make_unique<Action_char1_float>());
@@ -70,6 +71,7 @@ void Char1::loadAnimations(Application &application_)
     m_animations[ANIMATIONS::CHAR1_MOVE_2B] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_MOVE_2B, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_MOVE_JA] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_MOVE_JA, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_MOVE_JC] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_MOVE_JC, LOOPMETHOD::NOLOOP);
+    m_animations[ANIMATIONS::CHAR1_JC_LANDING_RECOVERY] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_JC_LANDING_RECOVERY, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_HITSTUN_LOW] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_HITSTUN_LOW, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_HITSTUN_MID] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_HITSTUN_MID, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_HITSTUN_HIGH] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_HITSTUN_HIGH, LOOPMETHOD::NOLOOP);
@@ -277,36 +279,33 @@ void Char1::land()
     if (m_currentAction && m_currentAction->m_noLandTransition)
         return;
 
-    if (vulnerable)
+    switch (m_currentState)
     {
-        m_actionResolver.getAction(CHAR1_STATE::VULNERABLE_LANDING_RECOVERY)->switchTo(*this);
-    }
-    else
-    {
-        switch (m_currentState)
-        {
-            case (CHAR1_STATE::JUMP):
+
+        case (CHAR1_STATE::GROUND_BACKDASH):
+            m_velocity = {0.0f, 0.0f};
+            m_inertia = {0.0f, 0.0f};
+            break;
+
+        case (CHAR1_STATE::BLOCKSTUN_AIR):
+            m_actionResolver.getAction(CHAR1_STATE::HARD_LANDING_RECOVERY)->switchTo(*this);
+            break;
+            
+        case (CHAR1_STATE::MOVE_JC):
+            m_actionResolver.getAction(CHAR1_STATE::MOVE_JC_LANDING_RECOVERY)->switchTo(*this);
+            break;
+
+        // TODO: airborne hitstun to knd
+        case (CHAR1_STATE::HITSTUN_AIR):
+            enterKndRecovery();
+            m_currentTakenHit.m_hitId = -1;
+            break;
+
+        default:
+            if (vulnerable)
+                m_actionResolver.getAction(CHAR1_STATE::VULNERABLE_LANDING_RECOVERY)->switchTo(*this);
+            else
                 switchToSoftLandingRecovery();
-                break;
-
-            case (CHAR1_STATE::GROUND_BACKDASH):
-                m_velocity = {0.0f, 0.0f};
-                m_inertia = {0.0f, 0.0f};
-                break;
-
-            case (CHAR1_STATE::BLOCKSTUN_AIR):
-                m_actionResolver.getAction(CHAR1_STATE::HARD_LANDING_RECOVERY)->switchTo(*this);
-                break;
-
-            // TODO: airborne hitstun to knd
-            case (CHAR1_STATE::HITSTUN_AIR):
-                enterKndRecovery();
-                m_currentTakenHit.m_hitId = -1;
-                break;
-
-            default:
-                switchToSoftLandingRecovery();
-        }
     }
 }
 
@@ -363,6 +362,7 @@ HurtboxVec Char1::getHurtboxes()
     m_currentState == CHAR1_STATE::SOFT_LANDING_RECOVERY ||
     m_currentState == CHAR1_STATE::VULNERABLE_LANDING_RECOVERY ||
     m_currentState == CHAR1_STATE::HARD_LANDING_RECOVERY ||
+    m_currentState == CHAR1_STATE::MOVE_JC_LANDING_RECOVERY ||
     m_currentState == CHAR1_STATE::BLOCKSTUN_CROUCHING ||
     m_currentState == CHAR1_STATE::BLOCKSTUN_STANDING ||
     m_currentState == CHAR1_STATE::BLOCKSTUN_AIR)
@@ -524,7 +524,8 @@ void Char1::updateBlockState()
                     m_currentState == CHAR1_STATE::MOVE_JA ||
                     m_currentState == CHAR1_STATE::MOVE_JC ||
                     m_currentState == CHAR1_STATE::AIR_DASH ||
-                    m_currentState == CHAR1_STATE::VULNERABLE_LANDING_RECOVERY);
+                    m_currentState == CHAR1_STATE::VULNERABLE_LANDING_RECOVERY ||
+                    m_currentState == CHAR1_STATE::MOVE_JC_LANDING_RECOVERY);
 
     m_blockHandler.update(m_actionResolver.getCurrentInputDir(), m_airborne, getHorDirToEnemy(), inBlockstun, canBlock);
 }
@@ -567,6 +568,10 @@ std::string Char1::CharStateData() const
         
         case (CHAR1_STATE::JUMP):
             stateName = "JUMP";
+            break;
+
+        case (CHAR1_STATE::GROUND_BACKDASH):
+            stateName = "GROUND_BACKDASH";
             break;
 
         case (CHAR1_STATE::SOFT_LANDING_RECOVERY):
@@ -639,6 +644,10 @@ std::string Char1::CharStateData() const
         
         case (CHAR1_STATE::MOVE_JC):
             stateName = "MOVE_JC";
+            break;
+
+        case (CHAR1_STATE::MOVE_JC_LANDING_RECOVERY):
+            stateName = "MOVE_JC_LANDING_RECOVERY";
             break;
 
         default:

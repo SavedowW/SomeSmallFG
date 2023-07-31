@@ -1009,6 +1009,36 @@ void Action_char1_vulnerable_landing_recovery::switchTo(Char1 &character_) const
     character_.m_timer.begin(m_recoveryLen);
 }
 
+// JC LANDING RECOVERY
+Action_char1_jc_landing_recovery::Action_char1_jc_landing_recovery() :
+    Action(CHAR1_STATE::MOVE_JC_LANDING_RECOVERY, nullptr, {
+        {
+            {1, 6},
+            {-100, -300, 200, 300}
+        }
+    }, ANIMATIONS::CHAR1_JC_LANDING_RECOVERY),
+    m_recoveryLen(gamedata::characters::char1::jcLandingRecovery)
+{
+}
+
+int Action_char1_jc_landing_recovery::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+{
+    return false;
+}
+
+void Action_char1_jc_landing_recovery::outdated(Char1 &character_) const
+{
+    character_.switchToIdle();
+}
+
+void Action_char1_jc_landing_recovery::switchTo(Char1 &character_) const
+{
+    Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    character_.m_velocity = {0.0f, 0.0f};
+    character_.m_inertia = {0.0f, 0.0f};
+    character_.m_timer.begin(m_recoveryLen);
+}
+
 // HARD KNOCKDOWN ACTION
 Action_char1_hard_knockdown::Action_char1_hard_knockdown() :
     Action(CHAR1_STATE::HARD_KNOCKDOWN, nullptr, {}, ANIMATIONS::CHAR1_KNOCKDOWN)

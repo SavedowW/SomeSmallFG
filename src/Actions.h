@@ -312,6 +312,16 @@ public:
     const int m_recoveryLen;
 };
 
+class Action_char1_jc_landing_recovery : public Action<CHAR1_STATE, Char1Data, Char1>
+{
+public:
+    Action_char1_jc_landing_recovery();
+    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_) const override;
+    virtual void outdated(Char1 &character_) const override;
+    virtual void switchTo(Char1 &character_) const;
+    const int m_recoveryLen;
+};
+
 class Action_char1_hard_knockdown : public Action<CHAR1_STATE, Char1Data, Char1>
 {
 public:

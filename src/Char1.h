@@ -32,6 +32,7 @@ enum class CHAR1_STATE {
     MOVE_2B,
     MOVE_JA,
     MOVE_JC,
+    MOVE_JC_LANDING_RECOVERY,
     BLOCKSTUN_STANDING,
     BLOCKSTUN_CROUCHING,
     BLOCKSTUN_AIR,
@@ -130,6 +131,7 @@ protected:
     friend Action_char1_ground_dash;
     friend Action_char1_ground_dash_recovery;
     friend Action_char1_soft_landing_recovery;
+    friend Action_char1_jc_landing_recovery;
     friend Action_char1_hard_knockdown;
     friend Action_char1_knockdown_recovery;
     friend Action_char1_air_attack;

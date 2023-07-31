@@ -194,7 +194,7 @@ Hit hitgeneration::generate_char1_JC()
     hdata.chHitstun = 20;
     hdata.hitstop = 10;
     hdata.chHitstop = 12;
-    hdata.hitBlockShakeAmp = 0;
+    hdata.hitBlockShakeAmp = 15;
     hdata.canBeBlockedAs = {BLOCK_STATE::HIGH, BLOCK_STATE::LOW, BLOCK_STATE::AUTO, BLOCK_STATE::AIR};
 
     Hit hit(hdata, {{0.0f, -280.0f, 180.0f, 130.0f}, {-30.0f, -160.0f, 130.0f, 130.0f}, {100.0f, -385.0f, 40.0f, 300.0f}, {-30.0f, -440.0f, 130.0f, 160.0f}});
