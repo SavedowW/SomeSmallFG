@@ -114,6 +114,8 @@ void Char1::initiate()
     m_standingHurtbox = {-70, -375, 140, 375};
     m_airHitstunHurtbox = {-350/2, -160, 350, 120};
     m_crouchingHurtbox = {-70, -200, 140, 200};
+
+    switchToIdle();
 }
 
 void Char1::proceedCurrentState()
@@ -155,15 +157,7 @@ void Char1::proceedCurrentState()
 
 void Char1::updateState()
 {
-    if (lastState != m_currentState)
-    {
-        lastState = m_currentState;
-        framesInState = 1;
-    }
-    if (m_playerId == 1)
-    {
-        framesInState++;
-    }
+    framesInState++;
 
     if (!m_currentCancelWindow.second.empty() && !m_inHitstop)
     {
@@ -184,7 +178,7 @@ void Char1::updateState()
         resolverRes->switchTo(*this);
     }
 
-    if (m_currentState == CHAR1_STATE::IDLE ||
+    /*if (m_currentState == CHAR1_STATE::IDLE ||
     m_currentState == CHAR1_STATE::WALK_BWD ||
     m_currentState == CHAR1_STATE::WALK_FWD ||
     m_currentState == CHAR1_STATE::CROUCH)
@@ -206,7 +200,9 @@ void Char1::updateState()
     else if (m_currentState == CHAR1_STATE::AIR_DASH_EXTENTION)
     {
         dynamic_cast<const Action_char1_air_dash_extention*>(m_currentAction)->setVelocity(*this);
-    }
+    }*/
+    if (m_currentAction)
+        m_currentAction->update(*this);
 }
 
 void Char1::switchToIdle()

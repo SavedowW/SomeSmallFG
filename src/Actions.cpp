@@ -151,6 +151,14 @@ void Action_attack<CharState_t, CharData, Char_t>::switchTo(Char_t &character_) 
     character_.turnVelocityToInertia();
 }
 
+template <typename CharState_t, typename CharData, typename Char_t>
+void Action_attack<CharState_t, CharData, Char_t>::update(Char_t &character_) const
+{
+    auto newVelocity = getCurrentVelocity(character_.m_timer.getCurrentFrame() + 1);
+    if (newVelocity)
+        character_.m_velocity = newVelocity->mulComponents(Vector2{character_.getOwnHorDir().x, 1.0f});
+}
+
 /* ============================
  *
  *       CHAR 1 ACTIONS
@@ -198,6 +206,11 @@ void Action_char1_idle::switchTo(Char1 &character_) const
     character_.updateOwnOrientation();
 }
 
+void Action_char1_idle::update(Char1 &character_) const
+{
+    character_.updateOwnOrientation();
+}
+
 // CROUCH ACTION
 Action_char1_crouch::Action_char1_crouch() :
     Action(CHAR1_STATE::CROUCH, std::make_unique<InputComparatorDownHold>(), {}, ANIMATIONS::CHAR1_CROUCH_IDLE, false, false, true)
@@ -236,6 +249,11 @@ void Action_char1_crouch::switchTo(Char1 &character_) const
 {
     Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
     character_.m_velocity = {0.0f, 0.0f};
+}
+
+void Action_char1_crouch::update(Char1 &character_) const
+{
+    character_.updateOwnOrientation();
 }
 
 
@@ -283,6 +301,11 @@ void Action_char1_walk_fwd::switchTo(Char1 &character_) const
     character_.m_velocity = character_.getHorDirToEnemy().mulComponents(Vector2{6.0f, 0.0f});
 }
 
+void Action_char1_walk_fwd::update(Char1 &character_) const
+{
+    character_.updateOwnOrientation();
+}
+
 // WALK BACKWARD ACTION
 Action_char1_walk_bwd::Action_char1_walk_bwd() :
     Action(CHAR1_STATE::WALK_BWD, std::make_unique<InputComparatorBackward>(), {
@@ -325,6 +348,11 @@ void Action_char1_walk_bwd::switchTo(Char1 &character_) const
     Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
     character_.m_currentAnimation->reset(65, -1);
     character_.m_velocity = character_.getHorDirToEnemy().mulComponents(Vector2{-6.0f, 0.0f});
+}
+
+void Action_char1_walk_bwd::update(Char1 &character_) const
+{
+    character_.updateOwnOrientation();
 }
 
 
@@ -611,6 +639,12 @@ int Action_char1_ground_dash::isPossible(const InputQueue &inputQueue_, Char1Dat
     return false;
 }
 
+void Action_char1_ground_dash::update(Char1 &character_) const
+{
+    auto newXVelocity = (abs(character_.m_velocity.x) + m_accel);
+    character_.m_velocity.x = character_.getOwnHorDir().x * std::min(abs(newXVelocity), abs(m_maxspd));
+}
+
 // GROUND BACKDASH ACTION
 Action_char1_ground_backdash::Action_char1_ground_backdash() :
     Action(CHAR1_STATE::GROUND_BACKDASH, std::move(std::make_unique<InputComparator44>()), {
@@ -831,6 +865,11 @@ void Action_char1_air_dash_extention::setVelocity(Char1 &character_) const
     std::cout << character_.m_velocity.x << std::endl;
 }
 
+void Action_char1_air_dash_extention::update(Char1 &character_) const
+{
+    setVelocity(character_);
+}
+
 
 // GROUND DASH RECOVERY ACTION
 Action_char1_ground_dash_recovery::Action_char1_ground_dash_recovery() :
@@ -1007,7 +1046,6 @@ void Action_char1_ground_attack::outdated(Char1 &character_) const
 {
     character_.m_velocity = {0.0f, 0.0f};
     character_.switchToIdle();
-
 }
 
 void Action_char1_ground_attack::switchTo(Char1 &character_) const

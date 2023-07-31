@@ -123,6 +123,7 @@ protected:
     friend Action_char1_airjump;
     friend Action_char1_jump;
     friend Action_char1_ground_backdash;
+    friend Action_char1_ground_dash;
     friend Action_char1_ground_dash_recovery;
     friend Action_char1_soft_landing_recovery;
     friend Action_char1_hard_knockdown;
