@@ -38,9 +38,11 @@ struct HitData
     int hitstun = 0;
     int hitstop = 0;
     bool hardKnd = false;
+    bool groundBounce = false;
+    float groundBounceStrength = 0.0f;
 
-    int chHitstun = 0;
-    int chHitstop = 0;
+    int chAdditionalHitstun = 0;
+    int chAdditionalHitstop = 0;
 
     int hitBlockShakeAmp;
 

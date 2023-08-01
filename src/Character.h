@@ -34,7 +34,7 @@
  * proratio [DONE]
  * 
  * gravity, impulse scaling
- * Ground bounce
+ * Ground bounce [DONE, but no animation]
  * Wallbounce, wallsplat
  * 
  * step - cancel and step - cancel specific moves

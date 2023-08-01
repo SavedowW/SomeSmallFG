@@ -32,9 +32,9 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_jab()
     hdata.cornerPushbackMaxImpulse = 25.0f;
     hdata.blockstun = 7;
     hdata.hitstun = 12;
-    hdata.chHitstun = 20;
+    hdata.chAdditionalHitstun = 20;
     hdata.hitstop = 10;
-    hdata.chHitstop = 12;
+    hdata.chAdditionalHitstop = 12;
     hdata.hitBlockShakeAmp = 0;
     hdata.canBeBlockedAs = {BLOCK_STATE::HIGH, BLOCK_STATE::LOW, BLOCK_STATE::AIR, BLOCK_STATE::AUTO};
 
@@ -65,9 +65,9 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveB()
     hdata.cornerPushbackMaxImpulse = 30.0f;
     hdata.blockstun = 8;
     hdata.hitstun = 15;
-    hdata.chHitstun = 25;
+    hdata.chAdditionalHitstun = 25;
     hdata.hitstop = 11;
-    hdata.chHitstop = 13;
+    hdata.chAdditionalHitstop = 13;
     hdata.hitBlockShakeAmp = 20;
     hdata.canBeBlockedAs = {BLOCK_STATE::HIGH, BLOCK_STATE::LOW, BLOCK_STATE::AIR, BLOCK_STATE::AUTO};
 
@@ -99,9 +99,9 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveC()
     hdata.cornerPushbackMaxImpulse = 30.0f;
     hdata.blockstun = 15;
     hdata.hitstun = 21;
-    hdata.chHitstun = 25;
+    hdata.chAdditionalHitstun = 25;
     hdata.hitstop = 13;
-    hdata.chHitstop = 12;
+    hdata.chAdditionalHitstop = 12;
     hdata.hitBlockShakeAmp = 40;
     hdata.canBeBlockedAs = {BLOCK_STATE::HIGH, BLOCK_STATE::LOW, BLOCK_STATE::AIR, BLOCK_STATE::AUTO};
 
@@ -132,9 +132,9 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_move2B()
     hdata.cornerPushbackMaxImpulse = 31.0f;
     hdata.blockstun = 8;
     hdata.hitstun = 12;
-    hdata.chHitstun = 25;
+    hdata.chAdditionalHitstun = 25;
     hdata.hitstop = 11;
-    hdata.chHitstop = 13;
+    hdata.chAdditionalHitstop = 13;
     hdata.hitBlockShakeAmp = 15;
     hdata.canBeBlockedAs = {BLOCK_STATE::LOW, BLOCK_STATE::AIR};
 
@@ -165,9 +165,9 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_JA()
     hdata.cornerPushbackMaxImpulse = 25.0f;
     hdata.blockstun = 7;
     hdata.hitstun = 12;
-    hdata.chHitstun = 20;
+    hdata.chAdditionalHitstun = 20;
     hdata.hitstop = 10;
-    hdata.chHitstop = 12;
+    hdata.chAdditionalHitstop = 12;
     hdata.hitBlockShakeAmp = 0;
     hdata.canBeBlockedAs = {BLOCK_STATE::HIGH, BLOCK_STATE::AIR};
 
@@ -199,9 +199,9 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_JC()
     hdata.cornerPushbackMaxImpulse = 15.0f;
     hdata.blockstun = 15;
     hdata.hitstun = 12;
-    hdata.chHitstun = 20;
+    hdata.chAdditionalHitstun = 20;
     hdata.hitstop = 10;
-    hdata.chHitstop = 12;
+    hdata.chAdditionalHitstop = 12;
     hdata.hitBlockShakeAmp = 15;
     hdata.canBeBlockedAs = {BLOCK_STATE::HIGH, BLOCK_STATE::LOW, BLOCK_STATE::AUTO, BLOCK_STATE::AIR};
 
@@ -227,18 +227,21 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_214C()
     hdata.chipDamage = 4.0f;
     hdata.opponentPushbackOnBlock = 5.6f;
     hdata.opponentImpulseOnHit = {3.0f, 0.0f};
-    hdata.opponentImpulseOnAirHit = {10.0f, 30.0f};
+    hdata.opponentImpulseOnAirHit = {10.0f, 40.0f};
     hdata.cornerPushbackMaxRange = 300.0f;
     hdata.cornerPushbackMinImpulse = 5.0f;
     hdata.cornerPushbackMaxImpulse = 8.0f;
     hdata.blockstun = 12;
-    hdata.hitstun = 15;
-    hdata.chHitstun = 25;
+    hdata.hitstun = 28;
+    hdata.chAdditionalHitstun = 25;
     hdata.hitstop = 11;
-    hdata.chHitstop = 13;
+    hdata.chAdditionalHitstop = 13;
     hdata.hardKnd = true;
     hdata.hitBlockShakeAmp = 20;
     hdata.canBeBlockedAs = {BLOCK_STATE::HIGH, BLOCK_STATE::LOW, BLOCK_STATE::AUTO};
+
+    hdata.groundBounce = true;
+    hdata.groundBounceStrength = 15.0f;
 
     Hit hit(hdata, {{{16, 17}, {50.0f, -400.0f, 100.0f, 150.0f}}, {{18, 21}, {50.0f, -400.0f, 130.0f, 400.0f}}});
 

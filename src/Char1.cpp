@@ -299,7 +299,13 @@ void Char1::land()
 
         // TODO: airborne hitstun to knd
         case (CHAR1_STATE::HITSTUN_AIR):
-            if (m_currentTakenHit.hardKnd)
+            if (m_currentTakenHit.groundBounce)
+            {
+                m_inertia.y = 0;
+                m_velocity.y = -m_currentTakenHit.groundBounceStrength;
+                m_currentTakenHit.groundBounce = false;
+            }
+            else if (m_currentTakenHit.hardKnd)
                 m_actionResolver.getAction(CHAR1_STATE::HARD_KNOCKDOWN)->switchTo(*this);
             else
                 enterKndRecovery();
