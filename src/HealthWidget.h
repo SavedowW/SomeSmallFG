@@ -41,6 +41,11 @@ private:
     float m_redHealthBaseX = 0.0f;
     float m_redHealthDir = 1.0f;
     bool m_resetedRedHealth = false;
+
+    float m_healthFlash = 0.0f;
+    float m_healthFlashMax = 255.0f;
+    uint8_t m_rbFlashValue = 255;
+    
 };
 
 #endif

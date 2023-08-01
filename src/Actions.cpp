@@ -204,6 +204,7 @@ void Action_char1_idle::switchTo(Char1 &character_) const
     Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
     character_.turnVelocityToInertia();
     character_.updateOwnOrientation();
+    character_.m_healthHandler.resetScaling();
 }
 
 void Action_char1_idle::update(Char1 &character_) const
@@ -1083,6 +1084,7 @@ void Action_char1_knockdown_recovery::switchTo(Char1 &character_) const
     Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
     character_.m_timer.begin(21);
     character_.turnVelocityToInertia();
+    character_.m_healthHandler.resetScaling();
 }
 
 // ABSTRACT CHAR1 GROUND ATTACK ACTION

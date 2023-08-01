@@ -2,9 +2,10 @@
 #include "Application.h"
 #include "ActionResolver.h"
 
-Character::Character(Application &application_, Vector2<float> pos_) :
+Character::Character(Application &application_, Vector2<float> pos_, float maxHealth_) :
     m_playerId(0),
-    m_currentAnimation(nullptr)
+    m_currentAnimation(nullptr),
+    m_healthHandler(maxHealth_)
 {
     setPos(pos_);
 }
@@ -256,4 +257,5 @@ void Character::generateWidgets(Application &application_, HUD &hud_)
     auto ptr = std::make_unique<HealthWidget>(application_, rs);
     m_healthWidget = ptr.get();
     hud_.addWidget(std::move(ptr));
+    m_healthHandler.setWidget(m_healthWidget);
 }

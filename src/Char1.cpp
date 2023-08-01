@@ -44,7 +44,7 @@ void ActionResolver_Char1::createActions()
 }
 
 Char1::Char1(Application &application_, Vector2<float> pos_) :
-    Character(application_, pos_),
+    Character(application_, pos_, 400.0f),
     m_actionResolver(application_.getInputSystem()),
     m_currentAction(nullptr)
 {
@@ -395,7 +395,7 @@ HurtboxVec Char1::getHurtboxes()
 
 }
 
-HIT_RESULT Char1::applyHit(const HitEvent &hitEvent, HIT_RESULT hitRes_)
+HIT_RESULT Char1::applyHit(HitEvent &hitEvent)
 {
     if (m_playerId == 1)
         std::cout << "";
@@ -407,7 +407,7 @@ HIT_RESULT Char1::applyHit(const HitEvent &hitEvent, HIT_RESULT hitRes_)
         {
             m_appliedHits.insert(hitEvent.m_hitData.m_hitId);
 
-            if (hitRes_ == HIT_RESULT::HIT)
+            if (hitEvent.m_hitRes == HIT_RESULT::HIT)
             {
                 m_currentCancelWindow = hitEvent.m_hitData.cancelsOnHit;
                 if (!m_currentCancelWindow.second.empty())
@@ -467,6 +467,9 @@ HIT_RESULT Char1::applyHit(const HitEvent &hitEvent, HIT_RESULT hitRes_)
             m_currentCancelWindow = {};
             m_cancelTimer.begin(0);
 
+            hitEvent.m_hitRes = HIT_RESULT::HIT;
+            m_healthHandler.takeDamage(hitEvent);
+
             return HIT_RESULT::HIT;
         }
         else
@@ -501,6 +504,9 @@ HIT_RESULT Char1::applyHit(const HitEvent &hitEvent, HIT_RESULT hitRes_)
 
             m_currentAnimation->reset(0);
             m_currentAction = nullptr;
+
+            hitEvent.m_hitRes = res;
+            m_healthHandler.takeDamage(hitEvent);
 
             return res;
         }

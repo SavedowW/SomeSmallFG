@@ -118,7 +118,7 @@ Hit hitgeneration::generate_char1_move2B()
 {
     HitData hdata;
     hdata.m_hitId = 1;
-    hdata.damage = 15.0f;
+    hdata.damage = 13.0f;
     hdata.opponentPushbackOnBlock = 3.0f;
     hdata.opponentImpulseOnHit = {3.0f, 0.0f};
     hdata.opponentImpulseOnAirHit = {10.0f, -5.0f};
@@ -182,7 +182,7 @@ Hit hitgeneration::generate_char1_JC()
 {
     HitData hdata;
     hdata.m_hitId = 1;
-    hdata.damage = 5.0f;
+    hdata.damage = 25.0f;
     hdata.opponentPushbackOnBlock = 10.0f;
     hdata.opponentImpulseOnHit = {13.0f, -35.0f};
     hdata.opponentImpulseOnAirHit = {13.0f, -33.0f};

@@ -65,7 +65,9 @@ struct HitEvent
 {
     int m_hittingPlayerId = 0;
     HitData m_hitData;
-    HIT_RESULT m_hitRes = HIT_RESULT::HIT;
+    HIT_RESULT m_hitRes = HIT_RESULT::NONE;
+    float realDamage;
+    int hitInSequence;
 };
 
 namespace hitgeneration

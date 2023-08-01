@@ -10,6 +10,7 @@
 #include "FrameTimer.h"
 #include "BlockHandler.h"
 #include "HealthWidget.h"
+#include "HealthHandler.h"
 
 /*
  * TODO: LIST
@@ -85,7 +86,7 @@ struct CharData
 class Character
 {
 public:
-    Character(Application &application_, Vector2<float> pos_);
+    Character(Application &application_, Vector2<float> pos_, float maxHealth_);
 
     void setOnStage(Application &application_, int playerId_, Character *otherCharacter_);
 
@@ -120,7 +121,7 @@ public:
     virtual void updateOwnOrientation();
     virtual void updatePosition();
 
-    virtual HIT_RESULT applyHit(const HitEvent &hitEvent_, HIT_RESULT hitRes_ = HIT_RESULT::NONE) = 0;
+    virtual HIT_RESULT applyHit(HitEvent &hitEvent_) = 0;
     virtual void applyHitstop(int hitstopLength);
     HitData getCurrentTakenHit();
     void takeCornerPushback(HitData fromHit_, float rangeToCorner_, const Vector2<int> dirFromCorner_);
@@ -159,6 +160,7 @@ protected:
     HitData m_currentTakenHit;
 
     HealthWidget *m_healthWidget = nullptr;
+    HealthHandler m_healthHandler;
 
 };
 

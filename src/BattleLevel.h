@@ -232,8 +232,8 @@ protected:
                             HitEvent ev;
                             ev.m_hittingPlayerId = pid + 1;
                             ev.m_hitData = hits[pid][ihit].getHitData();
-                            auto hitres = m_characters[p2id]->applyHit(ev);
-                            m_characters[pid]->applyHit(ev, hitres);
+                            m_characters[p2id]->applyHit(ev);
+                            m_characters[pid]->applyHit(ev);
                             m_camera.startShake(ev.m_hitData.hitBlockShakeAmp, ev.m_hitData.hitstop + 1);
                         }
                     }
@@ -243,7 +243,7 @@ protected:
 
         m_camera.update();
         m_hud.update();
-        std::cout << m_characters[0]->CharStateData() << " | " << m_characters[1]->CharStateData() << std::endl;
+        //std::cout << m_characters[0]->CharStateData() << " | " << m_characters[1]->CharStateData() << std::endl;
     }
 
     void draw() override

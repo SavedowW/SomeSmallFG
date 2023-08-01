@@ -73,7 +73,7 @@ public:
     bool canBeDraggedByInertia() const final;
     HitsVec getHits(bool allHits_ = false) final;
     HurtboxVec getHurtboxes() final;
-    HIT_RESULT applyHit(const HitEvent &hitEvent, HIT_RESULT hitRes_ = HIT_RESULT::NONE) final;
+    HIT_RESULT applyHit(HitEvent &hitEvent) final;
     void updateBlockState() final;
     bool isInHitstun() const final;
     bool canApplyGravity() const final;

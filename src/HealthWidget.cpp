@@ -23,6 +23,7 @@ HealthWidget::HealthWidget(Application &application_, bool rightSide_) :
 
     subscribe(EVENTS::FN1);
     subscribe(EVENTS::FN2);
+    subscribe(EVENTS::FN3);
     setInputEnabled(true);
 }
 
@@ -34,11 +35,22 @@ void HealthWidget::updateHealth(float scale_)
     {
         m_redHealthLen += m_barLen * delta;
         m_redHealthBaseX = m_screenCenter + m_redHealthDir * (m_centerOffset + scale_ * m_barLen);
+
+        // Limiting red health length in case if I will ever add healing
+        if (m_redHealthDir * (m_redHealthBaseX + m_redHealthDir * m_redHealthLen) - m_redHealthDir * (m_screenCenter + m_redHealthDir * m_centerOffset) > m_barLen)
+                m_redHealthLen = m_barLen + m_redHealthDir * (m_screenCenter + m_redHealthDir * m_centerOffset) - m_redHealthDir * m_redHealthBaseX;
+
+        m_resetedRedHealth = false;
+    }
+    else if (delta < 0)
+    {
+        m_resetedRedHealth = true;
     }
 
     m_scale = newScale;
 
-    m_resetedRedHealth = false;
+    m_healthFlash = m_healthFlashMax;
+    m_rbFlashValue = 255;
 }
 
 void HealthWidget::updateRects()
@@ -64,18 +76,21 @@ void HealthWidget::updateRects()
 
 void HealthWidget::update()
 {
-    if (m_redHealthLen > 0 && m_resetedRedHealth)
+    if (m_healthFlash > 0)
     {
-        m_redHealthLen -= (m_redHealthLen > 5.0f ? 5.0f : m_redHealthLen);
+        m_healthFlash -= (m_healthFlash > 10.0f ? 10.0f : m_healthFlash);
     }
+
+    if (m_redHealthLen > 0 && m_resetedRedHealth)
+        m_redHealthLen -= (m_redHealthLen > 5.0f ? 5.0f : m_redHealthLen);
 
     if (m_displayedScale == m_scale)
         return;
+
     auto diff = (m_displayedScale - m_scale) / 6.0f;
     auto diffAbs = abs(diff);
     if (diffAbs < 0.0001f)
     {
-        std::cout << "END ======================\n";
         diff = m_displayedScale - m_scale;
     }
     m_displayedScale -= diff;
@@ -86,6 +101,7 @@ void HealthWidget::update()
 
 void HealthWidget::draw(Renderer &renderer_, Camera &camera_)
 {
+
     auto flip = (m_rightSide ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
     
     renderer_.renderTexture(m_back->getSprite(), m_barBackFrontDstRect.x, m_barBackFrontDstRect.y, m_barBackFrontDstRect.w, m_barBackFrontDstRect.h, 0, nullptr, flip);
@@ -103,6 +119,12 @@ void HealthWidget::draw(Renderer &renderer_, Camera &camera_)
     }
 
     renderer_.renderTexture(m_bar->getSprite(), &m_barSrcRect, &m_barDstRect, 0, nullptr, flip);
+    auto coef = m_healthFlash / m_healthFlashMax;
+    if (coef > 0.0f)
+    {
+        renderer_.fillRectangle({m_barDstRect.x, m_barDstRect.y}, {m_barDstRect.w, m_barDstRect.h}, {m_rbFlashValue, 255, m_rbFlashValue, static_cast<uint8_t>(200 * coef)});
+    }
+
     renderer_.renderTexture(m_front->getSprite(), m_barBackFrontDstRect.x, m_barBackFrontDstRect.y, m_barBackFrontDstRect.w, m_barBackFrontDstRect.h, 0, nullptr, flip);
 }
 
@@ -115,13 +137,23 @@ void HealthWidget::receiveInput(EVENTS event, const float scale_)
     {
         updateHealth(m_scale - 0.1f);
     }
-    else
+    else if (event == EVENTS::FN2)
     {
         ResetRedHealth();
+    }
+    else if (event == EVENTS::FN3)
+    {
+        std::cout << "HERE\nHERE\nHERE\nHERE\n";
+        updateHealth(m_scale + 0.1f);
     }
 }
 
 void HealthWidget::ResetRedHealth()
 {
-    m_resetedRedHealth = true;
+    if (!m_resetedRedHealth)
+    {
+        m_resetedRedHealth = true;
+        m_healthFlash = m_healthFlashMax / 1.8f;
+        m_rbFlashValue = 0;
+    }
 }
