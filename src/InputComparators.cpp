@@ -1,6 +1,24 @@
 #include "InputComparators.h"
 #include "GameData.h"
 
+template<int len, typename VecT>
+bool recursivelySearchInput(const InputQueue &inputQueue_, Vector2<VecT> (&inputs_)[len], int start_, int toSearch_, int window_)
+{
+    int lastToLook = std::min(inputQueue_.getFilled() - 1, start_ + window_ - 1);
+    for (int i = start_; i < lastToLook; ++i)
+    {
+        auto &inp = inputQueue_[i];
+        if (inp.dir == inputs_[toSearch_])
+        {
+            if (toSearch_ == len - 1)
+                return true;
+            else if (recursivelySearchInput(inputQueue_, inputs_, i + 1, toSearch_ + 1, window_))
+                return true;
+        }
+    }
+    return false;
+}
+
 bool InputComparatorIdle::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_) const
 {
     return true;
@@ -309,6 +327,45 @@ bool InputComparator2BPress::operator()(const InputQueue &inputQueue_, ORIENTATI
         if (in.inputs.at(INPUT_BUTTON::B) == INPUT_BUTTON_STATE::PRESSED && in.dir.y == 1)
         {
             return true;
+        }
+    }
+
+    return false;
+}
+
+bool InputComparator2CPress::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_) const
+{
+    if (inputQueue_.getFilled() == 0)
+        return false;
+
+    int lookAt = std::min(inputQueue_.getFilled() - 1, gamedata::global::inputBufferLength);
+    for (int i = 0; i <= lookAt; ++i)
+    {
+        auto &in = inputQueue_[i];
+        if (in.inputs.at(INPUT_BUTTON::C) == INPUT_BUTTON_STATE::PRESSED && in.dir.y == 1)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool InputComparator214CPress::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_) const
+{
+    if (inputQueue_.getFilled() == 0)
+        return false;
+
+    int lookAt = std::min(inputQueue_.getFilled() - 1, gamedata::global::inputBufferLength);
+    int secondaryInputButtonWindow = 5;
+    int back = (faceDirection_ == ORIENTATION::RIGHT ? -1 : 1);
+    Vector2<int> inputs[] = {{back, 0}, {back, 1}, {0, 1}};
+    for (int i = 0; i <= lookAt; ++i)
+    {
+        auto &in = inputQueue_[i];
+        if (in.inputs.at(INPUT_BUTTON::C) == INPUT_BUTTON_STATE::PRESSED)
+        {
+            return recursivelySearchInput(inputQueue_, inputs, i, 0, secondaryInputButtonWindow);
         }
     }
 

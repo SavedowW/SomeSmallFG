@@ -20,7 +20,6 @@ struct HitData
 {
     int m_hitId;
     float damage = 0;
-    float chipDamage = 0;
     float proratio = 1.0f;
 
     // TODO: change pushback logic
@@ -34,11 +33,17 @@ struct HitData
     Vector2<float> opponentImpulseOnAirHit = 0;
 
     int blockstun = 0;
+    float chipDamage = 0;
+
     int hitstun = 0;
     int hitstop = 0;
+    bool hardKnd = false;
+
     int chHitstun = 0;
     int chHitstop = 0;
+
     int hitBlockShakeAmp;
+
     HITSTUN_ANIMATION hitstunAnimation = HITSTUN_ANIMATION::MID;
     std::set<BLOCK_STATE> canBeBlockedAs;
 
@@ -79,6 +84,7 @@ namespace hitgeneration
     std::pair<FrameWindow, Hit> generate_char1_move2B();
     std::pair<FrameWindow, Hit> generate_char1_JA();
     std::pair<FrameWindow, Hit> generate_char1_JC();
+    std::pair<FrameWindow, Hit> generate_char1_214C();
 }
 
 #endif

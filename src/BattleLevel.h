@@ -243,7 +243,7 @@ protected:
 
         m_camera.update();
         m_hud.update();
-        //std::cout << m_characters[0]->CharStateData() << " | " << m_characters[1]->CharStateData() << std::endl;
+        std::cout << m_characters[0]->CharStateData() << " | " << m_characters[1]->CharStateData() << std::endl;
     }
 
     void draw() override

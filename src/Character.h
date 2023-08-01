@@ -30,10 +30,12 @@
  * * extended hitstop for the one who takes the hit and potentially different animation on CH (for example, if move goes into
  * * throw-like animation on CH), but the last one is not necessary
  * health [DONE]
- * blockstun scaling
- * gravity scaling
  * damage scaling [DONE]
- * proratio
+ * proratio [DONE]
+ * 
+ * gravity, impulse scaling
+ * Ground bounce
+ * Wallbounce, wallsplat
  * 
  * step - cancel and step - cancel specific moves
  * * Kind of like dash cancel, except with completely fixed range and unique follow ups
@@ -41,8 +43,7 @@
  * Projectiles
  * Clash, forced clash property
  * parries, guard points
- * Ground bounce
- * Wallbounce, wallsplat, wallbang (?)
+ * wallbang (?)
  * * Wallbang (?): when character blocks an attack with wallbang (?) property, he gets into a wallbang blockstun.
  * * When character in wallbang blockstun touches the wall, he takes an unblockable hit with very low damage and hitstun,
  * * but 100% proratio. He can be comboed from this hit, but it should depend on spacing 
@@ -107,7 +108,7 @@ struct CharData
 class Character
 {
 public:
-    Character(Application &application_, Vector2<float> pos_, float maxHealth_);
+    Character(Application &application_, Vector2<float> pos_, float maxHealth_, Camera *cam_);
 
     void setOnStage(Application &application_, int playerId_, Character *otherCharacter_);
 
@@ -182,6 +183,8 @@ protected:
 
     HealthWidget *m_healthWidget = nullptr;
     HealthHandler m_healthHandler;
+
+    Camera *m_cam;
 
 };
 

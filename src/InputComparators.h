@@ -109,6 +109,18 @@ public:
     bool operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_) const final;
 };
 
+class InputComparator2CPress : public InputComparator
+{
+public:
+    bool operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_) const final;
+};
+
+class InputComparator214CPress : public InputComparator
+{
+public:
+    bool operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_) const final;
+};
+
 using InputComparator_ptr = std::unique_ptr<InputComparator>;
 
 #endif

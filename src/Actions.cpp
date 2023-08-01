@@ -1412,6 +1412,54 @@ void Action_char1_move_JC::update(Char1 &character_) const
     }
 }
 
+// MOVE 214C ACTION
+Action_char1_move_214C::Action_char1_move_214C() :
+    Action_char1_ground_attack(CHAR1_STATE::MOVE_214C, ANIMATIONS::CHAR1_MOVE_214C, std::make_unique<InputComparator214CPress>(), 40,
+    {
+        hitgeneration::generate_char1_214C()
+    },
+    {
+        {
+            {1, 40},
+            {-70, -375, 140, 375}
+        },
+        {
+            {16, 17},
+            {50.0f, -350.0f, 80.0f, 75.0f}
+        },
+        {
+            {18, 35},
+            {50.0f, -120.0f, 30.0f, 120.0f}
+        }
+    },
+    {
+        {
+            {1, 4},
+            {6.0f, 0.0f}
+        },
+        {
+            {10, 15},
+            {2.0f, 0.0f}
+        },
+        {
+            {18, 18},
+            {80.0f, 0.0f}
+        }
+    })
+{
+}
+
+void Action_char1_move_214C::update(Char1 &character_) const
+{
+    Action_attack<CHAR1_STATE, Char1Data, Char1>::update(character_);
+
+    auto frame = character_.m_timer.getCurrentFrame() + 1;
+    if (frame == 18)
+    {
+        character_.m_cam->startShake(35, 10);
+    }
+}
+
 
 template Action<CHAR1_STATE, Char1Data, Char1>;
 template Action_jump<CHAR1_STATE, Char1Data, Char1>;

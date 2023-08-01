@@ -395,4 +395,11 @@ public:
     virtual void update(Char1 &character_) const override;
 };
 
+class Action_char1_move_214C : public Action_char1_ground_attack
+{
+public:
+    Action_char1_move_214C();
+    virtual void update(Char1 &character_) const override;
+};
+
 #endif

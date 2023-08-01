@@ -19,6 +19,7 @@ void ActionResolver_Char1::createActions()
     m_actions.push_back(std::make_unique<Action_char1_neutral_doublejump>());
     m_actions.push_back(std::make_unique<Action_char1_move_JC>());
     m_actions.push_back(std::make_unique<Action_char1_move_JA>());
+    m_actions.push_back(std::make_unique<Action_char1_move_214C>());
     m_actions.push_back(std::make_unique<Action_char1_move_2B>());
     m_actions.push_back(std::make_unique<Action_char1_move_C>());
     m_actions.push_back(std::make_unique<Action_char1_move_B>());
@@ -43,8 +44,8 @@ void ActionResolver_Char1::createActions()
     m_actions.push_back(std::make_unique<Action_char1_air_dash_extention>());
 }
 
-Char1::Char1(Application &application_, Vector2<float> pos_) :
-    Character(application_, pos_, 400.0f),
+Char1::Char1(Application &application_, Vector2<float> pos_, Camera *cam_) :
+    Character(application_, pos_, 400.0f, cam_),
     m_actionResolver(application_.getInputSystem()),
     m_currentAction(nullptr)
 {
@@ -71,6 +72,7 @@ void Char1::loadAnimations(Application &application_)
     m_animations[ANIMATIONS::CHAR1_MOVE_2B] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_MOVE_2B, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_MOVE_JA] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_MOVE_JA, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_MOVE_JC] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_MOVE_JC, LOOPMETHOD::NOLOOP);
+    m_animations[ANIMATIONS::CHAR1_MOVE_214C] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_MOVE_214C, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_JC_LANDING_RECOVERY] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_JC_LANDING_RECOVERY, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_HITSTUN_LOW] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_HITSTUN_LOW, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_HITSTUN_MID] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_HITSTUN_MID, LOOPMETHOD::NOLOOP);
@@ -297,7 +299,10 @@ void Char1::land()
 
         // TODO: airborne hitstun to knd
         case (CHAR1_STATE::HITSTUN_AIR):
-            enterKndRecovery();
+            if (m_currentTakenHit.hardKnd)
+                m_actionResolver.getAction(CHAR1_STATE::HARD_KNOCKDOWN)->switchTo(*this);
+            else
+                enterKndRecovery();
             m_currentTakenHit.m_hitId = -1;
             break;
 

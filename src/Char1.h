@@ -33,6 +33,7 @@ enum class CHAR1_STATE {
     MOVE_JA,
     MOVE_JC,
     MOVE_JC_LANDING_RECOVERY,
+    MOVE_214C,
     BLOCKSTUN_STANDING,
     BLOCKSTUN_CROUCHING,
     BLOCKSTUN_AIR,
@@ -61,7 +62,7 @@ public:
 class Char1 : public Character
 {
 public:
-    Char1(Application &application_, Vector2<float> pos_);
+    Char1(Application &application_, Vector2<float> pos_, Camera *cam_);
     virtual ~Char1() {};
 
     void loadAnimations(Application &application_) final;
@@ -142,6 +143,7 @@ protected:
     friend Action_char1_move_JC;
     friend Action_char1_vulnerable_landing_recovery;
     friend Action_char1_hard_landing_recovery;
+    friend Action_char1_move_214C;
 };
 
 #endif

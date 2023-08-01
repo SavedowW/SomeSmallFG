@@ -2,10 +2,11 @@
 #include "Application.h"
 #include "ActionResolver.h"
 
-Character::Character(Application &application_, Vector2<float> pos_, float maxHealth_) :
+Character::Character(Application &application_, Vector2<float> pos_, float maxHealth_, Camera *cam_) :
     m_playerId(0),
     m_currentAnimation(nullptr),
-    m_healthHandler(maxHealth_)
+    m_healthHandler(maxHealth_),
+    m_cam(cam_)
 {
     setPos(pos_);
 }
