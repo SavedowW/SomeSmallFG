@@ -148,7 +148,6 @@ void Camera::update()
         else
             m_thisFrameAmp = 0;
 
-        std::cout << "RealAmp: " << realAmp << std::endl;
     }
 }
 

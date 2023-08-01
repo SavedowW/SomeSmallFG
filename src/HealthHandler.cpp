@@ -12,6 +12,9 @@ void HealthHandler::takeDamage(HitEvent &ev)
 {
     if (ev.m_hitRes == HIT_RESULT::HIT)
     {
+        if (m_currentHit == 0)
+            m_proratio = ev.m_hitData.proratio;
+
         if (m_currentHit < m_fixedScalingValues.size())
             m_currentScaling = m_fixedScalingValues[m_currentHit];
         else
@@ -19,7 +22,7 @@ void HealthHandler::takeDamage(HitEvent &ev)
 
         m_currentHit++;
 
-        float damage = m_currentScaling * ev.m_hitData.damage;
+        float damage = m_currentScaling * ev.m_hitData.damage * m_proratio;
         std::cout << damage << std::endl;
 
         m_currentHealth -= damage;

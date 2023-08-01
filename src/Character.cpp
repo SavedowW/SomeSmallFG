@@ -220,7 +220,6 @@ bool Character::canBeDraggedByInertia() const
 
 void Character::turnVelocityToInertia()
 {
-    std::cout << "Velocity to inertia\n";
     m_inertia += m_velocity;
     m_velocity = {0.0f, 0.0f};
 }

@@ -21,6 +21,7 @@ struct HitData
     int m_hitId;
     float damage = 0;
     float chipDamage = 0;
+    float proratio = 1.0f;
 
     // TODO: change pushback logic
     // There should be no "own pushback"

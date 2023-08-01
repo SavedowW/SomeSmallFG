@@ -21,6 +21,7 @@ private:
     const std::array<float, 7> m_fixedScalingValues{1.0f, 0.95f, 0.85f, 0.75f, 0.6f, 0.45f, 0.25f};
     const float m_scalingMultiplier = 0.9f;
     float m_currentScaling = 1.0f;
+    float m_proratio = 1.0f;
     int m_currentHit = 0;
 
     HealthWidget *m_widget;
