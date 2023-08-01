@@ -226,7 +226,7 @@ protected:
                 {
                     for (int ihurtbox = 0; ihurtbox < hurtboxes[p2id].size() && !hitFound; ++ihurtbox)
                     {
-                        if (hboxes[ihitbox].isCollideWith(hurtboxes[p2id][ihurtbox]))
+                        if (hboxes[ihitbox].second.isCollideWith(hurtboxes[p2id][ihurtbox]))
                         {
                             hitFound = true;
                             HitEvent ev;

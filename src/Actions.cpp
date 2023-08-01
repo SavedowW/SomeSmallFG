@@ -117,10 +117,21 @@ const HitsVec Action_attack<CharState_t, CharData, Char_t>::getCurrentHits(int c
         if (el.first.first <= currentFrame_ && el.first.second >= currentFrame_)
         {
             auto hit = el.second;
-            for (auto &hbox : hit.m_hitboxes)
+
+            int i = 0;
+            while (i < hit.m_hitboxes.size())
             {
-                hbox = hbox.getHitboxAtOffset(offset_, ownOrientation_);
+                if (currentFrame_ < hit.m_hitboxes[i].first.first || currentFrame_ > hit.m_hitboxes[i].first.second)
+                {
+                    hit.m_hitboxes.erase(hit.m_hitboxes.begin() + i);
+                }
+                else
+                {
+                    hit.m_hitboxes[i].second = hit.m_hitboxes[i].second.getHitboxAtOffset(offset_, ownOrientation_);
+                    i++;
+                }
             }
+        
             vec.push_back(hit);
         }
     }
@@ -1207,10 +1218,7 @@ void Action_char1_air_attack::switchTo(Char1 &character_) const
 Action_char1_jab::Action_char1_jab() :
     Action_char1_ground_attack(CHAR1_STATE::MOVE_A, ANIMATIONS::CHAR1_MOVE_A, std::make_unique<InputComparatorAPress>(), 16,
     {
-        {
-            {5, 7},
-            hitgeneration::generate_char1_jab()
-        }
+        hitgeneration::generate_char1_jab()
     },
     {
         {
@@ -1230,10 +1238,7 @@ Action_char1_jab::Action_char1_jab() :
 Action_char1_move_B::Action_char1_move_B() :
     Action_char1_ground_attack(CHAR1_STATE::MOVE_B, ANIMATIONS::CHAR1_MOVE_B, std::make_unique<InputComparatorBPress>(), 22,
     {
-        {
-            {7, 10},
-            hitgeneration::generate_char1_moveB()
-        }
+        hitgeneration::generate_char1_moveB()
     },
     {
         {
@@ -1262,10 +1267,7 @@ Action_char1_move_B::Action_char1_move_B() :
 Action_char1_move_C::Action_char1_move_C() :
     Action_char1_ground_attack(CHAR1_STATE::MOVE_C, ANIMATIONS::CHAR1_MOVE_C, std::make_unique<InputComparatorCPress>(), 34,
     {
-        {
-            {13, 16},
-            hitgeneration::generate_char1_moveC()
-        }
+        hitgeneration::generate_char1_moveC()
     },
     {
         {
@@ -1315,10 +1317,7 @@ Action_char1_move_C::Action_char1_move_C() :
 Action_char1_move_2B::Action_char1_move_2B() :
     Action_char1_ground_attack(CHAR1_STATE::MOVE_2B, ANIMATIONS::CHAR1_MOVE_2B, std::make_unique<InputComparator2BPress>(), 29,
     {
-        {
-            {10, 12},
-            hitgeneration::generate_char1_move2B()
-        }
+        hitgeneration::generate_char1_move2B()
     },
     {
         {
@@ -1355,10 +1354,7 @@ Action_char1_move_2B::Action_char1_move_2B() :
 Action_char1_move_JA::Action_char1_move_JA() :
     Action_char1_air_attack(CHAR1_STATE::MOVE_JA, ANIMATIONS::CHAR1_MOVE_JA, std::make_unique<InputComparatorAPress>(), 17,
     {
-        {
-            {6, 8},
-            hitgeneration::generate_char1_JA()
-        }
+        hitgeneration::generate_char1_JA()
     },
     {
         {
@@ -1377,10 +1373,7 @@ Action_char1_move_JA::Action_char1_move_JA() :
 Action_char1_move_JC::Action_char1_move_JC() :
     Action_char1_air_attack(CHAR1_STATE::MOVE_JC, ANIMATIONS::CHAR1_MOVE_JC, std::make_unique<InputComparatorCPress>(), 200,
     {
-        {
-            {12, 17},
-            hitgeneration::generate_char1_JC()
-        }
+        hitgeneration::generate_char1_JC()
     },
     {
         {

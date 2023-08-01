@@ -145,8 +145,8 @@ void Character::draw(Renderer &renderer_, Camera &camera_)
             auto hitboxes = el.getHitboxes();
             for (const auto &hb : hitboxes)
             {
-                renderer_.fillRectangle({hb.x, hb.y}, {hb.w, hb.h}, gamedata::characters::hitboxColor, camera_);
-                renderer_.drawRectangle({hb.x, hb.y}, {hb.w, hb.h}, gamedata::characters::hitboxColor, camera_);
+                renderer_.drawRectangle({hb.second.x, hb.second.y}, {hb.second.w, hb.second.h}, gamedata::characters::hitboxColor, camera_);
+                renderer_.fillRectangle({hb.second.x, hb.second.y}, {hb.second.w, hb.second.h}, gamedata::characters::hitboxColor, camera_);
             }
         }
     }

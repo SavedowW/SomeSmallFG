@@ -1,14 +1,14 @@
 #include "Hit.h"
 #include "Char1.h"
 
-Hit::Hit(const HitData &hitData_, const std::vector<Collider> &hitboxes_) :
+Hit::Hit(const HitData &hitData_, const std::vector<std::pair<FrameWindow, Collider>> &hitboxes_) :
     HitData(hitData_),
     m_hitboxes(hitboxes_)
 {
         
 }
 
-std::vector<Collider> Hit::getHitboxes() const
+std::vector<std::pair<FrameWindow, Collider>> Hit::getHitboxes() const
 {
     return m_hitboxes;
 }
@@ -18,7 +18,7 @@ HitData Hit::getHitData() const
     return *static_cast<const HitData*>(this);
 }
 
-Hit hitgeneration::generate_char1_jab()
+std::pair<FrameWindow, Hit> hitgeneration::generate_char1_jab()
 {
     HitData hdata;
     hdata.m_hitId = 1;
@@ -38,7 +38,7 @@ Hit hitgeneration::generate_char1_jab()
     hdata.hitBlockShakeAmp = 0;
     hdata.canBeBlockedAs = {BLOCK_STATE::HIGH, BLOCK_STATE::LOW, BLOCK_STATE::AIR, BLOCK_STATE::AUTO};
 
-    Hit hit(hdata, {{50.0f, -300.0f, 120.0f, 30.0f}});
+    Hit hit(hdata, {{{5, 7}, {50.0f, -300.0f, 120.0f, 30.0f}}});
 
     hit.cancelsOnHit.first.first = 1;
     hit.cancelsOnHit.first.second = 8;
@@ -48,10 +48,10 @@ Hit hitgeneration::generate_char1_jab()
     hit.cancelsOnBlock.first.second = 8;
     hit.cancelsOnBlock.second = {(int)CHAR1_STATE::MOVE_A, (int)CHAR1_STATE::MOVE_B, (int)CHAR1_STATE::MOVE_2B, (int)CHAR1_STATE::MOVE_C};
 
-    return hit;
+    return {{5, 7}, hit};
 }
 
-Hit hitgeneration::generate_char1_moveB()
+std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveB()
 {
     HitData hdata;
     hdata.m_hitId = 1;
@@ -71,7 +71,7 @@ Hit hitgeneration::generate_char1_moveB()
     hdata.hitBlockShakeAmp = 20;
     hdata.canBeBlockedAs = {BLOCK_STATE::HIGH, BLOCK_STATE::LOW, BLOCK_STATE::AIR, BLOCK_STATE::AUTO};
 
-    Hit hit(hdata, {{50.0f, -265.0f, 192.0f, 70.0f}});
+    Hit hit(hdata, {{{7, 10}, {50.0f, -265.0f, 192.0f, 70.0f}}});
 
     hit.cancelsOnHit.first.first = 1;
     hit.cancelsOnHit.first.second = 8;
@@ -81,10 +81,10 @@ Hit hitgeneration::generate_char1_moveB()
     hit.cancelsOnBlock.first.second = 8;
     hit.cancelsOnBlock.second = {(int)CHAR1_STATE::MOVE_C};
 
-    return hit;
+    return {{7, 10}, hit};
 }
 
-Hit hitgeneration::generate_char1_moveC()
+std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveC()
 {
     HitData hdata;
     hdata.m_hitId = 1;
@@ -105,7 +105,7 @@ Hit hitgeneration::generate_char1_moveC()
     hdata.hitBlockShakeAmp = 40;
     hdata.canBeBlockedAs = {BLOCK_STATE::HIGH, BLOCK_STATE::LOW, BLOCK_STATE::AIR, BLOCK_STATE::AUTO};
 
-    Hit hit(hdata, {{60.0f, -400.0f, 80.0f, 220.0f}});
+    Hit hit(hdata, {{{13, 16}, {60.0f, -400.0f, 80.0f, 220.0f}}});
 
     hit.cancelsOnHit.first.first = 1;
     hit.cancelsOnHit.first.second = 1;
@@ -115,10 +115,10 @@ Hit hitgeneration::generate_char1_moveC()
     hit.cancelsOnBlock.first.second = 1;
     hit.cancelsOnBlock.second = {};
 
-    return hit;
+    return {{13, 16}, hit};
 }
 
-Hit hitgeneration::generate_char1_move2B()
+std::pair<FrameWindow, Hit> hitgeneration::generate_char1_move2B()
 {
     HitData hdata;
     hdata.m_hitId = 1;
@@ -138,7 +138,7 @@ Hit hitgeneration::generate_char1_move2B()
     hdata.hitBlockShakeAmp = 15;
     hdata.canBeBlockedAs = {BLOCK_STATE::LOW, BLOCK_STATE::AIR};
 
-    Hit hit(hdata, {{10.0f, -100.0f, 110.0f, 100.0f}, {120.0f, -40.0f, 70.0f, 40.0f}});
+    Hit hit(hdata, {{{10, 12}, {10.0f, -100.0f, 110.0f, 100.0f}}, {{10, 12}, {120.0f, -40.0f, 70.0f, 40.0f}}});
 
     hit.cancelsOnHit.first.first = 1;
     hit.cancelsOnHit.first.second = 15;
@@ -148,10 +148,10 @@ Hit hitgeneration::generate_char1_move2B()
     hit.cancelsOnBlock.first.second = 15;
     hit.cancelsOnBlock.second = {(int)CHAR1_STATE::MOVE_C};
 
-    return hit;
+    return {{10, 12}, hit};
 }
 
-Hit hitgeneration::generate_char1_JA()
+std::pair<FrameWindow, Hit> hitgeneration::generate_char1_JA()
 {
     HitData hdata;
     hdata.m_hitId = 1;
@@ -171,7 +171,7 @@ Hit hitgeneration::generate_char1_JA()
     hdata.hitBlockShakeAmp = 0;
     hdata.canBeBlockedAs = {BLOCK_STATE::HIGH, BLOCK_STATE::AIR};
 
-    Hit hit(hdata, {{50.0f, -280.0f, 80.0f, 80.0f}, {110.0f, -220.0f, 50.0f, 50.0f}});
+    Hit hit(hdata, {{{6, 8}, {50.0f, -280.0f, 80.0f, 80.0f}}, {{6, 8}, {110.0f, -220.0f, 50.0f, 50.0f}}});
 
     hit.cancelsOnHit.first.first = 1;
     hit.cancelsOnHit.first.second = 9;
@@ -181,10 +181,10 @@ Hit hitgeneration::generate_char1_JA()
     hit.cancelsOnBlock.first.second = 9;
     hit.cancelsOnBlock.second = {(int)CHAR1_STATE::JUMP, (int)CHAR1_STATE::MOVE_JA, (int)CHAR1_STATE::MOVE_JC, (int)CHAR1_STATE::AIR_DASH};
 
-    return hit;
+    return {{6, 8}, hit};
 }
 
-Hit hitgeneration::generate_char1_JC()
+std::pair<FrameWindow, Hit> hitgeneration::generate_char1_JC()
 {
     HitData hdata;
     hdata.m_hitId = 1;
@@ -205,7 +205,7 @@ Hit hitgeneration::generate_char1_JC()
     hdata.hitBlockShakeAmp = 15;
     hdata.canBeBlockedAs = {BLOCK_STATE::HIGH, BLOCK_STATE::LOW, BLOCK_STATE::AUTO, BLOCK_STATE::AIR};
 
-    Hit hit(hdata, {{0.0f, -280.0f, 180.0f, 130.0f}, {-30.0f, -160.0f, 130.0f, 130.0f}, {100.0f, -385.0f, 40.0f, 300.0f}, {-30.0f, -440.0f, 130.0f, 160.0f}});
+    Hit hit(hdata, {{{12, 17}, {0.0f, -280.0f, 180.0f, 130.0f}}, {{12, 17}, {-30.0f, -160.0f, 130.0f, 130.0f}}, {{12, 17}, {100.0f, -385.0f, 40.0f, 300.0f}}, {{12, 17}, {-30.0f, -440.0f, 130.0f, 160.0f}}});
 
     hit.cancelsOnHit.first.first = 1;
     hit.cancelsOnHit.first.second = 9;
@@ -215,5 +215,5 @@ Hit hitgeneration::generate_char1_JC()
     hit.cancelsOnBlock.first.second = 9;
     hit.cancelsOnBlock.second = {};
 
-    return hit;
+    return {{12, 17}, hit};
 }

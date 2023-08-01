@@ -48,12 +48,12 @@ struct HitData
 
 struct Hit : public HitData
 {
-    Hit(const HitData &hitData_, const std::vector<Collider> &hitboxes_);
+    Hit(const HitData &hitData_, const std::vector<std::pair<FrameWindow, Collider>> &hitboxes_);
 
-    std::vector<Collider> getHitboxes() const;
+    std::vector<std::pair<FrameWindow, Collider>> getHitboxes() const;
     HitData getHitData() const;
     
-    std::vector<Collider> m_hitboxes;
+    std::vector<std::pair<FrameWindow, Collider>> m_hitboxes;
 };
 
 using ActiveFramesVec = std::vector<std::pair<FrameWindow, Hit>>;
@@ -73,12 +73,12 @@ struct HitEvent
 
 namespace hitgeneration
 {
-    Hit generate_char1_jab();
-    Hit generate_char1_moveB();
-    Hit generate_char1_moveC();
-    Hit generate_char1_move2B();
-    Hit generate_char1_JA();
-    Hit generate_char1_JC();
+    std::pair<FrameWindow, Hit> generate_char1_jab();
+    std::pair<FrameWindow, Hit> generate_char1_moveB();
+    std::pair<FrameWindow, Hit> generate_char1_moveC();
+    std::pair<FrameWindow, Hit> generate_char1_move2B();
+    std::pair<FrameWindow, Hit> generate_char1_JA();
+    std::pair<FrameWindow, Hit> generate_char1_JC();
 }
 
 #endif
