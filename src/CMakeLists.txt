@@ -24,6 +24,7 @@ ActionResolver.cpp
 Hit.cpp
 BlockHandler.cpp
 HealthWidget.cpp
+NotifyWidget.cpp
 HealthHandler.cpp
 )
 

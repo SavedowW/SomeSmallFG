@@ -259,9 +259,12 @@ protected:
 
         m_hud.draw(*m_application->getRenderer(), m_camera);
 
-        m_application->getTextManager()->renderText<0>("1234567890x COUNTER", {10.0f, 150.0f});
-        m_application->getTextManager()->renderText<1>("1234567890x COUNTER", {10.0f, 250.0f});
-        m_application->getTextManager()->renderText<2>("1234567890x COUNTER", {10.0f, 350.0f});
+        /*m_application->getTextManager()->renderText("1234567890x COUNTER", 0, {10.0f, 150.0f});
+        m_application->getTextManager()->renderText("1234567890x COUNTER", 1, {10.0f, 250.0f});
+
+        m_application->getTextManager()->renderText("1234567890x COUNTER", 2, {800.0f, 350.0f}, fonts::HOR_ALIGN::LEFT);
+        m_application->getTextManager()->renderText("1234567890x COUNTER", 2, {800.0f, 400.0f}, fonts::HOR_ALIGN::CENTER);
+        m_application->getTextManager()->renderText("1234567890x COUNTER", 2, {800.0f, 450.0f}, fonts::HOR_ALIGN::RIGHT);*/
 
     	renderer.updateScreen();
     }

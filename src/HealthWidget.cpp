@@ -1,7 +1,6 @@
 #include "HealthWidget.h"
 
-HealthWidget::HealthWidget(Application &application_, bool rightSide_) :
-    InputReactor(application_.getInputSystem())
+HealthWidget::HealthWidget(Application &application_, bool rightSide_)
 {
     m_rightSide = rightSide_;
     auto &tm = *application_.getTextureManager();
@@ -20,11 +19,6 @@ HealthWidget::HealthWidget(Application &application_, bool rightSide_) :
         m_redHealthDir = 1.0f;
     else
         m_redHealthDir = -1.0f;
-
-    subscribe(EVENTS::FN1);
-    subscribe(EVENTS::FN2);
-    subscribe(EVENTS::FN3);
-    setInputEnabled(true);
 }
 
 void HealthWidget::updateHealth(float scale_)
@@ -126,26 +120,6 @@ void HealthWidget::draw(Renderer &renderer_, Camera &camera_)
     }
 
     renderer_.renderTexture(m_front->getSprite(), m_barBackFrontDstRect.x, m_barBackFrontDstRect.y, m_barBackFrontDstRect.w, m_barBackFrontDstRect.h, 0, nullptr, flip);
-}
-
-void HealthWidget::receiveInput(EVENTS event, const float scale_)
-{
-    if (scale_ < 1.0f)
-        return;
-
-    if (event == EVENTS::FN1)
-    {
-        updateHealth(m_scale - 0.1f);
-    }
-    else if (event == EVENTS::FN2)
-    {
-        ResetRedHealth();
-    }
-    else if (event == EVENTS::FN3)
-    {
-        std::cout << "HERE\nHERE\nHERE\nHERE\n";
-        updateHealth(m_scale + 0.1f);
-    }
 }
 
 void HealthWidget::ResetRedHealth()

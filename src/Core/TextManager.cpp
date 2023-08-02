@@ -150,9 +150,27 @@ void TextManager::generateSimpleSymbols(std::array<fonts::Symbol, 256> &symbols_
     TTF_CloseFont(font);
 }
 
-template<int fontid>
-void TextManager::renderText(const std::string &text, Vector2<float> pos)
+void TextManager::renderText(const std::string &text, int fontid, Vector2<float> pos, fonts::HOR_ALIGN horAlign_)
 {
+    if (horAlign_ != fonts::HOR_ALIGN::LEFT)
+    {
+        float len = m_fonts[fontid][text[0]].minx;
+        for (auto &ch : text)
+        {
+            auto &sym = m_fonts[fontid][ch];
+            len += sym.advance;
+        }
+
+        if (horAlign_ == fonts::HOR_ALIGN::CENTER)
+        {
+            pos.x -= len / 2.0f;
+        }
+        else if (horAlign_ == fonts::HOR_ALIGN::RIGHT)
+        {
+            pos.x -= len;
+        }
+    }
+
     pos.x += m_fonts[fontid][text[0]].minx;
     for (auto &ch : text)
     {
@@ -161,7 +179,3 @@ void TextManager::renderText(const std::string &text, Vector2<float> pos)
         pos.x += sym.advance;
     }
 }
-
-template void TextManager::renderText<0>(const std::string &text, Vector2<float> pos);
-template void TextManager::renderText<1>(const std::string &text, Vector2<float> pos);
-template void TextManager::renderText<2>(const std::string &text, Vector2<float> pos);

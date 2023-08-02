@@ -254,8 +254,13 @@ void Character::takeCornerPushback(HitData fromHit_, float rangeToCorner_, const
 void Character::generateWidgets(Application &application_, HUD &hud_)
 {
     bool rs = m_playerId == 2;
-    auto ptr = std::make_unique<HealthWidget>(application_, rs);
-    m_healthWidget = ptr.get();
-    hud_.addWidget(std::move(ptr));
+
+    auto hptr = std::make_unique<HealthWidget>(application_, rs);
+    m_healthWidget = hptr.get();
+    hud_.addWidget(std::move(hptr));
     m_healthHandler.setWidget(m_healthWidget);
+
+    auto nptr = std::make_unique<NotifyWidget>(application_, rs);
+    m_notifyWidget = nptr.get();
+    hud_.addWidget(std::move(nptr));
 }

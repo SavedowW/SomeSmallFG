@@ -5,7 +5,7 @@
 #include "Application.h"
 #include "GameData.h"
 
-class HealthWidget : public Widget, public InputReactor
+class HealthWidget : public Widget
 {
 public:
     HealthWidget(Application &application_, bool rightSide = false);
@@ -13,7 +13,6 @@ public:
     virtual void draw(Renderer &renderer_, Camera &camera_) final;
     virtual void updateHealth(float scale_);
     virtual void ResetRedHealth();
-    void receiveInput(EVENTS event, const float scale_) final;
     virtual ~HealthWidget() = default;
 
 private:

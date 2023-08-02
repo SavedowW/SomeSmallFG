@@ -10,6 +10,7 @@
 
 namespace fonts
 {
+    enum class HOR_ALIGN {LEFT, CENTER, RIGHT};
 
     struct Symbol
     {
@@ -40,8 +41,7 @@ class TextManager
 public:
     TextManager(Renderer *renderer_, const std::string &basePath_);
 
-    template<int fontid>
-    void renderText(const std::string &text, Vector2<float> pos);
+    void renderText(const std::string &text, int fontid, Vector2<float> pos, fonts::HOR_ALIGN horAlign_ = fonts::HOR_ALIGN::LEFT);
 
 private:
     static void generateOutlinedTexturedSymbols(std::array<fonts::Symbol, 256> &symbols_, Renderer &renderer_, const std::string &basePath_, const std::string &font_, const std::string &texture_, int size_, int outlineWidth_, const SDL_Color &outlineColor_);

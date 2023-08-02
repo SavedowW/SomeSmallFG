@@ -10,6 +10,7 @@
 #include "FrameTimer.h"
 #include "BlockHandler.h"
 #include "HealthWidget.h"
+#include "NotifyWidget.h"
 #include "HealthHandler.h"
 
 /*
@@ -46,7 +47,7 @@
  * wallbang (?)
  * * Wallbang (?): when character blocks an attack with wallbang (?) property, he gets into a wallbang blockstun.
  * * When character in wallbang blockstun touches the wall, he takes an unblockable hit with very low damage and hitstun,
- * * but 100% proratio. He can be comboed from this hit, but it should depend on spacing 
+ * * but 100% proratio. He can be comboed from this hit, but it should depend on m_spacing 
  * overheat gauge
  * from above / from below property (probably rename)
  * aerial hitstun scaling
@@ -182,6 +183,8 @@ protected:
     HitData m_currentTakenHit;
 
     HealthWidget *m_healthWidget = nullptr;
+    NotifyWidget *m_notifyWidget = nullptr;
+
     HealthHandler m_healthHandler;
 
     Camera *m_cam;
