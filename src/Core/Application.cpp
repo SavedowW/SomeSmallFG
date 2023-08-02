@@ -32,6 +32,7 @@ Application::Application()
     m_inputSystem = std::make_unique<InputSystem>();
     m_textureManager = std::make_unique<TextureManager>(m_renderer.get(), m_appRoot);
     m_animationManager = std::make_unique<AnimationManager>(m_renderer.get(), m_appRoot);
+    m_textManager = std::make_unique<TextManager>(m_renderer.get(), m_appRoot);
 }
 
 Application::~Application()
@@ -97,6 +98,11 @@ TextureManager *Application::getTextureManager()
 AnimationManager *Application::getAnimationManager()
 {
     return m_animationManager.get();
+}
+
+TextManager *Application::getTextManager()
+{
+    return m_textManager.get();
 }
 
 std::string Application::getBasePath()

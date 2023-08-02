@@ -8,6 +8,7 @@
 #include "Application.h"
 #include <array>
 #include "FrameTimer.h"
+#include <SDL_ttf.h>
 
 template <typename BackType>
 class BattleLevel : public Level
@@ -19,7 +20,6 @@ public:
         m_frameTimer(gamedata::stages::framesBeforeZoom),
         m_maxCharRange(gamedata::stages::maxCharRange)
     {
-    	std::cout << "m_background: " << m_background.get() << std::endl;
     }
 
     virtual void enter() override
@@ -243,7 +243,7 @@ protected:
 
         m_camera.update();
         m_hud.update();
-        std::cout << m_characters[0]->CharStateData() << " | " << m_characters[1]->CharStateData() << std::endl;
+        //std::cout << m_characters[0]->CharStateData() << " | " << m_characters[1]->CharStateData() << std::endl;
     }
 
     void draw() override
@@ -259,6 +259,10 @@ protected:
 
         m_hud.draw(*m_application->getRenderer(), m_camera);
 
+        m_application->getTextManager()->renderText<0>("1234567890x COUNTER", {10.0f, 150.0f});
+        m_application->getTextManager()->renderText<1>("1234567890x COUNTER", {10.0f, 250.0f});
+        m_application->getTextManager()->renderText<2>("1234567890x COUNTER", {10.0f, 350.0f});
+
     	renderer.updateScreen();
     }
 
@@ -270,6 +274,7 @@ protected:
     std::array<std::unique_ptr<Character>, 2> m_characters;
     int m_maxCharRange;
     HUD m_hud;
+
 };
 
 #endif

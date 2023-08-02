@@ -12,6 +12,7 @@
 #include "GameData.h"
 #include <SDL_ttf.h>
 #include <SDL_mixer.h>
+#include "TextManager.h"
 
 class Application
 {
@@ -33,6 +34,7 @@ public:
     InputSystem *getInputSystem();
     TextureManager *getTextureManager();
     AnimationManager *getAnimationManager();
+    TextManager *getTextManager();
 
     std::string getBasePath();
 
@@ -42,6 +44,7 @@ private:
     std::unique_ptr<InputSystem> m_inputSystem;
     std::unique_ptr<TextureManager> m_textureManager;
     std::unique_ptr<AnimationManager> m_animationManager;
+    std::unique_ptr<TextManager> m_textManager;
 
     Level* m_levels[gamedata::global::numberOfLevels] {nullptr};
     LevelResult m_levelResult = {gamedata::global::initialLevelId};

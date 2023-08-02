@@ -2,7 +2,6 @@
 #define ANIMATION_MANAGER_H_
 #include "TextureManager.h"
 #include <fstream>
-#include "Sprite.h"
 
 enum class ANIMATIONS
 {
@@ -133,16 +132,16 @@ enum class LOOPMETHOD
 *	Direction = -1 - reverse order
 *
 **************************/
-class Animation : public Sprite
+class Animation
 {
 public:
 	Animation(AnimationManager &animationManager_, ANIMATIONS textures_, LOOPMETHOD isLoop_ = LOOPMETHOD::JUMP_LOOP, int beginFrame_ = -1, int beginDirection_ = 1);
-	void update() final;
-	SDL_Texture* getSprite() final;
+	void update();
+	SDL_Texture* getSprite();
 	bool isFinished();
 	void switchDir();
 	void setDir(int dir_);
-	Vector2<float> getSize() override;
+	Vector2<float> getSize();
 	void reset(int beginFrame_ = -1, int beginDirection_ = 1);
 	int getDirection() const;
 

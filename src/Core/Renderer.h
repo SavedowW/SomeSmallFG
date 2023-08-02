@@ -43,6 +43,8 @@ public:
 	//Render target settings
 	void setRenderTarget(SDL_Texture* tex_ = NULL);
 
+	SDL_Renderer *getRenderer();
+
 //private:
     SDL_Renderer* m_renderer = nullptr;
 

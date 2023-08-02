@@ -12,10 +12,10 @@ Window.cpp
 Renderer.cpp
 Application.cpp
 Level.cpp
-Sprite.cpp
 AnimationManager.cpp
 FrameTimer.cpp
 HUD.cpp
+TextManager.cpp
 )
 
 add_library (Core ${CORE_SRC_FILES})

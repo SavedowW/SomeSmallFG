@@ -1,5 +1,6 @@
 #include "Application.h"
 #include "AnimationManager.h"
+#include <cassert>
 
 AnimationManager::AnimationManager(Renderer* renderer_, const std::string &rootPath_) :
 	m_renderer(renderer_),

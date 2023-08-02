@@ -173,5 +173,10 @@ void Renderer::setRenderTarget(SDL_Texture* tex_)
 {
 	int i = SDL_SetRenderTarget(m_renderer, tex_);
 	if (i != 0)
-		std::cout << i << std::endl;
+		std::cout << i << ": " << SDL_GetError() << std::endl;
+}
+
+SDL_Renderer *Renderer::getRenderer()
+{
+	return m_renderer;
 }
