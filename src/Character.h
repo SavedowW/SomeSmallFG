@@ -26,7 +26,7 @@
  * airdash, backdash, air backdash [DONE]
  * 
  * HUD and HUD widgets [DONE]
- * counter hit
+ * counter hit [DONE]
  * * Counter hits are defined by different launch trajectory, damage, hard knockdown, wallsplat / wallbounce / groundbounce,
  * * extended hitstop for the one who takes the hit and potentially different animation on CH (for example, if move goes into
  * * throw-like animation on CH), but the last one is not necessary
@@ -181,6 +181,7 @@ protected:
     ORIENTATION m_ownOrientation;
 
     HitData m_currentTakenHit;
+    PostHitProperties m_hitProps;
 
     HealthWidget *m_healthWidget = nullptr;
     NotifyWidget *m_notifyWidget = nullptr;

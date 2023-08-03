@@ -104,7 +104,8 @@ Action_attack<CharState_t, CharData, Char_t>::Action_attack(CharState_t actionSt
     Action<CharState_t, CharData, Char_t>(actionState_, std::move(incmp_), hurtboxes_, anim_, true, noLandTransition_, isCrouchState_),
     m_fullDuration(fullDuration_),
     m_hits(hits_),
-    m_velocity(velocity_)
+    m_velocity(velocity_),
+    m_counterWindow({1, hitutils::getLastActiveFrame(hits_)})
 {
 }
 
@@ -168,6 +169,12 @@ void Action_attack<CharState_t, CharData, Char_t>::update(Char_t &character_) co
     auto newVelocity = getCurrentVelocity(character_.m_timer.getCurrentFrame() + 1);
     if (newVelocity)
         character_.m_velocity = newVelocity->mulComponents(Vector2{character_.getOwnHorDir().x, 1.0f});
+}
+
+template <typename CharState_t, typename CharData, typename Char_t>
+bool Action_attack<CharState_t, CharData, Char_t>::isInCounterState(int currentFrame_) const
+{
+    return (currentFrame_ >= m_counterWindow.first && currentFrame_ <= m_counterWindow.second);
 }
 
 /* ============================

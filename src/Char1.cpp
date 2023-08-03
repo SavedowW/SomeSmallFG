@@ -299,13 +299,13 @@ void Char1::land()
 
         // TODO: airborne hitstun to knd
         case (CHAR1_STATE::HITSTUN_AIR):
-            if (m_currentTakenHit.groundBounce)
+            if (m_hitProps.groundBounce)
             {
                 m_inertia.y = 0;
-                m_velocity.y = -m_currentTakenHit.groundBounceStrength;
-                m_currentTakenHit.groundBounce = false;
+                m_velocity.y = -m_hitProps.groundBounceStrength;
+                m_hitProps.groundBounce = false;
             }
-            else if (m_currentTakenHit.hardKnd)
+            else if (m_hitProps.hardKnd)
                 m_actionResolver.getAction(CHAR1_STATE::HARD_KNOCKDOWN)->switchTo(*this);
             else
                 enterKndRecovery();
@@ -410,15 +410,21 @@ HIT_RESULT Char1::applyHit(HitEvent &hitEvent)
 {
     if (m_playerId == 1)
         std::cout << "";
-    applyHitstop(hitEvent.m_hitData.hitstop);
 
     if (hitEvent.m_hittingPlayerId == m_playerId)
     {
+        if (hitEvent.m_hitRes == HIT_RESULT::COUNTER)
+        {
+            m_notifyWidget->addNotification("COUNTER!");
+        }
+
+        applyHitstop(hitEvent.m_hitData.hitProps.hitstop);
+
         if (m_currentState != CHAR1_STATE::HITSTUN && m_currentState != CHAR1_STATE::HITSTUN)
         {
             m_appliedHits.insert(hitEvent.m_hitData.m_hitId);
 
-            if (hitEvent.m_hitRes == HIT_RESULT::HIT)
+            if (hitEvent.m_hitRes == HIT_RESULT::HIT || hitEvent.m_hitRes == HIT_RESULT::COUNTER)
             {
                 m_currentCancelWindow = hitEvent.m_hitData.cancelsOnHit;
                 if (!m_currentCancelWindow.second.empty())
@@ -445,13 +451,31 @@ HIT_RESULT Char1::applyHit(HitEvent &hitEvent)
             m_velocity = {0.0f, 0.0f};
             std::cout << "Took hit!\n";
 
+            auto hitres = HIT_RESULT::HIT;
+            bool isCounter = false;
+
+            if (m_currentAction && m_currentAction->m_isAttack)
+            {
+                auto atkAction = dynamic_cast<const Action_attack<CHAR1_STATE, Char1Data, Char1>*>(m_currentAction);
+                if (atkAction->isInCounterState(m_timer.getCurrentFrame() + 1))
+                {
+                    isCounter = true;
+                    hitres = HIT_RESULT::COUNTER;
+                }
+            }
+
+            if (isCounter)
+                m_hitProps = hitEvent.m_hitData.chProps;
+            else
+                m_hitProps = hitEvent.m_hitData.hitProps;
+
             if (m_airborne)
             {
-                m_inertia = hitEvent.m_hitData.opponentImpulseOnAirHit.mulComponents(Vector2{getHorDirToEnemy().x * -1.0f, 1.0f});
+                m_inertia = m_hitProps.opponentImpulseOnAirHit.mulComponents(Vector2{getHorDirToEnemy().x * -1.0f, 1.0f});
             }
             else
             {
-                m_inertia = hitEvent.m_hitData.opponentImpulseOnHit.mulComponents(Vector2{getHorDirToEnemy().x * -1.0f, 1.0f});
+                m_inertia = m_hitProps.opponentImpulseOnHit.mulComponents(Vector2{getHorDirToEnemy().x * -1.0f, 1.0f});
                 if (m_inertia.y < 0)
                     m_airborne = true;
             }
@@ -465,7 +489,7 @@ HIT_RESULT Char1::applyHit(HitEvent &hitEvent)
             else
             {
                 m_currentState = CHAR1_STATE::HITSTUN;
-                m_timer.begin(hitEvent.m_hitData.hitstun);
+                m_timer.begin(m_hitProps.hitstun);
                 if (hitEvent.m_hitData.hitstunAnimation == HITSTUN_ANIMATION::HIGH)
                     m_currentAnimation = m_animations[ANIMATIONS::CHAR1_HITSTUN_HIGH].get();
                 else if (hitEvent.m_hitData.hitstunAnimation == HITSTUN_ANIMATION::MID)
@@ -473,15 +497,17 @@ HIT_RESULT Char1::applyHit(HitEvent &hitEvent)
                 else
                     m_currentAnimation = m_animations[ANIMATIONS::CHAR1_HITSTUN_LOW].get();
             }
+
             m_currentAnimation->reset(0);
             m_currentAction = nullptr;
             m_currentCancelWindow = {};
             m_cancelTimer.begin(0);
+            applyHitstop(m_hitProps.hitstop);
 
-            hitEvent.m_hitRes = HIT_RESULT::HIT;
+            hitEvent.m_hitRes = hitres;
             m_healthHandler.takeDamage(hitEvent);
 
-            return HIT_RESULT::HIT;
+            return hitres;
         }
         else
         {

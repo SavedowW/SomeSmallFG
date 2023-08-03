@@ -91,7 +91,7 @@ public:
 
 /* ============================
  *
- *       ABSTRACT GROUND ATTACK
+ *       ABSTRACT ATTACK
  *
  *========================== */
 template <typename CharState_t, typename CharData, typename Char_t>
@@ -101,11 +101,13 @@ public:
     Action_attack(CharState_t actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec hurtboxes_, std::vector<std::pair<std::pair<int, int>, Vector2<float>>> velocity_, ANIMATIONS anim_, bool noLandTransition_ = false, bool isCrouchState_ = false);
     virtual const HitsVec getCurrentHits(int currentFrame_, const Vector2<float>& offset_, ORIENTATION ownOrientation_) const;
     virtual const Vector2<float> *getCurrentVelocity(int currentFrame_) const;
+    virtual bool isInCounterState(int currentFrame_) const;
     virtual void switchTo(Char_t &character_) const override;
     virtual void update(Char_t &character_) const override;
     const int m_fullDuration;
     const ActiveFramesVec m_hits;
     const std::vector<std::pair<std::pair<int, int>, Vector2<float>>> m_velocity;
+    const FrameWindow m_counterWindow;
 
 private:
     const Vector2<float> nullvec = {0.0f, 0.0f};

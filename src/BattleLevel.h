@@ -234,7 +234,7 @@ protected:
                             ev.m_hitData = hits[pid][ihit].getHitData();
                             m_characters[p2id]->applyHit(ev);
                             m_characters[pid]->applyHit(ev);
-                            m_camera.startShake(ev.m_hitData.hitBlockShakeAmp, ev.m_hitData.hitstop + 1);
+                            m_camera.startShake(ev.m_hitData.hitBlockShakeAmp, ev.m_hitData.hitProps.hitstop + 1);
                         }
                     }
                 }
