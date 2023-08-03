@@ -80,6 +80,7 @@ public:
     bool isInHitstun() const final;
     bool canApplyGravity() const final;
     Collider getPushbox() const final;
+    void touchedWall(int sideDir_) final;
 
     std::string CharStateData() const final;
 

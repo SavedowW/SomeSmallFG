@@ -780,3 +780,13 @@ void Char1::enterHitstunAnimation(const PostHitProperties &props_)
     m_currentAnimation->reset(0);
     m_currentAction = nullptr;
 }
+
+void Char1::touchedWall(int sideDir_)
+{
+    if (sideDir_ * getFullVelocity().x > 0 && isInHitstun() && m_airborne && m_hitProps.wallBounce)
+    {
+        m_velocity.x *= -1;
+        m_inertia.x *= -1;
+        m_hitProps.wallBounce = false;
+    }
+}

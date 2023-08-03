@@ -141,6 +141,8 @@ public:
     virtual void updateBlockState() = 0;
     virtual bool isInHitstun() const = 0;
 
+    virtual void touchedWall(int sideDir_) = 0;
+
     virtual std::string CharStateData() const = 0;
 
     virtual void updateOwnOrientation();

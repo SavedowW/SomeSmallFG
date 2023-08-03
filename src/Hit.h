@@ -23,6 +23,8 @@ struct PostHitProperties
     bool groundBounce = false;
     float groundBounceStrength = 0.0f;
 
+    bool wallBounce = false;
+
     int hitstun = 0;
     int hitstop = 0;
     float proratio = 1.0f;

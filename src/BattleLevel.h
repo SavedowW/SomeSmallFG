@@ -72,6 +72,7 @@ protected:
             {
                 auto newPos = Vector2<float>{results[i].pushbox.w / 2, results[i].newPos.y};
                 m_characters[i]->setPos(newPos);
+                m_characters[i]->touchedWall(stageBoundResult);
                 hitsWall[i] = true;
 
                 const Vector2 dirFromWall{1, 0};
@@ -84,6 +85,7 @@ protected:
             {
                 auto newPos = Vector2<float>{m_size.x - (results[i].pushbox.x + results[i].pushbox.w - results[i].newPos.x), results[i].newPos.y};
                 m_characters[i]->setPos(newPos);
+                m_characters[i]->touchedWall(stageBoundResult);
                 hitsWall[i] = true;
 
                 const Vector2 dirFromWall{-1, 0};
@@ -117,6 +119,10 @@ protected:
 
             m_characters[0]->setPos(m_characters[0]->getPos() + Vector2(horDirToEnemy, 0.0f).normalised() * (exceedRange * movement[0] / totalMovement));
             m_characters[1]->setPos(m_characters[1]->getPos() + Vector2(-horDirToEnemy, 0.0f).normalised() * (exceedRange * movement[1] / totalMovement));
+
+            int p1wall = -horDirToEnemy / abs(horDirToEnemy);
+            m_characters[0]->touchedWall(p1wall);
+            m_characters[1]->touchedWall(-p1wall);
         }
 
         // Check if characters collided with each other
