@@ -24,13 +24,13 @@ private:
 
     };
 
-    int m_maxNotifications = 10;
+    int m_maxNotifications = 7;
     std::vector<Field> m_fields;
     float m_spacing = 40.0f;
 
     bool m_rightSide;
 
-    const float m_notifyOffset = 20.0f;
+    const float m_notifyOffset = 30.0f;
     const Vector2<float> m_basePos;
     const fonts::HOR_ALIGN m_baseAlign;
 
