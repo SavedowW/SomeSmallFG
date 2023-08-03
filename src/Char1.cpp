@@ -78,6 +78,7 @@ void Char1::loadAnimations(Application &application_)
     m_animations[ANIMATIONS::CHAR1_HITSTUN_MID] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_HITSTUN_MID, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_HITSTUN_HIGH] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_HITSTUN_HIGH, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_HITSTUN_AIR] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_HITSTUN_AIR, LOOPMETHOD::NOLOOP);
+    m_animations[ANIMATIONS::CHAR1_HITSTUN_CROUCH] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_HITSTUN_CROUCH, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_BLOCKSTUN_STANDING] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_BLOCKSTUN_STANDING, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_BLOCKSTUN_CROUCHING] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_BLOCKSTUN_CROUCHING, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_KNOCKDOWN] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_KNOCKDOWN, LOOPMETHOD::NOLOOP);
@@ -186,29 +187,6 @@ void Char1::updateState()
         resolverRes->switchTo(*this);
     }
 
-    /*if (m_currentState == CHAR1_STATE::IDLE ||
-    m_currentState == CHAR1_STATE::WALK_BWD ||
-    m_currentState == CHAR1_STATE::WALK_FWD ||
-    m_currentState == CHAR1_STATE::CROUCH)
-        updateOwnOrientation();
-
-    if (m_currentState == CHAR1_STATE::GROUND_DASH)
-    {
-        auto dashAction = dynamic_cast<const Action_char1_ground_dash*>(m_currentAction);
-        auto newXVelocity = (abs(m_velocity.x) + dashAction->m_accel);
-        m_velocity.x = getOwnHorDir().x * std::min(abs(newXVelocity), abs(dashAction->m_maxspd));
-    }
-    else if (m_currentAction && m_currentAction->m_isAttack)
-    {
-        auto atkAction = dynamic_cast<const Action_attack<CHAR1_STATE, Char1Data, Char1>*>(m_currentAction);
-        auto newVelocity = atkAction->getCurrentVelocity(m_timer.getCurrentFrame() + 1);
-        if (newVelocity)
-            m_velocity = *newVelocity * getOwnHorDir().x;
-    }
-    else if (m_currentState == CHAR1_STATE::AIR_DASH_EXTENTION)
-    {
-        dynamic_cast<const Action_char1_air_dash_extention*>(m_currentAction)->setVelocity(*this);
-    }*/
     if (m_currentAction)
         m_currentAction->update(*this);
 }
@@ -304,6 +282,8 @@ void Char1::land()
                 m_inertia.y = 0;
                 m_velocity.y = -m_hitProps.groundBounceStrength;
                 m_hitProps.groundBounce = false;
+                m_hitstunAnimation = HITSTUN_ANIMATION::FLOAT;
+                m_currentAnimation = m_animations[ANIMATIONS::CHAR1_HITSTUN_AIR].get();
             }
             else if (m_hitProps.hardKnd)
                 m_actionResolver.getAction(CHAR1_STATE::HARD_KNOCKDOWN)->switchTo(*this);
@@ -379,9 +359,9 @@ HurtboxVec Char1::getHurtboxes()
     m_currentState == CHAR1_STATE::BLOCKSTUN_AIR)
     {
         auto currentHBox = m_standingHurtbox;
-        if (m_currentState == CHAR1_STATE::HITSTUN_AIR || m_currentState == CHAR1_STATE::BLOCKSTUN_AIR)
+        if (m_hitstunAnimation == HITSTUN_ANIMATION::FLOAT)
             currentHBox = m_airHitstunHurtbox;
-        else if (m_currentState == CHAR1_STATE::CROUCH || m_currentState == CHAR1_STATE::BLOCKSTUN_CROUCHING)
+        else if (m_currentState == CHAR1_STATE::CROUCH || m_currentState == CHAR1_STATE::BLOCKSTUN_CROUCHING || m_hitstunAnimation == HITSTUN_ANIMATION::CROUCH)
             currentHBox = m_crouchingHurtbox;
 
         currentHBox.y += m_pos.y;
@@ -481,25 +461,8 @@ HIT_RESULT Char1::applyHit(HitEvent &hitEvent)
             }
 
 
-            if (m_airborne)
-            {
-                m_currentState = CHAR1_STATE::HITSTUN_AIR;
-                m_currentAnimation = m_animations[ANIMATIONS::CHAR1_HITSTUN_AIR].get();
-            }
-            else
-            {
-                m_currentState = CHAR1_STATE::HITSTUN;
-                m_timer.begin(m_hitProps.hitstun);
-                if (hitEvent.m_hitData.hitstunAnimation == HITSTUN_ANIMATION::HIGH)
-                    m_currentAnimation = m_animations[ANIMATIONS::CHAR1_HITSTUN_HIGH].get();
-                else if (hitEvent.m_hitData.hitstunAnimation == HITSTUN_ANIMATION::MID)
-                    m_currentAnimation = m_animations[ANIMATIONS::CHAR1_HITSTUN_MID].get();
-                else
-                    m_currentAnimation = m_animations[ANIMATIONS::CHAR1_HITSTUN_LOW].get();
-            }
+            enterHitstunAnimation(m_hitProps);
 
-            m_currentAnimation->reset(0);
-            m_currentAction = nullptr;
             m_currentCancelWindow = {};
             m_cancelTimer.begin(0);
             applyHitstop(m_hitProps.hitstop);
@@ -758,7 +721,7 @@ bool Char1::canApplyGravity() const
 Collider Char1::getPushbox() const
 {
     Collider pb;
-    if (m_currentAction && m_currentAction->m_isCrouchState)
+    if (m_currentAction && m_currentAction->m_isCrouchState || m_hitstunAnimation == HITSTUN_ANIMATION::CROUCH)
         pb = m_crouchingPushbox;
     else if (m_airborne)
         pb = m_airbornePushbox;
@@ -768,4 +731,44 @@ Collider Char1::getPushbox() const
     pb.x += m_pos.x;
     pb.y += m_pos.y;
     return pb;
+}
+
+void Char1::enterHitstunAnimation(const PostHitProperties &props_)
+{
+    if (m_airborne)
+    {
+        m_currentState = CHAR1_STATE::HITSTUN_AIR;
+        m_hitstunAnimation = props_.airHitstunAnimation;
+
+        m_currentAnimation = m_animations[ANIMATIONS::CHAR1_HITSTUN_AIR].get();
+    }
+    else
+    {
+        m_currentState = CHAR1_STATE::HITSTUN;
+        m_timer.begin(m_hitProps.hitstun);
+
+        if (m_currentAction && m_currentAction->m_isCrouchState || m_hitstunAnimation == HITSTUN_ANIMATION::CROUCH || props_.forceCrouch)
+        {
+            m_hitstunAnimation = HITSTUN_ANIMATION::CROUCH;
+            m_currentAnimation = m_animations[ANIMATIONS::CHAR1_HITSTUN_CROUCH].get();
+        }
+        else if (props_.groundHitstunAnimation == HITSTUN_ANIMATION::HIGH)
+        {
+            m_hitstunAnimation = props_.groundHitstunAnimation;
+            m_currentAnimation = m_animations[ANIMATIONS::CHAR1_HITSTUN_HIGH].get();
+        }
+        else if (props_.groundHitstunAnimation == HITSTUN_ANIMATION::MID)
+        {
+            m_hitstunAnimation = props_.groundHitstunAnimation;
+            m_currentAnimation = m_animations[ANIMATIONS::CHAR1_HITSTUN_MID].get();
+        }
+        else
+        {
+            m_hitstunAnimation = props_.groundHitstunAnimation;
+            m_currentAnimation = m_animations[ANIMATIONS::CHAR1_HITSTUN_LOW].get();
+        }
+    }
+
+    m_currentAnimation->reset(0);
+    m_currentAction = nullptr;
 }

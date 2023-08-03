@@ -11,7 +11,7 @@
 using FrameWindow = std::pair<int, int>;
 
 enum class HIT_RESULT {HIT, COUNTER, BLOCK_HIGH, BLOCK_LOW, BLOCK_AIR, NONE}; // Potentially more options with guard points, parries, etc
-enum class HITSTUN_ANIMATION {HIGH, MID, LOW};
+enum class HITSTUN_ANIMATION {HIGH, MID, LOW, CROUCH, FLOAT, NONE};
 
 // Integers in set are values of character-specific state ENUMs
 using CancelWindow = std::pair<FrameWindow, std::set<int>>;
@@ -26,9 +26,13 @@ struct PostHitProperties
     int hitstun = 0;
     int hitstop = 0;
     float proratio = 1.0f;
+    bool forceCrouch = false;
 
     Vector2<float> opponentImpulseOnHit = 0;
     Vector2<float> opponentImpulseOnAirHit = 0;
+
+    HITSTUN_ANIMATION groundHitstunAnimation = HITSTUN_ANIMATION::MID;
+    HITSTUN_ANIMATION airHitstunAnimation = HITSTUN_ANIMATION::FLOAT;
 };
 
 struct HitData
@@ -49,8 +53,6 @@ struct HitData
 
     int hitBlockShakeAmp;
 
-    // TODO: move animation data into PostHitProperties and separating ground and air hits before adding new animations
-    HITSTUN_ANIMATION hitstunAnimation = HITSTUN_ANIMATION::MID;
     std::set<BLOCK_STATE> canBeBlockedAs;
 
     CancelWindow cancelsOnHit;

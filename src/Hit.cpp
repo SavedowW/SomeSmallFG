@@ -34,6 +34,8 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_jab()
     hdata.hitProps.proratio = 0.8f;
     hdata.hitProps.opponentImpulseOnHit = {6.0f, 0.0f};
     hdata.hitProps.opponentImpulseOnAirHit = {8.0f, -5.0f};
+    hdata.hitProps.groundHitstunAnimation = HITSTUN_ANIMATION::HIGH;
+    hdata.hitProps.airHitstunAnimation = HITSTUN_ANIMATION::FLOAT;
 
     hdata.chProps = hdata.hitProps;
     hdata.chProps.hitstun += 2;
@@ -77,6 +79,8 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveB()
     hdata.hitProps.proratio = 0.9f;
     hdata.hitProps.opponentImpulseOnHit = {3.0f, 0.0f};
     hdata.hitProps.opponentImpulseOnAirHit = {10.0f, -5.0f};
+    hdata.hitProps.groundHitstunAnimation = HITSTUN_ANIMATION::MID;
+    hdata.hitProps.airHitstunAnimation = HITSTUN_ANIMATION::FLOAT;
 
     hdata.chProps = hdata.hitProps;
     hdata.chProps.hitstun += 3;
@@ -119,6 +123,8 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveC()
     hdata.hitProps.proratio = 1.0f;
     hdata.hitProps.opponentImpulseOnHit = {10.0f, -35.0f};
     hdata.hitProps.opponentImpulseOnAirHit = {5.0f, -20.0f};
+    hdata.hitProps.groundHitstunAnimation = HITSTUN_ANIMATION::MID;
+    hdata.hitProps.airHitstunAnimation = HITSTUN_ANIMATION::FLOAT;
 
     hdata.chProps = hdata.hitProps;
     hdata.chProps.hitstun += 4;
@@ -162,6 +168,8 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_move2B()
     hdata.hitProps.proratio = 0.7f;
     hdata.hitProps.opponentImpulseOnHit = {3.0f, 0.0f};
     hdata.hitProps.opponentImpulseOnAirHit = {10.0f, -5.0f};
+    hdata.hitProps.groundHitstunAnimation = HITSTUN_ANIMATION::LOW;
+    hdata.hitProps.airHitstunAnimation = HITSTUN_ANIMATION::FLOAT;
     
     hdata.chProps = hdata.hitProps;
     hdata.chProps.hitstun += 3;
@@ -204,6 +212,8 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_JA()
     hdata.hitProps.proratio = 0.7f;
     hdata.hitProps.opponentImpulseOnHit = {6.0f, 0.0f};
     hdata.hitProps.opponentImpulseOnAirHit = {8.0f, -5.0f};
+    hdata.hitProps.groundHitstunAnimation = HITSTUN_ANIMATION::HIGH;
+    hdata.hitProps.airHitstunAnimation = HITSTUN_ANIMATION::FLOAT;
 
     hdata.chProps = hdata.hitProps;
     hdata.chProps.hitstun += 2;
@@ -246,6 +256,8 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_JC()
     hdata.hitProps.proratio = 1.0f;
     hdata.hitProps.opponentImpulseOnHit = {13.0f, -35.0f};
     hdata.hitProps.opponentImpulseOnAirHit = {13.0f, -33.0f};
+    hdata.hitProps.groundHitstunAnimation = HITSTUN_ANIMATION::HIGH;
+    hdata.hitProps.airHitstunAnimation = HITSTUN_ANIMATION::FLOAT;
 
     hdata.chProps = hdata.hitProps;
     hdata.chProps.hitstun += 4;
@@ -291,7 +303,10 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_214C()
     hdata.hitProps.opponentImpulseOnAirHit = {10.0f, 40.0f};
     hdata.hitProps.hardKnd = true;
     hdata.hitProps.groundBounce = true;
+    hdata.hitProps.forceCrouch = true;
     hdata.hitProps.groundBounceStrength = 15.0f;
+    hdata.hitProps.groundHitstunAnimation = HITSTUN_ANIMATION::MID;
+    hdata.hitProps.airHitstunAnimation = HITSTUN_ANIMATION::FLOAT;
 
     hdata.chProps = hdata.hitProps;
     hdata.chProps.hitstun += 5;

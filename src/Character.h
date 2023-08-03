@@ -157,6 +157,8 @@ public:
     virtual void generateWidgets(Application &application_, HUD &hud_);
 
 protected:
+    virtual void enterHitstunAnimation(const PostHitProperties &props_) = 0;
+
     Vector2<float> m_pos;
     Vector2<float> m_velocity;
     Vector2<float> m_inertia;
@@ -189,6 +191,8 @@ protected:
     HealthHandler m_healthHandler;
 
     Camera *m_cam;
+
+    HITSTUN_ANIMATION m_hitstunAnimation;
 
 };
 

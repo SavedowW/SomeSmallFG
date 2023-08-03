@@ -29,6 +29,7 @@ void Character::setOnStage(Application &application_, int playerId_, Character *
     loadAnimations(application_);
     initiate();
     m_currentTakenHit.m_hitId = -1;
+    m_hitstunAnimation = HITSTUN_ANIMATION::NONE;
 }
 
 CharacterUpdateRes Character::update()

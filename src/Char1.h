@@ -90,6 +90,7 @@ protected:
     void switchToFloat();
     Char1Data generateCharData();
     bool isInActiveFrames() const;
+    void enterHitstunAnimation(const PostHitProperties &props_) final;
 
     std::set<int> m_appliedHits;
 

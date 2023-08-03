@@ -67,6 +67,7 @@ void Action<CharState_t, CharData, Char_t>::switchTo(Char_t &character_) const
     character_.m_cancelTimer.begin(0);
     character_.framesInState = 0;
     character_.m_appliedHits.clear();
+    character_.m_hitstunAnimation = HITSTUN_ANIMATION::NONE;
 }
 
 // ABSTRACT PROLONGED ACTION
