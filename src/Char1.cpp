@@ -46,7 +46,7 @@ void ActionResolver_Char1::createActions()
 }
 
 Char1::Char1(Application &application_, Vector2<float> pos_, Camera *cam_) :
-    Character(application_, pos_, 400.0f, cam_),
+    Character(application_, pos_, 400.0f, gamedata::characters::char1::gravity, cam_),
     m_actionResolver(application_.getInputSystem()),
     m_currentAction(nullptr)
 {
@@ -120,7 +120,6 @@ void Char1::initiate()
     m_airbornePushbox.y = -m_airbornePushbox.h - gamedata::characters::char1::airbornePushboxOffset;
 
     m_inertiaDrag = gamedata::characters::char1::inertiaDrag;
-    m_gravity = gamedata::characters::char1::gravity;
 
     m_standingHurtbox = {-70, -375, 140, 375};
     m_airHitstunHurtbox = {-350/2, -160, 350, 120};
@@ -282,7 +281,7 @@ void Char1::land()
             if (m_hitProps.groundBounce)
             {
                 m_inertia.y = 0;
-                m_velocity.y = -m_hitProps.groundBounceStrength;
+                m_velocity.y = -m_comboPhysHandler.getGroundBounceForce(m_hitProps.groundBounceStrength);
                 m_hitProps.groundBounce = false;
                 m_hitstunAnimation = HITSTUN_ANIMATION::FLOAT;
                 m_currentAnimation = m_animations[ANIMATIONS::CHAR1_HITSTUN_AIR].get();
@@ -446,6 +445,10 @@ HIT_RESULT Char1::applyHit(HitEvent &hitEvent)
                 }
             }
 
+            hitEvent.m_hitRes = hitres;
+            m_healthHandler.takeDamage(hitEvent);
+            m_comboPhysHandler.takeHit(hitEvent);
+
             if (isCounter)
                 m_hitProps = hitEvent.m_hitData.chProps;
             else
@@ -453,11 +456,17 @@ HIT_RESULT Char1::applyHit(HitEvent &hitEvent)
 
             if (m_airborne)
             {
-                m_inertia = m_hitProps.opponentImpulseOnAirHit.mulComponents(Vector2{getHorDirToEnemy().x * -1.0f, 1.0f});
+                auto hordir = getHorDirToEnemy();
+                auto newImpulse = m_hitProps.opponentImpulseOnAirHit.mulComponents(Vector2{hordir.x * -1.0f, 1.0f});
+                newImpulse = m_comboPhysHandler.getImpulseScaling(newImpulse, hordir);
+                m_inertia = newImpulse;
             }
             else
             {
-                m_inertia = m_hitProps.opponentImpulseOnHit.mulComponents(Vector2{getHorDirToEnemy().x * -1.0f, 1.0f});
+                auto hordir = getHorDirToEnemy();
+                auto newImpulse = m_hitProps.opponentImpulseOnHit.mulComponents(Vector2{hordir.x * -1.0f, 1.0f});
+                newImpulse = m_comboPhysHandler.getImpulseScaling(newImpulse, hordir);
+                m_inertia = newImpulse;
                 if (m_inertia.y < 0)
                     m_airborne = true;
             }
@@ -468,9 +477,6 @@ HIT_RESULT Char1::applyHit(HitEvent &hitEvent)
             m_currentCancelWindow = {};
             m_cancelTimer.begin(0);
             applyHitstop(m_hitProps.hitstop);
-
-            hitEvent.m_hitRes = hitres;
-            m_healthHandler.takeDamage(hitEvent);
 
             return hitres;
         }

@@ -224,6 +224,7 @@ void Action_char1_idle::switchTo(Char1 &character_) const
     character_.turnVelocityToInertia();
     character_.updateOwnOrientation();
     character_.m_healthHandler.resetScaling();
+    character_.m_comboPhysHandler.reset();
 }
 
 void Action_char1_idle::update(Char1 &character_) const
@@ -1127,6 +1128,7 @@ void Action_char1_knockdown_recovery::switchTo(Char1 &character_) const
     character_.m_timer.begin(21);
     character_.turnVelocityToInertia();
     character_.m_healthHandler.resetScaling();
+    character_.m_comboPhysHandler.reset();
 }
 
 // ABSTRACT CHAR1 GROUND ATTACK ACTION
@@ -1426,7 +1428,7 @@ void Action_char1_move_JC::update(Char1 &character_) const
     {
         //character_.m_inertia.y /= 10.0f - character_.m_gravity / 2.0f;
         character_.m_inertia.y /= 3.0f;
-        character_.m_inertia.y -= character_.m_gravity;
+        character_.m_inertia.y -= gamedata::characters::char1::gravity;
         character_.m_velocity.y /= 8.0f;
 
         character_.m_velocity.x /= 1.1f;

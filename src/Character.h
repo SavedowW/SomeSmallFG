@@ -12,6 +12,7 @@
 #include "HealthWidget.h"
 #include "NotifyWidget.h"
 #include "HealthHandler.h"
+#include "ComboPhysicsHandler.h"
 
 /*
  * TODO: LIST
@@ -34,7 +35,7 @@
  * damage scaling [DONE]
  * proratio [DONE]
  * 
- * gravity, impulse scaling
+ * gravity, impulse scaling [DONE]
  * Ground bounce [DONE, but no animation]
  * Wallbounce, wallsplat
  * 
@@ -110,7 +111,7 @@ struct CharData
 class Character
 {
 public:
-    Character(Application &application_, Vector2<float> pos_, float maxHealth_, Camera *cam_);
+    Character(Application &application_, Vector2<float> pos_, float maxHealth_, float baseGravity_, Camera *cam_);
 
     void setOnStage(Application &application_, int playerId_, Character *otherCharacter_);
 
@@ -164,7 +165,6 @@ protected:
     Vector2<float> m_velocity;
     Vector2<float> m_inertia;
     float m_inertiaDrag = 1;
-    float m_gravity = 1.5;
     bool m_airborne = false;
 
     bool m_inHitstop = false;
@@ -190,6 +190,7 @@ protected:
     NotifyWidget *m_notifyWidget = nullptr;
 
     HealthHandler m_healthHandler;
+    ComboPhysicsHandler m_comboPhysHandler;
 
     Camera *m_cam;
 

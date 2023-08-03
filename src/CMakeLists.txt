@@ -26,6 +26,7 @@ BlockHandler.cpp
 HealthWidget.cpp
 NotifyWidget.cpp
 HealthHandler.cpp
+ComboPhysicsHandler.cpp
 )
 
 set(INCLUDE_DIRS
