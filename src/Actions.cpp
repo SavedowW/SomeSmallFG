@@ -1059,6 +1059,29 @@ void Action_char1_jc_landing_recovery::switchTo(Char1 &character_) const
     character_.m_timer.begin(m_recoveryLen);
 }
 
+// SOFT KNOCKDOWN ACTION
+Action_char1_soft_knockdown::Action_char1_soft_knockdown() :
+    Action(CHAR1_STATE::SOFT_KNOCKDOWN, nullptr, {}, ANIMATIONS::CHAR1_SOFT_KNOCKDOWN)
+{
+}
+
+int Action_char1_soft_knockdown::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+{
+    return false;
+}
+
+void Action_char1_soft_knockdown::outdated(Char1 &character_) const
+{
+    character_.enterKndRecovery();
+}
+
+void Action_char1_soft_knockdown::switchTo(Char1 &character_) const
+{
+    Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    character_.m_timer.begin(8);
+    character_.turnVelocityToInertia();
+}
+
 // HARD KNOCKDOWN ACTION
 Action_char1_hard_knockdown::Action_char1_hard_knockdown() :
     Action(CHAR1_STATE::HARD_KNOCKDOWN, nullptr, {}, ANIMATIONS::CHAR1_KNOCKDOWN)

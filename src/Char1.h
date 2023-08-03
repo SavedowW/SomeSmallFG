@@ -38,6 +38,7 @@ enum class CHAR1_STATE {
     BLOCKSTUN_CROUCHING,
     BLOCKSTUN_AIR,
     HARD_KNOCKDOWN,
+    SOFT_KNOCKDOWN,
     KNOCKDOWN_RECOVERY
     };
 
@@ -134,6 +135,7 @@ protected:
     friend Action_char1_ground_dash_recovery;
     friend Action_char1_soft_landing_recovery;
     friend Action_char1_jc_landing_recovery;
+    friend Action_char1_soft_knockdown;
     friend Action_char1_hard_knockdown;
     friend Action_char1_knockdown_recovery;
     friend Action_char1_air_attack;

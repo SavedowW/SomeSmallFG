@@ -27,7 +27,7 @@ void NotifyWidget::draw(Renderer &renderer_, Camera &camera_)
     auto pos = m_basePos;
     for (auto &el : m_fields)
     {
-        m_textManager->renderText(el.str, 0, pos, m_baseAlign);
+        m_textManager->renderText(el.str, 3, pos, m_baseAlign);
         pos.y += m_spacing;
     }
 }

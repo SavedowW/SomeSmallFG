@@ -39,6 +39,7 @@ void ActionResolver_Char1::createActions()
     m_actions.push_back(std::make_unique<Action_char1_hard_landing_recovery>());
     m_actions.push_back(std::make_unique<Action_char1_jc_landing_recovery>());
     m_actions.push_back(std::make_unique<Action_char1_hard_knockdown>());
+    m_actions.push_back(std::make_unique<Action_char1_soft_knockdown>());
     m_actions.push_back(std::make_unique<Action_char1_knockdown_recovery>());
     m_actions.push_back(std::make_unique<Action_char1_float>());
     m_actions.push_back(std::make_unique<Action_char1_air_dash_extention>());
@@ -82,6 +83,7 @@ void Char1::loadAnimations(Application &application_)
     m_animations[ANIMATIONS::CHAR1_BLOCKSTUN_STANDING] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_BLOCKSTUN_STANDING, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_BLOCKSTUN_CROUCHING] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_BLOCKSTUN_CROUCHING, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_KNOCKDOWN] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_KNOCKDOWN, LOOPMETHOD::NOLOOP);
+    m_animations[ANIMATIONS::CHAR1_SOFT_KNOCKDOWN] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_SOFT_KNOCKDOWN, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_KNOCKDOWN_RECOVERY] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_KNOCKDOWN_RECOVERY, LOOPMETHOD::NOLOOP);
 
     m_currentAnimation = m_animations[ANIMATIONS::CHAR1_IDLE].get();
@@ -288,7 +290,7 @@ void Char1::land()
             else if (m_hitProps.hardKnd)
                 m_actionResolver.getAction(CHAR1_STATE::HARD_KNOCKDOWN)->switchTo(*this);
             else
-                enterKndRecovery();
+                m_actionResolver.getAction(CHAR1_STATE::SOFT_KNOCKDOWN)->switchTo(*this);
             m_currentTakenHit.m_hitId = -1;
             break;
 

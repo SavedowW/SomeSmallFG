@@ -19,7 +19,7 @@
  * crouching pushbox, probably other pushboxes [DONE]
  * air attacks that alter inertia [DONE]
  * lows, overheads, unblockables [DONE]
- * hard and soft knockdown [1/2 DONE, soft knd needs its own animation]
+ * hard and soft knockdown [DONE]
  * different types of landing recovery [DONE]
  * * Hard when blocks attack in the air (can only block during recovery)
  * * Vulnerable when uses air attacks (cannot block or do any attack for a period of time)
@@ -76,6 +76,7 @@
  * Particles
  * sounds
  * Buffs system
+ * Transition animations
  * 
  * Other characters and stages
  * Character / stage select screen
