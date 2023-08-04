@@ -2,12 +2,13 @@
 #include "Application.h"
 #include "ActionResolver.h"
 
-Character::Character(Application &application_, Vector2<float> pos_, float maxHealth_, float baseGravity_, Camera *cam_) :
+Character::Character(Application &application_, Vector2<float> pos_, float maxHealth_, float baseGravity_, Camera *cam_, ParticleManager *particleManager_) :
     m_playerId(0),
     m_currentAnimation(nullptr),
     m_healthHandler(maxHealth_),
     m_cam(cam_),
-    m_comboPhysHandler(baseGravity_)
+    m_comboPhysHandler(baseGravity_),
+    m_particleManager(particleManager_)
 {
     setPos(pos_);
 }
@@ -96,7 +97,6 @@ void Character::updatePosition()
         {
             auto gravity = m_comboPhysHandler.getGravity();
             m_inertia.y += gravity;
-            m_notifyWidget->addNotification(std::to_string(gravity));
         }
     }
 

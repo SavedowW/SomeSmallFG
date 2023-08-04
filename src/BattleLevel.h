@@ -9,6 +9,7 @@
 #include <array>
 #include "FrameTimer.h"
 #include <SDL_ttf.h>
+#include "ParticleManager.h"
 
 template <typename BackType>
 class BattleLevel : public Level
@@ -18,9 +19,30 @@ public:
     	Level(application_, size_, lvlId_),
     	m_camera(gamedata::stages::startingCameraPos, {gamedata::global::cameraWidth, gamedata::global::cameraHeight}, m_size),
         m_frameTimer(gamedata::stages::framesBeforeZoom),
-        m_maxCharRange(gamedata::stages::maxCharRange)
+        m_maxCharRange(gamedata::stages::maxCharRange),
+        m_particleManager(application_->getRenderer(), application_->getAnimationManager())
     {
+        subscribe(EVENTS::FN2);
     }
+
+    void receiveInput(EVENTS event, const float scale_) override
+    {
+        Level::receiveInput(event, scale_);
+        if (scale_ > 0 && event == EVENTS::FN2)
+        {
+            std::cout << "EVENT\n";
+            ParticleSpawnData spdata;
+            spdata.m_pos = m_camera.getPos();
+            spdata.m_particleType = PARTICLE_TYPES::BLOCK;
+            spdata.m_flip = (rand() % 2 ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
+            //spdata.m_scale = ((rand() % 101) + 20) / 100.0f;
+            spdata.m_scale = 0.5f;
+            spdata.m_angle = 45;
+            //spdata.m_angle = rand() % 360;
+            m_particleManager.spawnParticles(spdata);
+        }
+    }
+
 
     virtual void enter() override
     {
@@ -249,6 +271,7 @@ protected:
 
         m_camera.update();
         m_hud.update();
+        m_particleManager.update();
         //std::cout << m_characters[0]->CharStateData() << " | " << m_characters[1]->CharStateData() << std::endl;
     }
 
@@ -265,12 +288,7 @@ protected:
 
         m_hud.draw(*m_application->getRenderer(), m_camera);
 
-        /*m_application->getTextManager()->renderText("1234567890x COUNTER", 0, {10.0f, 150.0f});
-        m_application->getTextManager()->renderText("1234567890x COUNTER", 1, {10.0f, 250.0f});
-
-        m_application->getTextManager()->renderText("1234567890x COUNTER", 2, {800.0f, 350.0f}, fonts::HOR_ALIGN::LEFT);
-        m_application->getTextManager()->renderText("1234567890x COUNTER", 2, {800.0f, 400.0f}, fonts::HOR_ALIGN::CENTER);
-        m_application->getTextManager()->renderText("1234567890x COUNTER", 2, {800.0f, 450.0f}, fonts::HOR_ALIGN::RIGHT);*/
+        m_particleManager.draw(m_camera);
 
     	renderer.updateScreen();
     }
@@ -283,6 +301,7 @@ protected:
     std::array<std::unique_ptr<Character>, 2> m_characters;
     int m_maxCharRange;
     HUD m_hud;
+    ParticleManager m_particleManager;
 
 };
 

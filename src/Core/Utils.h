@@ -21,6 +21,13 @@ namespace utils
     	return (v1 > 0 && v2 > 0 || v1 < 0 && v2 < 0);
     }
 
+    template <typename T>
+    inline T reverseLerp(const T& val, const T &min, const T &max)
+    {
+    	T alpha = (val - min) / (max - min);
+        return clamp<T>(alpha, 0, 1);
+    }
+
 }
 
 template <typename T, size_t len>

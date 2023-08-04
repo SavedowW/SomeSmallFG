@@ -86,7 +86,6 @@ void Renderer::renderTexture(SDL_Texture* tex_, const SDL_FRect *src_, const SDL
 
 void Renderer::renderTexture(SDL_Texture* tex_, float x_, float y_, const Camera &cam_, SDL_RendererFlip flip_)
 {
-    //throw std::runtime_error("You shouldn't use this renderTexture yet");
 	int tw, th;
 	SDL_QueryTexture(tex_, NULL, NULL, &tw, &th);
 
@@ -97,6 +96,21 @@ void Renderer::renderTexture(SDL_Texture* tex_, float x_, float y_, const Camera
 	auto size = texBR - texTL;
 	
 	renderTexture(tex_, texTL.x, texTL.y, size.x, size.y, 0, nullptr, flip_);
+}
+
+void Renderer::renderTexture(SDL_Texture* tex_, float x_, float y_, float w_, float h_, const Camera &cam_, float angle_, SDL_RendererFlip flip_)
+{
+	auto camSize = cam_.getSize();
+
+	auto texTL = ((Vector2{x_, y_} - cam_.getTopLeft()) / cam_.getScale());
+	auto texBR = ((Vector2{x_ + w_, y_ + h_} - cam_.getTopLeft()) / cam_.getScale());
+	auto size = texBR - texTL;
+
+	SDL_FPoint center;
+	center.x = size.x / 2;
+	center.y = size.y / 2;
+	
+	renderTexture(tex_, texTL.x, texTL.y, size.x, size.y, angle_, &center, flip_);
 }
 
 void Renderer::renderTexture(SDL_Texture* tex_, float x_, float y_, float angle_, SDL_FPoint* center_, SDL_RendererFlip flip_)

@@ -41,12 +41,12 @@ Vector2<float> ComboPhysicsHandler::getImpulseScaling(const Vector2<float> &impu
     if (impulse.y < 0)
     {
         res.y /= m_impulseScaling.y;
-        m_impulseScaling.y *= 1.1f;
+        m_impulseScaling.y *= 1.03f;
     }
     else if (impulse.x > 0)
     {
         res.x *= m_impulseScaling.y;
-        m_impulseScaling.y *= 1.1f;
+        m_impulseScaling.y *= 1.03f;
     }
 
     return res;

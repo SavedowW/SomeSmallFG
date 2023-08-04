@@ -37,7 +37,9 @@
  * 
  * gravity, impulse scaling [DONE]
  * Ground bounce [DONE, but no animation]
- * Wallbounce, wallsplat
+ * Wallbounce, wallsplat [1/2 DONE]
+ * * Wallsplat should be possible only at the real wall, wallbounce - on both real wall and character's max range boundary
+ * * In case of real wall, wall splat should have priority
  * 
  * step - cancel and step - cancel specific moves
  * * Kind of like dash cancel, except with completely fixed range and unique follow ups
@@ -74,7 +76,7 @@
  * * Guard gauge, scales chip damage
  * 
  * 
- * Particles
+ * Particles [DONE]
  * sounds
  * Buffs system
  * Transition animations
@@ -111,7 +113,7 @@ struct CharData
 class Character
 {
 public:
-    Character(Application &application_, Vector2<float> pos_, float maxHealth_, float baseGravity_, Camera *cam_);
+    Character(Application &application_, Vector2<float> pos_, float maxHealth_, float baseGravity_, Camera *cam_, ParticleManager *particleManager_);
 
     void setOnStage(Application &application_, int playerId_, Character *otherCharacter_);
 
@@ -197,6 +199,8 @@ protected:
     Camera *m_cam;
 
     HITSTUN_ANIMATION m_hitstunAnimation;
+
+    ParticleManager *m_particleManager;
 
 };
 

@@ -5,6 +5,10 @@
 
 enum class ANIMATIONS
 {
+	PARTICLE_HIT1,
+	PARTICLE_HIT2,
+	PARTICLE_HIT2_SLOWED,
+	PARTICLE_BLOCK,
 	CHAR1_IDLE,
 	CHAR1_CROUCH_IDLE,
 	CHAR1_WALK_FWD,
@@ -84,6 +88,10 @@ private:
 	std::string m_rootPath;
 	Renderer* m_renderer;
 	const std::string m_filePaths[(int)ANIMATIONS::NONE] = {
+		"Resources/Sprites/Particles/Hit1/",
+		"Resources/Sprites/Particles/Hit2/",
+		"Resources/Sprites/Particles/Hit2_Slowed/",
+		"Resources/Sprites/Particles/Block/",
 		"Resources/Sprites/Char1/Idle/",
 		"Resources/Sprites/Char1/CrouchIdle/",
 		"Resources/Sprites/Char1/WalkForward/",

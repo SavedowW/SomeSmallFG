@@ -22,6 +22,22 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_jab()
 {
     HitData hdata;
 
+    HitParticleData pdatatemp;
+
+    pdatatemp.m_partType = PARTICLE_TYPES::BLOCK;
+    pdatatemp.m_baseOffsetMin = {50.0f, -285.0f};
+    pdatatemp.m_baseOffsetMax = {200.0f, -285.0f};
+    pdatatemp.minRange = 100.0f;
+    pdatatemp.maxRange = 240.0f;
+    pdatatemp.m_scale = 0.5f;
+    hdata.particlesOnBlock.push_back(pdatatemp);
+
+    pdatatemp.m_partType = PARTICLE_TYPES::HIT_1;
+    pdatatemp.m_scale = 0.3f;
+    hdata.particlesOnHit.push_back(pdatatemp);
+    hdata.particlesOnCH.push_back(pdatatemp);
+
+
     hdata.m_hitId = 1;
 
     hdata.cornerPushbackMaxRange = 390.0f;
@@ -67,6 +83,20 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveB()
 {
     HitData hdata;
 
+    HitParticleData pdatatemp;
+
+    pdatatemp.m_partType = PARTICLE_TYPES::BLOCK;
+    pdatatemp.m_baseOffsetMin = {50.0f, -230.0f};
+    pdatatemp.m_baseOffsetMax = {242.0f, -230.0f};
+    pdatatemp.minRange = 100.0f;
+    pdatatemp.maxRange = 310.0f;
+    pdatatemp.m_scale = 0.6f;
+    hdata.particlesOnBlock.push_back(pdatatemp);
+
+    pdatatemp.m_partType = PARTICLE_TYPES::HIT_1;
+    hdata.particlesOnHit.push_back(pdatatemp);
+    hdata.particlesOnCH.push_back(pdatatemp);
+
     hdata.m_hitId = 1;
 
     hdata.cornerPushbackMaxRange = 390.0f;
@@ -78,7 +108,7 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveB()
     hdata.hitProps.hitstun = 15;
     hdata.hitProps.proratio = 0.9f;
     hdata.hitProps.opponentImpulseOnHit = {3.0f, 0.0f};
-    hdata.hitProps.opponentImpulseOnAirHit = {10.0f, -5.0f};
+    hdata.hitProps.opponentImpulseOnAirHit = {10.0f, -7.0f};
     hdata.hitProps.groundHitstunAnimation = HITSTUN_ANIMATION::MID;
     hdata.hitProps.airHitstunAnimation = HITSTUN_ANIMATION::FLOAT;
 
@@ -111,6 +141,22 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveC()
 {
     HitData hdata;
 
+    HitParticleData pdatatemp;
+
+    pdatatemp.m_partType = PARTICLE_TYPES::BLOCK;
+    pdatatemp.m_baseOffsetMin = {100.0f, -270.0f};
+    pdatatemp.m_baseOffsetMax = {100.0f, -270.0f};
+    pdatatemp.minRange = 100.0f;
+    pdatatemp.maxRange = 210.0f;
+    pdatatemp.m_scale = 0.8f;
+    pdatatemp.m_angle = -45.0;
+    hdata.particlesOnBlock.push_back(pdatatemp);
+
+    pdatatemp.m_partType = PARTICLE_TYPES::HIT_2;
+    pdatatemp.m_angle = -90.0;
+    hdata.particlesOnHit.push_back(pdatatemp);
+    hdata.particlesOnCH.push_back(pdatatemp);
+
     hdata.m_hitId = 1;
 
     hdata.cornerPushbackMaxRange = 300.0f;
@@ -122,7 +168,7 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveC()
     hdata.hitProps.hitstun = 21;
     hdata.hitProps.proratio = 1.0f;
     hdata.hitProps.opponentImpulseOnHit = {5.0f, -35.0f};
-    hdata.hitProps.opponentImpulseOnAirHit = {5.0f, -20.0f};
+    hdata.hitProps.opponentImpulseOnAirHit = {5.0f, -25.0f};
     hdata.hitProps.groundHitstunAnimation = HITSTUN_ANIMATION::MID;
     hdata.hitProps.airHitstunAnimation = HITSTUN_ANIMATION::FLOAT;
 
@@ -155,6 +201,20 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveC()
 std::pair<FrameWindow, Hit> hitgeneration::generate_char1_move2B()
 {
     HitData hdata;
+
+    HitParticleData pdatatemp;
+
+    pdatatemp.m_partType = PARTICLE_TYPES::BLOCK;
+    pdatatemp.m_baseOffsetMin = {100.0f, -50.0f};
+    pdatatemp.m_baseOffsetMax = {190.0f, -50.0f};
+    pdatatemp.minRange = 100.0f;
+    pdatatemp.maxRange = 230.0f;
+    pdatatemp.m_scale = 0.6f;
+    hdata.particlesOnBlock.push_back(pdatatemp);
+
+    pdatatemp.m_partType = PARTICLE_TYPES::HIT_1;
+    hdata.particlesOnHit.push_back(pdatatemp);
+    hdata.particlesOnCH.push_back(pdatatemp);
 
     hdata.m_hitId = 1;
 
@@ -200,6 +260,24 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_JA()
 {
     HitData hdata;
 
+    HitParticleData pdatatemp;
+
+    pdatatemp.m_partType = PARTICLE_TYPES::BLOCK;
+    pdatatemp.m_baseOffsetMin = {90.0f, -240.0f};
+    pdatatemp.m_baseOffsetMax = {160.0f, -170.0f};
+    pdatatemp.minRange = 100.0f;
+    pdatatemp.maxRange = 260.0f;
+    pdatatemp.m_scale = 0.6f;
+    pdatatemp.m_angle = 45.0f;
+    hdata.particlesOnBlock.push_back(pdatatemp);
+
+    pdatatemp.m_partType = PARTICLE_TYPES::HIT_1;
+    pdatatemp.m_angle = 0.0f;
+    hdata.particlesOnHit.push_back(pdatatemp);
+    hdata.particlesOnCH.push_back(pdatatemp);
+
+    hdata.m_hitId = 1;
+
     hdata.m_hitId = 1;
 
     hdata.cornerPushbackMaxRange = 390.0f;
@@ -243,6 +321,21 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_JA()
 std::pair<FrameWindow, Hit> hitgeneration::generate_char1_JC()
 {
     HitData hdata;
+
+    HitParticleData pdatatemp;
+
+    pdatatemp.m_partType = PARTICLE_TYPES::BLOCK;
+    pdatatemp.m_baseOffsetMin = {50.0f, -80.0f};
+    pdatatemp.m_baseOffsetMax = {100.0f, -30.0f};
+    pdatatemp.minRange = 100.0f;
+    pdatatemp.maxRange = 380.0f;
+    pdatatemp.m_scale = 0.9f;
+    hdata.particlesOnBlock.push_back(pdatatemp);
+
+    pdatatemp.m_partType = PARTICLE_TYPES::HIT_2;
+    pdatatemp.m_angle = -60.0f;
+    hdata.particlesOnHit.push_back(pdatatemp);
+    hdata.particlesOnCH.push_back(pdatatemp);
 
     hdata.m_hitId = 1;
 
@@ -289,6 +382,22 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_JC()
 std::pair<FrameWindow, Hit> hitgeneration::generate_char1_214C()
 {
     HitData hdata;
+
+    HitParticleData pdatatemp;
+
+    pdatatemp.m_partType = PARTICLE_TYPES::BLOCK;
+    pdatatemp.m_baseOffsetMin = {115.0f, -200.0f};
+    pdatatemp.m_baseOffsetMax = {150.0f, -200.0f};
+    pdatatemp.minRange = 100.0f;
+    pdatatemp.maxRange = 400.0f;
+    hdata.particlesOnBlock.push_back(pdatatemp);
+
+    pdatatemp.m_partType = PARTICLE_TYPES::HIT_2_SLOWED;
+    pdatatemp.m_baseOffsetMin = {115.0f, -400.0f};
+    pdatatemp.m_baseOffsetMax = {150.0f, -440.0f};
+    pdatatemp.m_angle = 90.0f;
+    hdata.particlesOnHit.push_back(pdatatemp);
+    hdata.particlesOnCH.push_back(pdatatemp);
 
     hdata.m_hitId = 1;
 

@@ -118,7 +118,6 @@ struct Vector2
 		return { x * rhs.x, y * rhs.y };
 	}
 };
-
 template <typename T>
 std::ostream& operator<< (std::ostream& out, const Vector2<T>& vec)
 {
@@ -132,6 +131,12 @@ namespace utils
 	inline Vector2<T> clamp(const Vector2<T>& val, const Vector2<T> &min, const Vector2<T> &max)
 	{
 		return {clamp(val.x, min.x, max.x), clamp(val.y, min.y, max.y)};
+	}
+
+	template <typename T, typename aT>
+	inline Vector2<T> lerp(const Vector2<T> &min, const Vector2<T> &max, const aT &alpha)
+	{
+		return {min + (max - min) * alpha};
 	}
 }
 

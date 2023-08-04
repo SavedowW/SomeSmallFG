@@ -13,7 +13,10 @@ AnimationManager::AnimationManager(Renderer* renderer_, const std::string &rootP
 	}
 
 	//Load preloading textures
-	//preload(ANIMATIONS::hit1);
+	// TODO: preload particles and effects depending on characters and stage
+	preload(ANIMATIONS::PARTICLE_BLOCK);
+	preload(ANIMATIONS::PARTICLE_HIT1);
+	preload(ANIMATIONS::PARTICLE_HIT2);
 
 	//Init pointers to texture arrays
 	for (int i = 0; i < int(ANIMATIONS::NONE); ++i)

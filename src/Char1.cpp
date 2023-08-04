@@ -45,8 +45,8 @@ void ActionResolver_Char1::createActions()
     m_actions.push_back(std::make_unique<Action_char1_air_dash_extention>());
 }
 
-Char1::Char1(Application &application_, Vector2<float> pos_, Camera *cam_) :
-    Character(application_, pos_, 400.0f, gamedata::characters::char1::gravity, cam_),
+Char1::Char1(Application &application_, Vector2<float> pos_, Camera *cam_, ParticleManager *particleManager_) :
+    Character(application_, pos_, 400.0f, gamedata::characters::char1::gravity, cam_, particleManager_),
     m_actionResolver(application_.getInputSystem()),
     m_currentAction(nullptr)
 {
@@ -389,8 +389,10 @@ HurtboxVec Char1::getHurtboxes()
 
 HIT_RESULT Char1::applyHit(HitEvent &hitEvent)
 {
+    float range = (m_pos - m_otherCharacter->getPos()).getLen();
+
     if (m_playerId == 1)
-        std::cout << "";
+        m_notifyWidget->addNotification(std::to_string(range));
 
     if (hitEvent.m_hittingPlayerId == m_playerId)
     {
@@ -418,6 +420,44 @@ HIT_RESULT Char1::applyHit(HitEvent &hitEvent)
                     m_cancelTimer.begin(m_currentCancelWindow.first.second + 1);
             }
 
+        }
+
+        auto hordir = getOwnHorDir();
+        hordir.y = 1;
+        const std::vector<HitParticleData> *pdata;
+        if (hitEvent.m_hitRes == HIT_RESULT::COUNTER)
+            pdata = &hitEvent.m_hitData.particlesOnCH;
+        else if (hitEvent.m_hitRes == HIT_RESULT::HIT)
+            pdata = &hitEvent.m_hitData.particlesOnHit;
+        else
+            pdata = &hitEvent.m_hitData.particlesOnBlock;
+
+        for (const auto &el : *pdata)
+        {
+            ParticleSpawnData psd;
+            psd.m_angle = el.m_angle;
+            psd.m_pos = m_pos + (utils::lerp(el.m_baseOffsetMin, el.m_baseOffsetMax, utils::reverseLerp(range, el.minRange, el.maxRange)).mulComponents(hordir));
+            psd.m_particleType = el.m_partType;
+            psd.m_scale = el.m_scale;
+            psd.m_flip = (hordir.x > 0 ? SDL_FLIP_NONE : SDL_FLIP_HORIZONTAL);
+            for (int i = 0; i < el.count; ++i)
+            {
+                psd.m_velocity = el.m_baseVelocity;
+                if (el.m_randVelocity)
+                {
+                    psd.m_velocity.x += el.m_baseVelocity.x + ((rand() % (el.m_velocityRange.x * 100)) - el.m_velocityRange.x * 100 / 2.0f) / 100.0f;
+                    psd.m_velocity.y += el.m_baseVelocity.y + ((rand() % (el.m_velocityRange.y * 100)) - el.m_velocityRange.y * 100 / 2.0f) / 100.0f;
+                }
+
+                psd.m_accel = el.m_additionalAccel + (psd.m_velocity * (-el.m_reverseAccel));
+
+                if (el.m_randLifeTime)
+                {
+                    psd.m_forcedLifeTime = (rand() % (el.m_maxLifeTime - el.m_minLifeTime + 1)) + el.m_minLifeTime;
+                }
+
+                m_particleManager->spawnParticles(psd);
+            }
         }
 
         return HIT_RESULT::NONE;

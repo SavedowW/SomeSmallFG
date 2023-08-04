@@ -16,6 +16,7 @@ AnimationManager.cpp
 FrameTimer.cpp
 HUD.cpp
 TextManager.cpp
+ParticleManager.cpp
 )
 
 add_library (Core ${CORE_SRC_FILES})
