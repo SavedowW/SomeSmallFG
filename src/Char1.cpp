@@ -522,6 +522,7 @@ HIT_RESULT Char1::applyHit(HitEvent &hitEvent)
         }
         else
         {
+            applyHitstop(hitEvent.m_hitData.hitProps.hitstop);
             turnVelocityToInertia();
             m_inertia += getHorDirToEnemy() * -1.0f * hitEvent.m_hitData.opponentPushbackOnBlock;
             m_timer.begin(hitEvent.m_hitData.blockstun);
@@ -577,6 +578,7 @@ void Char1::updateBlockState()
                     m_currentState == CHAR1_STATE::MOVE_C ||
                     m_currentState == CHAR1_STATE::MOVE_JA ||
                     m_currentState == CHAR1_STATE::MOVE_JC ||
+                    m_currentState == CHAR1_STATE::MOVE_214C ||
                     m_currentState == CHAR1_STATE::AIR_DASH ||
                     m_currentState == CHAR1_STATE::VULNERABLE_LANDING_RECOVERY ||
                     m_currentState == CHAR1_STATE::MOVE_JC_LANDING_RECOVERY);

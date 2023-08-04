@@ -118,7 +118,7 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveB()
 
     hdata.canBeBlockedAs = {BLOCK_STATE::HIGH, BLOCK_STATE::LOW, BLOCK_STATE::AIR, BLOCK_STATE::AUTO};
 
-    hdata.blockstun = 8;
+    hdata.blockstun = 13;
 
     hdata.hitBlockShakeAmp = 20;
 
@@ -178,7 +178,7 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveC()
 
     hdata.canBeBlockedAs = {BLOCK_STATE::HIGH, BLOCK_STATE::LOW, BLOCK_STATE::AIR, BLOCK_STATE::AUTO};
 
-    hdata.blockstun = 15;
+    hdata.blockstun = 16;
     hdata.chipDamage = 2.0f;
 
     hdata.hitBlockShakeAmp = 40;
@@ -237,7 +237,7 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_move2B()
 
     hdata.canBeBlockedAs = {BLOCK_STATE::LOW, BLOCK_STATE::AIR};
 
-    hdata.blockstun = 8;
+    hdata.blockstun = 10;
 
     hdata.hitBlockShakeAmp = 15;
 
@@ -299,7 +299,7 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_JA()
 
     hdata.canBeBlockedAs = {BLOCK_STATE::HIGH, BLOCK_STATE::AIR};
 
-    hdata.blockstun = 7;
+    hdata.blockstun = 9;
 
     hdata.hitBlockShakeAmp = 0;
 
@@ -426,7 +426,7 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_214C()
 
     hdata.canBeBlockedAs = {BLOCK_STATE::HIGH, BLOCK_STATE::LOW, BLOCK_STATE::AUTO};
 
-    hdata.blockstun = 12;
+    hdata.blockstun = 20;
     hdata.chipDamage = 4.0f;
 
     hdata.hitBlockShakeAmp = 20;

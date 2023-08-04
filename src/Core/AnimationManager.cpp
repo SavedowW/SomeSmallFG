@@ -17,6 +17,7 @@ AnimationManager::AnimationManager(Renderer* renderer_, const std::string &rootP
 	preload(ANIMATIONS::PARTICLE_BLOCK);
 	preload(ANIMATIONS::PARTICLE_HIT1);
 	preload(ANIMATIONS::PARTICLE_HIT2);
+	preload(ANIMATIONS::PARTICLE_HIT2_SLOWED);
 
 	//Init pointers to texture arrays
 	for (int i = 0; i < int(ANIMATIONS::NONE); ++i)
