@@ -54,6 +54,15 @@ CharacterUpdateRes Character::update()
             m_dirToEnemy = ORIENTATION::LEFT;
     }
 
+    if (m_shineLockedTimer.update())
+    {
+        if (m_shineAlphaTimer.update())
+        {
+            m_shineAlphaTimer.begin(0);
+            m_shineLockedTimer.begin(0);
+        }
+    }
+
     proceedCurrentState();
 
     updateState();
@@ -63,7 +72,7 @@ CharacterUpdateRes Character::update()
     CharacterUpdateRes res;
     res.moveOffset = m_pos - initPos;
     res.newPos = m_pos;
-    res.pushbox = getPushbox();;
+    res.pushbox = getPushbox();
     return res;
 }
 
@@ -129,7 +138,31 @@ void Character::draw(Renderer &renderer_, Camera &camera_)
             xoffset = rand() % 13 - 6;
         }
 
-        renderer_.renderTexture(m_currentAnimation->getSprite(), texPos.x + xoffset, texPos.y, camera_, flip);
+        auto spr = m_currentAnimation->getSprite();
+        bool shining = m_shineLockedTimer.isActive() || m_shineAlphaTimer.isActive();
+
+        renderer_.renderTexture(spr, texPos.x + xoffset, texPos.y, camera_, flip);
+        if (shining)
+        {
+            // TODO: maybe its better to create white versions during the creation of the main animations?
+            float alpha = 1 - m_shineAlphaTimer.getProgressNormalized();
+
+            auto pw = renderer_.createTexture(m_currentAnimation->getSize());
+            renderer_.setRenderTarget(pw);
+            renderer_.fillRenderer({255, 255, 255, 0});
+
+            auto blendmode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_MAXIMUM, SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ZERO, SDL_BLENDOPERATION_ADD);
+            SDL_SetTextureBlendMode(spr, blendmode);
+            renderer_.renderTexture(spr, 0, 0);
+            SDL_SetTextureBlendMode(spr, SDL_BLENDMODE_BLEND);
+            SDL_SetTextureBlendMode(pw, SDL_BLENDMODE_BLEND);
+            SDL_SetTextureColorMod(pw, m_colorShine.r, m_colorShine.g, m_colorShine.b);
+            SDL_SetTextureAlphaMod(pw, alpha * m_colorShine.a);
+            
+            renderer_.setRenderTarget(nullptr);
+            renderer_.renderTexture(pw, texPos.x + xoffset, texPos.y, camera_, flip);
+            SDL_DestroyTexture(pw);
+        }
     }
 
     // render pushboxes with macro DEBUG
@@ -269,4 +302,11 @@ void Character::generateWidgets(Application &application_, HUD &hud_)
     auto nptr = std::make_unique<NotifyWidget>(application_, rs);
     m_notifyWidget = nptr.get();
     hud_.addWidget(std::move(nptr));
+}
+
+void Character::startShine(const SDL_Color &col_, int lockedDuration_, int alphaDuration_)
+{
+    m_colorShine = col_;
+    m_shineAlphaTimer.begin(alphaDuration_);
+    m_shineLockedTimer.begin(lockedDuration_);
 }

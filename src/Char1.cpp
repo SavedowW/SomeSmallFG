@@ -486,6 +486,7 @@ HIT_RESULT Char1::applyHit(HitEvent &hitEvent)
                 {
                     isCounter = true;
                     hitres = HIT_RESULT::COUNTER;
+                    startShine({150, 0, 0, 225}, std::max(hitEvent.m_hitData.chProps.hitstop - 3, 5), 3);
                 }
             }
 

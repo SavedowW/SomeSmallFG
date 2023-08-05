@@ -30,6 +30,14 @@ bool FrameTimer::isOver() const
     return m_currentFrame >= m_framesToWait;
 }
 
+bool FrameTimer::isActive() const
+{
+    if (m_framesToWait == 0)
+        return false;
+
+    return m_currentFrame < m_framesToWait;
+}
+
 uint32_t FrameTimer::getCurrentFrame() const
 {
     return m_currentFrame;

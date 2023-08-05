@@ -164,6 +164,7 @@ public:
 
 protected:
     virtual void enterHitstunAnimation(const PostHitProperties &props_) = 0;
+    void startShine(const SDL_Color &col_, int lockedDuration_, int alphaDuration_);
 
     Vector2<float> m_pos;
     Vector2<float> m_velocity;
@@ -201,6 +202,10 @@ protected:
     HITSTUN_ANIMATION m_hitstunAnimation;
 
     ParticleManager *m_particleManager;
+
+    SDL_Color m_colorShine;
+    FrameTimer m_shineLockedTimer;
+    FrameTimer m_shineAlphaTimer;
 
 };
 

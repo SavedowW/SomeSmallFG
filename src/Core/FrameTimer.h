@@ -9,6 +9,7 @@ public:
 	void begin(uint32_t framesToWait_);
     bool update();
 	bool isOver() const;
+	bool isActive() const;
 	uint32_t getCurrentFrame() const;
 	float getProgressNormalized() const;
 

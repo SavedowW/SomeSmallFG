@@ -70,11 +70,11 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_jab()
 
     hit.cancelsOnHit.first.first = 1;
     hit.cancelsOnHit.first.second = 8;
-    hit.cancelsOnHit.second = {(int)CHAR1_STATE::PREJUMP, (int)CHAR1_STATE::MOVE_A, (int)CHAR1_STATE::MOVE_B, (int)CHAR1_STATE::MOVE_2B, (int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_214C};
+    hit.cancelsOnHit.second = {(int)CHAR1_STATE::PREJUMP, (int)CHAR1_STATE::MOVE_A, (int)CHAR1_STATE::MOVE_B, (int)CHAR1_STATE::MOVE_2B, (int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
 
     hit.cancelsOnBlock.first.first = 1;
     hit.cancelsOnBlock.first.second = 8;
-    hit.cancelsOnBlock.second = {(int)CHAR1_STATE::MOVE_A, (int)CHAR1_STATE::MOVE_B, (int)CHAR1_STATE::MOVE_2B, (int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_214C};
+    hit.cancelsOnBlock.second = {(int)CHAR1_STATE::MOVE_A, (int)CHAR1_STATE::MOVE_B, (int)CHAR1_STATE::MOVE_2B, (int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
 
     return {{5, 7}, hit};
 }
@@ -247,11 +247,11 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_move2B()
 
     hit.cancelsOnHit.first.first = 1;
     hit.cancelsOnHit.first.second = 15;
-    hit.cancelsOnHit.second = {(int)CHAR1_STATE::PREJUMP, (int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_214C};
+    hit.cancelsOnHit.second = {(int)CHAR1_STATE::PREJUMP, (int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
 
     hit.cancelsOnBlock.first.first = 1;
     hit.cancelsOnBlock.first.second = 15;
-    hit.cancelsOnBlock.second = {(int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_214C};
+    hit.cancelsOnBlock.second = {(int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
 
     return {{10, 12}, hit};
 }
@@ -435,13 +435,13 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_214C()
 
     Hit hit(hdata, {{{16, 17}, {50.0f, -400.0f, 100.0f, 150.0f}}, {{18, 21}, {50.0f, -400.0f, 130.0f, 400.0f}}});
 
-    hit.cancelsOnHit.first.first = 0;
-    hit.cancelsOnHit.first.second = 0;
-    hit.cancelsOnHit.second = {};
+    hit.cancelsOnHit.first.first = 1;
+    hit.cancelsOnHit.first.second = 8;
+    hit.cancelsOnHit.second = {(int)CHAR1_STATE::STEP};
 
-    hit.cancelsOnBlock.first.first = 0;
-    hit.cancelsOnBlock.first.second = 0;
-    hit.cancelsOnBlock.second = {};
+    hit.cancelsOnBlock.first.first = 1;
+    hit.cancelsOnBlock.first.second = 8;
+    hit.cancelsOnBlock.second = {(int)CHAR1_STATE::STEP};
 
     return {{16, 21}, hit};
 }
