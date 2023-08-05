@@ -128,11 +128,11 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveB()
 
     hit.cancelsOnHit.first.first = 1;
     hit.cancelsOnHit.first.second = 8;
-    hit.cancelsOnHit.second = {(int)CHAR1_STATE::PREJUMP, (int)CHAR1_STATE::MOVE_2B, (int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_214C};
+    hit.cancelsOnHit.second = {(int)CHAR1_STATE::PREJUMP, (int)CHAR1_STATE::MOVE_2B, (int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
 
     hit.cancelsOnBlock.first.first = 1;
     hit.cancelsOnBlock.first.second = 8;
-    hit.cancelsOnBlock.second = {(int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_214C};
+    hit.cancelsOnBlock.second = {(int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
 
     return {{7, 10}, hit};
 }

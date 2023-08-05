@@ -244,6 +244,27 @@ public:
     const float m_maxspd;
 };
 
+class Action_char1_step: public Action<CHAR1_STATE, Char1Data, Char1>
+{
+public:
+    Action_char1_step();
+    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_) const override;
+    virtual void outdated(Char1 &character_) const override;
+    virtual void switchTo(Char1 &character_) const;
+    const int m_duration;
+};
+
+class Action_char1_step_recovery : public Action<CHAR1_STATE, Char1Data, Char1>
+{
+public:
+    Action_char1_step_recovery();
+    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_) const override;
+    virtual void outdated(Char1 &character_) const override;
+    virtual void switchTo(Char1 &character_) const;
+    virtual void update(Char1 &character_) const override;
+    const int m_recoveryLen;
+};
+
 class Action_char1_ground_backdash: public Action<CHAR1_STATE, Char1Data, Char1>
 {
 public:

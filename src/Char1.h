@@ -26,6 +26,8 @@ enum class CHAR1_STATE {
     AIR_DASH,
     AIR_DASH_EXTENTION,
     AIR_BACKDASH,
+    STEP,
+    STEP_RECOVERY,
     MOVE_A,
     MOVE_B,
     MOVE_C,
@@ -134,6 +136,8 @@ protected:
     friend Action_char1_ground_backdash;
     friend Action_char1_ground_dash;
     friend Action_char1_ground_dash_recovery;
+    friend Action_char1_step;
+    friend Action_char1_step_recovery;
     friend Action_char1_soft_landing_recovery;
     friend Action_char1_jc_landing_recovery;
     friend Action_char1_soft_knockdown;

@@ -12,6 +12,7 @@ ActionResolver_Char1::ActionResolver_Char1(InputSystem *input_) :
 
 void ActionResolver_Char1::createActions()
 {
+    m_actions.push_back(std::make_unique<Action_char1_step>());
     m_actions.push_back(std::make_unique<Action_char1_air_dash>());
     m_actions.push_back(std::make_unique<Action_char1_air_backdash>());
     m_actions.push_back(std::make_unique<Action_char1_backward_doublejump>());
@@ -43,6 +44,7 @@ void ActionResolver_Char1::createActions()
     m_actions.push_back(std::make_unique<Action_char1_knockdown_recovery>());
     m_actions.push_back(std::make_unique<Action_char1_float>());
     m_actions.push_back(std::make_unique<Action_char1_air_dash_extention>());
+    m_actions.push_back(std::make_unique<Action_char1_step_recovery>());
 }
 
 Char1::Char1(Application &application_, Vector2<float> pos_, Camera *cam_, ParticleManager *particleManager_) :
@@ -85,6 +87,8 @@ void Char1::loadAnimations(Application &application_)
     m_animations[ANIMATIONS::CHAR1_KNOCKDOWN] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_KNOCKDOWN, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_SOFT_KNOCKDOWN] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_SOFT_KNOCKDOWN, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_KNOCKDOWN_RECOVERY] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_KNOCKDOWN_RECOVERY, LOOPMETHOD::NOLOOP);
+    m_animations[ANIMATIONS::CHAR1_STEP] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_STEP, LOOPMETHOD::NOLOOP);
+    m_animations[ANIMATIONS::CHAR1_STEP_RECOVERY] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_STEP_RECOVERY, LOOPMETHOD::NOLOOP);
 
     m_currentAnimation = m_animations[ANIMATIONS::CHAR1_IDLE].get();
     m_currentAnimation->reset();
@@ -580,6 +584,7 @@ void Char1::updateBlockState()
                     m_currentState == CHAR1_STATE::MOVE_JC ||
                     m_currentState == CHAR1_STATE::MOVE_214C ||
                     m_currentState == CHAR1_STATE::AIR_DASH ||
+                    m_currentState == CHAR1_STATE::STEP ||
                     m_currentState == CHAR1_STATE::VULNERABLE_LANDING_RECOVERY ||
                     m_currentState == CHAR1_STATE::MOVE_JC_LANDING_RECOVERY);
 
@@ -704,6 +709,18 @@ std::string Char1::CharStateData() const
 
         case (CHAR1_STATE::MOVE_JC_LANDING_RECOVERY):
             stateName = "MOVE_JC_LANDING_RECOVERY";
+            break;
+
+        case (CHAR1_STATE::MOVE_214C):
+            stateName = "MOVE_214C";
+            break;
+
+        case (CHAR1_STATE::STEP):
+            stateName = "STEP";
+            break;
+
+        case (CHAR1_STATE::STEP_RECOVERY):
+            stateName = "STEP_RECOVERY";
             break;
 
         default:

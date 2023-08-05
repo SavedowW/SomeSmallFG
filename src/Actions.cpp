@@ -666,6 +666,93 @@ void Action_char1_ground_dash::update(Char1 &character_) const
     character_.m_velocity.x = character_.getOwnHorDir().x * std::min(abs(newXVelocity), abs(m_maxspd));
 }
 
+// STEP ACTION
+Action_char1_step::Action_char1_step() :
+    Action(CHAR1_STATE::STEP, std::move(std::make_unique<InputComparator66>()), {
+        {
+            {1, gamedata::characters::char1::stepDuration},
+            {-70, -350, 140, 300}
+        }
+    }, ANIMATIONS::CHAR1_STEP),
+    m_duration(gamedata::characters::char1::stepDuration)
+{
+}
+
+int Action_char1_step::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+{
+    if (charData_.inHitstop)
+        return 0;
+
+    if (charData_.cancelOptions)
+    {
+        if (charData_.cancelOptions->contains((int)actionState))
+        {
+            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+        }
+    }
+
+    return false;
+}
+
+void Action_char1_step::outdated(Char1 &character_) const
+{
+    //character_.m_velocity.x = 0;
+    character_.m_actionResolver.getAction(CHAR1_STATE::STEP_RECOVERY)->switchTo(character_);
+}
+
+void Action_char1_step::switchTo(Char1 &character_) const
+{
+    character_.m_velocity = {0, 0};
+    character_.m_inertia = {0, 0};
+    character_.m_velocity = character_.getOwnHorDir().mulComponents(Vector2{gamedata::characters::char1::stepSpeed, 0.0f});
+    Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    character_.m_timer.begin(m_duration);
+}
+
+// STEP RECOVERY ACTION
+Action_char1_step_recovery::Action_char1_step_recovery() :
+    Action(CHAR1_STATE::STEP_RECOVERY, std::move(std::make_unique<InputComparator66>()), {
+        {
+            {1, gamedata::characters::char1::stepRecoveryDuration},
+            {-70, -375, 140, 375}
+        }
+    }, ANIMATIONS::CHAR1_STEP_RECOVERY),
+    m_recoveryLen(gamedata::characters::char1::stepRecoveryDuration)
+{
+}
+
+int Action_char1_step_recovery::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+{
+
+    switch (charData_.state)
+    {
+        case (CHAR1_STATE::STEP_RECOVERY):
+            return -1;
+            break;
+
+        default:
+            return 0;
+            break;
+    }
+}
+
+void Action_char1_step_recovery::outdated(Char1 &character_) const
+{
+    character_.switchToIdle();
+}
+
+void Action_char1_step_recovery::switchTo(Char1 &character_) const
+{
+    Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    character_.m_timer.begin(m_recoveryLen);
+    character_.turnVelocityToInertia();
+}
+
+void Action_char1_step_recovery::update(Char1 &character_) const
+{
+    //character_.m_inertia.x /= 4.0f;
+}
+
 // GROUND BACKDASH ACTION
 Action_char1_ground_backdash::Action_char1_ground_backdash() :
     Action(CHAR1_STATE::GROUND_BACKDASH, std::move(std::make_unique<InputComparator44>()), {
@@ -1164,6 +1251,8 @@ int Action_char1_ground_attack::isPossible(const InputQueue &inputQueue_, Char1D
         case (CHAR1_STATE::WALK_FWD):
             [[fallthrough]];
         case (CHAR1_STATE::CROUCH):
+            [[fallthrough]];
+        case (CHAR1_STATE::STEP_RECOVERY):
             [[fallthrough]];
         case (CHAR1_STATE::IDLE):
             return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);

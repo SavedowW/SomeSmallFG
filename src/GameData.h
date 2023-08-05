@@ -40,7 +40,7 @@ namespace gamedata
 
     namespace global
     {
-        inline constexpr float framerate = 60.0f;
+        inline constexpr float framerate = 20.0f;
         inline constexpr int numberOfLevels = 2;
         inline constexpr int initialLevelId = 1;
         inline constexpr float cameraWidth = 1600.0f;
@@ -94,6 +94,9 @@ namespace gamedata
             inline constexpr float doubleJumpInertiaDivider = 3.0f;
             inline constexpr float airBackdashDuration = 10.0f;
             inline constexpr float airBackdashSpeed = 25.0f;
+            inline constexpr int stepDuration = 15;
+            inline constexpr float stepSpeed = 18.0f;
+            inline constexpr int stepRecoveryDuration = 4;
         }
     }
 }
