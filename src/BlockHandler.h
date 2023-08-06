@@ -21,7 +21,7 @@ class BlockHandler
 {
 public:
     BlockHandler();
-    void update(const Vector2<int> &inputDir_, INPUT_BUTTON_STATE backState_, bool airborne_, const Vector2<float> &vecToEnemy_, bool inBlockStun_, bool canBlock_);
+    void update(const Vector2<int> &inputDir_, INPUT_BUTTON_STATE backState_, bool airborne_, const Vector2<float> &vecToEnemy_, bool inBlockStun_, bool canBlock_, bool isInHitstop_);
     BLOCK_STATE getBlockState() const;
     BLOCK_FRAME getBlockFrame() const;
     void resetBlockFrame();

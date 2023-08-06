@@ -6,7 +6,7 @@ BlockHandler::BlockHandler()
 }
 
 
-void BlockHandler::update(const Vector2<int> &inputDir_, INPUT_BUTTON_STATE backState_, bool airborne_, const Vector2<float> &vecToEnemy_, bool inBlockStun_, bool canBlock_)
+void BlockHandler::update(const Vector2<int> &inputDir_, INPUT_BUTTON_STATE backState_, bool airborne_, const Vector2<float> &vecToEnemy_, bool inBlockStun_, bool canBlock_, bool isInHitstop_)
 {
     m_lastVecToEnemy = vecToEnemy_;
     auto simplifiedDir = inputDir_;
@@ -76,7 +76,7 @@ void BlockHandler::update(const Vector2<int> &inputDir_, INPUT_BUTTON_STATE back
     {
         if (!m_blockScalingTimer.isOver() && !m_blockScalingTimer.isActive())
             m_blockScalingTimer.begin(20);
-        else
+        else if (!isInHitstop_)
             m_blockScalingTimer.update();
     }
     else

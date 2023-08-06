@@ -549,6 +549,7 @@ HIT_RESULT Char1::applyHit(HitEvent &hitEvent)
             if (!isInstant)
             {
                 turnVelocityToInertia();
+                m_inertia.x *= 0.2f;
                 m_inertia += getHorDirToEnemy() * -1.0f * hitEvent.m_hitData.opponentPushbackOnBlock;
             }
             else if (m_airborne)
@@ -625,7 +626,7 @@ void Char1::updateBlockState()
 
     auto backButton = (m_dirToEnemy == ORIENTATION::RIGHT ? INPUT_BUTTON::LEFT : INPUT_BUTTON::RIGHT);
 
-    m_blockHandler.update(m_actionResolver.getCurrentInputDir(), m_actionResolver.getPostFrameButtonState(backButton), m_airborne, getHorDirToEnemy(), inBlockstun, canBlock);
+    m_blockHandler.update(m_actionResolver.getCurrentInputDir(), m_actionResolver.getPostFrameButtonState(backButton), m_airborne, getHorDirToEnemy(), inBlockstun, canBlock, m_inHitstop);
 }
 
 std::string Char1::CharStateData() const
