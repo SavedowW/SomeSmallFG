@@ -247,6 +247,8 @@ Char1Data Char1::generateCharData()
     charData.inHitstop = m_inHitstop;
     charData.canDoubleJumpAfterPrejump = (m_jumpFramesCounter == 0);
     charData.canAirdashAfterPrejump = (m_airadashFramesCounter == 0);
+    charData.inBlockstun = isInBlockstun();
+    charData.blockFrame = m_blockstunType;
 
     if (!m_currentCancelWindow.second.empty())
         charData.cancelOptions = &m_currentCancelWindow.second;
@@ -256,6 +258,7 @@ Char1Data Char1::generateCharData()
 
 void Char1::land()
 {
+    m_blockstunType = BLOCK_FRAME::NONE;
     bool vulnerable = m_usedAirAttack;
     m_usedDoubleJump = false;
     m_usedAirDash = false;
@@ -398,6 +401,7 @@ HIT_RESULT Char1::applyHit(HitEvent &hitEvent)
     if (m_playerId == 1)
         m_notifyWidget->addNotification(std::to_string(range));
 
+    // Attacker's side
     if (hitEvent.m_hittingPlayerId == m_playerId)
     {
         if (hitEvent.m_hitRes == HIT_RESULT::COUNTER)
@@ -466,11 +470,13 @@ HIT_RESULT Char1::applyHit(HitEvent &hitEvent)
 
         return HIT_RESULT::NONE;
     }
+    // Defender's side
     else
     {
         auto blockState = m_blockHandler.getBlockState();
         m_currentTakenHit = hitEvent.m_hitData;
         bool blocked = hitEvent.m_hitData.canBeBlockedAs.contains(blockState);
+        // Took hit
         if (!blocked)
         {
             m_velocity = {0.0f, 0.0f};
@@ -525,12 +531,36 @@ HIT_RESULT Char1::applyHit(HitEvent &hitEvent)
 
             return hitres;
         }
+        // Blocked
         else
         {
+            bool inBlockstun = isInBlockstun();
+
+            bool isInstant = false;
+            if ((!inBlockstun || m_blockstunType == BLOCK_FRAME::INSTANT) && m_blockHandler.getBlockFrame() == BLOCK_FRAME::INSTANT)
+            {
+                isInstant = true;
+                m_blockstunType = BLOCK_FRAME::INSTANT;
+                startShine({255, 255, 255, 255}, 4, 8);
+                m_notifyWidget->addNotification("INSTANT");
+            }
+
             applyHitstop(hitEvent.m_hitData.hitProps.hitstop);
-            turnVelocityToInertia();
-            m_inertia += getHorDirToEnemy() * -1.0f * hitEvent.m_hitData.opponentPushbackOnBlock;
-            m_timer.begin(hitEvent.m_hitData.blockstun);
+            if (!isInstant)
+            {
+                turnVelocityToInertia();
+                m_inertia += getHorDirToEnemy() * -1.0f * hitEvent.m_hitData.opponentPushbackOnBlock;
+            }
+            else if (m_airborne)
+                turnVelocityToInertia();
+            else
+            {
+                m_velocity = {0, 0};
+                m_inertia = {0, 0};
+            }
+            auto blockstunDuration = m_blockHandler.getBlockstunDuration(hitEvent.m_hitData.blockstun);
+            m_notifyWidget->addNotification(std::to_string(blockstunDuration));
+            m_timer.begin(blockstunDuration);
             HIT_RESULT res = HIT_RESULT::BLOCK_HIGH;
 
             switch (blockState)
@@ -560,7 +590,10 @@ HIT_RESULT Char1::applyHit(HitEvent &hitEvent)
             m_currentAction = nullptr;
 
             hitEvent.m_hitRes = res;
-            m_healthHandler.takeDamage(hitEvent);
+            if (!isInstant)
+            {
+                m_healthHandler.takeDamage(hitEvent);
+            }
 
             return res;
         }
@@ -569,9 +602,7 @@ HIT_RESULT Char1::applyHit(HitEvent &hitEvent)
 
 void Char1::updateBlockState()
 {
-    bool inBlockstun = (m_currentState == CHAR1_STATE::BLOCKSTUN_STANDING ||
-                        m_currentState == CHAR1_STATE::BLOCKSTUN_CROUCHING ||
-                        m_currentState == CHAR1_STATE::BLOCKSTUN_AIR);
+    bool inBlockstun = isInBlockstun();
 
     // TODO: turn into action property
     bool canBlock = !(m_currentState == CHAR1_STATE::HITSTUN ||
@@ -586,10 +617,15 @@ void Char1::updateBlockState()
                     m_currentState == CHAR1_STATE::MOVE_214C ||
                     m_currentState == CHAR1_STATE::AIR_DASH ||
                     m_currentState == CHAR1_STATE::STEP ||
+                    m_currentState == CHAR1_STATE::KNOCKDOWN_RECOVERY ||
+                    m_currentState == CHAR1_STATE::HARD_KNOCKDOWN ||
+                    m_currentState == CHAR1_STATE::SOFT_KNOCKDOWN ||
                     m_currentState == CHAR1_STATE::VULNERABLE_LANDING_RECOVERY ||
                     m_currentState == CHAR1_STATE::MOVE_JC_LANDING_RECOVERY);
 
-    m_blockHandler.update(m_actionResolver.getCurrentInputDir(), m_airborne, getHorDirToEnemy(), inBlockstun, canBlock);
+    auto backButton = (m_dirToEnemy == ORIENTATION::RIGHT ? INPUT_BUTTON::LEFT : INPUT_BUTTON::RIGHT);
+
+    m_blockHandler.update(m_actionResolver.getCurrentInputDir(), m_actionResolver.getPostFrameButtonState(backButton), m_airborne, getHorDirToEnemy(), inBlockstun, canBlock);
 }
 
 std::string Char1::CharStateData() const
@@ -767,6 +803,13 @@ bool Char1::isInHitstun() const
     return (m_currentState == CHAR1_STATE::HITSTUN || m_currentState == CHAR1_STATE::HITSTUN_AIR);
 }
 
+bool Char1::isInBlockstun() const
+{
+    return (m_currentState == CHAR1_STATE::BLOCKSTUN_STANDING ||
+                        m_currentState == CHAR1_STATE::BLOCKSTUN_CROUCHING ||
+                        m_currentState == CHAR1_STATE::BLOCKSTUN_AIR);
+}
+
 void Char1::enterKndRecovery()
 {
     m_actionResolver.getAction(CHAR1_STATE::KNOCKDOWN_RECOVERY)->switchTo(*this);
@@ -803,6 +846,8 @@ Collider Char1::getPushbox() const
 
 void Char1::enterHitstunAnimation(const PostHitProperties &props_)
 {
+    m_blockstunType = BLOCK_FRAME::NONE;
+
     if (m_airborne)
     {
         m_currentState = CHAR1_STATE::HITSTUN_AIR;

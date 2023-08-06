@@ -55,6 +55,12 @@ namespace gamedata
         inline constexpr SDL_Color pushboxColor = {255, 242, 0, 100};
         inline constexpr SDL_Color hitboxColor = {255, 0, 0, 100};
         inline constexpr SDL_Color hurtboxColor = {0, 255, 0, 100};
+        inline constexpr int instantBlockWindow = 7;
+        inline constexpr int instantBlockAttemptDelay = 10;
+        inline constexpr float initialBlockstunScaling = 2.0f;
+        inline constexpr float finalBlockstunScaling = 1.0f;
+        inline constexpr float blockstunScalingDiff = initialBlockstunScaling - finalBlockstunScaling;
+
 
         namespace char1
         {

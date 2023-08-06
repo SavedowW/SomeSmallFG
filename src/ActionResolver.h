@@ -21,6 +21,7 @@ public:
     Action<CharState_t, CharData, Char_t> *getAction(CharState_t state_) const;
 
     Vector2<int> getCurrentInputDir() const;
+    INPUT_BUTTON_STATE getPostFrameButtonState(INPUT_BUTTON button_) const;
 
     virtual void createActions() = 0;
 

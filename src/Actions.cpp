@@ -225,6 +225,7 @@ void Action_char1_idle::switchTo(Char1 &character_) const
     character_.updateOwnOrientation();
     character_.m_healthHandler.resetScaling();
     character_.m_comboPhysHandler.reset();
+    character_.m_blockstunType = BLOCK_FRAME::NONE;
 }
 
 void Action_char1_idle::update(Char1 &character_) const
@@ -388,8 +389,11 @@ Action_char1_jump::Action_char1_jump(CHAR1_STATE actionState_, const Vector2<flo
 
 int Action_char1_jump::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
 {
-    if (charData_.inHitstop)
+    if (charData_.inHitstop || charData_.airborne)
         return 0;
+
+    if (charData_.inBlockstun && charData_.blockFrame == BLOCK_FRAME::INSTANT)
+        return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
 
     if (charData_.cancelOptions)
     {
@@ -540,8 +544,11 @@ Action_char1_airjump::Action_char1_airjump(const Vector2<float> &impulse_, Input
 
 int Action_char1_airjump::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
 {
-    if (charData_.inHitstop || charData_.usedDoubleJump || !charData_.canDoubleJumpAfterPrejump)
+    if (charData_.inHitstop || charData_.usedDoubleJump || !charData_.canDoubleJumpAfterPrejump || !charData_.airborne)
         return 0;
+
+    if (charData_.inBlockstun && charData_.blockFrame == BLOCK_FRAME::INSTANT)
+        return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
 
     if (charData_.cancelOptions)
     {
@@ -680,8 +687,11 @@ Action_char1_step::Action_char1_step() :
 
 int Action_char1_step::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
 {
-    if (charData_.inHitstop)
+    if (charData_.inHitstop || charData_.airborne)
         return 0;
+    
+    if (charData_.inBlockstun && charData_.blockFrame == BLOCK_FRAME::INSTANT)
+        return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
 
     if (charData_.cancelOptions)
     {
@@ -829,6 +839,9 @@ int Action_char1_air_dash::isPossible(const InputQueue &inputQueue_, Char1Data c
 {
     if (charData_.inHitstop || charData_.usedAirDash || !charData_.canAirdashAfterPrejump)
         return 0;
+
+    if (charData_.inBlockstun && charData_.blockFrame == BLOCK_FRAME::INSTANT)
+        return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
 
         if (charData_.cancelOptions)
     {

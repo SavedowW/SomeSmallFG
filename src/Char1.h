@@ -51,6 +51,8 @@ struct Char1Data : public CharData<CHAR1_STATE>
     bool canAirdashAfterPrejump;
     bool usedAirDash;
     bool inHitstop;
+    bool inBlockstun;
+    BLOCK_FRAME blockFrame;
     std::set<int> *cancelOptions = nullptr;
 };
 
@@ -80,6 +82,7 @@ public:
     HIT_RESULT applyHit(HitEvent &hitEvent) final;
     void updateBlockState() final;
     bool isInHitstun() const final;
+    bool isInBlockstun() const final;
     bool canApplyGravity() const final;
     Collider getPushbox() const final;
     void touchedWall(int sideDir_) final;

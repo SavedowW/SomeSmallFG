@@ -151,4 +151,14 @@ Action<CharState_t, CharData, Char_t> *ActionResolver<CharState_t, CharData, Cha
             return el.get();
 }
 
+template <typename CharState_t, typename CharData, typename Char_t>
+INPUT_BUTTON_STATE ActionResolver<CharState_t, CharData, Char_t>::getPostFrameButtonState(INPUT_BUTTON button_) const
+{
+    //return m_currentInput.inputs.at(button_);
+    if (m_inputQueue.getFilled() >= 1)
+    {
+        return m_inputQueue[0].inputs.at(button_);
+    }
+}
+
 template ActionResolver<CHAR1_STATE, Char1Data, Char1>;
