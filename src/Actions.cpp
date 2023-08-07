@@ -1400,9 +1400,38 @@ Action_char1_move_B::Action_char1_move_B() :
 
 // MOVE C ACTION
 Action_char1_move_C::Action_char1_move_C() :
-    Action_char1_ground_attack(CHAR1_STATE::MOVE_C, ANIMATIONS::CHAR1_MOVE_C, std::make_unique<InputComparatorCPress>(), 40,
+    Action_char1_ground_attack(CHAR1_STATE::MOVE_C, ANIMATIONS::CHAR1_MOVE_C, std::make_unique<InputComparatorCPress>(), 26,
     {
         hitgeneration::generate_char1_moveC()
+    },
+    {
+        {
+            {1, 26},
+            {-70, -375, 140, 375}
+        },
+        {
+            {11, 22},
+            {60.0f, -220.0f, 60.0f, 100.0f}
+        }
+    },
+    {
+        {
+            {3, 5},
+            {20.0f, 0.0f}
+        },
+        {
+            {22, 26},
+            {20.0f, 0.0f}
+        }
+    })
+{
+}
+
+// MOVE 236C ACTION
+Action_char1_move_236C::Action_char1_move_236C() :
+    Action_char1_ground_attack(CHAR1_STATE::MOVE_236C, ANIMATIONS::CHAR1_MOVE_236C, std::make_unique<InputComparator236CPress>(), 40,
+    {
+        hitgeneration::generate_char1_236C()
     },
     {
         {

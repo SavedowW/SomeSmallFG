@@ -124,6 +124,7 @@ namespace hitgeneration
     std::pair<FrameWindow, Hit> generate_char1_JA();
     std::pair<FrameWindow, Hit> generate_char1_JC();
     std::pair<FrameWindow, Hit> generate_char1_214C();
+    std::pair<FrameWindow, Hit> generate_char1_236C();
 }
 
 namespace hitutils

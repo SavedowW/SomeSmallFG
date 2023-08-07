@@ -371,3 +371,24 @@ bool InputComparator214CPress::operator()(const InputQueue &inputQueue_, ORIENTA
 
     return false;
 }
+
+bool InputComparator236CPress::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_) const
+{
+    if (inputQueue_.getFilled() == 0)
+        return false;
+
+    int lookAt = std::min(inputQueue_.getFilled() - 1, gamedata::global::inputBufferLength);
+    int secondaryInputButtonWindow = 5;
+    int forward = (faceDirection_ == ORIENTATION::RIGHT ? 1 : -1);
+    Vector2<int> inputs[] = {{forward, 0}, {forward, 1}, {0, 1}};
+    for (int i = 0; i <= lookAt; ++i)
+    {
+        auto &in = inputQueue_[i];
+        if (in.inputs.at(INPUT_BUTTON::C) == INPUT_BUTTON_STATE::PRESSED)
+        {
+            return recursivelySearchInput(inputQueue_, inputs, i, 0, secondaryInputButtonWindow);
+        }
+    }
+
+    return false;
+}

@@ -70,11 +70,11 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_jab()
 
     hit.cancelsOnHit.first.first = 1;
     hit.cancelsOnHit.first.second = 8;
-    hit.cancelsOnHit.second = {(int)CHAR1_STATE::PREJUMP, (int)CHAR1_STATE::MOVE_A, (int)CHAR1_STATE::MOVE_B, (int)CHAR1_STATE::MOVE_2B, (int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
+    hit.cancelsOnHit.second = {(int)CHAR1_STATE::PREJUMP, (int)CHAR1_STATE::MOVE_A, (int)CHAR1_STATE::MOVE_B, (int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_2B, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
 
     hit.cancelsOnBlock.first.first = 1;
     hit.cancelsOnBlock.first.second = 8;
-    hit.cancelsOnBlock.second = {(int)CHAR1_STATE::MOVE_A, (int)CHAR1_STATE::MOVE_B, (int)CHAR1_STATE::MOVE_2B, (int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
+    hit.cancelsOnBlock.second = {(int)CHAR1_STATE::MOVE_A, (int)CHAR1_STATE::MOVE_B, (int)CHAR1_STATE::MOVE_2B, (int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
 
     return {{5, 7}, hit};
 }
@@ -128,11 +128,11 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveB()
 
     hit.cancelsOnHit.first.first = 1;
     hit.cancelsOnHit.first.second = 8;
-    hit.cancelsOnHit.second = {(int)CHAR1_STATE::PREJUMP, (int)CHAR1_STATE::MOVE_2B, (int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
+    hit.cancelsOnHit.second = {(int)CHAR1_STATE::PREJUMP, (int)CHAR1_STATE::MOVE_2B, (int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
 
     hit.cancelsOnBlock.first.first = 1;
     hit.cancelsOnBlock.first.second = 8;
-    hit.cancelsOnBlock.second = {(int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
+    hit.cancelsOnBlock.second = {(int)CHAR1_STATE::MOVE_2B, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::STEP};
 
     return {{7, 10}, hit};
 }
@@ -149,26 +149,24 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveC()
     pdatatemp.minRange = 100.0f;
     pdatatemp.maxRange = 210.0f;
     pdatatemp.m_scale = 0.8f;
-    pdatatemp.m_angle = -45.0;
     hdata.particlesOnBlock.push_back(pdatatemp);
 
-    pdatatemp.m_partType = PARTICLE_TYPES::HIT_2;
-    pdatatemp.m_angle = -90.0;
+    pdatatemp.m_partType = PARTICLE_TYPES::HIT_1;
     hdata.particlesOnHit.push_back(pdatatemp);
     hdata.particlesOnCH.push_back(pdatatemp);
 
     hdata.m_hitId = 1;
 
     hdata.cornerPushbackMaxRange = 300.0f;
-    hdata.cornerPushbackMinImpulse = 8.0f;
-    hdata.cornerPushbackMaxImpulse = 30.0f;
-    hdata.opponentPushbackOnBlock = 3.0f;
+    hdata.cornerPushbackMinImpulse = 10.0f;
+    hdata.cornerPushbackMaxImpulse = 35.0f;
+    hdata.opponentPushbackOnBlock = 15.0f;
 
     hdata.hitProps.hitstop = 13;
-    hdata.hitProps.hitstun = 21;
+    hdata.hitProps.hitstun = 20;
     hdata.hitProps.proratio = 1.0f;
-    hdata.hitProps.opponentImpulseOnHit = {5.0f, -35.0f};
-    hdata.hitProps.opponentImpulseOnAirHit = {5.0f, -25.0f};
+    hdata.hitProps.opponentImpulseOnHit = {5.0f, 0.0f};
+    hdata.hitProps.opponentImpulseOnAirHit = {5.0f, -15.0f};
     hdata.hitProps.groundHitstunAnimation = HITSTUN_ANIMATION::MID;
     hdata.hitProps.airHitstunAnimation = HITSTUN_ANIMATION::FLOAT;
 
@@ -179,23 +177,23 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveC()
     hdata.canBeBlockedAs = {BLOCK_STATE::HIGH, BLOCK_STATE::LOW, BLOCK_STATE::AIR, BLOCK_STATE::AUTO};
 
     hdata.blockstun = 16;
-    hdata.chipDamage = 2.0f;
+    hdata.chipDamage = 0.0f;
 
     hdata.hitBlockShakeAmp = 40;
 
-    hdata.damage = 20.0f / hdata.hitProps.proratio;
+    hdata.damage = 30.0f / hdata.hitProps.proratio;
 
-    Hit hit(hdata, {{{13, 16}, {60.0f, -400.0f, 80.0f, 220.0f}}});
+    Hit hit(hdata, {{{11, 16}, {60.0f, -250.0f, 90.0f, 150.0f}}});
 
     hit.cancelsOnHit.first.first = 1;
-    hit.cancelsOnHit.first.second = 1;
-    hit.cancelsOnHit.second = {};
+    hit.cancelsOnHit.first.second = 10;
+    hit.cancelsOnHit.second = {(int)CHAR1_STATE::PREJUMP, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
 
     hit.cancelsOnBlock.first.first = 1;
-    hit.cancelsOnBlock.first.second = 1;
-    hit.cancelsOnBlock.second = {};
+    hit.cancelsOnBlock.first.second = 10;
+    hit.cancelsOnBlock.second = {(int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
 
-    return {{13, 16}, hit};
+    return {{11, 16}, hit};
 }
 
 std::pair<FrameWindow, Hit> hitgeneration::generate_char1_move2B()
@@ -247,11 +245,11 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_move2B()
 
     hit.cancelsOnHit.first.first = 1;
     hit.cancelsOnHit.first.second = 15;
-    hit.cancelsOnHit.second = {(int)CHAR1_STATE::PREJUMP, (int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
+    hit.cancelsOnHit.second = {(int)CHAR1_STATE::PREJUMP, (int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
 
     hit.cancelsOnBlock.first.first = 1;
     hit.cancelsOnBlock.first.second = 15;
-    hit.cancelsOnBlock.second = {(int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
+    hit.cancelsOnBlock.second = {(int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
 
     return {{10, 12}, hit};
 }
@@ -444,6 +442,67 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_214C()
     hit.cancelsOnBlock.second = {(int)CHAR1_STATE::STEP};
 
     return {{16, 21}, hit};
+}
+
+std::pair<FrameWindow, Hit> hitgeneration::generate_char1_236C()
+{
+    HitData hdata;
+
+    HitParticleData pdatatemp;
+
+    pdatatemp.m_partType = PARTICLE_TYPES::BLOCK;
+    pdatatemp.m_baseOffsetMin = {100.0f, -270.0f};
+    pdatatemp.m_baseOffsetMax = {100.0f, -270.0f};
+    pdatatemp.minRange = 100.0f;
+    pdatatemp.maxRange = 210.0f;
+    pdatatemp.m_scale = 0.8f;
+    pdatatemp.m_angle = -45.0;
+    hdata.particlesOnBlock.push_back(pdatatemp);
+
+    pdatatemp.m_partType = PARTICLE_TYPES::HIT_2;
+    pdatatemp.m_angle = -90.0;
+    hdata.particlesOnHit.push_back(pdatatemp);
+    hdata.particlesOnCH.push_back(pdatatemp);
+
+    hdata.m_hitId = 1;
+
+    hdata.cornerPushbackMaxRange = 300.0f;
+    hdata.cornerPushbackMinImpulse = 8.0f;
+    hdata.cornerPushbackMaxImpulse = 30.0f;
+    hdata.opponentPushbackOnBlock = 3.0f;
+
+    hdata.hitProps.hitstop = 13;
+    hdata.hitProps.hitstun = 21;
+    hdata.hitProps.proratio = 1.0f;
+    hdata.hitProps.opponentImpulseOnHit = {5.0f, -40.0f};
+    hdata.hitProps.opponentImpulseOnAirHit = {5.0f, -30.0f};
+    hdata.hitProps.groundHitstunAnimation = HITSTUN_ANIMATION::MID;
+    hdata.hitProps.airHitstunAnimation = HITSTUN_ANIMATION::FLOAT;
+
+    hdata.chProps = hdata.hitProps;
+    hdata.chProps.hitstun += 4;
+    hdata.chProps.hitstop += 5;
+
+    hdata.canBeBlockedAs = {BLOCK_STATE::HIGH, BLOCK_STATE::LOW, BLOCK_STATE::AIR, BLOCK_STATE::AUTO};
+
+    hdata.blockstun = 16;
+    hdata.chipDamage = 2.0f;
+
+    hdata.hitBlockShakeAmp = 40;
+
+    hdata.damage = 20.0f / hdata.hitProps.proratio;
+
+    Hit hit(hdata, {{{13, 16}, {60.0f, -400.0f, 80.0f, 220.0f}}});
+
+    hit.cancelsOnHit.first.first = 1;
+    hit.cancelsOnHit.first.second = 1;
+    hit.cancelsOnHit.second = {};
+
+    hit.cancelsOnBlock.first.first = 1;
+    hit.cancelsOnBlock.first.second = 1;
+    hit.cancelsOnBlock.second = {};
+
+    return {{13, 16}, hit};
 }
 
 int hitutils::getLastActiveFrame(const ActiveFramesVec &hits_)

@@ -408,6 +408,13 @@ public:
     Action_char1_move_C();
 };
 
+
+class Action_char1_move_236C : public Action_char1_ground_attack
+{
+public:
+    Action_char1_move_236C();
+};
+
 class Action_char1_move_2B : public Action_char1_ground_attack
 {
 public:

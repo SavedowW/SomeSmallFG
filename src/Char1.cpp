@@ -22,6 +22,7 @@ void ActionResolver_Char1::createActions()
     m_actions.push_back(std::make_unique<Action_char1_move_JA>());
     m_actions.push_back(std::make_unique<Action_char1_move_214C>());
     m_actions.push_back(std::make_unique<Action_char1_move_2B>());
+    m_actions.push_back(std::make_unique<Action_char1_move_236C>());
     m_actions.push_back(std::make_unique<Action_char1_move_C>());
     m_actions.push_back(std::make_unique<Action_char1_move_B>());
     m_actions.push_back(std::make_unique<Action_char1_jab>());
@@ -76,6 +77,7 @@ void Char1::loadAnimations(Application &application_)
     m_animations[ANIMATIONS::CHAR1_MOVE_JA] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_MOVE_JA, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_MOVE_JC] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_MOVE_JC, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_MOVE_214C] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_MOVE_214C, LOOPMETHOD::NOLOOP);
+    m_animations[ANIMATIONS::CHAR1_MOVE_236C] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_MOVE_236C, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_JC_LANDING_RECOVERY] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_JC_LANDING_RECOVERY, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_HITSTUN_LOW] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_HITSTUN_LOW, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_HITSTUN_MID] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_HITSTUN_MID, LOOPMETHOD::NOLOOP);
@@ -611,8 +613,9 @@ void Char1::updateBlockState()
                     m_currentState == CHAR1_STATE::GROUND_BACKDASH ||
                     m_currentState == CHAR1_STATE::MOVE_A ||
                     m_currentState == CHAR1_STATE::MOVE_B ||
-                    m_currentState == CHAR1_STATE::MOVE_2B ||
                     m_currentState == CHAR1_STATE::MOVE_C ||
+                    m_currentState == CHAR1_STATE::MOVE_2B ||
+                    m_currentState == CHAR1_STATE::MOVE_236C ||
                     m_currentState == CHAR1_STATE::MOVE_JA ||
                     m_currentState == CHAR1_STATE::MOVE_JC ||
                     m_currentState == CHAR1_STATE::MOVE_214C ||
@@ -703,6 +706,10 @@ std::string Char1::CharStateData() const
 
         case (CHAR1_STATE::MOVE_C):
             stateName = "MOVE_C";
+            break;
+
+        case (CHAR1_STATE::MOVE_236C):
+            stateName = "MOVE_236C";
             break;
 
         case (CHAR1_STATE::MOVE_2B):
