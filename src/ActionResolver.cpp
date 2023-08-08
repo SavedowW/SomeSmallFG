@@ -103,7 +103,7 @@ void ActionResolver<CharState_t, CharData, Char_t>::receiveInput(EVENTS event_, 
 }
 
 template <typename CharState_t, typename CharData, typename Char_t>
-const Action<CharState_t, CharData, Char_t> *ActionResolver<CharState_t, CharData, Char_t>::update(Char1Data charData)
+const Action<CharState_t, CharData, Char_t> *ActionResolver<CharState_t, CharData, Char_t>::update(Char1Data charData, int extendBuffer_)
 {
    //std::cout << "=== UPDATE RESOLVER ===\n";
 
@@ -116,7 +116,7 @@ const Action<CharState_t, CharData, Char_t> *ActionResolver<CharState_t, CharDat
     const Action<CharState_t, CharData, Char_t> *availableAction = nullptr;
     for (auto &el : m_actions)
     {
-        auto res = el->isPossible(m_inputQueue, charData);
+        auto res = el->isPossible(m_inputQueue, charData, extendBuffer_);
 
         // If this action is already active
         if (res == -1)

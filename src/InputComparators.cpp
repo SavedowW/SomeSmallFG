@@ -19,12 +19,12 @@ bool recursivelySearchInput(const InputQueue &inputQueue_, Vector2<VecT> (&input
     return false;
 }
 
-bool InputComparatorIdle::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_) const
+bool InputComparatorIdle::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_, int extendBuffer_) const
 {
     return true;
 }
 
-bool InputComparatorForward::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_) const
+bool InputComparatorForward::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_, int extendBuffer_) const
 {
     if (inputQueue_.getFilled() == 0)
         return false;
@@ -43,7 +43,7 @@ bool InputComparatorForward::operator()(const InputQueue &inputQueue_, ORIENTATI
     return false;
 }
 
-bool InputComparatorBackward::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_) const
+bool InputComparatorBackward::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_, int extendBuffer_) const
 {
     if (inputQueue_.getFilled() == 0)
         return false;
@@ -62,12 +62,12 @@ bool InputComparatorBackward::operator()(const InputQueue &inputQueue_, ORIENTAT
     return false;
 }
 
-bool InputComparatorUpPress::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_) const
+bool InputComparatorUpPress::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_, int extendBuffer_) const
 {
     if (inputQueue_.getFilled() == 0)
         return false;
 
-    int lookAt = std::min(inputQueue_.getFilled() - 1, gamedata::global::inputBufferLength);
+    int lookAt = std::min(inputQueue_.getFilled() - 1, gamedata::global::inputBufferLength + extendBuffer_);
     for (int i = 0; i <= lookAt; ++i)
     {
         auto &in = inputQueue_[i];
@@ -81,7 +81,7 @@ bool InputComparatorUpPress::operator()(const InputQueue &inputQueue_, ORIENTATI
     //return (lastInput.dir == Vector2{0.0f, -1.0f} && lastInput.inputs[INPUT_BUTTON::UP] == INPUT_BUTTON_STATE::PRESSED);
 }
 
-bool InputComparatorUpHold::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_) const
+bool InputComparatorUpHold::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_, int extendBuffer_) const
 {
     if (inputQueue_.getFilled() == 0)
         return false;
@@ -89,12 +89,12 @@ bool InputComparatorUpHold::operator()(const InputQueue &inputQueue_, ORIENTATIO
     return (inputQueue_[0].dir == Vector2{0.0f, -1.0f});
 }
 
-bool InputComparatorUpForwardPress::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_) const
+bool InputComparatorUpForwardPress::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_, int extendBuffer_) const
 {
     if (inputQueue_.getFilled() == 0)
         return false;
 
-    int lookAt = std::min(inputQueue_.getFilled() - 1, gamedata::global::inputBufferLength);
+    int lookAt = std::min(inputQueue_.getFilled() - 1, gamedata::global::inputBufferLength + extendBuffer_);
     for (int i = 0; i <= lookAt; ++i)
     {
         auto &in = inputQueue_[i];
@@ -118,7 +118,7 @@ bool InputComparatorUpForwardPress::operator()(const InputQueue &inputQueue_, OR
     return false;
 }
 
-bool InputComparatorUpForwardHold::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_) const
+bool InputComparatorUpForwardHold::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_, int extendBuffer_) const
 {
     if (inputQueue_.getFilled() == 0)
         return false;
@@ -139,12 +139,12 @@ bool InputComparatorUpForwardHold::operator()(const InputQueue &inputQueue_, ORI
     return false;
 }
 
-bool InputComparatorUpBackwardPress::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_) const
+bool InputComparatorUpBackwardPress::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_, int extendBuffer_) const
 {
     if (inputQueue_.getFilled() == 0)
         return false;
 
-    int lookAt = std::min(inputQueue_.getFilled() - 1, gamedata::global::inputBufferLength);
+    int lookAt = std::min(inputQueue_.getFilled() - 1, gamedata::global::inputBufferLength + extendBuffer_);
     for (int i = 0; i <= lookAt; ++i)
     {
         auto &in = inputQueue_[i];
@@ -168,7 +168,7 @@ bool InputComparatorUpBackwardPress::operator()(const InputQueue &inputQueue_, O
     return false;
 }
 
-bool InputComparatorUpBackwardHold::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_) const
+bool InputComparatorUpBackwardHold::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_, int extendBuffer_) const
 {
     if (inputQueue_.getFilled() == 0)
         return false;
@@ -189,7 +189,7 @@ bool InputComparatorUpBackwardHold::operator()(const InputQueue &inputQueue_, OR
     return false;
 }
 
-bool InputComparatorDownHold::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_) const
+bool InputComparatorDownHold::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_, int extendBuffer_) const
 {
     if (inputQueue_.getFilled() == 0)
         return false;
@@ -199,7 +199,7 @@ bool InputComparatorDownHold::operator()(const InputQueue &inputQueue_, ORIENTAT
     return (lastInput.dir.y == 1);
 }
 
-bool InputComparator66::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_) const
+bool InputComparator66::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_, int extendBuffer_) const
 {
     if (inputQueue_.getFilled() <= 1)
         return false;
@@ -209,7 +209,7 @@ bool InputComparator66::operator()(const InputQueue &inputQueue_, ORIENTATION fa
     Vector2<float> upForwardVec = {forwardVec.x, -1.0f};
     INPUT_BUTTON forwardButton = (faceDirection_ == ORIENTATION::RIGHT ? INPUT_BUTTON::RIGHT : INPUT_BUTTON::LEFT);
 
-    int lookAt = std::min(inputQueue_.getFilled() - 1, gamedata::global::inputBufferLength);
+    int lookAt = std::min(inputQueue_.getFilled() - 1, gamedata::global::inputBufferLength + extendBuffer_);
     for (int i = 0; i <= lookAt; ++i)
     {
         const auto &in = inputQueue_[i];
@@ -230,7 +230,7 @@ bool InputComparator66::operator()(const InputQueue &inputQueue_, ORIENTATION fa
     return false;
 }
 
-bool InputComparator44::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_) const
+bool InputComparator44::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_, int extendBuffer_) const
 {
     if (inputQueue_.getFilled() <= 1)
         return false;
@@ -240,7 +240,7 @@ bool InputComparator44::operator()(const InputQueue &inputQueue_, ORIENTATION fa
     Vector2<float> upBackwardVec = {backwardVec.x, -1.0f};
     INPUT_BUTTON backwardButton = (faceDirection_ == ORIENTATION::RIGHT ? INPUT_BUTTON::LEFT : INPUT_BUTTON::RIGHT);
 
-    int lookAt = std::min(inputQueue_.getFilled() - 1, gamedata::global::inputBufferLength);
+    int lookAt = std::min(inputQueue_.getFilled() - 1, gamedata::global::inputBufferLength + extendBuffer_);
     for (int i = 0; i <= lookAt; ++i)
     {
         const auto &in = inputQueue_[i];
@@ -261,12 +261,12 @@ bool InputComparator44::operator()(const InputQueue &inputQueue_, ORIENTATION fa
     return false;
 }
 
-bool InputComparatorAPress::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_) const
+bool InputComparatorAPress::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_, int extendBuffer_) const
 {
     if (inputQueue_.getFilled() == 0)
         return false;
 
-    int lookAt = std::min(inputQueue_.getFilled() - 1, gamedata::global::inputBufferLength);
+    int lookAt = std::min(inputQueue_.getFilled() - 1, gamedata::global::inputBufferLength + extendBuffer_);
     for (int i = 0; i <= lookAt; ++i)
     {
         auto &in = inputQueue_[i];
@@ -279,12 +279,12 @@ bool InputComparatorAPress::operator()(const InputQueue &inputQueue_, ORIENTATIO
     return false;
 }
 
-bool InputComparatorBPress::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_) const
+bool InputComparatorBPress::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_, int extendBuffer_) const
 {
     if (inputQueue_.getFilled() == 0)
         return false;
 
-    int lookAt = std::min(inputQueue_.getFilled() - 1, gamedata::global::inputBufferLength);
+    int lookAt = std::min(inputQueue_.getFilled() - 1, gamedata::global::inputBufferLength + extendBuffer_);
     for (int i = 0; i <= lookAt; ++i)
     {
         auto &in = inputQueue_[i];
@@ -297,12 +297,12 @@ bool InputComparatorBPress::operator()(const InputQueue &inputQueue_, ORIENTATIO
     return false;
 }
 
-bool InputComparatorCPress::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_) const
+bool InputComparatorCPress::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_, int extendBuffer_) const
 {
     if (inputQueue_.getFilled() == 0)
         return false;
 
-    int lookAt = std::min(inputQueue_.getFilled() - 1, gamedata::global::inputBufferLength);
+    int lookAt = std::min(inputQueue_.getFilled() - 1, gamedata::global::inputBufferLength + extendBuffer_);
     for (int i = 0; i <= lookAt; ++i)
     {
         auto &in = inputQueue_[i];
@@ -315,12 +315,12 @@ bool InputComparatorCPress::operator()(const InputQueue &inputQueue_, ORIENTATIO
     return false;
 }
 
-bool InputComparator2BPress::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_) const
+bool InputComparator2BPress::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_, int extendBuffer_) const
 {
     if (inputQueue_.getFilled() == 0)
         return false;
 
-    int lookAt = std::min(inputQueue_.getFilled() - 1, gamedata::global::inputBufferLength);
+    int lookAt = std::min(inputQueue_.getFilled() - 1, gamedata::global::inputBufferLength + extendBuffer_);
     for (int i = 0; i <= lookAt; ++i)
     {
         auto &in = inputQueue_[i];
@@ -333,12 +333,12 @@ bool InputComparator2BPress::operator()(const InputQueue &inputQueue_, ORIENTATI
     return false;
 }
 
-bool InputComparator2CPress::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_) const
+bool InputComparator2CPress::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_, int extendBuffer_) const
 {
     if (inputQueue_.getFilled() == 0)
         return false;
 
-    int lookAt = std::min(inputQueue_.getFilled() - 1, gamedata::global::inputBufferLength);
+    int lookAt = std::min(inputQueue_.getFilled() - 1, gamedata::global::inputBufferLength + extendBuffer_);
     for (int i = 0; i <= lookAt; ++i)
     {
         auto &in = inputQueue_[i];
@@ -351,12 +351,12 @@ bool InputComparator2CPress::operator()(const InputQueue &inputQueue_, ORIENTATI
     return false;
 }
 
-bool InputComparator214CPress::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_) const
+bool InputComparator214CPress::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_, int extendBuffer_) const
 {
     if (inputQueue_.getFilled() == 0)
         return false;
 
-    int lookAt = std::min(inputQueue_.getFilled() - 1, gamedata::global::inputBufferLength);
+    int lookAt = std::min(inputQueue_.getFilled() - 1, gamedata::global::inputBufferLength + extendBuffer_);
     int secondaryInputButtonWindow = 5;
     int back = (faceDirection_ == ORIENTATION::RIGHT ? -1 : 1);
     Vector2<int> inputs[] = {{back, 0}, {back, 1}, {0, 1}};
@@ -372,12 +372,12 @@ bool InputComparator214CPress::operator()(const InputQueue &inputQueue_, ORIENTA
     return false;
 }
 
-bool InputComparator236CPress::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_) const
+bool InputComparator236CPress::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_, int extendBuffer_) const
 {
     if (inputQueue_.getFilled() == 0)
         return false;
 
-    int lookAt = std::min(inputQueue_.getFilled() - 1, gamedata::global::inputBufferLength);
+    int lookAt = std::min(inputQueue_.getFilled() - 1, gamedata::global::inputBufferLength + extendBuffer_);
     int secondaryInputButtonWindow = 5;
     int forward = (faceDirection_ == ORIENTATION::RIGHT ? 1 : -1);
     Vector2<int> inputs[] = {{forward, 0}, {forward, 1}, {0, 1}};
@@ -393,12 +393,12 @@ bool InputComparator236CPress::operator()(const InputQueue &inputQueue_, ORIENTA
     return false;
 }
 
-bool InputComparatorBCPress::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_) const
+bool InputComparatorBCPress::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_, int extendBuffer_) const
 {
     if (inputQueue_.getFilled() == 0)
         return false;
 
-    int lookAt = std::min(inputQueue_.getFilled() - 1, gamedata::global::inputBufferLength);
+    int lookAt = std::min(inputQueue_.getFilled() - 1, gamedata::global::inputBufferLength + extendBuffer_);
     std::array<INPUT_BUTTON, 2> buttons{INPUT_BUTTON::B, INPUT_BUTTON::C};
     for (int i = 0; i <= lookAt; ++i)
     {
@@ -419,12 +419,12 @@ bool InputComparatorBCPress::operator()(const InputQueue &inputQueue_, ORIENTATI
     return false;
 }
 
-bool InputComparator4BCPress::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_) const
+bool InputComparator4BCPress::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_, int extendBuffer_) const
 {
     if (inputQueue_.getFilled() == 0)
         return false;
 
-    int lookAt = std::min(inputQueue_.getFilled() - 1, gamedata::global::inputBufferLength);
+    int lookAt = std::min(inputQueue_.getFilled() - 1, gamedata::global::inputBufferLength + extendBuffer_);
     std::array<INPUT_BUTTON, 2> buttons{INPUT_BUTTON::B, INPUT_BUTTON::C};
     float backDir = (faceDirection_ == ORIENTATION::RIGHT ? -1.0f : 1.0f);
     for (int i = 0; i <= lookAt; ++i)

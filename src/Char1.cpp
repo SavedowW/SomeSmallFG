@@ -237,7 +237,7 @@ void Char1::updateState()
         }
     }
 
-    auto resolverRes = m_actionResolver.update(generateCharData());
+    auto resolverRes = m_actionResolver.update(generateCharData(), m_extendedBuffer);
 
     if (resolverRes)
     {
@@ -546,7 +546,7 @@ HIT_RESULT Char1::applyHit(HitEvent &hitEvent)
                 if (atkAction->isInCounterState(m_timer.getCurrentFrame() + 1))
                     isCounter = true;
             }
-            else if (m_currentAction->m_isFullCounter)
+            else if (m_currentAction && (m_currentAction->m_isFullCounter))
             {
                 isCounter = true;
             }

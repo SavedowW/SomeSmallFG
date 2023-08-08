@@ -68,6 +68,9 @@ CharacterUpdateRes Character::update()
 
     updatePosition();
 
+    if (!m_inHitstop && m_extendedBuffer)
+        m_extendedBuffer = 0;
+
     CharacterUpdateRes res;
     res.moveOffset = m_pos - initPos;
     res.newPos = m_pos;
@@ -271,6 +274,7 @@ void Character::applyHitstop(int hitstopLength)
 {
     m_inHitstop = true;
     m_hitstopTimer.begin(hitstopLength);
+    m_extendedBuffer = hitstopLength - gamedata::global::inputBufferLength;
 }
 
 HitData Character::getCurrentTakenHit()

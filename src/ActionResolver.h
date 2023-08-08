@@ -25,7 +25,7 @@ public:
 
     virtual void createActions() = 0;
 
-    const Action<CharState_t, CharData, Char_t> *update(Char1Data charData);
+    const Action<CharState_t, CharData, Char_t> *update(Char1Data charData, int extendBuffer_ = 0);
 
 protected:
     std::vector<std::unique_ptr<Action<CharState_t, CharData, Char_t>>> m_actions;

@@ -23,10 +23,10 @@ Action<CharState_t, CharData, Char_t>::Action(CharState_t actionState_, InputCom
 }
 
 template <typename CharState_t, typename CharData, typename Char_t>
-bool Action<CharState_t, CharData, Char_t>::isInputPossible(const InputQueue &inputQueue_, ORIENTATION ownDirection_) const
+bool Action<CharState_t, CharData, Char_t>::isInputPossible(const InputQueue &inputQueue_, ORIENTATION ownDirection_, int extendBuffer_) const
 {
     if (incmp)
-        return (*incmp)(inputQueue_, ownDirection_);
+        return (*incmp)(inputQueue_, ownDirection_, extendBuffer_);
     else
         return false;
 }
@@ -247,7 +247,7 @@ Action_throw_hold<CharState_t, CharData, Char_t>::Action_throw_hold(CharState_t 
 }
 
 template <typename CharState_t, typename CharData, typename Char_t>
-int Action_throw_hold<CharState_t, CharData, Char_t>::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+int Action_throw_hold<CharState_t, CharData, Char_t>::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
 {
     return false;
 }
@@ -313,7 +313,7 @@ Action_throw_whiff<CharState_t, CharData, Char_t>::Action_throw_whiff(CharState_
 }
 
 template <typename CharState_t, typename CharData, typename Char_t>
-int Action_throw_whiff<CharState_t, CharData, Char_t>::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+int Action_throw_whiff<CharState_t, CharData, Char_t>::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
 {
     return false;
 }
@@ -344,7 +344,7 @@ Action_thrown_hold<CharState_t, CharData, Char_t>::Action_thrown_hold(CharState_
 }
 
 template <typename CharState_t, typename CharData, typename Char_t>
-int Action_thrown_hold<CharState_t, CharData, Char_t>::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+int Action_thrown_hold<CharState_t, CharData, Char_t>::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
 {
     return false;
 }
@@ -412,7 +412,7 @@ Action_locked_animation<CharState_t, CharData, Char_t>::Action_locked_animation(
 }
 
 template <typename CharState_t, typename CharData, typename Char_t>
-int Action_locked_animation<CharState_t, CharData, Char_t>::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+int Action_locked_animation<CharState_t, CharData, Char_t>::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
 {
     return false;
 }
@@ -447,7 +447,7 @@ Action_char1_idle::Action_char1_idle() :
 {
 }
 
-int Action_char1_idle::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+int Action_char1_idle::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
 {
     if (charData_.inHitstop)
         return 0;
@@ -463,7 +463,7 @@ int Action_char1_idle::isPossible(const InputQueue &inputQueue_, Char1Data charD
         case (CHAR1_STATE::WALK_FWD):
             [[fallthrough]];
         case (CHAR1_STATE::WALK_BWD):
-            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
             break;
 
         default:
@@ -496,7 +496,7 @@ Action_char1_crouch::Action_char1_crouch() :
 {
 }
 
-int Action_char1_crouch::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+int Action_char1_crouch::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
 {
     if (charData_.inHitstop)
         return 0;
@@ -504,7 +504,7 @@ int Action_char1_crouch::isPossible(const InputQueue &inputQueue_, Char1Data cha
     switch (charData_.state)
     {
         case (CHAR1_STATE::CROUCH):
-            return (isInputPossible(inputQueue_, charData_.ownDirection) ? -1 : 0);
+            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? -1 : 0);
             break;
 
         case (CHAR1_STATE::IDLE):
@@ -512,7 +512,7 @@ int Action_char1_crouch::isPossible(const InputQueue &inputQueue_, Char1Data cha
         case (CHAR1_STATE::WALK_FWD):
             [[fallthrough]];
         case (CHAR1_STATE::WALK_BWD):
-            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
             break;
 
         default:
@@ -548,7 +548,7 @@ Action_char1_walk_fwd::Action_char1_walk_fwd() :
 {
 }
 
-int Action_char1_walk_fwd::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+int Action_char1_walk_fwd::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
 {
     if (charData_.inHitstop)
         return 0;
@@ -556,13 +556,13 @@ int Action_char1_walk_fwd::isPossible(const InputQueue &inputQueue_, Char1Data c
     switch (charData_.state)
     {
         case (CHAR1_STATE::WALK_FWD):
-            return (isInputPossible(inputQueue_, charData_.ownDirection) ? -1 : 0);
+            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? -1 : 0);
             break;
 
         case (CHAR1_STATE::WALK_BWD):
             [[fallthrough]];
         case (CHAR1_STATE::IDLE):
-            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
             break;
 
         default:
@@ -596,7 +596,7 @@ Action_char1_walk_bwd::Action_char1_walk_bwd() :
 {
 }
 
-int Action_char1_walk_bwd::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+int Action_char1_walk_bwd::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
 {
     if (charData_.inHitstop)
         return 0;
@@ -604,13 +604,13 @@ int Action_char1_walk_bwd::isPossible(const InputQueue &inputQueue_, Char1Data c
     switch (charData_.state)
     {
         case (CHAR1_STATE::WALK_BWD):
-            return (isInputPossible(inputQueue_, charData_.ownDirection) ? -1 : 0);
+            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? -1 : 0);
             break;
 
         case (CHAR1_STATE::WALK_FWD):
             [[fallthrough]];
         case (CHAR1_STATE::IDLE):
-            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
             break;
 
         default:
@@ -644,19 +644,19 @@ Action_char1_jump::Action_char1_jump(CHAR1_STATE actionState_, const Vector2<flo
 {
 }
 
-int Action_char1_jump::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+int Action_char1_jump::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
 {
     if (charData_.inHitstop || charData_.airborne)
         return 0;
 
     if (charData_.inBlockstun && charData_.blockFrame == BLOCK_FRAME::INSTANT)
-        return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+        return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
 
     if (charData_.cancelOptions)
     {
         if (charData_.cancelOptions->contains((int)actionState))
         {
-            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
         }
     }
 
@@ -675,7 +675,7 @@ int Action_char1_jump::isPossible(const InputQueue &inputQueue_, Char1Data charD
         case (CHAR1_STATE::WALK_FWD):
             [[fallthrough]];
         case (CHAR1_STATE::IDLE):
-            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
             break;
 
         default:
@@ -771,7 +771,7 @@ Action_char1_float::Action_char1_float() :
 {
 }
 
-int Action_char1_float::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+int Action_char1_float::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
 {
     return false;
 }
@@ -799,19 +799,19 @@ Action_char1_airjump::Action_char1_airjump(const Vector2<float> &impulse_, Input
 {
 }
 
-int Action_char1_airjump::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+int Action_char1_airjump::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
 {
     if (charData_.inHitstop || charData_.usedDoubleJump || !charData_.canDoubleJumpAfterPrejump || !charData_.airborne)
         return 0;
 
     if (charData_.inBlockstun && charData_.blockFrame == BLOCK_FRAME::INSTANT)
-        return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+        return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
 
     if (charData_.cancelOptions)
     {
         if (charData_.cancelOptions->contains((int)actionState))
         {
-            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
         }
     }
 
@@ -820,7 +820,7 @@ int Action_char1_airjump::isPossible(const InputQueue &inputQueue_, Char1Data ch
         case (CHAR1_STATE::AIR_DASH_EXTENTION):
             [[fallthrough]];
         case (CHAR1_STATE::JUMP):
-            return ((isInputPossible(inputQueue_, charData_.dirToEnemy)) ? 1 : 0);
+            return ((isInputPossible(inputQueue_, charData_.dirToEnemy, extendBuffer_)) ? 1 : 0);
             break;
 
         default:
@@ -888,7 +888,7 @@ Action_char1_ground_dash::Action_char1_ground_dash() :
 {
 }
 
-int Action_char1_ground_dash::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+int Action_char1_ground_dash::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
 {
     if (charData_.inHitstop)
         return 0;
@@ -897,7 +897,7 @@ int Action_char1_ground_dash::isPossible(const InputQueue &inputQueue_, Char1Dat
     {
         if (charData_.cancelOptions->contains((int)actionState))
         {
-            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
         }
     }
 
@@ -912,7 +912,7 @@ int Action_char1_ground_dash::isPossible(const InputQueue &inputQueue_, Char1Dat
         case (CHAR1_STATE::WALK_BWD):
             [[fallthrough]];
         case (CHAR1_STATE::IDLE):
-            return ((!charData_.usedDoubleJump && !charData_.usedAirDash && isInputPossible(inputQueue_, charData_.ownDirection)) ? 1 : 0);
+            return ((!charData_.usedDoubleJump && !charData_.usedAirDash && isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_)) ? 1 : 0);
             break;
 
         default:
@@ -942,19 +942,19 @@ Action_char1_step::Action_char1_step() :
 {
 }
 
-int Action_char1_step::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+int Action_char1_step::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
 {
     if (charData_.inHitstop || charData_.airborne)
         return 0;
     
     if (charData_.inBlockstun && charData_.blockFrame == BLOCK_FRAME::INSTANT)
-        return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+        return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
 
     if (charData_.cancelOptions)
     {
         if (charData_.cancelOptions->contains((int)actionState))
         {
-            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
         }
     }
 
@@ -988,7 +988,7 @@ Action_char1_step_recovery::Action_char1_step_recovery() :
 {
 }
 
-int Action_char1_step_recovery::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+int Action_char1_step_recovery::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
 {
 
     switch (charData_.state)
@@ -1032,7 +1032,7 @@ Action_char1_ground_backdash::Action_char1_ground_backdash() :
 {
 }
 
-int Action_char1_ground_backdash::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+int Action_char1_ground_backdash::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
 {
     if (charData_.inHitstop || charData_.airborne)
         return 0;
@@ -1052,7 +1052,7 @@ int Action_char1_ground_backdash::isPossible(const InputQueue &inputQueue_, Char
         case (CHAR1_STATE::CROUCH):
             [[fallthrough]];
         case (CHAR1_STATE::IDLE):
-            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
             break;
 
         default:
@@ -1092,19 +1092,19 @@ Action_char1_air_dash::Action_char1_air_dash() :
 {
 }
 
-int Action_char1_air_dash::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+int Action_char1_air_dash::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
 {
     if (charData_.inHitstop || charData_.usedAirDash || !charData_.canAirdashAfterPrejump)
         return 0;
 
     if (charData_.inBlockstun && charData_.blockFrame == BLOCK_FRAME::INSTANT)
-        return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+        return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
 
         if (charData_.cancelOptions)
     {
         if (charData_.cancelOptions->contains((int)actionState))
         {
-            return (isInputPossible(inputQueue_, charData_.ownDirection) && !charData_.usedAirDash ? 1 : 0);
+            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) && !charData_.usedAirDash ? 1 : 0);
         }
     }
 
@@ -1115,7 +1115,7 @@ int Action_char1_air_dash::isPossible(const InputQueue &inputQueue_, Char1Data c
             break;
 
         case (CHAR1_STATE::JUMP):
-            return (isInputPossible(inputQueue_, charData_.ownDirection) && !charData_.usedAirDash ? 1 : 0);
+            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) && !charData_.usedAirDash ? 1 : 0);
             break;
 
         default:
@@ -1155,7 +1155,7 @@ Action_char1_air_backdash::Action_char1_air_backdash() :
 {
 }
 
-int Action_char1_air_backdash::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+int Action_char1_air_backdash::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
 {
     if (charData_.inHitstop || charData_.usedAirDash || !charData_.canAirdashAfterPrejump || !charData_.airborne)
         return 0;
@@ -1164,7 +1164,7 @@ int Action_char1_air_backdash::isPossible(const InputQueue &inputQueue_, Char1Da
     {
         if (charData_.cancelOptions->contains((int)actionState))
         {
-            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
         }
     }
 
@@ -1175,7 +1175,7 @@ int Action_char1_air_backdash::isPossible(const InputQueue &inputQueue_, Char1Da
             break;
 
         case (CHAR1_STATE::JUMP):
-            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
             break;
 
         default:
@@ -1217,7 +1217,7 @@ Action_char1_air_dash_extention::Action_char1_air_dash_extention() :
 {
 }
 
-int Action_char1_air_dash_extention::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+int Action_char1_air_dash_extention::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
 {
     return false;
 }
@@ -1261,7 +1261,7 @@ Action_char1_ground_dash_recovery::Action_char1_ground_dash_recovery() :
 {
 }
 
-int Action_char1_ground_dash_recovery::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+int Action_char1_ground_dash_recovery::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
 {
     if (charData_.inHitstop)
         return 0;
@@ -1309,7 +1309,7 @@ Action_char1_soft_landing_recovery::Action_char1_soft_landing_recovery() :
 {
 }
 
-int Action_char1_soft_landing_recovery::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+int Action_char1_soft_landing_recovery::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
 {
     return false;
 }
@@ -1339,7 +1339,7 @@ Action_char1_hard_landing_recovery::Action_char1_hard_landing_recovery() :
 {
 }
 
-int Action_char1_hard_landing_recovery::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+int Action_char1_hard_landing_recovery::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
 {
     return false;
 }
@@ -1369,7 +1369,7 @@ Action_char1_vulnerable_landing_recovery::Action_char1_vulnerable_landing_recove
 {
 }
 
-int Action_char1_vulnerable_landing_recovery::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+int Action_char1_vulnerable_landing_recovery::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
 {
     return false;
 }
@@ -1399,7 +1399,7 @@ Action_char1_jc_landing_recovery::Action_char1_jc_landing_recovery() :
 {
 }
 
-int Action_char1_jc_landing_recovery::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+int Action_char1_jc_landing_recovery::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
 {
     return false;
 }
@@ -1423,7 +1423,7 @@ Action_char1_soft_knockdown::Action_char1_soft_knockdown() :
 {
 }
 
-int Action_char1_soft_knockdown::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+int Action_char1_soft_knockdown::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
 {
     return false;
 }
@@ -1446,7 +1446,7 @@ Action_char1_hard_knockdown::Action_char1_hard_knockdown() :
 {
 }
 
-int Action_char1_hard_knockdown::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+int Action_char1_hard_knockdown::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
 {
     return false;
 }
@@ -1469,7 +1469,7 @@ Action_char1_knockdown_recovery::Action_char1_knockdown_recovery() :
 {
 }
 
-int Action_char1_knockdown_recovery::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+int Action_char1_knockdown_recovery::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
 {
     return false;
 }
@@ -1495,7 +1495,7 @@ Action_char1_ground_attack::Action_char1_ground_attack(CHAR1_STATE actionState_,
 {
 }
 
-int Action_char1_ground_attack::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+int Action_char1_ground_attack::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
 {
     if (charData_.inHitstop)
         return 0;
@@ -1504,7 +1504,7 @@ int Action_char1_ground_attack::isPossible(const InputQueue &inputQueue_, Char1D
     {
         if (charData_.cancelOptions->contains((int)actionState))
         {
-            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
         }
     }
 
@@ -1526,7 +1526,7 @@ int Action_char1_ground_attack::isPossible(const InputQueue &inputQueue_, Char1D
         case (CHAR1_STATE::STEP_RECOVERY):
             [[fallthrough]];
         case (CHAR1_STATE::IDLE):
-            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
             break;
 
         default:
@@ -1558,7 +1558,7 @@ Action_char1_air_attack::Action_char1_air_attack(CHAR1_STATE actionState_, ANIMA
 {
 }
 
-int Action_char1_air_attack::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+int Action_char1_air_attack::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
 {
     if (charData_.inHitstop)
         return 0;
@@ -1567,7 +1567,7 @@ int Action_char1_air_attack::isPossible(const InputQueue &inputQueue_, Char1Data
     {
         if (charData_.cancelOptions->contains((int)actionState))
         {
-            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
         }
     }
 
@@ -1577,7 +1577,7 @@ int Action_char1_air_attack::isPossible(const InputQueue &inputQueue_, Char1Data
         case (CHAR1_STATE::AIR_DASH_EXTENTION):
             [[fallthrough]];
         case (CHAR1_STATE::JUMP):
-            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
             break;
 
         default:
@@ -1896,7 +1896,7 @@ Action_char1_normal_throw_startup::Action_char1_normal_throw_startup() :
 {
 }
 
-int Action_char1_normal_throw_startup::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+int Action_char1_normal_throw_startup::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
 {
     if (charData_.inHitstop)
         return 0;
@@ -1905,7 +1905,7 @@ int Action_char1_normal_throw_startup::isPossible(const InputQueue &inputQueue_,
     {
         if (charData_.cancelOptions->contains((int)actionState))
         {
-            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
         }
     }
 
@@ -1927,7 +1927,7 @@ int Action_char1_normal_throw_startup::isPossible(const InputQueue &inputQueue_,
         case (CHAR1_STATE::STEP_RECOVERY):
             [[fallthrough]];
         case (CHAR1_STATE::IDLE):
-            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
             break;
 
         default:
@@ -1959,7 +1959,7 @@ Action_char1_back_throw_startup::Action_char1_back_throw_startup() :
 {
 }
 
-int Action_char1_back_throw_startup::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+int Action_char1_back_throw_startup::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
 {
     if (charData_.inHitstop)
         return 0;
@@ -1968,7 +1968,7 @@ int Action_char1_back_throw_startup::isPossible(const InputQueue &inputQueue_, C
     {
         if (charData_.cancelOptions->contains((int)actionState))
         {
-            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
         }
     }
 
@@ -1990,7 +1990,7 @@ int Action_char1_back_throw_startup::isPossible(const InputQueue &inputQueue_, C
         case (CHAR1_STATE::STEP_RECOVERY):
             [[fallthrough]];
         case (CHAR1_STATE::IDLE):
-            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
             break;
 
         default:
@@ -2059,7 +2059,7 @@ Action_char1_normal_air_throw_startup::Action_char1_normal_air_throw_startup() :
 {
 }
 
-int Action_char1_normal_air_throw_startup::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+int Action_char1_normal_air_throw_startup::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
 {
     if (charData_.inHitstop || !charData_.airborne)
         return 0;
@@ -2068,7 +2068,7 @@ int Action_char1_normal_air_throw_startup::isPossible(const InputQueue &inputQue
     {
         if (charData_.cancelOptions->contains((int)actionState))
         {
-            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
         }
     }
 
@@ -2077,7 +2077,7 @@ int Action_char1_normal_air_throw_startup::isPossible(const InputQueue &inputQue
         case (CHAR1_STATE::AIR_DASH_EXTENTION):
             [[fallthrough]];
         case (CHAR1_STATE::JUMP):
-            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
             break;
 
         default:
@@ -2109,7 +2109,7 @@ Action_char1_back_air_throw_startup::Action_char1_back_air_throw_startup() :
 {
 }
 
-int Action_char1_back_air_throw_startup::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+int Action_char1_back_air_throw_startup::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
 {
     if (charData_.inHitstop || !charData_.airborne)
         return 0;
@@ -2118,7 +2118,7 @@ int Action_char1_back_air_throw_startup::isPossible(const InputQueue &inputQueue
     {
         if (charData_.cancelOptions->contains((int)actionState))
         {
-            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
         }
     }
 
@@ -2127,7 +2127,7 @@ int Action_char1_back_air_throw_startup::isPossible(const InputQueue &inputQueue
         case (CHAR1_STATE::AIR_DASH_EXTENTION):
             [[fallthrough]];
         case (CHAR1_STATE::JUMP):
-            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
             break;
 
         default:
@@ -2195,7 +2195,7 @@ Action_char1_throw_tech::Action_char1_throw_tech() :
 {
 }
 
-int Action_char1_throw_tech::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+int Action_char1_throw_tech::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
 {
     if (charData_.inHitstop)
         return 0;
@@ -2204,7 +2204,7 @@ int Action_char1_throw_tech::isPossible(const InputQueue &inputQueue_, Char1Data
     {
         if (charData_.cancelOptions->contains((int)actionState))
         {
-            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
         }
     }
 
@@ -2212,7 +2212,7 @@ int Action_char1_throw_tech::isPossible(const InputQueue &inputQueue_, Char1Data
     {
 
         case (CHAR1_STATE::THROWN_CHAR1_NORMAL_HOLD):
-            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
             break;
 
         default:
@@ -2243,7 +2243,7 @@ Action_char1_throw_tech_char1::Action_char1_throw_tech_char1() :
 {
 }
 
-int Action_char1_throw_tech_char1::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+int Action_char1_throw_tech_char1::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
 {
     return false;
 }
@@ -2267,7 +2267,7 @@ Action_char1_air_throw_tech::Action_char1_air_throw_tech() :
 {
 }
 
-int Action_char1_air_throw_tech::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+int Action_char1_air_throw_tech::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
 {
     if (charData_.inHitstop)
         return 0;
@@ -2276,7 +2276,7 @@ int Action_char1_air_throw_tech::isPossible(const InputQueue &inputQueue_, Char1
     {
         if (charData_.cancelOptions->contains((int)actionState))
         {
-            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
         }
     }
 
@@ -2284,7 +2284,7 @@ int Action_char1_air_throw_tech::isPossible(const InputQueue &inputQueue_, Char1
     {
 
         case (CHAR1_STATE::THROWN_CHAR1_NORMAL_AIR_HOLD):
-            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
             break;
 
         default:
@@ -2315,7 +2315,7 @@ Action_char1_air_throw_tech_char1::Action_char1_air_throw_tech_char1() :
 {
 }
 
-int Action_char1_air_throw_tech_char1::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+int Action_char1_air_throw_tech_char1::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
 {
     return false;
 }

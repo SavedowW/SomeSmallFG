@@ -225,6 +225,7 @@ protected:
 
     bool m_inHitstop = false;
     FrameTimer m_hitstopTimer;
+    int m_extendedBuffer = 0;
 
     Collider m_pushbox;
     Collider m_airbornePushbox;
