@@ -25,8 +25,8 @@ HitData hitgeneration::generate_char1_normal_throw()
     HitParticleData pdatatemp;
 
     pdatatemp.m_partType = PARTICLE_TYPES::HIT_1;
-    pdatatemp.m_baseOffsetMin = {150.0f, -100.0f};
-    pdatatemp.m_baseOffsetMax = {150.0f, -100.0f};
+    pdatatemp.m_baseOffsetMin = {90.0f, -100.0f};
+    pdatatemp.m_baseOffsetMax = {90.0f, -100.0f};
     pdatatemp.minRange = 1.0f;
     pdatatemp.maxRange = 1.0f;
     pdatatemp.m_scale = 0.6f;

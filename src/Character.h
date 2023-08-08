@@ -43,7 +43,10 @@
  * 
  * step - cancel and step - cancel specific moves
  * * Kind of like dash cancel, except with completely fixed range and unique follow ups
- * throws
+ * throws [DONE, but unfinished without priority]
+ * Priority
+ * * Character who lands a hit or a throw gets a priority.
+ * * Priority defines who's drawn on top of another, who's updates are calculated first and who techs in same frame situation
  * Projectiles
  * Clash, forced clash property
  * parries, guard points
@@ -117,8 +120,6 @@
  * throw tech
  * throw animation
  * state after release
- * 
- * 
  * 
 */
 

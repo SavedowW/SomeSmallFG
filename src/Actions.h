@@ -11,11 +11,13 @@ class Character;
 class Char1;
 
 enum class THROW_LIST {
-    CHAR1_NORMAL_THROW
+    CHAR1_NORMAL_THROW,
+    CHAR1_AIR_THROW
 };
 
 enum class THROW_TECHS_LIST {
     CHAR1_GROUND,
+    CHAR1_AIR,
     NONE
 };
 
@@ -621,7 +623,49 @@ public:
     virtual void update(Char1 &character_) const override;
 };
 
-// THROW TECHs
+// AIR THROW
+
+class Action_char1_normal_air_throw_startup : public Action_throw_startup<CHAR1_STATE, Char1Data, Char1>
+{
+public:
+    Action_char1_normal_air_throw_startup();
+    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_) const override;
+};
+
+class Action_char1_normal_air_throw_hold : public Action_throw_hold<CHAR1_STATE, Char1Data, Char1>
+{
+public:
+    Action_char1_normal_air_throw_hold();
+};
+
+class Action_char1_back_air_throw_startup : public Action_throw_startup<CHAR1_STATE, Char1Data, Char1>
+{
+public:
+    Action_char1_back_air_throw_startup();
+    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_) const override;
+};
+
+class Action_char1_back_air_throw_hold : public Action_throw_hold<CHAR1_STATE, Char1Data, Char1>
+{
+public:
+    Action_char1_back_air_throw_hold();
+};
+
+class Action_char1_normal_air_throw_whiff : public Action_throw_whiff<CHAR1_STATE, Char1Data, Char1>
+{
+public:
+    Action_char1_normal_air_throw_whiff();
+};
+
+class Action_char1_normal_air_throw : public Action_locked_animation<CHAR1_STATE, Char1Data, Char1>
+{
+public:
+    Action_char1_normal_air_throw();
+    virtual void update(Char1 &character_) const override;
+};
+
+
+// THROW TECHS
 class Action_char1_throw_tech : public Action_throw_tech<CHAR1_STATE, Char1Data, Char1>
 {
 public:
@@ -634,6 +678,22 @@ class Action_char1_throw_tech_char1 : public Action_throw_tech<CHAR1_STATE, Char
 {
 public:
     Action_char1_throw_tech_char1();
+    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_) const override;
+    virtual void switchTo(Char1 &character_) const override;
+};
+
+class Action_char1_air_throw_tech : public Action_throw_tech<CHAR1_STATE, Char1Data, Char1> // TODO:
+{
+public:
+    Action_char1_air_throw_tech();
+    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_) const override;
+    virtual void switchTo(Char1 &character_) const override;
+};
+
+class Action_char1_air_throw_tech_char1 : public Action_throw_tech<CHAR1_STATE, Char1Data, Char1> // TODO:
+{
+public:
+    Action_char1_air_throw_tech_char1();
     virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_) const override;
     virtual void switchTo(Char1 &character_) const override;
 };
@@ -651,6 +711,20 @@ class Action_char1_thrown_char1_normal : public Action_locked_animation<CHAR1_ST
 {
 public:
     Action_char1_thrown_char1_normal();
+    virtual void update(Char1 &character_) const override;
+    virtual void outdated(Char1 &character_) const override;
+};
+
+class Action_char1_thrown_char1_normal_air_hold : public Action_thrown_hold<CHAR1_STATE, Char1Data, Char1>
+{
+public:
+    Action_char1_thrown_char1_normal_air_hold();
+};
+
+class Action_char1_thrown_char1_normal_air : public Action_locked_animation<CHAR1_STATE, Char1Data, Char1>
+{
+public:
+    Action_char1_thrown_char1_normal_air();
     virtual void update(Char1 &character_) const override;
     virtual void outdated(Char1 &character_) const override;
 };

@@ -12,8 +12,11 @@ ActionResolver_Char1::ActionResolver_Char1(InputSystem *input_) :
 
 void ActionResolver_Char1::createActions()
 {
+    m_actions.push_back(std::make_unique<Action_char1_back_air_throw_startup>());
+    m_actions.push_back(std::make_unique<Action_char1_normal_air_throw_startup>());
     m_actions.push_back(std::make_unique<Action_char1_back_throw_startup>());
     m_actions.push_back(std::make_unique<Action_char1_normal_throw_startup>());
+    m_actions.push_back(std::make_unique<Action_char1_air_throw_tech>());
     m_actions.push_back(std::make_unique<Action_char1_throw_tech>());
     m_actions.push_back(std::make_unique<Action_char1_step>());
     m_actions.push_back(std::make_unique<Action_char1_air_dash>());
@@ -49,13 +52,29 @@ void ActionResolver_Char1::createActions()
     m_actions.push_back(std::make_unique<Action_char1_float>());
     m_actions.push_back(std::make_unique<Action_char1_air_dash_extention>());
     m_actions.push_back(std::make_unique<Action_char1_step_recovery>());
+
     m_actions.push_back(std::make_unique<Action_char1_normal_throw_hold>());
-    m_actions.push_back(std::make_unique<Action_char1_back_throw_hold>());
-    m_actions.push_back(std::make_unique<Action_char1_thrown_char1_normal_hold>());
     m_actions.push_back(std::make_unique<Action_char1_normal_throw_whiff>());
-    m_actions.push_back(std::make_unique<Action_char1_thrown_char1_normal>());
     m_actions.push_back(std::make_unique<Action_char1_normal_throw>());
+
+    m_actions.push_back(std::make_unique<Action_char1_back_throw_hold>());
+
+    m_actions.push_back(std::make_unique<Action_char1_thrown_char1_normal_hold>());
+    m_actions.push_back(std::make_unique<Action_char1_thrown_char1_normal>());
+
     m_actions.push_back(std::make_unique<Action_char1_throw_tech_char1>());
+
+
+    m_actions.push_back(std::make_unique<Action_char1_normal_air_throw_hold>());
+    m_actions.push_back(std::make_unique<Action_char1_normal_air_throw_whiff>());
+    m_actions.push_back(std::make_unique<Action_char1_normal_air_throw>());
+
+    m_actions.push_back(std::make_unique<Action_char1_back_air_throw_hold>());
+
+    m_actions.push_back(std::make_unique<Action_char1_thrown_char1_normal_air_hold>());
+    m_actions.push_back(std::make_unique<Action_char1_thrown_char1_normal_air>());
+
+    m_actions.push_back(std::make_unique<Action_char1_air_throw_tech_char1>());
 }
 
 Char1::Char1(Application &application_, Vector2<float> pos_, Camera *cam_, ParticleManager *particleManager_) :
@@ -256,6 +275,8 @@ void Char1::jumpUsingAction()
     m_currentState = CHAR1_STATE::JUMP;
     m_currentAnimation = m_animations[ANIMATIONS::CHAR1_JUMP].get();
     m_currentAnimation->reset();
+
+    m_airborne = true;
 }
 
 void Char1::switchToSoftLandingRecovery()
@@ -308,6 +329,8 @@ void Char1::land()
             m_inertia = {0.0f, 0.0f};
             break;
 
+        case (CHAR1_STATE::AIR_THROW_TECH_CHAR1):
+            [[fallthrough]];
         case (CHAR1_STATE::BLOCKSTUN_AIR):
             m_actionResolver.getAction(CHAR1_STATE::HARD_LANDING_RECOVERY)->switchTo(*this);
             break;
@@ -316,7 +339,6 @@ void Char1::land()
             m_actionResolver.getAction(CHAR1_STATE::MOVE_JC_LANDING_RECOVERY)->switchTo(*this);
             break;
 
-        // TODO: airborne hitstun to knd
         case (CHAR1_STATE::HITSTUN_AIR):
             if (m_hitProps.groundBounce)
             {
@@ -648,24 +670,24 @@ void Char1::updateBlockState()
     bool inBlockstun = isInBlockstun();
 
     // TODO: turn into action property
-    bool canBlock = !(m_currentState == CHAR1_STATE::HITSTUN ||
-                    m_currentState == CHAR1_STATE::HITSTUN_AIR ||
-                    m_currentState == CHAR1_STATE::GROUND_BACKDASH ||
-                    m_currentState == CHAR1_STATE::MOVE_A ||
-                    m_currentState == CHAR1_STATE::MOVE_B ||
-                    m_currentState == CHAR1_STATE::MOVE_C ||
-                    m_currentState == CHAR1_STATE::MOVE_2B ||
-                    m_currentState == CHAR1_STATE::MOVE_236C ||
-                    m_currentState == CHAR1_STATE::MOVE_JA ||
-                    m_currentState == CHAR1_STATE::MOVE_JC ||
-                    m_currentState == CHAR1_STATE::MOVE_214C ||
-                    m_currentState == CHAR1_STATE::AIR_DASH ||
-                    m_currentState == CHAR1_STATE::STEP ||
-                    m_currentState == CHAR1_STATE::KNOCKDOWN_RECOVERY ||
-                    m_currentState == CHAR1_STATE::HARD_KNOCKDOWN ||
-                    m_currentState == CHAR1_STATE::SOFT_KNOCKDOWN ||
-                    m_currentState == CHAR1_STATE::VULNERABLE_LANDING_RECOVERY ||
-                    m_currentState == CHAR1_STATE::MOVE_JC_LANDING_RECOVERY);
+    bool canBlock = (m_currentState == CHAR1_STATE::IDLE ||
+                    m_currentState == CHAR1_STATE::CROUCH ||
+                    m_currentState == CHAR1_STATE::WALK_BWD ||
+                    m_currentState == CHAR1_STATE::WALK_FWD ||
+                    m_currentState == CHAR1_STATE::JUMP ||
+                    m_currentState == CHAR1_STATE::SOFT_LANDING_RECOVERY ||
+                    m_currentState == CHAR1_STATE::HARD_LANDING_RECOVERY ||
+                    m_currentState == CHAR1_STATE::GROUND_DASH ||
+                    m_currentState == CHAR1_STATE::GROUND_DASH_RECOVERY ||
+                    m_currentState == CHAR1_STATE::AIR_DASH_EXTENTION ||
+                    m_currentState == CHAR1_STATE::AIR_BACKDASH ||
+                    m_currentState == CHAR1_STATE::BLOCKSTUN_STANDING ||
+                    m_currentState == CHAR1_STATE::BLOCKSTUN_CROUCHING ||
+                    m_currentState == CHAR1_STATE::BLOCKSTUN_AIR ||
+                    m_currentState == CHAR1_STATE::THROW_TECH_OWN ||
+                    m_currentState == CHAR1_STATE::THROW_TECH_CHAR1 ||
+                    m_currentState == CHAR1_STATE::AIR_THROW_TECH_OWN ||
+                    m_currentState == CHAR1_STATE::AIR_THROW_TECH_CHAR1);
 
     auto backButton = (m_dirToEnemy == ORIENTATION::RIGHT ? INPUT_BUTTON::LEFT : INPUT_BUTTON::RIGHT);
 
@@ -967,6 +989,10 @@ void Char1::enterThrown(THROW_LIST throw_)
         case (THROW_LIST::CHAR1_NORMAL_THROW):
             m_actionResolver.getAction(CHAR1_STATE::THROWN_CHAR1_NORMAL_HOLD)->switchTo(*this);
             break;
+
+        case (THROW_LIST::CHAR1_AIR_THROW):
+            m_actionResolver.getAction(CHAR1_STATE::THROWN_CHAR1_NORMAL_AIR_HOLD)->switchTo(*this);
+            break;
     }
 }
 
@@ -976,6 +1002,9 @@ void Char1::throwTeched(THROW_TECHS_LIST tech_)
 
     if (tech_ == THROW_TECHS_LIST::CHAR1_GROUND)
         m_actionResolver.getAction(CHAR1_STATE::THROW_TECH_CHAR1)->switchTo(*this);
+
+    else if (tech_ == THROW_TECHS_LIST::CHAR1_AIR)
+        m_actionResolver.getAction(CHAR1_STATE::AIR_THROW_TECH_CHAR1)->switchTo(*this);
 }
 
 void Char1::attemptThrow()

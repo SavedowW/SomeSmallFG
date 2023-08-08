@@ -204,8 +204,11 @@ void Action_throw_startup<CharState_t, CharData, Char_t>::switchTo(Char_t &chara
 {
     //character_.m_velocity = {0, 0};
     //character_.m_inertia = {0, 0};
+    character_.turnVelocityToInertia();
     Action<CharState_t, CharData, Char_t>::switchTo(character_);
     character_.m_timer.begin(m_activeWindow.second);
+    if (character_.m_airborne)
+        character_.m_usedAirAttack = true;
 }
 
 template <typename CharState_t, typename CharData, typename Char_t>
@@ -268,6 +271,11 @@ void Action_throw_hold<CharState_t, CharData, Char_t>::switchTo(Char_t &characte
     otherChar.lockInAnimation();
     character_.lockInAnimation();
     character_.tieAnimWithOpponent();
+
+    character_.updateDirToEnemy();
+    character_.updateOwnOrientation();
+    otherChar.updateDirToEnemy();
+    otherChar.updateOwnOrientation();
 }
 
 template <typename CharState_t, typename CharData, typename Char_t>
@@ -313,8 +321,6 @@ int Action_throw_whiff<CharState_t, CharData, Char_t>::isPossible(const InputQue
 template <typename CharState_t, typename CharData, typename Char_t>
 void Action_throw_whiff<CharState_t, CharData, Char_t>::switchTo(Char_t &character_) const
 {
-    character_.m_velocity = {0, 0};
-    character_.m_inertia = {0, 0};
     Action<CharState_t, CharData, Char_t>::switchTo(character_);
     character_.m_timer.begin(m_duration);
 }
@@ -2031,6 +2037,144 @@ void Action_char1_normal_throw::update(Char1 &character_) const
     {
         HitEvent ev;
         ev.m_hitData = hitgeneration::generate_char1_normal_throw();
+        ev.m_hitRes = HIT_RESULT::THROWN;
+        ev.m_hittingPlayerId = character_.m_playerId;
+        character_.applyHit(ev);
+        character_.m_otherCharacter->applyHit(ev);
+        character_.m_cam->startShake(35, 10);
+    }
+}
+
+// Air throw startup
+Action_char1_normal_air_throw_startup::Action_char1_normal_air_throw_startup() :
+    Action_throw_startup<CHAR1_STATE, Char1Data, Char1>(CHAR1_STATE::THROW_NORMAL_AIR_STARTUP, CHAR1_STATE::THROW_NORMAL_AIR_WHIFF, CHAR1_STATE::THROW_NORMAL_AIR_HOLD,
+    std::make_unique<InputComparatorBCPress>(),
+    {
+        {
+            {1, 6},
+            {-70, -350, 140, 300}
+        }
+    },
+    ANIMATIONS::CHAR1_NORMAL_THROW_STARTUP, 200.0f, {2, 5}, true, THROW_LIST::CHAR1_AIR_THROW)
+{
+}
+
+int Action_char1_normal_air_throw_startup::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+{
+    if (charData_.inHitstop || !charData_.airborne)
+        return 0;
+
+    if (charData_.cancelOptions)
+    {
+        if (charData_.cancelOptions->contains((int)actionState))
+        {
+            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+        }
+    }
+
+    switch (charData_.state)
+    {
+        case (CHAR1_STATE::AIR_DASH_EXTENTION):
+            [[fallthrough]];
+        case (CHAR1_STATE::JUMP):
+            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+            break;
+
+        default:
+            return 0;
+            break;
+    }
+
+    throw std::runtime_error("Undefined state transition");
+    return false;
+}
+
+// Air throw hold
+Action_char1_normal_air_throw_hold::Action_char1_normal_air_throw_hold() :
+    Action_throw_hold<CHAR1_STATE, Char1Data, Char1>(CHAR1_STATE::THROW_NORMAL_AIR_HOLD, CHAR1_STATE::THROW_NORMAL_AIR_ANIM, 90, 10, false)
+{
+}
+
+// Air back throw startup
+Action_char1_back_air_throw_startup::Action_char1_back_air_throw_startup() :
+    Action_throw_startup<CHAR1_STATE, Char1Data, Char1>(CHAR1_STATE::THROW_BACK_AIR_STARTUP, CHAR1_STATE::THROW_NORMAL_AIR_WHIFF, CHAR1_STATE::THROW_BACK_AIR_HOLD,
+    std::make_unique<InputComparator4BCPress>(),
+    {
+        {
+            {1, 6},
+            {-70, -350, 140, 300}
+        }
+    },
+    ANIMATIONS::CHAR1_NORMAL_THROW_STARTUP, 200.0f, {2, 5}, true, THROW_LIST::CHAR1_AIR_THROW)
+{
+}
+
+int Action_char1_back_air_throw_startup::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+{
+    if (charData_.inHitstop || !charData_.airborne)
+        return 0;
+
+    if (charData_.cancelOptions)
+    {
+        if (charData_.cancelOptions->contains((int)actionState))
+        {
+            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+        }
+    }
+
+    switch (charData_.state)
+    {
+        case (CHAR1_STATE::AIR_DASH_EXTENTION):
+            [[fallthrough]];
+        case (CHAR1_STATE::JUMP):
+            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+            break;
+
+        default:
+            return 0;
+            break;
+    }
+
+    throw std::runtime_error("Undefined state transition");
+    return false;
+}
+
+// Air back throw hold
+Action_char1_back_air_throw_hold::Action_char1_back_air_throw_hold() :
+    Action_throw_hold<CHAR1_STATE, Char1Data, Char1>(CHAR1_STATE::THROW_BACK_AIR_HOLD, CHAR1_STATE::THROW_NORMAL_AIR_ANIM, 90, 10, true)
+{
+}
+
+// Air throw whiff
+Action_char1_normal_air_throw_whiff::Action_char1_normal_air_throw_whiff() :
+    Action_throw_whiff<CHAR1_STATE, Char1Data, Char1>(CHAR1_STATE::THROW_NORMAL_AIR_WHIFF, ANIMATIONS::CHAR1_NORMAL_THROW_WHIFF, 200, {
+        {
+            {1, 30},
+            {-70, -350, 140, 300}
+        }
+    })
+{
+}
+
+// AIR THROW ACTION
+Action_char1_normal_air_throw::Action_char1_normal_air_throw() :
+    Action_locked_animation<CHAR1_STATE, Char1Data, Char1>(CHAR1_STATE::THROW_NORMAL_AIR_ANIM, CHAR1_STATE::IDLE, {
+        {
+            {1, 50},
+            {-70, -350, 140, 300}
+        }
+    }, ANIMATIONS::CHAR1_NORMAL_THROW, 20)
+{
+}
+
+void Action_char1_normal_air_throw::update(Char1 &character_) const
+{
+    //character_.updateOwnOrientation();
+    if (character_.m_timer.getCurrentFrame() == 12 && !character_.m_inHitstop)
+    {
+        HitEvent ev;
+        ev.m_hitData = hitgeneration::generate_char1_normal_throw();
+        ev.m_hitRes = HIT_RESULT::THROWN;
         ev.m_hittingPlayerId = character_.m_playerId;
         character_.applyHit(ev);
         character_.m_otherCharacter->applyHit(ev);
@@ -2110,6 +2254,78 @@ void Action_char1_throw_tech_char1::switchTo(Char1 &character_) const
     character_.m_inertia.x += -character_.getOwnHorDir().x * 20.0f;
 }
 
+// Air throw tech
+Action_char1_air_throw_tech::Action_char1_air_throw_tech() :
+    Action_throw_tech<CHAR1_STATE, Char1Data, Char1>(CHAR1_STATE::AIR_THROW_TECH_OWN,
+    std::make_unique<InputComparatorBCPress>(), ANIMATIONS::CHAR1_THROW_TECH, 15,
+    {
+        {
+            {1, 15},
+            {-70, -350, 140, 300}
+        }
+    }, THROW_TECHS_LIST::CHAR1_AIR)
+{
+}
+
+int Action_char1_air_throw_tech::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+{
+    if (charData_.inHitstop)
+        return 0;
+
+    if (charData_.cancelOptions)
+    {
+        if (charData_.cancelOptions->contains((int)actionState))
+        {
+            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+        }
+    }
+
+    switch (charData_.state)
+    {
+
+        case (CHAR1_STATE::THROWN_CHAR1_NORMAL_AIR_HOLD):
+            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+            break;
+
+        default:
+            return 0;
+            break;
+    }
+
+    throw std::runtime_error("Undefined state transition");
+    return false;
+}
+
+void Action_char1_air_throw_tech::switchTo(Char1 &character_) const
+{
+    Action_throw_tech<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    character_.m_inertia.x += -character_.getOwnHorDir().x * 3.0f;
+}
+
+// Throw tech state when Char1 breaks air throw
+Action_char1_air_throw_tech_char1::Action_char1_air_throw_tech_char1() :
+    Action_throw_tech<CHAR1_STATE, Char1Data, Char1>(CHAR1_STATE::AIR_THROW_TECH_CHAR1,
+    std::make_unique<InputComparatorBCPress>(), ANIMATIONS::CHAR1_THROW_TECH, 200,
+    {
+        {
+            {1, 200},
+            {-70, -350, 140, 300}
+        }
+    }, THROW_TECHS_LIST::NONE)
+{
+}
+
+int Action_char1_air_throw_tech_char1::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+{
+    return false;
+}
+
+void Action_char1_air_throw_tech_char1::switchTo(Char1 &character_) const
+{
+    Action_throw_tech<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    character_.m_inertia.x += -character_.getOwnHorDir().x * 10.0f;
+}
+
 // Thrown by char1 normal throw - hold
 Action_char1_thrown_char1_normal_hold::Action_char1_thrown_char1_normal_hold() :
     Action_thrown_hold<CHAR1_STATE, Char1Data, Char1>(CHAR1_STATE::THROWN_CHAR1_NORMAL_HOLD, CHAR1_STATE::THROWN_CHAR1_NORMAL_ANIM, ANIMATIONS::CHAR1_THROWN_CHAR1_NORMAL_HOLD, 10)
@@ -2143,6 +2359,45 @@ void Action_char1_thrown_char1_normal::outdated(Char1 &character_) const
     character_.untieAnimWithOpponent();
     character_.m_inertia = {-character_.getOwnHorDir().x * 5.0f, -20.0f};
     character_.m_pos.y = gamedata::stages::levelOfGround - 1;
+    character_.m_airborne = true;
+    //character_.switchToFloat();
+    character_.enterHitstunAnimation(character_.m_hitProps);
+    //character_.m_actionResolver.getAction(m_quitState)->switchTo(character_);
+}
+
+// Thrown by char1 normal air throw - hold
+Action_char1_thrown_char1_normal_air_hold::Action_char1_thrown_char1_normal_air_hold() :
+    Action_thrown_hold<CHAR1_STATE, Char1Data, Char1>(CHAR1_STATE::THROWN_CHAR1_NORMAL_AIR_HOLD, CHAR1_STATE::THROWN_CHAR1_NORMAL_AIR_ANIM, ANIMATIONS::CHAR1_THROWN_CHAR1_NORMAL_HOLD, 10)
+{
+}
+
+// Thrown by char1 normal air throw - animation
+Action_char1_thrown_char1_normal_air::Action_char1_thrown_char1_normal_air() :
+    Action_locked_animation<CHAR1_STATE, Char1Data, Char1>(CHAR1_STATE::THROWN_CHAR1_NORMAL_AIR_ANIM, CHAR1_STATE::HITSTUN_AIR, {
+        {
+            {1, 50},
+            {-70, -375, 140, 375}
+        }
+    }, ANIMATIONS::CHAR1_THROWN_CHAR1_NORMAL, 14)
+{
+}
+
+void Action_char1_thrown_char1_normal_air::update(Char1 &character_) const
+{
+    //8-16
+    auto curFrame = character_.m_timer.getCurrentFrame();
+    if (curFrame == 1)
+        character_.m_velocity = {character_.getOwnHorDir().x * 0.8f, 5.0f};
+    else if (curFrame == 10)
+        character_.m_velocity = {0, 0};
+}
+
+void Action_char1_thrown_char1_normal_air::outdated(Char1 &character_) const
+{
+    character_.releaseFromAnimation();
+    character_.untieAnimWithOpponent();
+    character_.m_inertia = {-character_.getOwnHorDir().x * 5.0f, -10.0f};
+    //character_.m_pos.y = gamedata::stages::levelOfGround - 1;
     character_.m_airborne = true;
     //character_.switchToFloat();
     character_.enterHitstunAnimation(character_.m_hitProps);
