@@ -18,6 +18,49 @@ HitData Hit::getHitData() const
     return *static_cast<const HitData*>(this);
 }
 
+HitData hitgeneration::generate_char1_normal_throw()
+{
+    HitData hdata;
+
+    HitParticleData pdatatemp;
+
+    pdatatemp.m_partType = PARTICLE_TYPES::HIT_1;
+    pdatatemp.m_baseOffsetMin = {150.0f, -100.0f};
+    pdatatemp.m_baseOffsetMax = {150.0f, -100.0f};
+    pdatatemp.minRange = 1.0f;
+    pdatatemp.maxRange = 1.0f;
+    pdatatemp.m_scale = 0.6f;
+    hdata.particlesOnHit.push_back(pdatatemp);
+    hdata.particlesOnCH.push_back(pdatatemp);
+
+    hdata.partOfThrow = true;
+    hdata.m_hitId = 1;
+
+    //hdata.cornerPushbackMaxRange = 390.0f;
+    //hdata.cornerPushbackMinImpulse = 8.0f;
+    //hdata.cornerPushbackMaxImpulse = 25.0f;
+    //hdata.opponentPushbackOnBlock = 7.0f;
+
+    hdata.hitProps.hitstop = 10;
+    hdata.hitProps.hitstun = 12;
+    hdata.hitProps.proratio = 1.0f;
+    hdata.hitProps.hardKnd = true;
+    hdata.hitProps.groundBounce = true;
+    hdata.hitProps.groundBounceStrength = 5.0f;
+    //hdata.hitProps.opponentImpulseOnHit = {6.0f, 0.0f};
+    //hdata.hitProps.opponentImpulseOnAirHit = {8.0f, -5.0f};
+    hdata.hitProps.groundHitstunAnimation = HITSTUN_ANIMATION::FLOAT;
+    hdata.hitProps.airHitstunAnimation = HITSTUN_ANIMATION::FLOAT;
+
+    hdata.chProps = hdata.hitProps;
+
+    hdata.hitBlockShakeAmp = 0;
+
+    hdata.damage = 50.0f / hdata.hitProps.proratio;
+
+    return hdata;
+}
+
 std::pair<FrameWindow, Hit> hitgeneration::generate_char1_jab()
 {
     HitData hdata;

@@ -10,6 +10,15 @@ class Char1Data;
 class Character;
 class Char1;
 
+enum class THROW_LIST {
+    CHAR1_NORMAL_THROW
+};
+
+enum class THROW_TECHS_LIST {
+    CHAR1_GROUND,
+    NONE
+};
+
 /* ============================
  *
  *       ABSTRACT ACTION
@@ -22,7 +31,7 @@ template <typename CharState_t, typename CharData, typename Char_t>
 class Action
 {
 public:
-    Action(CharState_t actionState_, InputComparator_ptr incmp_, HurtboxFramesVec hurtboxes_, ANIMATIONS anim_, bool isAttack_ = false, bool noLandTransition_ = false, bool isCrouchState_ = false);
+    Action(CharState_t actionState_, InputComparator_ptr incmp_, HurtboxFramesVec hurtboxes_, ANIMATIONS anim_, bool isAttack_ = false, bool noLandTransition_ = false, bool isCrouchState_ = false, bool isFullCounter_ = false, bool isThrowStartup_ = false);
     virtual bool isInputPossible(const InputQueue &inputQueue_, ORIENTATION ownDirection_) const;
     virtual const HurtboxVec getCurrentHurtboxes(int currentFrame_, const Vector2<float>& offset_, ORIENTATION ownOrientation_) const;
     virtual void outdated(Char_t &character_) const {};
@@ -40,6 +49,8 @@ public:
     const HurtboxFramesVec m_hurtboxes;
     const ANIMATIONS m_anim;
     const bool m_isAttack;
+    const bool m_isThrowStartup;
+    const bool m_isFullCounter;
     const bool m_noLandTransition;
     const bool m_isCrouchState;
 
@@ -78,7 +89,7 @@ protected:
  *       ABSTRACT GROUND JUMP
  *
  *========================== */
-template <typename CharState_t, typename CharData, typename Char_t> // TODO: universalize and remove logic from character
+template <typename CharState_t, typename CharData, typename Char_t>
 class Action_jump : public Action<CharState_t, CharData, Char_t>
 {
 public:
@@ -111,6 +122,131 @@ public:
 
 private:
     const Vector2<float> nullvec = {0.0f, 0.0f};
+};
+
+/* ============================
+ *
+ *       ABSTRACT THROW STARTUP
+ *
+ *========================== */
+template <typename CharState_t, typename CharData, typename Char_t>
+class Action_throw_startup : public Action<CharState_t, CharData, Char_t>
+{
+public:
+    Action_throw_startup(CharState_t actionState_, CharState_t whiffState_, CharState_t holdState_, InputComparator_ptr incmp_, HurtboxFramesVec hurtboxes_, ANIMATIONS anim_, float range_, FrameWindow activeWindow_, bool requiredAirborne_, THROW_LIST throw_);
+    virtual void switchTo(Char_t &character_) const override;
+    virtual void attemptThrow(Char_t &character_) const;
+
+    void outdated(Char_t &character_) const override;
+    const FrameWindow m_activeWindow;
+
+protected:
+    const float m_range;
+    const CharState_t m_whiffState;
+    const CharState_t m_holdState;
+    const THROW_LIST m_throw;
+    const bool m_requiredAirborne;
+};
+
+/* ============================
+ *
+ *       ABSTRACT THROW HOLD
+ *
+ *========================== */
+template <typename CharState_t, typename CharData, typename Char_t>
+class Action_throw_hold : public Action<CharState_t, CharData, Char_t>
+{
+public:
+    Action_throw_hold(CharState_t actionState_, CharState_t throwState_, float setRange_, float duration_, bool sideSwitch_);
+    virtual void switchTo(Char_t &character_) const override;
+    virtual void update(Char_t &character_) const override;
+    void outdated(Char_t &character_) const override;
+    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_) const override;
+
+protected:
+    const float m_setRange;
+    const float m_duration;
+    bool m_sideSwitch;
+    const CharState_t m_throwState;
+};
+
+/* ============================
+ *
+ *       ABSTRACT THROWN HOLD
+ *
+ *========================== */
+template <typename CharState_t, typename CharData, typename Char_t>
+class Action_thrown_hold : public Action<CharState_t, CharData, Char_t>
+{
+public:
+    Action_thrown_hold(CharState_t actionState_, CharState_t thrownState_, ANIMATIONS anim_, float duration_);
+    virtual void switchTo(Char_t &character_) const override;
+    void outdated(Char_t &character_) const override;
+    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_) const override;
+
+protected:
+    const float m_duration;
+    const CharState_t m_thrownState;
+
+};
+
+/* ============================
+ *
+ *       ABSTRACT THROWN WHIFF
+ *
+ *========================== */
+template <typename CharState_t, typename CharData, typename Char_t>
+class Action_throw_whiff : public Action<CharState_t, CharData, Char_t>
+{
+public:
+    Action_throw_whiff(CharState_t actionState_, ANIMATIONS anim_, float duration_, HurtboxFramesVec hurtboxes_);
+    virtual void switchTo(Char_t &character_) const override;
+    void outdated(Char_t &character_) const override;
+    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_) const override;
+
+protected:
+    const float m_duration;
+};
+
+/* ============================
+ *
+ *       ABSTRACT THROW TECH
+ *
+ *========================== */
+template <typename CharState_t, typename CharData, typename Char_t>
+class Action_throw_tech : public Action<CharState_t, CharData, Char_t>
+{
+public:
+    Action_throw_tech(CharState_t actionState_, InputComparator_ptr incmp_, ANIMATIONS anim_, float duration_, HurtboxFramesVec hurtboxes_, THROW_TECHS_LIST throwTech_);
+    virtual void switchTo(Char_t &character_) const override;
+    void outdated(Char_t &character_) const override;
+
+protected:
+    const float m_duration;
+    const THROW_TECHS_LIST m_throwTech;
+};
+
+/* ============================
+ *
+ *       ABSTRACT LOCKED ANIMATION
+ *      Holds full control of a character. A character in a locked animation
+ *      is not affected by gravity, does not change velocity, inertia and animation
+ *      from hits and does not change animation
+ *
+ *========================== */
+template <typename CharState_t, typename CharData, typename Char_t>
+class Action_locked_animation : public Action<CharState_t, CharData, Char_t>
+{
+public:
+    Action_locked_animation(CharState_t actionState_, CharState_t quitState_, HurtboxFramesVec hurtboxes_, ANIMATIONS anim_, float duration_);
+    virtual void switchTo(Char_t &character_) const override;
+    //virtual void update(Char_t &character_) const override;
+    void outdated(Char_t &character_) const override;
+    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_) const override;
+
+protected:
+    const float m_duration;
+    CharState_t m_quitState;
 };
 
 
@@ -440,5 +576,86 @@ public:
     Action_char1_move_214C();
     virtual void update(Char1 &character_) const override;
 };
+
+// THROW RELATED STUFF
+
+// THROW ACTIONS
+
+// NORMAL THROW
+class Action_char1_normal_throw_startup : public Action_throw_startup<CHAR1_STATE, Char1Data, Char1>
+{
+public:
+    Action_char1_normal_throw_startup();
+    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_) const override;
+};
+
+class Action_char1_normal_throw_hold : public Action_throw_hold<CHAR1_STATE, Char1Data, Char1>
+{
+public:
+    Action_char1_normal_throw_hold();
+};
+
+class Action_char1_back_throw_startup : public Action_throw_startup<CHAR1_STATE, Char1Data, Char1>
+{
+public:
+    Action_char1_back_throw_startup();
+    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_) const override;
+};
+
+class Action_char1_back_throw_hold : public Action_throw_hold<CHAR1_STATE, Char1Data, Char1>
+{
+public:
+    Action_char1_back_throw_hold();
+};
+
+class Action_char1_normal_throw_whiff : public Action_throw_whiff<CHAR1_STATE, Char1Data, Char1>
+{
+public:
+    Action_char1_normal_throw_whiff();
+};
+
+class Action_char1_normal_throw : public Action_locked_animation<CHAR1_STATE, Char1Data, Char1>
+{
+public:
+    Action_char1_normal_throw();
+    virtual void update(Char1 &character_) const override;
+};
+
+// THROW TECHs
+class Action_char1_throw_tech : public Action_throw_tech<CHAR1_STATE, Char1Data, Char1>
+{
+public:
+    Action_char1_throw_tech();
+    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_) const override;
+    virtual void switchTo(Char1 &character_) const override;
+};
+
+class Action_char1_throw_tech_char1 : public Action_throw_tech<CHAR1_STATE, Char1Data, Char1>
+{
+public:
+    Action_char1_throw_tech_char1();
+    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_) const override;
+    virtual void switchTo(Char1 &character_) const override;
+};
+
+
+// GETTING THROWN ACTIONS
+
+class Action_char1_thrown_char1_normal_hold : public Action_thrown_hold<CHAR1_STATE, Char1Data, Char1>
+{
+public:
+    Action_char1_thrown_char1_normal_hold();
+};
+
+class Action_char1_thrown_char1_normal : public Action_locked_animation<CHAR1_STATE, Char1Data, Char1>
+{
+public:
+    Action_char1_thrown_char1_normal();
+    virtual void update(Char1 &character_) const override;
+    virtual void outdated(Char1 &character_) const override;
+};
+
+
+
 
 #endif

@@ -12,6 +12,9 @@ ActionResolver_Char1::ActionResolver_Char1(InputSystem *input_) :
 
 void ActionResolver_Char1::createActions()
 {
+    m_actions.push_back(std::make_unique<Action_char1_back_throw_startup>());
+    m_actions.push_back(std::make_unique<Action_char1_normal_throw_startup>());
+    m_actions.push_back(std::make_unique<Action_char1_throw_tech>());
     m_actions.push_back(std::make_unique<Action_char1_step>());
     m_actions.push_back(std::make_unique<Action_char1_air_dash>());
     m_actions.push_back(std::make_unique<Action_char1_air_backdash>());
@@ -46,6 +49,13 @@ void ActionResolver_Char1::createActions()
     m_actions.push_back(std::make_unique<Action_char1_float>());
     m_actions.push_back(std::make_unique<Action_char1_air_dash_extention>());
     m_actions.push_back(std::make_unique<Action_char1_step_recovery>());
+    m_actions.push_back(std::make_unique<Action_char1_normal_throw_hold>());
+    m_actions.push_back(std::make_unique<Action_char1_back_throw_hold>());
+    m_actions.push_back(std::make_unique<Action_char1_thrown_char1_normal_hold>());
+    m_actions.push_back(std::make_unique<Action_char1_normal_throw_whiff>());
+    m_actions.push_back(std::make_unique<Action_char1_thrown_char1_normal>());
+    m_actions.push_back(std::make_unique<Action_char1_normal_throw>());
+    m_actions.push_back(std::make_unique<Action_char1_throw_tech_char1>());
 }
 
 Char1::Char1(Application &application_, Vector2<float> pos_, Camera *cam_, ParticleManager *particleManager_) :
@@ -91,6 +101,21 @@ void Char1::loadAnimations(Application &application_)
     m_animations[ANIMATIONS::CHAR1_KNOCKDOWN_RECOVERY] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_KNOCKDOWN_RECOVERY, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_STEP] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_STEP, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_STEP_RECOVERY] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_STEP_RECOVERY, LOOPMETHOD::NOLOOP);
+    m_animations[ANIMATIONS::CHAR1_NORMAL_THROW_STARTUP] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_NORMAL_THROW_STARTUP, LOOPMETHOD::NOLOOP);
+    m_animations[ANIMATIONS::CHAR1_NORMAL_THROW] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_NORMAL_THROW, LOOPMETHOD::NOLOOP);
+    m_animations[ANIMATIONS::CHAR1_THROWN_CHAR1_NORMAL_HOLD] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_THROWN_CHAR1_NORMAL_HOLD, LOOPMETHOD::NOLOOP);
+    m_animations[ANIMATIONS::CHAR1_THROWN_CHAR1_NORMAL] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_THROWN_CHAR1_NORMAL, LOOPMETHOD::NOLOOP);
+    m_animations[ANIMATIONS::CHAR1_THROW_TECH] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_THROW_TECH, LOOPMETHOD::NOLOOP);
+    m_animations[ANIMATIONS::CHAR1_NORMAL_THROW_WHIFF] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_NORMAL_THROW_WHIFF, LOOPMETHOD::NOLOOP);
+
+    /*
+    CHAR1_NORMAL_THROW_STARTUP,
+	CHAR1_NORMAL_THROW,
+	CHAR1_THROWN_CHAR1_NORMAL_HOLD,
+	CHAR1_THROWN_CHAR1_NORMAL,
+	CHAR1_THROW_TECH,
+	CHAR1_NORMAL_THROW_WHIFF
+    */
 
     m_currentAnimation = m_animations[ANIMATIONS::CHAR1_IDLE].get();
     m_currentAnimation->reset();
@@ -145,6 +170,12 @@ void Char1::proceedCurrentState()
     if (!m_inHitstop)
     {
         auto timerRes = m_timer.update();
+
+        if (isInHitstun() || isInBlockstun())
+        {
+            m_throwInvulTimer.isActive();
+        }
+
 
         if (timerRes)
         {
@@ -266,7 +297,7 @@ void Char1::land()
     m_usedAirDash = false;
     m_usedAirAttack = false;
 
-    if (m_currentAction && m_currentAction->m_noLandTransition)
+    if (m_currentAction && m_currentAction->m_noLandTransition || m_lockedInAnimation)
         return;
 
     switch (m_currentState)
@@ -437,7 +468,7 @@ HIT_RESULT Char1::applyHit(HitEvent &hitEvent)
         const std::vector<HitParticleData> *pdata;
         if (hitEvent.m_hitRes == HIT_RESULT::COUNTER)
             pdata = &hitEvent.m_hitData.particlesOnCH;
-        else if (hitEvent.m_hitRes == HIT_RESULT::HIT)
+        else if (hitEvent.m_hitRes == HIT_RESULT::HIT || hitEvent.m_hitRes == HIT_RESULT::THROWN)
             pdata = &hitEvent.m_hitData.particlesOnHit;
         else
             pdata = &hitEvent.m_hitData.particlesOnBlock;
@@ -487,41 +518,50 @@ HIT_RESULT Char1::applyHit(HitEvent &hitEvent)
             auto hitres = HIT_RESULT::HIT;
             bool isCounter = false;
 
-            if (m_currentAction && m_currentAction->m_isAttack)
+            if (m_currentAction && (m_currentAction->m_isAttack))
             {
                 auto atkAction = dynamic_cast<const Action_attack<CHAR1_STATE, Char1Data, Char1>*>(m_currentAction);
                 if (atkAction->isInCounterState(m_timer.getCurrentFrame() + 1))
-                {
                     isCounter = true;
-                    hitres = HIT_RESULT::COUNTER;
-                    startShine({150, 0, 0, 225}, std::max(hitEvent.m_hitData.chProps.hitstop - 3, 5), 3);
-                }
+            }
+            else if (m_currentAction->m_isFullCounter)
+            {
+                isCounter = true;
+            }
+
+            if (isCounter)
+            {
+                m_hitProps = hitEvent.m_hitData.chProps;
+                hitres = HIT_RESULT::COUNTER;
+                startShine({150, 0, 0, 225}, std::max(hitEvent.m_hitData.chProps.hitstop - 3, 5), 3);
+            }
+            else
+            {
+                m_hitProps = hitEvent.m_hitData.hitProps;
             }
 
             hitEvent.m_hitRes = hitres;
             m_healthHandler.takeDamage(hitEvent);
             m_comboPhysHandler.takeHit(hitEvent);
 
-            if (isCounter)
-                m_hitProps = hitEvent.m_hitData.chProps;
-            else
-                m_hitProps = hitEvent.m_hitData.hitProps;
-
-            if (m_airborne)
+            if (!m_lockedInAnimation)
             {
-                auto hordir = getHorDirToEnemy();
-                auto newImpulse = m_hitProps.opponentImpulseOnAirHit.mulComponents(Vector2{hordir.x * -1.0f, 1.0f});
-                newImpulse = m_comboPhysHandler.getImpulseScaling(newImpulse, hordir);
-                m_inertia = newImpulse;
-            }
-            else
-            {
-                auto hordir = getHorDirToEnemy();
-                auto newImpulse = m_hitProps.opponentImpulseOnHit.mulComponents(Vector2{hordir.x * -1.0f, 1.0f});
-                newImpulse = m_comboPhysHandler.getImpulseScaling(newImpulse, hordir);
-                m_inertia = newImpulse;
-                if (m_inertia.y < 0)
-                    m_airborne = true;
+                if (m_airborne)
+                {
+                    auto hordir = getHorDirToEnemy();
+                    auto newImpulse = m_hitProps.opponentImpulseOnAirHit.mulComponents(Vector2{hordir.x * -1.0f, 1.0f});
+                    newImpulse = m_comboPhysHandler.getImpulseScaling(newImpulse, hordir);
+                    m_inertia = newImpulse;
+                }
+                else
+                {
+                    auto hordir = getHorDirToEnemy();
+                    auto newImpulse = m_hitProps.opponentImpulseOnHit.mulComponents(Vector2{hordir.x * -1.0f, 1.0f});
+                    newImpulse = m_comboPhysHandler.getImpulseScaling(newImpulse, hordir);
+                    m_inertia = newImpulse;
+                    if (m_inertia.y < 0)
+                        m_airborne = true;
+                }
             }
 
 
@@ -815,7 +855,15 @@ bool Char1::isInBlockstun() const
 {
     return (m_currentState == CHAR1_STATE::BLOCKSTUN_STANDING ||
                         m_currentState == CHAR1_STATE::BLOCKSTUN_CROUCHING ||
-                        m_currentState == CHAR1_STATE::BLOCKSTUN_AIR);
+                        m_currentState == CHAR1_STATE::BLOCKSTUN_AIR ||
+                        m_currentState == CHAR1_STATE::HARD_LANDING_RECOVERY);
+}
+
+bool Char1::isKnockedDown() const
+{
+    return (m_currentState == CHAR1_STATE::KNOCKDOWN_RECOVERY ||
+            m_currentState == CHAR1_STATE::HARD_KNOCKDOWN ||
+            m_currentState == CHAR1_STATE::SOFT_KNOCKDOWN);
 }
 
 void Char1::enterKndRecovery()
@@ -830,6 +878,9 @@ void Char1::switchToFloat()
 
 bool Char1::canApplyGravity() const
 {
+    if (!Character::canApplyGravity())
+        return false;
+
     // TODO: make property of state
     if (m_currentState == CHAR1_STATE::AIR_DASH || m_currentState == CHAR1_STATE::AIR_DASH_EXTENTION ||
     m_currentState == CHAR1_STATE::AIR_BACKDASH)
@@ -837,24 +888,11 @@ bool Char1::canApplyGravity() const
     return true;
 }
 
-Collider Char1::getPushbox() const
-{
-    Collider pb;
-    if (m_currentAction && m_currentAction->m_isCrouchState || m_hitstunAnimation == HITSTUN_ANIMATION::CROUCH)
-        pb = m_crouchingPushbox;
-    else if (m_airborne)
-        pb = m_airbornePushbox;
-    else
-        pb = m_pushbox;
-
-    pb.x += m_pos.x;
-    pb.y += m_pos.y;
-    return pb;
-}
-
 void Char1::enterHitstunAnimation(const PostHitProperties &props_)
 {
     m_blockstunType = BLOCK_FRAME::NONE;
+    if (m_lockedInAnimation)
+        return;
 
     if (m_airborne)
     {
@@ -901,5 +939,50 @@ void Char1::touchedWall(int sideDir_)
         m_velocity.x *= -1;
         m_inertia.x *= -1;
         m_hitProps.wallBounce = false;
+    }
+}
+
+Collider Char1::getUntiedPushbox() const
+{
+    Collider pb;
+    if (m_currentAction && m_currentAction->m_isCrouchState || m_hitstunAnimation == HITSTUN_ANIMATION::CROUCH)
+        pb = m_crouchingPushbox;
+    else if (m_airborne)
+        pb = m_airbornePushbox;
+    else
+        pb = m_pushbox;
+
+    pb.x += m_pos.x;
+    pb.y += m_pos.y;
+    return pb;
+}
+
+void Char1::enterThrown(THROW_LIST throw_)
+{
+    // Enter proper state depending on throw_
+    lockInAnimation();
+
+    switch (throw_)
+    {
+        case (THROW_LIST::CHAR1_NORMAL_THROW):
+            m_actionResolver.getAction(CHAR1_STATE::THROWN_CHAR1_NORMAL_HOLD)->switchTo(*this);
+            break;
+    }
+}
+
+void Char1::throwTeched(THROW_TECHS_LIST tech_)
+{
+    std::cout << "Called tech\n";
+
+    if (tech_ == THROW_TECHS_LIST::CHAR1_GROUND)
+        m_actionResolver.getAction(CHAR1_STATE::THROW_TECH_CHAR1)->switchTo(*this);
+}
+
+void Char1::attemptThrow()
+{
+    if (m_currentAction && m_currentAction->m_isThrowStartup)
+    {
+        auto action = dynamic_cast<const Action_throw_startup<CHAR1_STATE, Char1Data, Char1>*>(m_currentAction);
+        action->attemptThrow(*this);
     }
 }

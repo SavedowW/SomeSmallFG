@@ -107,6 +107,9 @@ void Animation::update()
 
 SDL_Texture* Animation::getSprite()
 {
+	if (m_currentFrame == -1)
+		m_currentFrame = 0;
+		
 	return (*m_textures)[m_currentFrame];
 }
 

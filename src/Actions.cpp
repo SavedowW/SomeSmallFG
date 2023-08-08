@@ -9,13 +9,15 @@
  *========================== */
 
 template <typename CharState_t, typename CharData, typename Char_t>
-Action<CharState_t, CharData, Char_t>::Action(CharState_t actionState_, InputComparator_ptr incmp_, HurtboxFramesVec hurtboxes_, ANIMATIONS anim_, bool isAttack_, bool noLandTransition_, bool isCrouchState_) :
+Action<CharState_t, CharData, Char_t>::Action(CharState_t actionState_, InputComparator_ptr incmp_, HurtboxFramesVec hurtboxes_, ANIMATIONS anim_, bool isAttack_, bool noLandTransition_, bool isCrouchState_, bool isFullCounter_, bool isThrowStartup_) :
     actionState(actionState_),
     m_hurtboxes(hurtboxes_),
     m_anim(anim_),
     m_isAttack(isAttack_),
     m_noLandTransition(noLandTransition_),
-    m_isCrouchState(isCrouchState_)
+    m_isCrouchState(isCrouchState_),
+    m_isFullCounter(isFullCounter_),
+    m_isThrowStartup(isThrowStartup_)
 {
     incmp = std::move(incmp_);
 }
@@ -60,8 +62,13 @@ void Action<CharState_t, CharData, Char_t>::switchTo(Char_t &character_) const
 {
     character_.m_timer.begin(0);
     character_.m_currentState = actionState;
-    character_.m_currentAnimation = character_.m_animations[m_anim].get();
-    character_.m_currentAnimation->reset();
+
+    if (m_anim != ANIMATIONS::NONE)
+    {
+        character_.m_currentAnimation = character_.m_animations[m_anim].get();
+        character_.m_currentAnimation->reset();
+    }
+
     character_.m_currentAction = this;
     character_.m_currentCancelWindow = {};
     character_.m_cancelTimer.begin(0);
@@ -176,6 +183,250 @@ template <typename CharState_t, typename CharData, typename Char_t>
 bool Action_attack<CharState_t, CharData, Char_t>::isInCounterState(int currentFrame_) const
 {
     return (currentFrame_ >= m_counterWindow.first && currentFrame_ <= m_counterWindow.second);
+}
+
+
+// ABSTRACT THROW STARTUP
+template <typename CharState_t, typename CharData, typename Char_t>
+Action_throw_startup<CharState_t, CharData, Char_t>::Action_throw_startup(CharState_t actionState_, CharState_t whiffState_, CharState_t holdState_, InputComparator_ptr incmp_, HurtboxFramesVec hurtboxes_, ANIMATIONS anim_, float range_, FrameWindow activeWindow_, bool requiredAirborne_, THROW_LIST throw_) :
+    Action<CharState_t, CharData, Char_t>(actionState_, std::move(incmp_), hurtboxes_, anim_, false, true, false, true, true),
+    m_whiffState(whiffState_),
+    m_holdState(holdState_),
+    m_range(range_),
+    m_activeWindow(activeWindow_),
+    m_requiredAirborne(requiredAirborne_),
+    m_throw(throw_)
+{
+}
+
+template <typename CharState_t, typename CharData, typename Char_t>
+void Action_throw_startup<CharState_t, CharData, Char_t>::switchTo(Char_t &character_) const
+{
+    //character_.m_velocity = {0, 0};
+    //character_.m_inertia = {0, 0};
+    Action<CharState_t, CharData, Char_t>::switchTo(character_);
+    character_.m_timer.begin(m_activeWindow.second);
+}
+
+template <typename CharState_t, typename CharData, typename Char_t>
+void Action_throw_startup<CharState_t, CharData, Char_t>::attemptThrow(Char_t &character_) const
+{
+    auto currentFrame = character_.m_timer.getCurrentFrame() + 1;
+    if (currentFrame < m_activeWindow.first || currentFrame > m_activeWindow.second)
+        return;
+
+    if (character_.m_dirToEnemy != character_.m_ownOrientation || character_.m_otherCharacter->m_airborne != m_requiredAirborne)
+        return;
+
+    float realrange = (character_.m_pos - character_.m_otherCharacter->m_pos).getLen();
+    if (realrange <= m_range && character_.m_otherCharacter->canBeThrown(m_throw))
+    {
+        character_.m_actionResolver.getAction(m_holdState)->switchTo(character_);
+        character_.m_otherCharacter->enterThrown(m_throw);
+    }
+}
+
+template <typename CharState_t, typename CharData, typename Char_t>
+void Action_throw_startup<CharState_t, CharData, Char_t>::outdated(Char_t &character_) const
+{
+    character_.m_actionResolver.getAction(m_whiffState)->switchTo(character_);
+}
+
+// ABSTRACT THROW HOLD
+template <typename CharState_t, typename CharData, typename Char_t>
+Action_throw_hold<CharState_t, CharData, Char_t>::Action_throw_hold(CharState_t actionState_, CharState_t throwState_, float setRange_, float duration_, bool sideSwitch_) :
+    Action<CharState_t, CharData, Char_t>(actionState_, nullptr, {}, ANIMATIONS::NONE),
+    m_setRange(setRange_),
+    m_duration(duration_),
+    m_throwState(throwState_),
+    m_sideSwitch(sideSwitch_)
+{
+}
+
+template <typename CharState_t, typename CharData, typename Char_t>
+int Action_throw_hold<CharState_t, CharData, Char_t>::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+{
+    return false;
+}
+
+template <typename CharState_t, typename CharData, typename Char_t>
+void Action_throw_hold<CharState_t, CharData, Char_t>::switchTo(Char_t &character_) const
+{
+    character_.m_velocity = {0, 0};
+    character_.m_inertia = {0, 0};
+    Action<CharState_t, CharData, Char_t>::switchTo(character_);
+    character_.m_timer.begin(m_duration);
+
+    Character &otherChar = *character_.m_otherCharacter;
+    if (character_.m_ownOrientation == ORIENTATION::RIGHT)
+        otherChar.m_pos.x = character_.m_pos.x + m_setRange;
+    else
+        otherChar.m_pos.x = character_.m_pos.x - m_setRange;
+
+    otherChar.m_pos.y = character_.m_pos.y;
+
+    otherChar.lockInAnimation();
+    character_.lockInAnimation();
+    character_.tieAnimWithOpponent();
+}
+
+template <typename CharState_t, typename CharData, typename Char_t>
+void Action_throw_hold<CharState_t, CharData, Char_t>::update(Char_t &character_) const
+{
+}
+
+template <typename CharState_t, typename CharData, typename Char_t>
+void Action_throw_hold<CharState_t, CharData, Char_t>::outdated(Char_t &character_) const
+{
+    //character_.switchToIdle();
+    if (m_sideSwitch)
+    {
+        Character &otherChar = *character_.m_otherCharacter;
+        if (character_.m_ownOrientation == ORIENTATION::RIGHT)
+            otherChar.m_pos.x = character_.m_pos.x - m_setRange;
+        else
+            otherChar.m_pos.x = character_.m_pos.x + m_setRange;
+
+        character_.updateDirToEnemy();
+        character_.updateOwnOrientation();
+        otherChar.updateDirToEnemy();
+        otherChar.updateOwnOrientation();
+    }
+
+    character_.m_actionResolver.getAction(m_throwState)->switchTo(character_);
+}
+
+// ABSTRACT THROW WHIFF
+template <typename CharState_t, typename CharData, typename Char_t>
+Action_throw_whiff<CharState_t, CharData, Char_t>::Action_throw_whiff(CharState_t actionState_, ANIMATIONS anim_, float duration_, HurtboxFramesVec hurtboxes_) :
+    Action<CharState_t, CharData, Char_t>(actionState_, nullptr, hurtboxes_, anim_),
+    m_duration(duration_)
+{
+}
+
+template <typename CharState_t, typename CharData, typename Char_t>
+int Action_throw_whiff<CharState_t, CharData, Char_t>::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+{
+    return false;
+}
+
+template <typename CharState_t, typename CharData, typename Char_t>
+void Action_throw_whiff<CharState_t, CharData, Char_t>::switchTo(Char_t &character_) const
+{
+    character_.m_velocity = {0, 0};
+    character_.m_inertia = {0, 0};
+    Action<CharState_t, CharData, Char_t>::switchTo(character_);
+    character_.m_timer.begin(m_duration);
+}
+
+template <typename CharState_t, typename CharData, typename Char_t>
+void Action_throw_whiff<CharState_t, CharData, Char_t>::outdated(Char_t &character_) const
+{
+    if (!character_.m_airborne)
+        character_.switchToIdle();
+    else
+        character_.switchToFloat();
+}
+
+// ABSTRACT THROWN HOLD
+template <typename CharState_t, typename CharData, typename Char_t>
+Action_thrown_hold<CharState_t, CharData, Char_t>::Action_thrown_hold(CharState_t actionState_, CharState_t thrownState_, ANIMATIONS anim_, float duration_) :
+    Action<CharState_t, CharData, Char_t>(actionState_, nullptr, {}, anim_),
+    m_duration(duration_),
+    m_thrownState(thrownState_)
+{
+}
+
+template <typename CharState_t, typename CharData, typename Char_t>
+int Action_thrown_hold<CharState_t, CharData, Char_t>::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+{
+    return false;
+}
+
+template <typename CharState_t, typename CharData, typename Char_t>
+void Action_thrown_hold<CharState_t, CharData, Char_t>::switchTo(Char_t &character_) const
+{
+    character_.m_velocity = {0, 0};
+    character_.m_inertia = {0, 0};
+    Action<CharState_t, CharData, Char_t>::switchTo(character_);
+    character_.m_timer.begin(m_duration);
+
+    character_.lockInAnimation();
+    character_.tieAnimWithOpponent();
+}
+
+template <typename CharState_t, typename CharData, typename Char_t>
+void Action_thrown_hold<CharState_t, CharData, Char_t>::outdated(Char_t &character_) const
+{
+    //character_.switchToIdle();
+    character_.m_actionResolver.getAction(m_thrownState)->switchTo(character_);
+}
+
+// ABSTRACT THROW TECH
+template <typename CharState_t, typename CharData, typename Char_t>
+Action_throw_tech<CharState_t, CharData, Char_t>::Action_throw_tech(CharState_t actionState_, InputComparator_ptr incmp_, ANIMATIONS anim_, float duration_, HurtboxFramesVec hurtboxes_, THROW_TECHS_LIST throwTech_) :
+    Action<CharState_t, CharData, Char_t>(actionState_, std::move(incmp_), hurtboxes_, anim_),
+    m_duration(duration_),
+    m_throwTech(throwTech_)
+{
+}
+
+template <typename CharState_t, typename CharData, typename Char_t>
+void Action_throw_tech<CharState_t, CharData, Char_t>::switchTo(Char_t &character_) const
+{
+    character_.m_velocity = {0, 0};
+    character_.m_inertia = {0, 0};
+    Action<CharState_t, CharData, Char_t>::switchTo(character_);
+    character_.m_timer.begin(m_duration);
+
+    character_.releaseFromAnimation();
+    if (character_.m_tiedAnimWithOpponent)
+    {
+        character_.untieAnimWithOpponent();
+        character_.m_otherCharacter->throwTeched(m_throwTech);
+    }
+}
+
+template <typename CharState_t, typename CharData, typename Char_t>
+void Action_throw_tech<CharState_t, CharData, Char_t>::outdated(Char_t &character_) const
+{
+    if (!character_.m_airborne)
+        character_.switchToIdle();
+    else
+        character_.switchToFloat();
+}
+
+// ABSTRACT LOCKED ANIMATION
+template <typename CharState_t, typename CharData, typename Char_t>
+Action_locked_animation<CharState_t, CharData, Char_t>::Action_locked_animation(CharState_t actionState_, CharState_t quitState_, HurtboxFramesVec hurtboxes_, ANIMATIONS anim_, float duration_) :
+    Action<CharState_t, CharData, Char_t>(actionState_, nullptr, hurtboxes_, anim_),
+    m_duration(duration_),
+    m_quitState(quitState_)
+{
+}
+
+template <typename CharState_t, typename CharData, typename Char_t>
+int Action_locked_animation<CharState_t, CharData, Char_t>::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+{
+    return false;
+}
+
+template <typename CharState_t, typename CharData, typename Char_t>
+void Action_locked_animation<CharState_t, CharData, Char_t>::switchTo(Char_t &character_) const
+{
+    character_.m_velocity = {0, 0};
+    character_.m_inertia = {0, 0};
+    Action<CharState_t, CharData, Char_t>::switchTo(character_);
+    character_.m_timer.begin(m_duration);
+    character_.lockInAnimation();
+}
+
+template <typename CharState_t, typename CharData, typename Char_t>
+void Action_locked_animation<CharState_t, CharData, Char_t>::outdated(Char_t &character_) const
+{
+    character_.releaseFromAnimation();
+    character_.untieAnimWithOpponent();
+    character_.m_actionResolver.getAction(m_quitState)->switchTo(character_);
 }
 
 /* ============================
@@ -1220,6 +1471,7 @@ int Action_char1_knockdown_recovery::isPossible(const InputQueue &inputQueue_, C
 void Action_char1_knockdown_recovery::outdated(Char1 &character_) const
 {
     character_.switchToIdle();
+    character_.setThrowInvul();
 }
 
 void Action_char1_knockdown_recovery::switchTo(Char1 &character_) const
@@ -1622,6 +1874,279 @@ void Action_char1_move_214C::update(Char1 &character_) const
     {
         character_.m_cam->startShake(35, 10);
     }
+}
+
+// Normal throw startup
+Action_char1_normal_throw_startup::Action_char1_normal_throw_startup() :
+    Action_throw_startup<CHAR1_STATE, Char1Data, Char1>(CHAR1_STATE::THROW_NORMAL_STARTUP, CHAR1_STATE::THROW_NORMAL_WHIFF, CHAR1_STATE::THROW_NORMAL_HOLD,
+    std::make_unique<InputComparatorBCPress>(),
+    {
+        {
+            {1, 6},
+            {-70, -375, 140, 375}
+        }
+    },
+    ANIMATIONS::CHAR1_NORMAL_THROW_STARTUP, 200.0f, {2, 5}, false, THROW_LIST::CHAR1_NORMAL_THROW)
+{
+}
+
+int Action_char1_normal_throw_startup::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+{
+    if (charData_.inHitstop)
+        return 0;
+
+    if (charData_.cancelOptions)
+    {
+        if (charData_.cancelOptions->contains((int)actionState))
+        {
+            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+        }
+    }
+
+    switch (charData_.state)
+    {
+
+        case (CHAR1_STATE::SOFT_LANDING_RECOVERY):
+            [[fallthrough]];
+        case (CHAR1_STATE::GROUND_DASH):
+            [[fallthrough]];
+        case (CHAR1_STATE::GROUND_DASH_RECOVERY):
+            [[fallthrough]];
+        case (CHAR1_STATE::WALK_BWD):
+            [[fallthrough]];
+        case (CHAR1_STATE::WALK_FWD):
+            [[fallthrough]];
+        case (CHAR1_STATE::CROUCH):
+            [[fallthrough]];
+        case (CHAR1_STATE::STEP_RECOVERY):
+            [[fallthrough]];
+        case (CHAR1_STATE::IDLE):
+            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+            break;
+
+        default:
+            return 0;
+            break;
+    }
+
+    throw std::runtime_error("Undefined state transition");
+    return false;
+}
+
+// Normal throw hold
+Action_char1_normal_throw_hold::Action_char1_normal_throw_hold() :
+    Action_throw_hold<CHAR1_STATE, Char1Data, Char1>(CHAR1_STATE::THROW_NORMAL_HOLD, CHAR1_STATE::THROW_NORMAL_ANIM, 90, 10, false)
+{
+}
+
+// Back throw startup
+Action_char1_back_throw_startup::Action_char1_back_throw_startup() :
+    Action_throw_startup<CHAR1_STATE, Char1Data, Char1>(CHAR1_STATE::THROW_BACK_STARTUP, CHAR1_STATE::THROW_NORMAL_WHIFF, CHAR1_STATE::THROW_BACK_HOLD,
+    std::make_unique<InputComparator4BCPress>(),
+    {
+        {
+            {1, 6},
+            {-70, -375, 140, 375}
+        }
+    },
+    ANIMATIONS::CHAR1_NORMAL_THROW_STARTUP, 200.0f, {2, 5}, false, THROW_LIST::CHAR1_NORMAL_THROW)
+{
+}
+
+int Action_char1_back_throw_startup::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+{
+    if (charData_.inHitstop)
+        return 0;
+
+    if (charData_.cancelOptions)
+    {
+        if (charData_.cancelOptions->contains((int)actionState))
+        {
+            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+        }
+    }
+
+    switch (charData_.state)
+    {
+
+        case (CHAR1_STATE::SOFT_LANDING_RECOVERY):
+            [[fallthrough]];
+        case (CHAR1_STATE::GROUND_DASH):
+            [[fallthrough]];
+        case (CHAR1_STATE::GROUND_DASH_RECOVERY):
+            [[fallthrough]];
+        case (CHAR1_STATE::WALK_BWD):
+            [[fallthrough]];
+        case (CHAR1_STATE::WALK_FWD):
+            [[fallthrough]];
+        case (CHAR1_STATE::CROUCH):
+            [[fallthrough]];
+        case (CHAR1_STATE::STEP_RECOVERY):
+            [[fallthrough]];
+        case (CHAR1_STATE::IDLE):
+            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+            break;
+
+        default:
+            return 0;
+            break;
+    }
+
+    throw std::runtime_error("Undefined state transition");
+    return false;
+}
+
+// Back throw hold
+Action_char1_back_throw_hold::Action_char1_back_throw_hold() :
+    Action_throw_hold<CHAR1_STATE, Char1Data, Char1>(CHAR1_STATE::THROW_BACK_HOLD, CHAR1_STATE::THROW_NORMAL_ANIM, 90, 10, true)
+{
+}
+
+// Normal throw whiff
+Action_char1_normal_throw_whiff::Action_char1_normal_throw_whiff() :
+    Action_throw_whiff<CHAR1_STATE, Char1Data, Char1>(CHAR1_STATE::THROW_NORMAL_WHIFF, ANIMATIONS::CHAR1_NORMAL_THROW_WHIFF, 30, {
+        {
+            {1, 30},
+            {-70, -375, 140, 375}
+        }
+    })
+{
+}
+
+// NORMAL THROW ACTION
+Action_char1_normal_throw::Action_char1_normal_throw() :
+    Action_locked_animation<CHAR1_STATE, Char1Data, Char1>(CHAR1_STATE::THROW_NORMAL_ANIM, CHAR1_STATE::IDLE, {
+        {
+            {1, 50},
+            {-70, -375, 140, 375}
+        }
+    }, ANIMATIONS::CHAR1_NORMAL_THROW, 50)
+{
+}
+
+void Action_char1_normal_throw::update(Char1 &character_) const
+{
+    //character_.updateOwnOrientation();
+    if (character_.m_timer.getCurrentFrame() == 12 && !character_.m_inHitstop)
+    {
+        HitEvent ev;
+        ev.m_hitData = hitgeneration::generate_char1_normal_throw();
+        ev.m_hittingPlayerId = character_.m_playerId;
+        character_.applyHit(ev);
+        character_.m_otherCharacter->applyHit(ev);
+        character_.m_cam->startShake(35, 10);
+    }
+}
+
+// Throw tech
+Action_char1_throw_tech::Action_char1_throw_tech() :
+    Action_throw_tech<CHAR1_STATE, Char1Data, Char1>(CHAR1_STATE::THROW_TECH_OWN,
+    std::make_unique<InputComparatorBCPress>(), ANIMATIONS::CHAR1_THROW_TECH, 15,
+    {
+        {
+            {1, 25},
+            {-70, -375, 140, 375}
+        }
+    }, THROW_TECHS_LIST::CHAR1_GROUND)
+{
+}
+
+int Action_char1_throw_tech::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+{
+    if (charData_.inHitstop)
+        return 0;
+
+    if (charData_.cancelOptions)
+    {
+        if (charData_.cancelOptions->contains((int)actionState))
+        {
+            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+        }
+    }
+
+    switch (charData_.state)
+    {
+
+        case (CHAR1_STATE::THROWN_CHAR1_NORMAL_HOLD):
+            return (isInputPossible(inputQueue_, charData_.ownDirection) ? 1 : 0);
+            break;
+
+        default:
+            return 0;
+            break;
+    }
+
+    throw std::runtime_error("Undefined state transition");
+    return false;
+}
+
+void Action_char1_throw_tech::switchTo(Char1 &character_) const
+{
+    Action_throw_tech<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    character_.m_inertia.x += -character_.getOwnHorDir().x * 5.0f;
+}
+
+// Throw tech state when Char1 breaks throw
+Action_char1_throw_tech_char1::Action_char1_throw_tech_char1() :
+    Action_throw_tech<CHAR1_STATE, Char1Data, Char1>(CHAR1_STATE::THROW_TECH_CHAR1,
+    std::make_unique<InputComparatorBCPress>(), ANIMATIONS::CHAR1_THROW_TECH, 25,
+    {
+        {
+            {1, 25},
+            {-70, -375, 140, 375}
+        }
+    }, THROW_TECHS_LIST::NONE)
+{
+}
+
+int Action_char1_throw_tech_char1::isPossible(const InputQueue &inputQueue_, Char1Data charData_) const
+{
+    return false;
+}
+
+void Action_char1_throw_tech_char1::switchTo(Char1 &character_) const
+{
+    Action_throw_tech<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    character_.m_inertia.x += -character_.getOwnHorDir().x * 20.0f;
+}
+
+// Thrown by char1 normal throw - hold
+Action_char1_thrown_char1_normal_hold::Action_char1_thrown_char1_normal_hold() :
+    Action_thrown_hold<CHAR1_STATE, Char1Data, Char1>(CHAR1_STATE::THROWN_CHAR1_NORMAL_HOLD, CHAR1_STATE::THROWN_CHAR1_NORMAL_ANIM, ANIMATIONS::CHAR1_THROWN_CHAR1_NORMAL_HOLD, 10)
+{
+}
+
+// Thrown by char1 normal throw - animation
+Action_char1_thrown_char1_normal::Action_char1_thrown_char1_normal() :
+    Action_locked_animation<CHAR1_STATE, Char1Data, Char1>(CHAR1_STATE::THROWN_CHAR1_NORMAL_ANIM, CHAR1_STATE::HITSTUN_AIR, {
+        {
+            {1, 50},
+            {-70, -375, 140, 375}
+        }
+    }, ANIMATIONS::CHAR1_THROWN_CHAR1_NORMAL, 14)
+{
+}
+
+void Action_char1_thrown_char1_normal::update(Char1 &character_) const
+{
+    //8-16
+    auto curFrame = character_.m_timer.getCurrentFrame();
+    if (curFrame == 1)
+        character_.m_velocity = {character_.getOwnHorDir().x * 0.8f, 5.0f};
+    else if (curFrame == 10)
+        character_.m_velocity = {0, 0};
+}
+
+void Action_char1_thrown_char1_normal::outdated(Char1 &character_) const
+{
+    character_.releaseFromAnimation();
+    character_.untieAnimWithOpponent();
+    character_.m_inertia = {-character_.getOwnHorDir().x * 5.0f, -20.0f};
+    character_.m_pos.y = gamedata::stages::levelOfGround - 1;
+    character_.m_airborne = true;
+    //character_.switchToFloat();
+    character_.enterHitstunAnimation(character_.m_hitProps);
+    //character_.m_actionResolver.getAction(m_quitState)->switchTo(character_);
 }
 
 

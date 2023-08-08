@@ -83,6 +83,9 @@ protected:
         results[0] = m_characters[0]->update();
         results[1] = m_characters[1]->update();
 
+        results[0].pushbox = m_characters[0]->getPushbox();
+        results[1].pushbox = m_characters[1]->getPushbox();
+
         // Solve pushbox interactions
 
         // Check if comebody crossed level bounds
@@ -92,8 +95,8 @@ protected:
             int stageBoundResult = results[i].pushbox.isWithinHorizontalBounds(0.0f, m_size.x);
             if (stageBoundResult < 0)
             {
-                auto newPos = Vector2<float>{results[i].pushbox.w / 2, results[i].newPos.y};
-                m_characters[i]->setPos(newPos);
+                auto offset = Vector2<float>{results[i].pushbox.x, 0};
+                m_characters[i]->setPos(m_characters[i]->getPos() - offset);
                 m_characters[i]->touchedWall(stageBoundResult);
                 hitsWall[i] = true;
 
@@ -105,8 +108,8 @@ protected:
             }
             else if (stageBoundResult > 0)
             {
-                auto newPos = Vector2<float>{m_size.x - (results[i].pushbox.x + results[i].pushbox.w - results[i].newPos.x), results[i].newPos.y};
-                m_characters[i]->setPos(newPos);
+                auto offset = Vector2<float>{results[i].pushbox.x + results[i].pushbox.w - m_size.x, 0};
+                m_characters[i]->setPos(m_characters[i]->getPos() - offset);
                 m_characters[i]->touchedWall(stageBoundResult);
                 hitsWall[i] = true;
 
@@ -151,7 +154,7 @@ protected:
         auto pb1 = m_characters[0]->getPushbox();
         auto pb2 = m_characters[1]->getPushbox();
         auto pbres = pb1.getHorizontalOverlap(pb2);
-        if (pb1.isCollideWith(pb2) && pbres.overlapWidth != 0)
+        if (pb1.isCollideWith(pb2) && pbres.overlapWidth != 0 && !m_characters[0]->passableThrough() && !m_characters[1]->passableThrough())
         {
             float approachSpd = (results[0].moveOffset.x * m_characters[0]->getHorDirToEnemy().x + results[1].moveOffset.x * m_characters[1]->getHorDirToEnemy().x);
             auto maxPushRange = gamedata::stages::maxPushRange;
@@ -268,6 +271,10 @@ protected:
                 }
             }
         }
+
+        // Check for possible throws
+        m_characters[0]->attemptThrow();
+        m_characters[1]->attemptThrow();
 
         m_camera.update();
         m_hud.update();

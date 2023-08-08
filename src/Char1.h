@@ -42,7 +42,17 @@ enum class CHAR1_STATE {
     BLOCKSTUN_AIR,
     HARD_KNOCKDOWN,
     SOFT_KNOCKDOWN,
-    KNOCKDOWN_RECOVERY
+    KNOCKDOWN_RECOVERY,
+    THROW_NORMAL_STARTUP,
+    THROW_NORMAL_HOLD,
+    THROW_BACK_STARTUP,
+    THROW_BACK_HOLD,
+    THROW_NORMAL_WHIFF,
+    THROW_NORMAL_ANIM,
+    THROWN_CHAR1_NORMAL_HOLD,
+    THROWN_CHAR1_NORMAL_ANIM,
+    THROW_TECH_OWN,
+    THROW_TECH_CHAR1
     };
 
 struct Char1Data : public CharData<CHAR1_STATE>
@@ -84,9 +94,11 @@ public:
     void updateBlockState() final;
     bool isInHitstun() const final;
     bool isInBlockstun() const final;
+    bool isKnockedDown() const final;
     bool canApplyGravity() const final;
-    Collider getPushbox() const final;
     void touchedWall(int sideDir_) final;
+
+    void attemptThrow() final;
 
     std::string CharStateData() const final;
 
@@ -99,6 +111,11 @@ protected:
     Char1Data generateCharData();
     bool isInActiveFrames() const;
     void enterHitstunAnimation(const PostHitProperties &props_) final;
+
+    void throwTeched(THROW_TECHS_LIST tech_) final;
+
+    Collider getUntiedPushbox() const final;
+    void enterThrown(THROW_LIST throw_);
 
     std::set<int> m_appliedHits;
 
@@ -127,6 +144,16 @@ protected:
     
 
     friend Action<CHAR1_STATE, Char1Data, Char1>;
+    friend Action_throw_startup<CHAR1_STATE, Char1Data, Char1>;
+    friend Action_throw_hold<CHAR1_STATE, Char1Data, Char1>;
+    friend Action_thrown_hold<CHAR1_STATE, Char1Data, Char1>;
+    friend Action_throw_whiff<CHAR1_STATE, Char1Data, Char1>;
+    friend Action_throw_tech<CHAR1_STATE, Char1Data, Char1>;
+    friend Action_locked_animation<CHAR1_STATE, Char1Data, Char1>;
+    friend Action_char1_normal_throw;
+    friend Action_char1_thrown_char1_normal;
+    friend Action_char1_throw_tech;
+    friend Action_char1_throw_tech_char1;
     friend Action_jump<CHAR1_STATE, Char1Data, Char1>;
     friend Action_prolonged<CHAR1_STATE, Char1Data, Char1>;
     friend Action_attack<CHAR1_STATE, Char1Data, Char1>;

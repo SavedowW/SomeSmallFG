@@ -392,3 +392,60 @@ bool InputComparator236CPress::operator()(const InputQueue &inputQueue_, ORIENTA
 
     return false;
 }
+
+bool InputComparatorBCPress::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_) const
+{
+    if (inputQueue_.getFilled() == 0)
+        return false;
+
+    int lookAt = std::min(inputQueue_.getFilled() - 1, gamedata::global::inputBufferLength);
+    std::array<INPUT_BUTTON, 2> buttons{INPUT_BUTTON::B, INPUT_BUTTON::C};
+    for (int i = 0; i <= lookAt; ++i)
+    {
+        auto &in = inputQueue_[i];
+        bool allPressed = true;
+        for (const auto &btn : buttons)
+            if (!in.isInputActive(btn))
+                allPressed = false;
+        
+        if (allPressed)
+        {
+            for (const auto &btn : buttons)
+                if (in.inputs.at(btn) == INPUT_BUTTON_STATE::PRESSED)
+                    return true;
+        }
+    }
+
+    return false;
+}
+
+bool InputComparator4BCPress::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_) const
+{
+    if (inputQueue_.getFilled() == 0)
+        return false;
+
+    int lookAt = std::min(inputQueue_.getFilled() - 1, gamedata::global::inputBufferLength);
+    std::array<INPUT_BUTTON, 2> buttons{INPUT_BUTTON::B, INPUT_BUTTON::C};
+    float backDir = (faceDirection_ == ORIENTATION::RIGHT ? -1.0f : 1.0f);
+    for (int i = 0; i <= lookAt; ++i)
+    {
+        auto &in = inputQueue_[i];
+        bool allPressed = true;
+
+        if (in.dir.x == backDir)
+        {
+            for (const auto &btn : buttons)
+                if (!in.isInputActive(btn))
+                    allPressed = false;
+
+            if (allPressed)
+            {
+                for (const auto &btn : buttons)
+                    if (in.inputs.at(btn) == INPUT_BUTTON_STATE::PRESSED)
+                        return true;
+            }
+        }
+    }
+
+    return false;
+}

@@ -47,12 +47,9 @@ CharacterUpdateRes Character::update()
 
     if (!m_inHitstop)
     {
-        auto vecToEnemy = getHorDirToEnemy();
-        if (vecToEnemy.x > 0)
-            m_dirToEnemy = ORIENTATION::RIGHT;
-        else if (vecToEnemy.x < 0)
-            m_dirToEnemy = ORIENTATION::LEFT;
+        updateDirToEnemy();
     }
+
 
     if (m_shineLockedTimer.update())
     {
@@ -62,6 +59,8 @@ CharacterUpdateRes Character::update()
             m_shineLockedTimer.begin(0);
         }
     }
+
+    m_throwInvulTimer.update();
 
     proceedCurrentState();
 
@@ -205,14 +204,6 @@ void Character::setPos(Vector2<float> pos_)
     m_pos = pos_;
 }
 
-Collider Character::getPushbox() const
-{
-    auto pb = (!m_airborne ? m_pushbox : m_airbornePushbox);
-    pb.x += m_pos.x;
-    pb.y += m_pos.y;
-    return pb;
-}
-
 Vector2<float> Character::getHorDirToEnemy() const
 {
     return Vector2(m_otherCharacter->getPos().x - getPos().x, 0.0f).normalised();
@@ -243,6 +234,15 @@ void Character::updateOwnOrientation()
     m_ownOrientation = m_dirToEnemy;
 }
 
+void Character::updateDirToEnemy()
+{
+    auto vecToEnemy = getHorDirToEnemy();
+    if (vecToEnemy.x > 0)
+        m_dirToEnemy = ORIENTATION::RIGHT;
+    else if (vecToEnemy.x < 0)
+        m_dirToEnemy = ORIENTATION::LEFT;
+}
+
 bool Character::canApplyDrag() const
 {
     return true;
@@ -250,6 +250,9 @@ bool Character::canApplyDrag() const
 
 bool Character::canApplyGravity() const
 {
+    if (m_lockedInAnimation)
+        return false;
+
     return true;
 }
 
@@ -279,6 +282,9 @@ HitData Character::getCurrentTakenHit()
 
 void Character::takeCornerPushback(HitData fromHit_, float rangeToCorner_, const Vector2<int> dirFromCorner_)
 {
+    if (m_lockedInAnimation || m_tiedAnimWithOpponent)
+        return;
+
     if (fromHit_.m_hitId != -1 && fromHit_.cornerPushbackMaxRange > rangeToCorner_)
     {
         if (utils::sameSign((int)m_inertia.x, dirFromCorner_.x))
@@ -309,4 +315,70 @@ void Character::startShine(const SDL_Color &col_, int lockedDuration_, int alpha
     m_colorShine = col_;
     m_shineAlphaTimer.begin(alphaDuration_);
     m_shineLockedTimer.begin(lockedDuration_);
+}
+
+void Character::lockInAnimation()
+{
+    m_lockedInAnimation = true;
+}
+
+void Character::releaseFromAnimation()
+{
+    m_lockedInAnimation = false;
+}
+
+void Character::tieAnimWithOpponent()
+{
+    if (m_tiedAnimWithOpponent)
+        return;
+
+    m_tiedAnimWithOpponent = true;
+    m_otherCharacter->tieAnimWithOpponent();
+}  
+
+void Character::untieAnimWithOpponent()
+{
+    if (!m_tiedAnimWithOpponent)
+        return;
+
+    m_tiedAnimWithOpponent = false;
+    m_otherCharacter->untieAnimWithOpponent();
+}
+
+Collider Character::getPushbox() const
+{
+    auto pb = getUntiedPushbox();
+    if (!m_tiedAnimWithOpponent)
+        return pb;
+
+    auto pb2 = m_otherCharacter->getUntiedPushbox();
+    Vector2<float> tl, br;
+
+    tl.x = std::min(pb.x, pb2.x);
+    tl.y = std::min(pb.y, pb2.y);
+
+    br.x = std::max(pb.x + pb.w, pb2.x + pb2.w);
+    br.y = std::max(pb.y + pb.h, pb2.y + pb2.h);
+
+    Collider realpb;
+    realpb.x = tl.x;
+    realpb.y = tl.y;
+    realpb.w = br.x - tl.x;
+    realpb.h = br.y - tl.y;
+    return realpb;
+}
+
+bool Character::passableThrough() const
+{
+    return m_tiedAnimWithOpponent || m_lockedInAnimation;
+}
+
+bool Character::canBeThrown(THROW_LIST throw_) const
+{
+    return (!m_throwInvulTimer.isActive() && !isInBlockstun() && !isInHitstun() && !isKnockedDown());
+}
+
+void Character::setThrowInvul()
+{
+    m_throwInvulTimer.begin(5);
 }

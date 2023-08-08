@@ -42,6 +42,12 @@ enum class ANIMATIONS
 	CHAR1_KNOCKDOWN,
 	CHAR1_SOFT_KNOCKDOWN,
 	CHAR1_KNOCKDOWN_RECOVERY,
+	CHAR1_NORMAL_THROW_STARTUP,
+	CHAR1_NORMAL_THROW,
+	CHAR1_THROWN_CHAR1_NORMAL_HOLD,
+	CHAR1_THROWN_CHAR1_NORMAL,
+	CHAR1_THROW_TECH,
+	CHAR1_NORMAL_THROW_WHIFF,
 	NONE
 };
 
@@ -127,7 +133,13 @@ private:
 		"Resources/Sprites/Char1/CrouchBlock/",
 		"Resources/Sprites/Char1/Knockdown/",
 		"Resources/Sprites/Char1/SoftKnockdown/",
-		"Resources/Sprites/Char1/KnockdownRecovery/"
+		"Resources/Sprites/Char1/KnockdownRecovery/",
+		"Resources/Sprites/Char1/ThrowStartup/",
+		"Resources/Sprites/Char1/Throw/",
+		"Resources/Sprites/Char1/ThrownChar1Hold/",
+		"Resources/Sprites/Char1/ThrownChar1/",
+		"Resources/Sprites/Char1/ThrowTech/",
+		"Resources/Sprites/Char1/ThrowWhiff/",
 	};
 	std::map<ANIMATIONS, std::weak_ptr<TextureArr>> m_textureArrPointers;
 

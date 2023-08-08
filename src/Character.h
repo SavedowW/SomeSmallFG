@@ -88,6 +88,40 @@
  * more oomph overall
 */
 
+
+/*
+ *
+ * Animations for throws:
+ * 
+ * for attacker:
+ * startup (actual startup frames and a number of frames while holding an opponent for a throw tech opportunity)
+ * Throw animation
+ * Throw whiff animation
+ * 
+ * for defender:
+ * startup (a number of frames while being held for a throw tech opportunity)
+ * Throw animation
+ * 
+ * 
+ * States for throw:
+ * 
+ * for attacker:
+ * throw startup
+ * throw hold
+ * throw whiff
+ * throw tech
+ * actual throw
+ * 
+ * for defender:
+ * throw hold
+ * throw tech
+ * throw animation
+ * state after release
+ * 
+ * 
+ * 
+*/
+
 struct CharacterUpdateRes
 {
     Vector2<float> moveOffset;
@@ -122,7 +156,7 @@ public:
 
     Vector2<float> getPos() const;
     void setPos(Vector2<float> pos_);
-    virtual Collider getPushbox() const;
+    Collider getPushbox() const;
 
     Vector2<float> getVelocity() const;
     Vector2<float> getInertia() const;
@@ -143,12 +177,19 @@ public:
     virtual void updateBlockState() = 0;
     virtual bool isInHitstun() const = 0;
     virtual bool isInBlockstun() const = 0;
+    virtual bool isKnockedDown() const = 0;
+    bool passableThrough() const;
+
+    virtual bool canBeThrown(THROW_LIST throw_) const;
+    void setThrowInvul();
+    virtual void attemptThrow() = 0;
 
     virtual void touchedWall(int sideDir_) = 0;
 
     virtual std::string CharStateData() const = 0;
 
     virtual void updateOwnOrientation();
+    virtual void updateDirToEnemy();
     virtual void updatePosition();
 
     virtual HIT_RESULT applyHit(HitEvent &hitEvent_) = 0;
@@ -166,6 +207,14 @@ public:
 protected:
     virtual void enterHitstunAnimation(const PostHitProperties &props_) = 0;
     void startShine(const SDL_Color &col_, int lockedDuration_, int alphaDuration_);
+
+    void lockInAnimation();
+    void releaseFromAnimation();
+    void tieAnimWithOpponent();
+    void untieAnimWithOpponent();
+    virtual Collider getUntiedPushbox() const = 0;
+    virtual void enterThrown(THROW_LIST throw_) = 0;
+    virtual void throwTeched(THROW_TECHS_LIST tech_) = 0;
 
     Vector2<float> m_pos;
     Vector2<float> m_velocity;
@@ -192,6 +241,7 @@ protected:
 
     HitData m_currentTakenHit;
     PostHitProperties m_hitProps;
+    FrameTimer m_throwInvulTimer;
 
     HealthWidget *m_healthWidget = nullptr;
     NotifyWidget *m_notifyWidget = nullptr;
@@ -209,6 +259,17 @@ protected:
     FrameTimer m_shineLockedTimer;
     FrameTimer m_shineAlphaTimer;
 
+    bool m_lockedInAnimation = false;
+    bool m_tiedAnimWithOpponent = false;
+
+    bool m_throwPossible = false;
+
+    friend Action_throw_startup<CHAR1_STATE, Char1Data, Char1>;
+    friend Action_throw_tech<CHAR1_STATE, Char1Data, Char1>;
+    friend Action_throw_hold<CHAR1_STATE, Char1Data, Char1>;
+    friend Action_thrown_hold<CHAR1_STATE, Char1Data, Char1>;
+    friend Action_throw_whiff<CHAR1_STATE, Char1Data, Char1>;
+    friend Action_locked_animation<CHAR1_STATE, Char1Data, Char1>;
 };
 
 #endif

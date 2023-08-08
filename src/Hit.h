@@ -11,7 +11,7 @@
 
 using FrameWindow = std::pair<int, int>;
 
-enum class HIT_RESULT {HIT, COUNTER, BLOCK_HIGH, BLOCK_LOW, BLOCK_AIR, NONE}; // Potentially more options with guard points, parries, etc
+enum class HIT_RESULT {HIT, THROWN, COUNTER, BLOCK_HIGH, BLOCK_LOW, BLOCK_AIR, NONE}; // Potentially more options with guard points, parries, etc
 enum class HITSTUN_ANIMATION {HIGH, MID, LOW, CROUCH, FLOAT, NONE};
 
 // Integers in set are values of character-specific state ENUMs
@@ -64,6 +64,8 @@ struct PostHitProperties
 
 struct HitData
 {
+    bool partOfThrow = false;
+
     int m_hitId;
     float damage = 0;
 
@@ -117,6 +119,7 @@ struct HitEvent
 
 namespace hitgeneration
 {
+    HitData generate_char1_normal_throw();
     std::pair<FrameWindow, Hit> generate_char1_jab();
     std::pair<FrameWindow, Hit> generate_char1_moveB();
     std::pair<FrameWindow, Hit> generate_char1_moveC();
