@@ -20,8 +20,8 @@ void Stage1::enter()
     m_characters[0] = std::make_unique<Char1>(*m_application, gamedata::stages::spawnPoints[0], &m_camera, &m_particleManager);
     m_characters[1] = std::make_unique<Char1>(*m_application, gamedata::stages::spawnPoints[1], &m_camera, &m_particleManager);
 
-    m_characters[0]->setOnStage(*m_application, 1, m_characters[1].get());
-    m_characters[1]->setOnStage(*m_application, 2, m_characters[0].get());
+    m_characters[0]->setOnStage(*m_application, 1, m_characters[1].get(), &m_priorityHandler);
+    m_characters[1]->setOnStage(*m_application, 2, m_characters[0].get(), &m_priorityHandler);
 
     m_characters[0]->generateWidgets(*m_application, m_hud);
     m_characters[1]->generateWidgets(*m_application, m_hud);

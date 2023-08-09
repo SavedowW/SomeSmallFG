@@ -13,7 +13,7 @@ Character::Character(Application &application_, Vector2<float> pos_, float maxHe
     setPos(pos_);
 }
 
-void Character::setOnStage(Application &application_, int playerId_, Character *otherCharacter_)
+void Character::setOnStage(Application &application_, int playerId_, Character *otherCharacter_, PriorityHandler *priorityHandler_)
 {
     m_playerId = playerId_;
     if (m_playerId == 1)
@@ -28,6 +28,7 @@ void Character::setOnStage(Application &application_, int playerId_, Character *
     }
 
     m_otherCharacter = otherCharacter_;
+    m_priorityHandler = priorityHandler_;
     loadAnimations(application_);
     initiate();
     m_currentTakenHit.m_hitId = -1;
@@ -385,4 +386,9 @@ bool Character::canBeThrown(THROW_LIST throw_) const
 void Character::setThrowInvul()
 {
     m_throwInvulTimer.begin(5);
+}
+
+void Character::callForPriority()
+{
+    m_priorityHandler->callForPriority(m_playerId);
 }

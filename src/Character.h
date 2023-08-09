@@ -13,6 +13,7 @@
 #include "NotifyWidget.h"
 #include "HealthHandler.h"
 #include "ComboPhysicsHandler.h"
+#include "PriorityHandler.h"
 
 /*
  * TODO: LIST
@@ -43,8 +44,8 @@
  * 
  * step - cancel and step - cancel specific moves
  * * Kind of like dash cancel, except with completely fixed range and unique follow ups
- * throws [DONE, but unfinished without priority]
- * Priority
+ * throws [DONE]
+ * Priority [DONE]
  * * Character who lands a hit or a throw gets a priority.
  * * Priority defines who's drawn on top of another, who's updates are calculated first and who techs in same frame situation
  * Projectiles
@@ -150,7 +151,7 @@ class Character
 public:
     Character(Application &application_, Vector2<float> pos_, float maxHealth_, float baseGravity_, Camera *cam_, ParticleManager *particleManager_);
 
-    void setOnStage(Application &application_, int playerId_, Character *otherCharacter_);
+    void setOnStage(Application &application_, int playerId_, Character *otherCharacter_, PriorityHandler *priorityHandler_);
 
     virtual CharacterUpdateRes update();
     virtual void draw(Renderer &renderer_, Camera &camera_);
@@ -217,6 +218,8 @@ protected:
     virtual void enterThrown(THROW_LIST throw_) = 0;
     virtual void throwTeched(THROW_TECHS_LIST tech_) = 0;
 
+    void callForPriority();
+
     Vector2<float> m_pos;
     Vector2<float> m_velocity;
     Vector2<float> m_inertia;
@@ -251,7 +254,8 @@ protected:
     HealthHandler m_healthHandler;
     ComboPhysicsHandler m_comboPhysHandler;
 
-    Camera *m_cam;
+    Camera *m_cam = nullptr;
+    PriorityHandler *m_priorityHandler = nullptr;
 
     HITSTUN_ANIMATION m_hitstunAnimation;
 

@@ -10,6 +10,8 @@
 #include "FrameTimer.h"
 #include <SDL_ttf.h>
 #include "ParticleManager.h"
+#include "PriorityHandler.h"
+#include <ranges>
 
 template <typename BackType>
 class BattleLevel : public Level
@@ -80,8 +82,10 @@ protected:
 
         std::array<CharacterUpdateRes, 2> results;
 
-        results[0] = m_characters[0]->update();
-        results[1] = m_characters[1]->update();
+        auto priorityList = m_priorityHandler.getUpdatedPriority();
+
+        for (const auto &i : priorityList)
+            results[i] = m_characters[i]->update();
 
         results[0].pushbox = m_characters[0]->getPushbox();
         results[1].pushbox = m_characters[1]->getPushbox();
@@ -90,7 +94,7 @@ protected:
 
         // Check if comebody crossed level bounds
         std::array<bool, 2> hitsWall = {false, false};
-        for (int i = 0; i < 2; ++i)
+        for (const auto &i : priorityList)
         {
             int stageBoundResult = results[i].pushbox.isWithinHorizontalBounds(0.0f, m_size.x);
             if (stageBoundResult < 0)
@@ -235,7 +239,7 @@ protected:
 
 
         // Update block state
-        for (int pid = 0; pid <= 1; ++pid)
+        for (const auto &pid : priorityList)
             m_characters[pid]->updateBlockState();
 
         // Check for hitbox interactions
@@ -246,7 +250,7 @@ protected:
         //auto hurtboxes2 = m_characters[1]->getHurtboxes();
         std::array<HurtboxVec, 2> hurtboxes = {m_characters[0]->getHurtboxes(), m_characters[1]->getHurtboxes()};
 
-        for (int pid = 0; pid <= 1; ++pid)
+        for (const auto &pid : priorityList)
         {
             int p2id = 1 - pid;
             bool hitFound = false;
@@ -273,8 +277,11 @@ protected:
         }
 
         // Check for possible throws
-        m_characters[0]->attemptThrow();
-        m_characters[1]->attemptThrow();
+        for (const auto &i : priorityList)
+        {
+            m_characters[i]->attemptThrow();
+            m_characters[i]->attemptThrow();
+        }
 
         m_camera.update();
         m_hud.update();
@@ -290,8 +297,10 @@ protected:
     	if (m_background.get())
     		m_background->draw(renderer, m_camera);
 
-        for (auto &el : m_characters)
-            el->draw(*m_application->getRenderer(), m_camera);
+        auto priorityList = m_priorityHandler.getCurrentPriority();
+
+        for (const auto &i : priorityList | std::views::reverse)
+            m_characters[i]->draw(*m_application->getRenderer(), m_camera);
 
         m_hud.draw(*m_application->getRenderer(), m_camera);
 
@@ -309,6 +318,8 @@ protected:
     int m_maxCharRange;
     HUD m_hud;
     ParticleManager m_particleManager;
+
+    PriorityHandler m_priorityHandler;
 
 };
 

@@ -226,6 +226,7 @@ void Action_throw_startup<CharState_t, CharData, Char_t>::attemptThrow(Char_t &c
     {
         character_.m_actionResolver.getAction(m_holdState)->switchTo(character_);
         character_.m_otherCharacter->enterThrown(m_throw);
+        character_.callForPriority();
     }
 }
 
@@ -384,7 +385,7 @@ void Action_throw_tech<CharState_t, CharData, Char_t>::switchTo(Char_t &characte
     character_.m_inertia = {0, 0};
     Action<CharState_t, CharData, Char_t>::switchTo(character_);
     character_.m_timer.begin(m_duration);
-
+    
     character_.releaseFromAnimation();
     if (character_.m_tiedAnimWithOpponent)
     {
@@ -2228,6 +2229,7 @@ void Action_char1_throw_tech::switchTo(Char1 &character_) const
 {
     Action_throw_tech<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
     character_.m_inertia.x += -character_.getOwnHorDir().x * 5.0f;
+    character_.callForPriority();
 }
 
 // Throw tech state when Char1 breaks throw

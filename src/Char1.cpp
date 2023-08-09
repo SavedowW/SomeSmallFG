@@ -459,6 +459,7 @@ HIT_RESULT Char1::applyHit(HitEvent &hitEvent)
     // Attacker's side
     if (hitEvent.m_hittingPlayerId == m_playerId)
     {
+        callForPriority();
         if (hitEvent.m_hitRes == HIT_RESULT::COUNTER)
         {
             m_notifyWidget->addNotification("COUNTER!");
