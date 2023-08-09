@@ -190,14 +190,14 @@ void Char1::proceedCurrentState()
     {
         auto timerRes = m_timer.update();
 
-        if (isInHitstun() || isInBlockstun())
-        {
-            m_throwInvulTimer.isActive();
-        }
-
 
         if (timerRes)
         {
+            if (isInHitstun() || isInBlockstun())
+            {
+                setThrowInvul();
+            }
+
             switch (m_currentState)
             {
                 case (CHAR1_STATE::PREJUMP):
@@ -303,6 +303,11 @@ Char1Data Char1::generateCharData()
     charData.canAirdashAfterPrejump = (m_airadashFramesCounter == 0);
     charData.inBlockstun = isInBlockstun();
     charData.blockFrame = m_blockstunType;
+
+    charData.inputDir = m_ownOrientation;
+    if (m_currentState == CHAR1_STATE::SOFT_LANDING_RECOVERY || m_currentState == CHAR1_STATE::GROUND_DASH_RECOVERY)
+        charData.inputDir = m_dirToEnemy;
+
 
     if (!m_currentCancelWindow.second.empty())
         charData.cancelOptions = &m_currentCancelWindow.second;

@@ -54,7 +54,7 @@
  * wallbang (?)
  * * Wallbang (?): when character blocks an attack with wallbang (?) property, he gets into a wallbang blockstun.
  * * When character in wallbang blockstun touches the wall, he takes an unblockable hit with very low damage and hitstun,
- * * but 100% proratio. He can be comboed from this hit, but it should depend on m_spacing 
+ * * but 100% proratio. He can be comboed from this hit, but it should depend on spacing 
  * overheat gauge, burnout state
  * from above / from below property (probably rename)
  * aerial hitstun scaling
@@ -140,6 +140,7 @@ struct CharData
     bool airborne = false;
     ORIENTATION dirToEnemy;
     ORIENTATION ownDirection;
+    ORIENTATION inputDir;
     Vector2<float> dirToEnemyVec;
     Vector2<float> ownDirectionVec;
     CharState_t state;

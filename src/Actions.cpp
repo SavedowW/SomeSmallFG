@@ -676,7 +676,7 @@ int Action_char1_jump::isPossible(const InputQueue &inputQueue_, Char1Data charD
         case (CHAR1_STATE::WALK_FWD):
             [[fallthrough]];
         case (CHAR1_STATE::IDLE):
-            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
+            return (isInputPossible(inputQueue_, charData_.inputDir, extendBuffer_) ? 1 : 0);
             break;
 
         default:
@@ -835,6 +835,8 @@ int Action_char1_airjump::isPossible(const InputQueue &inputQueue_, Char1Data ch
 
 void Action_char1_airjump::switchTo(Char1 &character_) const
 {
+    character_.updateOwnOrientation();
+
     if (character_.m_currentState == CHAR1_STATE::AIR_DASH_EXTENTION || (character_.m_currentAction && character_.m_currentAction->m_isAttack))
     {
         character_.turnVelocityToInertia();
@@ -843,7 +845,6 @@ void Action_char1_airjump::switchTo(Char1 &character_) const
 
     Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
 
-    character_.updateOwnOrientation();
     auto ownOrientationVector = character_.getOwnHorDir();
     ownOrientationVector.y = 1;
     character_.m_velocity = m_impulse.mulComponents(ownOrientationVector);
@@ -1053,7 +1054,7 @@ int Action_char1_ground_backdash::isPossible(const InputQueue &inputQueue_, Char
         case (CHAR1_STATE::CROUCH):
             [[fallthrough]];
         case (CHAR1_STATE::IDLE):
-            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
+            return (isInputPossible(inputQueue_, charData_.inputDir, extendBuffer_) ? 1 : 0);
             break;
 
         default:
@@ -1072,7 +1073,13 @@ void Action_char1_ground_backdash::outdated(Char1 &character_) const
 
 void Action_char1_ground_backdash::switchTo(Char1 &character_) const
 {
+    if (character_.m_currentState == CHAR1_STATE::SOFT_LANDING_RECOVERY)
+    {
+        character_.updateOwnOrientation();
+    }
+
     Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+
     character_.m_timer.begin(m_totalDuration);
     auto dir = character_.getOwnHorDir();
     dir.y = 1;
@@ -1527,7 +1534,7 @@ int Action_char1_ground_attack::isPossible(const InputQueue &inputQueue_, Char1D
         case (CHAR1_STATE::STEP_RECOVERY):
             [[fallthrough]];
         case (CHAR1_STATE::IDLE):
-            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
+            return (isInputPossible(inputQueue_, charData_.inputDir, extendBuffer_) ? 1 : 0);
             break;
 
         default:
@@ -1578,7 +1585,7 @@ int Action_char1_air_attack::isPossible(const InputQueue &inputQueue_, Char1Data
         case (CHAR1_STATE::AIR_DASH_EXTENTION):
             [[fallthrough]];
         case (CHAR1_STATE::JUMP):
-            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
+            return (isInputPossible(inputQueue_, charData_.inputDir, extendBuffer_) ? 1 : 0);
             break;
 
         default:
