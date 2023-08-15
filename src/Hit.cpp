@@ -239,6 +239,65 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveC()
     return {{11, 16}, hit};
 }
 
+std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveStepC()
+{
+    HitData hdata;
+
+    HitParticleData pdatatemp;
+
+    pdatatemp.m_partType = PARTICLE_TYPES::BLOCK;
+    pdatatemp.m_baseOffsetMin = {100.0f, -270.0f};
+    pdatatemp.m_baseOffsetMax = {100.0f, -270.0f};
+    pdatatemp.minRange = 100.0f;
+    pdatatemp.maxRange = 210.0f;
+    pdatatemp.m_scale = 0.8f;
+    hdata.particlesOnBlock.push_back(pdatatemp);
+
+    pdatatemp.m_partType = PARTICLE_TYPES::HIT_1;
+    hdata.particlesOnHit.push_back(pdatatemp);
+    hdata.particlesOnCH.push_back(pdatatemp);
+
+    hdata.m_hitId = 1;
+
+    hdata.cornerPushbackMaxRange = 300.0f;
+    hdata.cornerPushbackMinImpulse = 10.0f;
+    hdata.cornerPushbackMaxImpulse = 35.0f;
+    hdata.opponentPushbackOnBlock = 15.0f;
+
+    hdata.hitProps.hitstop = 13;
+    hdata.hitProps.hitstun = 20;
+    hdata.hitProps.proratio = 1.0f;
+    hdata.hitProps.opponentImpulseOnHit = {5.0f, -30.0f};
+    hdata.hitProps.opponentImpulseOnAirHit = {5.0f, -30.0f};
+    hdata.hitProps.groundHitstunAnimation = HITSTUN_ANIMATION::MID;
+    hdata.hitProps.airHitstunAnimation = HITSTUN_ANIMATION::FLOAT;
+
+    hdata.chProps = hdata.hitProps;
+    hdata.chProps.hitstun += 4;
+    hdata.chProps.hitstop += 5;
+
+    hdata.canBeBlockedAs = {BLOCK_STATE::HIGH, BLOCK_STATE::LOW, BLOCK_STATE::AIR, BLOCK_STATE::AUTO};
+
+    hdata.blockstun = 16;
+    hdata.chipDamage = 0.0f;
+
+    hdata.hitBlockShakeAmp = 40;
+
+    hdata.damage = 40.0f / hdata.hitProps.proratio;
+
+    Hit hit(hdata, {{{6, 13}, {60.0f, -450.0f, 200.0f, 400.0f}}});
+
+    hit.cancelsOnHit.first.first = 1;
+    hit.cancelsOnHit.first.second = 20;
+    hit.cancelsOnHit.second = {(int)CHAR1_STATE::PREJUMP, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_214C};
+
+    hit.cancelsOnBlock.first.first = 1;
+    hit.cancelsOnBlock.first.second = 20;
+    hit.cancelsOnBlock.second = {(int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_214C};
+
+    return {{6, 13}, hit};
+}
+
 std::pair<FrameWindow, Hit> hitgeneration::generate_char1_move2B()
 {
     HitData hdata;

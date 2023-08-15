@@ -111,7 +111,7 @@ template <typename CharState_t, typename CharData, typename Char_t>
 class Action_attack : public Action<CharState_t, CharData, Char_t>
 {
 public:
-    Action_attack(CharState_t actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec hurtboxes_, std::vector<std::pair<std::pair<int, int>, Vector2<float>>> velocity_, ANIMATIONS anim_, bool noLandTransition_ = false, bool isCrouchState_ = false);
+    Action_attack(CharState_t actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec hurtboxes_, std::vector<std::pair<std::pair<int, int>, Vector2<float>>> velocity_, ANIMATIONS anim_, bool noLandTransition_ = false, bool isCrouchState_ = false, bool stepOnly_ = false);
     virtual const HitsVec getCurrentHits(int currentFrame_, const Vector2<float>& offset_, ORIENTATION ownOrientation_) const;
     virtual const Vector2<float> *getCurrentVelocity(int currentFrame_) const;
     virtual bool isInCounterState(int currentFrame_) const;
@@ -122,8 +122,9 @@ public:
     const std::vector<std::pair<std::pair<int, int>, Vector2<float>>> m_velocity;
     const FrameWindow m_counterWindow;
 
-private:
+protected:
     const Vector2<float> nullvec = {0.0f, 0.0f};
+    bool m_stepOnly;
 };
 
 /* ============================
@@ -513,7 +514,7 @@ public:
 class Action_char1_ground_attack : public Action_attack<CHAR1_STATE, Char1Data, Char1>
 {
 public:
-    Action_char1_ground_attack(CHAR1_STATE actionState_, ANIMATIONS anim_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec hurtboxes_, std::vector<std::pair<std::pair<int, int>, Vector2<float>>> velocity_, bool noLandTransition_ = false, bool isCrouchState_ = false);
+    Action_char1_ground_attack(CHAR1_STATE actionState_, ANIMATIONS anim_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec hurtboxes_, std::vector<std::pair<std::pair<int, int>, Vector2<float>>> velocity_, bool noLandTransition_ = false, bool isCrouchState_ = false, bool stepOnly_ = false);
     virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const override;
     virtual void outdated(Char1 &character_) const override;
     virtual void switchTo(Char1 &character_) const;
@@ -544,6 +545,12 @@ class Action_char1_move_C : public Action_char1_ground_attack
 {
 public:
     Action_char1_move_C();
+};
+
+class Action_char1_move_step_C : public Action_char1_ground_attack
+{
+public:
+    Action_char1_move_step_C();
 };
 
 

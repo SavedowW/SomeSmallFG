@@ -123,6 +123,7 @@ namespace hitgeneration
     std::pair<FrameWindow, Hit> generate_char1_jab();
     std::pair<FrameWindow, Hit> generate_char1_moveB();
     std::pair<FrameWindow, Hit> generate_char1_moveC();
+    std::pair<FrameWindow, Hit> generate_char1_moveStepC();
     std::pair<FrameWindow, Hit> generate_char1_move2B();
     std::pair<FrameWindow, Hit> generate_char1_JA();
     std::pair<FrameWindow, Hit> generate_char1_JC();

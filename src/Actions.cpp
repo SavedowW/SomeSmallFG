@@ -108,12 +108,13 @@ Action_jump<CharState_t, CharData, Char_t>::Action_jump(CharState_t actionState_
 
 // ABSTRACT ATTACK ACTION
 template <typename CharState_t, typename CharData, typename Char_t>
-Action_attack<CharState_t, CharData, Char_t>::Action_attack(CharState_t actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec hurtboxes_, std::vector<std::pair<std::pair<int, int>, Vector2<float>>> velocity_, ANIMATIONS anim_, bool noLandTransition_, bool isCrouchState_) :
+Action_attack<CharState_t, CharData, Char_t>::Action_attack(CharState_t actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec hurtboxes_, std::vector<std::pair<std::pair<int, int>, Vector2<float>>> velocity_, ANIMATIONS anim_, bool noLandTransition_, bool isCrouchState_, bool stepOnly_) :
     Action<CharState_t, CharData, Char_t>(actionState_, std::move(incmp_), hurtboxes_, anim_, true, noLandTransition_, isCrouchState_),
     m_fullDuration(fullDuration_),
     m_hits(hits_),
     m_velocity(velocity_),
-    m_counterWindow({1, hitutils::getLastActiveFrame(hits_)})
+    m_counterWindow({1, hitutils::getLastActiveFrame(hits_)}),
+    m_stepOnly(stepOnly_)
 {
 }
 
@@ -1498,8 +1499,8 @@ void Action_char1_knockdown_recovery::switchTo(Char1 &character_) const
 }
 
 // ABSTRACT CHAR1 GROUND ATTACK ACTION
-Action_char1_ground_attack::Action_char1_ground_attack(CHAR1_STATE actionState_, ANIMATIONS anim_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec hurtboxes_, std::vector<std::pair<std::pair<int, int>, Vector2<float>>> velocity_, bool noLandTransition_, bool isCrouchState_) :
-    Action_attack<CHAR1_STATE, Char1Data, Char1>(actionState_, std::move(incmp_), fullDuration_, hits_, hurtboxes_, velocity_, anim_, noLandTransition_, isCrouchState_)
+Action_char1_ground_attack::Action_char1_ground_attack(CHAR1_STATE actionState_, ANIMATIONS anim_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec hurtboxes_, std::vector<std::pair<std::pair<int, int>, Vector2<float>>> velocity_, bool noLandTransition_, bool isCrouchState_, bool stepOnly_) :
+    Action_attack<CHAR1_STATE, Char1Data, Char1>(actionState_, std::move(incmp_), fullDuration_, hits_, hurtboxes_, velocity_, anim_, noLandTransition_, isCrouchState_, stepOnly_)
 {
 }
 
@@ -1514,6 +1515,14 @@ int Action_char1_ground_attack::isPossible(const InputQueue &inputQueue_, Char1D
         {
             return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
         }
+    }
+
+    if (m_stepOnly)
+    {
+        if (charData_.state == CHAR1_STATE::STEP_RECOVERY)
+            return (isInputPossible(inputQueue_, charData_.inputDir, extendBuffer_) ? 1 : 0);
+        else
+            return 0;
     }
 
     switch (charData_.state)
@@ -1690,6 +1699,31 @@ Action_char1_move_C::Action_char1_move_C() :
             {20.0f, 0.0f}
         }
     })
+{
+}
+
+// MOVE C ACTION
+Action_char1_move_step_C::Action_char1_move_step_C() :
+    Action_char1_ground_attack(CHAR1_STATE::MOVE_STEP_C, ANIMATIONS::CHAR1_MOVE_STEP_C, std::make_unique<InputComparatorCPress>(), 53,
+    {
+        hitgeneration::generate_char1_moveStepC()
+    },
+    {
+        {
+            {1, 53},
+            {-70, -375, 140, 375}
+        },
+        {
+            {6, 31},
+            {60.0f, -450.0f, 200.0f, 400.0f}
+        }
+    },
+    {
+        {
+            {1, 3},
+            {30.0f, 0.0f}
+        },
+    }, false, false, true)
 {
 }
 
