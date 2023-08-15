@@ -71,7 +71,7 @@ void TextManager::generateOutlinedTexturedSymbols(std::array<fonts::Symbol, 256>
         TTF_SetFontOutline(font, outlineWidth_);
 
         // Outline (background)
-        auto surf = TTF_RenderGlyph_Blended(font, Uint16(i), outlineColor_);
+        auto surf = TTF_RenderGlyph32_Blended(font, Uint32(i), outlineColor_);
         if (surf == nullptr)
             std::cout << "Cannot create 1st surface: " << TTF_GetError() << std::endl;
         auto *text1 = SDL_CreateTextureFromSurface(sdlrenderer, surf);
@@ -79,7 +79,7 @@ void TextManager::generateOutlinedTexturedSymbols(std::array<fonts::Symbol, 256>
 
         // Inner letter
         TTF_SetFontOutline(font, 0);
-        surf = TTF_RenderGlyph_Blended(font, Uint16(i), {255, 255, 255, 255});
+        surf = TTF_RenderGlyph32_Blended(font, Uint32(i), {255, 255, 255, 255});
         if (surf == nullptr)
             std::cout << "Cannot create 2nd surface: " << TTF_GetError() << std::endl;
         auto *text2 = SDL_CreateTextureFromSurface(sdlrenderer, surf);
@@ -106,7 +106,7 @@ void TextManager::generateOutlinedTexturedSymbols(std::array<fonts::Symbol, 256>
         SDL_RenderCopy(sdlrenderer, grad, nullptr, nullptr);
 
         symbols_[i].tex = renderer_.createTexture(w1, h1);
-        TTF_GlyphMetrics(font, Uint16(i), &symbols_[i].minx, &symbols_[i].maxx, &symbols_[i].miny, &symbols_[i].maxy, &symbols_[i].advance);
+        TTF_GlyphMetrics32(font, Uint32(i), &symbols_[i].minx, &symbols_[i].maxx, &symbols_[i].miny, &symbols_[i].maxy, &symbols_[i].advance);
         SDL_SetTextureBlendMode(symbols_[i].tex, SDL_BLENDMODE_BLEND);
 
         renderer_.setRenderTarget(symbols_[i].tex);
@@ -140,7 +140,7 @@ void TextManager::generateOutlinedSymbols(std::array<fonts::Symbol, 256> &symbol
         TTF_SetFontOutline(font, outlineWidth_);
 
         // Outline (background)
-        auto surf = TTF_RenderGlyph_Blended(font, Uint16(i), outlineColor_);
+        auto surf = TTF_RenderGlyph32_Blended(font, Uint32(i), outlineColor_);
         if (surf == nullptr)
             std::cout << "Cannot create 1st surface: " << TTF_GetError() << std::endl;
         auto *text1 = SDL_CreateTextureFromSurface(sdlrenderer, surf);
@@ -148,7 +148,7 @@ void TextManager::generateOutlinedSymbols(std::array<fonts::Symbol, 256> &symbol
 
         // Inner letter
         TTF_SetFontOutline(font, 0);
-        surf = TTF_RenderGlyph_Blended(font, Uint16(i), {255, 255, 255, 255});
+        surf = TTF_RenderGlyph32_Blended(font, Uint32(i), {255, 255, 255, 255});
         if (surf == nullptr)
             std::cout << "Cannot create 2nd surface: " << TTF_GetError() << std::endl;
         auto *text2 = SDL_CreateTextureFromSurface(sdlrenderer, surf);
@@ -169,7 +169,7 @@ void TextManager::generateOutlinedSymbols(std::array<fonts::Symbol, 256> &symbol
 
 
         symbols_[i].tex = renderer_.createTexture(w1, h1);
-        TTF_GlyphMetrics(font, Uint16(i), &symbols_[i].minx, &symbols_[i].maxx, &symbols_[i].miny, &symbols_[i].maxy, &symbols_[i].advance);
+        TTF_GlyphMetrics32(font, Uint32(i), &symbols_[i].minx, &symbols_[i].maxx, &symbols_[i].miny, &symbols_[i].maxy, &symbols_[i].advance);
         SDL_SetTextureBlendMode(symbols_[i].tex, SDL_BLENDMODE_BLEND);
 
         renderer_.setRenderTarget(symbols_[i].tex);
@@ -198,14 +198,14 @@ void TextManager::generateSimpleSymbols(std::array<fonts::Symbol, 256> &symbols_
 
     for (int i = 0; i < symbols_.size(); ++i)
     {
-        auto surf = TTF_RenderGlyph_Blended(font, Uint16(i), color_);
+        auto surf = TTF_RenderGlyph32_Blended(font, Uint32(i), color_);
         if (surf == nullptr)
             std::cout << "Cannot create surface: " << TTF_GetError() << std::endl;
         auto *text = SDL_CreateTextureFromSurface(sdlrenderer, surf);
         SDL_FreeSurface(surf);
 
         symbols_[i].tex = text;
-        TTF_GlyphMetrics(font, Uint16(i), &symbols_[i].minx, &symbols_[i].maxx, &symbols_[i].miny, &symbols_[i].maxy, &symbols_[i].advance);
+        TTF_GlyphMetrics32(font, Uint32(i), &symbols_[i].minx, &symbols_[i].maxx, &symbols_[i].miny, &symbols_[i].maxy, &symbols_[i].advance);
         SDL_SetTextureBlendMode(symbols_[i].tex, SDL_BLENDMODE_BLEND);
     }
 
