@@ -53,11 +53,16 @@ public:
         m_camera.setScale(gamedata::stages::startingCameraScale);
 
         auto &renderer = *m_application->getRenderer();
+
+        m_shadowsLayer = renderer.createTexture(gamedata::global::cameraWidth, gamedata::global::cameraHeight);
+        auto blendmode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ZERO, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD);
+        SDL_SetTextureBlendMode(m_shadowsLayer, blendmode);
+        SDL_SetTextureAlphaMod(m_shadowsLayer, 150);
     }
 
     virtual ~BattleLevel()
     {
-
+        SDL_DestroyTexture(m_shadowsLayer);
     }
 
 protected:
@@ -299,6 +304,18 @@ protected:
 
         auto priorityList = m_priorityHandler.getCurrentPriority();
 
+        // TODO: move shadow or reflection logic to specific stage
+        renderer.setRenderTarget(m_shadowsLayer);
+        renderer.fillRenderer({0, 0, 0, 0});
+        for (auto &chr : m_characters)
+        {
+            float angle = (chr->getPos().x / m_size.x) * 70 - 35;
+            angle = angle * 3.1415f / 180.0f;
+            chr->drawGroundProjection(renderer, m_camera, angle);
+        }
+        renderer.setRenderTarget(nullptr);
+        renderer.renderTexture(m_shadowsLayer, 0, 0);
+
         for (const auto &i : priorityList | std::views::reverse)
             m_characters[i]->draw(*m_application->getRenderer(), m_camera);
 
@@ -320,6 +337,8 @@ protected:
     ParticleManager m_particleManager;
 
     PriorityHandler m_priorityHandler;
+
+    SDL_Texture *m_shadowsLayer;
 
 };
 

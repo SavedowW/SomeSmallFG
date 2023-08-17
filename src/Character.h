@@ -155,6 +155,7 @@ public:
     void setOnStage(Application &application_, int playerId_, Character *otherCharacter_, PriorityHandler *priorityHandler_);
 
     virtual CharacterUpdateRes update();
+    virtual void drawGroundProjection(Renderer &renderer_, Camera &camera_, float angle_);
     virtual void draw(Renderer &renderer_, Camera &camera_);
 
     Vector2<float> getPos() const;

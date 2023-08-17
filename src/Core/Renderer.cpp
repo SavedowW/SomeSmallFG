@@ -172,6 +172,15 @@ void Renderer::fillRectangle(const Vector2<float> &pos_, const Vector2<float> &s
 	SDL_RenderFillRectF(m_renderer, &rect);
 }
 
+void Renderer::drawGeometry(SDL_Texture *texture, const SDL_Vertex *vertices, int num_vertices, const int *indices, int num_indices)
+{
+	SDL_ClearError();
+	if (SDL_RenderGeometry(m_renderer, texture, vertices, num_vertices, indices, num_indices))
+	{
+		std::cout << "Failed to render geometry: " << SDL_GetError() << std::endl;
+	}
+}
+
 void Renderer::fillRenderer(const SDL_Color& col_)
 {
 	SDL_SetRenderDrawColor(m_renderer, col_.r, col_.g, col_.b, col_.a);
