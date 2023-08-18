@@ -42,7 +42,7 @@
  * * Wallsplat should be possible only at the real wall, wallbounce - on both real wall and character's max range boundary
  * * In case of real wall, wall splat should have priority
  * 
- * step - cancel and step - cancel specific moves
+ * step - cancel and step - cancel specific moves [DONE]
  * * Kind of like dash cancel, except with completely fixed range and unique follow ups
  * throws [DONE]
  * Priority [DONE]

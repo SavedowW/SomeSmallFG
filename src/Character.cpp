@@ -138,8 +138,6 @@ void Character::drawGroundProjection(Renderer &renderer_, Camera &camera_, float
     if (m_ownOrientation == ORIENTATION::LEFT)
             flip = SDL_FLIP_HORIZONTAL;
 
-    auto shadowFlip = (flip | SDL_FLIP_VERTICAL);
-
     float xoffset = 0;
 
     if (isInHitstun() && m_inHitstop)
@@ -169,14 +167,19 @@ void Character::drawGroundProjection(Renderer &renderer_, Camera &camera_, float
     br = ((br - camera_.getTopLeft()) / camera_.getScale());
     bl = ((bl - camera_.getTopLeft()) / camera_.getScale());
 
+    float leftpoint = (flip == SDL_FLIP_HORIZONTAL ? 1 : 0);
+    float rightpoint = 1 - leftpoint;
+
     SDL_Vertex vertices[] = {
-        {{tl.x, tl.y}, {255, 255, 255, 255}, {0, 1}},
-        {{tr.x, tr.y}, {255, 255, 255, 255}, {1, 1}},
-        {{br.x, br.y}, {255, 255, 255, 255}, {1, 0}},
-        {{bl.x, bl.y}, {255, 255, 255, 255}, {0, 0}}
+        {{tl.x, tl.y}, {255, 255, 255, 255}, {leftpoint, 1}},
+        {{tr.x, tr.y}, {255, 255, 255, 255}, {rightpoint, 1}},
+        {{br.x, br.y}, {255, 255, 255, 255}, {rightpoint, 0}},
+        {{bl.x, bl.y}, {255, 255, 255, 255}, {leftpoint, 0}}
     };
     int indices1[] = {0, 1, 2};
     int indices2[] = {0, 2, 3};
+
+
 
     renderer_.drawGeometry(spr, vertices, 4, indices1, 3);
     renderer_.drawGeometry(spr, vertices, 4, indices2, 3);
