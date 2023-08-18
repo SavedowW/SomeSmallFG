@@ -168,8 +168,10 @@ class Animation
 {
 public:
 	Animation(AnimationManager &animationManager_, ANIMATIONS textures_, LOOPMETHOD isLoop_ = LOOPMETHOD::JUMP_LOOP, int beginFrame_ = -1, int beginDirection_ = 1);
+	void generateWhite(Renderer &renderer_);
 	void update();
 	SDL_Texture* getSprite();
+	SDL_Texture* getWhiteSprite();
 	bool isFinished();
 	void switchDir();
 	void setDir(int dir_);
@@ -177,8 +179,15 @@ public:
 	void reset(int beginFrame_ = -1, int beginDirection_ = 1);
 	int getDirection() const;
 
+
+	Animation(Animation &anim_) = delete;
+	Animation &operator=(Animation &anim_) = delete;
+	Animation(Animation &&anim_);
+	Animation &operator=(Animation &&anim_);
+
 private:
 	std::shared_ptr<TextureArr> m_textures;
+	std::unique_ptr<TextureArr> m_whiteTextures;
 	int m_currentFrame;
 	int m_direction;
 	LOOPMETHOD m_isLoop;

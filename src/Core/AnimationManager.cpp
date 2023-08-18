@@ -96,6 +96,31 @@ Animation::Animation(AnimationManager &animationManager_, ANIMATIONS textures_, 
 	m_textures = animationManager_.getTextureArr(textures_);
 }
 
+void Animation::generateWhite(Renderer &renderer_)
+{
+	if (m_whiteTextures.get() != nullptr)
+		return;
+
+	SDL_Texture** texs = new SDL_Texture *[m_textures->amount];
+
+	auto blendmode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_MAXIMUM, SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ZERO, SDL_BLENDOPERATION_ADD);
+	for (int i = 0; i < m_textures->amount; ++i)
+	{
+		SDL_Texture *regtex = m_textures->tex[i];
+
+		texs[i] = renderer_.createTexture(m_textures->w, m_textures->h);
+
+		renderer_.setRenderTarget(texs[i]);
+        renderer_.fillRenderer({255, 255, 255, 0});
+
+        SDL_SetTextureBlendMode(regtex, blendmode);
+        renderer_.renderTexture(regtex, 0, 0);
+        SDL_SetTextureBlendMode(regtex, SDL_BLENDMODE_BLEND);
+        SDL_SetTextureBlendMode(texs[i], SDL_BLENDMODE_BLEND);
+	}
+
+	m_whiteTextures = std::make_unique<TextureArr>(texs, m_textures->amount, m_textures->totalDuration, m_textures->framesData);
+}
 
 void Animation::update()
 {
@@ -111,6 +136,17 @@ SDL_Texture* Animation::getSprite()
 		m_currentFrame = 0;
 		
 	return (*m_textures)[m_currentFrame];
+}
+
+SDL_Texture* Animation::getWhiteSprite()
+{
+	if (m_whiteTextures.get() == nullptr)
+		return nullptr;
+
+	if (m_currentFrame == -1)
+		m_currentFrame = 0;
+		
+	return (*m_whiteTextures)[m_currentFrame];
 }
 
 bool Animation::isFinished()
@@ -172,4 +208,24 @@ Vector2<float> Animation::getSize()
 int Animation::getDirection() const
 {
 	return m_direction;
+}
+
+Animation::Animation(Animation &&anim_)
+{
+	m_textures = std::move(anim_.m_textures);
+	m_whiteTextures = std::move(anim_.m_whiteTextures);
+	m_currentFrame = anim_.m_currentFrame;
+	m_direction = anim_.m_direction;
+	m_isLoop = anim_.m_isLoop;
+}
+
+Animation &Animation::operator=(Animation &&anim_)
+{
+	m_textures = std::move(anim_.m_textures);
+	m_whiteTextures = std::move(anim_.m_whiteTextures);
+	m_currentFrame = anim_.m_currentFrame;
+	m_direction = anim_.m_direction;
+	m_isLoop = anim_.m_isLoop;
+
+	return *this;
 }

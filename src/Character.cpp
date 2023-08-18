@@ -29,7 +29,13 @@ void Character::setOnStage(Application &application_, int playerId_, Character *
 
     m_otherCharacter = otherCharacter_;
     m_priorityHandler = priorityHandler_;
+
     loadAnimations(application_);
+    for (auto &el : m_animations)
+    {
+        el.second->generateWhite(*application_.getRenderer());
+    }
+
     initiate();
     m_currentTakenHit.m_hitId = -1;
     m_hitstunAnimation = HITSTUN_ANIMATION::NONE;
@@ -199,24 +205,16 @@ void Character::draw(Renderer &renderer_, Camera &camera_)
         renderer_.renderTexture(spr, texPos.x + xoffset, texPos.y, camera_, flip);
         if (shining)
         {
-            // TODO: maybe its better to create white versions during the creation of the main animations?
             float alpha = 1 - m_shineAlphaTimer.getProgressNormalized();
 
-            auto pw = renderer_.createTexture(m_currentAnimation->getSize());
-            renderer_.setRenderTarget(pw);
-            renderer_.fillRenderer({255, 255, 255, 0});
-
-            auto blendmode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_MAXIMUM, SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ZERO, SDL_BLENDOPERATION_ADD);
-            SDL_SetTextureBlendMode(spr, blendmode);
-            renderer_.renderTexture(spr, 0, 0);
-            SDL_SetTextureBlendMode(spr, SDL_BLENDMODE_BLEND);
-            SDL_SetTextureBlendMode(pw, SDL_BLENDMODE_BLEND);
+            auto pw = m_currentAnimation->getWhiteSprite();
             SDL_SetTextureColorMod(pw, m_colorShine.r, m_colorShine.g, m_colorShine.b);
             SDL_SetTextureAlphaMod(pw, alpha * m_colorShine.a);
             
-            renderer_.setRenderTarget(nullptr);
             renderer_.renderTexture(pw, texPos.x + xoffset, texPos.y, camera_, flip);
-            SDL_DestroyTexture(pw);
+
+            SDL_SetTextureColorMod(pw, 255, 255, 255);
+            SDL_SetTextureAlphaMod(pw, 255);
         }
     }
 

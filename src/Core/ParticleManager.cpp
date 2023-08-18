@@ -65,7 +65,7 @@ void ParticleManager::spawnParticles(const ParticleSpawnData &partData_)
             part.m_accel = partData_.m_accel;
             if (part.m_flip != SDL_FLIP_NONE)
                 part.m_angle *= -1;
-            m_particles.push_back(part);
+            m_particles.push_back(std::move(part));
             break;
         }
 
@@ -82,7 +82,7 @@ void ParticleManager::spawnParticles(const ParticleSpawnData &partData_)
             part.m_accel = partData_.m_accel;
             if (part.m_flip != SDL_FLIP_NONE)
                 part.m_angle *= -1;
-            m_particles.push_back(part);
+            m_particles.push_back(std::move(part));
             break;
         }
 
@@ -99,7 +99,7 @@ void ParticleManager::spawnParticles(const ParticleSpawnData &partData_)
             part.m_accel = partData_.m_accel;
             if (part.m_flip != SDL_FLIP_NONE)
                 part.m_angle *= -1;
-            m_particles.push_back(part);
+            m_particles.push_back(std::move(part));
             break;
         }
 
@@ -116,7 +116,7 @@ void ParticleManager::spawnParticles(const ParticleSpawnData &partData_)
             part.m_accel = partData_.m_accel;
             if (part.m_flip != SDL_FLIP_NONE)
                 part.m_angle *= -1;
-            m_particles.push_back(part);
+            m_particles.push_back(std::move(part));
             break;
         }
         
