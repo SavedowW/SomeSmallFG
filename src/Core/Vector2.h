@@ -254,6 +254,18 @@ struct Collider
 		return res;
 	}
 
+	constexpr inline Collider getOverlapArea(const Collider &rhs) const
+	{
+		Collider res;
+
+		res.x = std::max(x, rhs.x);
+		res.y = std::max(y, rhs.y);
+		res.w = std::min(x + w, rhs.x + rhs.w) - res.x;
+		res.h = std::min(y + h, rhs.y + rhs.h) - res.y;
+
+		return res;
+	}
+
 	constexpr inline Collider getHitboxAtOffset(const Vector2<float> &offset_, ORIENTATION side_)
 	{
 		Collider hbox = *this;

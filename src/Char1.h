@@ -102,6 +102,7 @@ public:
     HitsVec getHits(bool allHits_ = false) final;
     HurtboxVec getHurtboxes() final;
     HIT_RESULT applyHit(HitEvent &hitEvent) final;
+    void applyClash(const Hit &clashedHit_) final;
     void updateBlockState() final;
     bool isInHitstun() const final;
     bool isInBlockstun() const final;

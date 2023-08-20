@@ -49,7 +49,7 @@
  * * Character who lands a hit or a throw gets a priority.
  * * Priority defines who's drawn on top of another, who's updates are calculated first and who techs in same frame situation
  * Projectiles
- * Clash, forced clash property
+ * Clash, forced clash property [DONE clash, need a new attack for forced clash]
  * parries, guard points
  * wallbang (?)
  * * Wallbang (?): when character blocks an attack with wallbang (?) property, he gets into a wallbang blockstun.
@@ -200,6 +200,7 @@ public:
     virtual void applyHitstop(int hitstopLength);
     HitData getCurrentTakenHit();
     void takeCornerPushback(HitData fromHit_, float rangeToCorner_, const Vector2<int> dirFromCorner_);
+    virtual void applyClash(const Hit &clashedHit_);
 
     virtual bool canApplyDrag() const;
     virtual bool canApplyGravity() const;

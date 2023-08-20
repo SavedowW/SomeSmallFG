@@ -861,8 +861,7 @@ void Action_char1_airjump::switchTo(Char1 &character_) const
     ownOrientationVector.y = 1;
     character_.m_velocity = m_impulse.mulComponents(ownOrientationVector);
 
-    if (character_.m_inertia.y > 0)
-        character_.m_inertia.y = 0;
+    character_.m_inertia.y = 0;
 
     character_.m_usedDoubleJump = true;
 }
@@ -1050,6 +1049,14 @@ int Action_char1_ground_backdash::isPossible(const InputQueue &inputQueue_, Char
 {
     if (charData_.inHitstop || charData_.airborne)
         return 0;
+
+    if (charData_.cancelOptions)
+    {
+        if (charData_.cancelOptions->contains((int)actionState))
+        {
+            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
+        }
+    }
 
     switch (charData_.state)
     {
@@ -1517,7 +1524,7 @@ Action_char1_ground_attack::Action_char1_ground_attack(CHAR1_STATE actionState_,
 
 int Action_char1_ground_attack::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
 {
-    if (charData_.inHitstop)
+    if (charData_.inHitstop || charData_.airborne)
         return 0;
 
     if (charData_.cancelOptions)
@@ -1588,7 +1595,7 @@ Action_char1_air_attack::Action_char1_air_attack(CHAR1_STATE actionState_, ANIMA
 
 int Action_char1_air_attack::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
 {
-    if (charData_.inHitstop)
+    if (charData_.inHitstop || !charData_.airborne)
         return 0;
 
     if (charData_.cancelOptions)
@@ -1950,7 +1957,7 @@ Action_char1_normal_throw_startup::Action_char1_normal_throw_startup() :
 
 int Action_char1_normal_throw_startup::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
 {
-    if (charData_.inHitstop)
+    if (charData_.inHitstop || charData_.airborne)
         return 0;
 
     if (charData_.cancelOptions)
@@ -2013,7 +2020,7 @@ Action_char1_back_throw_startup::Action_char1_back_throw_startup() :
 
 int Action_char1_back_throw_startup::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
 {
-    if (charData_.inHitstop)
+    if (charData_.inHitstop || charData_.airborne)
         return 0;
 
     if (charData_.cancelOptions)

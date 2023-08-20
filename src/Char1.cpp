@@ -1071,3 +1071,34 @@ void Char1::attemptThrow()
         action->attemptThrow(*this);
     }
 }
+
+void Char1::applyClash(const Hit &clashedHit_)
+{
+    Character::applyClash(clashedHit_);
+    
+    m_appliedHits.insert(clashedHit_.m_hitId);
+
+    m_currentCancelWindow.first = {1, 20};
+    m_currentCancelWindow.second = {
+        (int)CHAR1_STATE::PREJUMP,
+        (int)CHAR1_STATE::GROUND_BACKDASH,
+        (int)CHAR1_STATE::STEP,
+        (int)CHAR1_STATE::JUMP,
+        (int)CHAR1_STATE::AIR_DASH,
+        (int)CHAR1_STATE::AIR_BACKDASH,
+        (int)CHAR1_STATE::MOVE_A,
+        (int)CHAR1_STATE::MOVE_B,
+        (int)CHAR1_STATE::MOVE_C,
+        (int)CHAR1_STATE::MOVE_2B,
+        (int)CHAR1_STATE::MOVE_236C,
+        (int)CHAR1_STATE::MOVE_214C,
+        (int)CHAR1_STATE::MOVE_JA,
+        (int)CHAR1_STATE::MOVE_JC,
+        (int)CHAR1_STATE::THROW_NORMAL_STARTUP,
+        (int)CHAR1_STATE::THROW_BACK_STARTUP,
+        (int)CHAR1_STATE::THROW_NORMAL_AIR_STARTUP,
+        (int)CHAR1_STATE::THROW_BACK_AIR_STARTUP
+    };
+    m_currentCancelWindow.second.erase((int)m_currentState);
+    
+}

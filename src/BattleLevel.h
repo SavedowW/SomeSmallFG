@@ -45,7 +45,6 @@ public:
         }
     }
 
-
     virtual void enter() override
     {
         Level::enter();
@@ -60,6 +59,12 @@ public:
         SDL_SetTextureAlphaMod(m_shadowsLayer, 150);
     }
 
+    void startFlash(int lockedDuration_, int alphaDuration_)
+    {
+        m_flashAlphaTimer.begin(alphaDuration_);
+        m_flashLockedTimer.begin(lockedDuration_);
+    }
+
     virtual ~BattleLevel()
     {
         SDL_DestroyTexture(m_shadowsLayer);
@@ -70,6 +75,15 @@ protected:
     {
         //std::cout << m_camera.getPos() << std::endl;
         //system("cls");
+
+        if (m_flashLockedTimer.update())
+        {
+            if (m_flashAlphaTimer.update())
+            {
+                m_flashAlphaTimer.begin(0);
+                m_flashLockedTimer.begin(0);
+            }
+        }
 
         // Align camera with players
         if (m_frameTimer.update())
@@ -248,11 +262,8 @@ protected:
             m_characters[pid]->updateBlockState();
 
         // Check for hitbox interactions
-        //auto hits1 = m_characters[0]->getHits();
-        //auto hits2 = m_characters[1]->getHits();
+        bool noHit = true;
         std::array<HitsVec, 2> hits = {m_characters[0]->getHits(), m_characters[1]->getHits()};
-        //auto hurtboxes1 = m_characters[0]->getHurtboxes();
-        //auto hurtboxes2 = m_characters[1]->getHurtboxes();
         std::array<HurtboxVec, 2> hurtboxes = {m_characters[0]->getHurtboxes(), m_characters[1]->getHurtboxes()};
 
         for (const auto &pid : priorityList)
@@ -275,6 +286,8 @@ protected:
                             m_characters[p2id]->applyHit(ev);
                             m_characters[pid]->applyHit(ev);
                             m_camera.startShake(ev.m_hitData.hitBlockShakeAmp, ev.m_hitData.hitProps.hitstop + 1);
+
+                            noHit = false;
                         }
                     }
                 }
@@ -286,6 +299,39 @@ protected:
         {
             m_characters[i]->attemptThrow();
             m_characters[i]->attemptThrow();
+        }
+
+        if (noHit)
+        {
+            // Check for clashes
+            for (auto &hit1 : hits[0])
+            {
+                auto hboxes1 = hit1.getHitboxes();
+                for (auto &hbox1 : hboxes1)
+                {
+                    for (auto &hit2 : hits[1])
+                    {
+                        auto hboxes2 = hit2.getHitboxes();
+                        for (auto &hbox2 : hboxes2)
+                        {
+                            if (hbox1.second.isCollideWith(hbox2.second))
+                            {
+                                m_characters[0]->applyClash(hit1);
+                                m_characters[1]->applyClash(hit2);
+                                startFlash(10, 5);
+
+                                ParticleSpawnData spdata;
+                                auto pos = hbox1.second.getOverlapArea(hbox2.second).getCenter();
+                                spdata.m_pos = pos;
+                                spdata.m_particleType = PARTICLE_TYPES::CLASH;
+                                spdata.m_scale = 0.65f;
+                                m_particleManager.spawnParticles(spdata);
+                            }
+                        }
+                    }
+                }
+            }
+
         }
 
         m_camera.update();
@@ -301,6 +347,13 @@ protected:
 
     	if (m_background.get())
     		m_background->draw(renderer, m_camera);
+
+        bool inFlash = m_flashLockedTimer.isActive() || m_flashAlphaTimer.isActive();
+        if (inFlash)
+        {
+            float alpha = 1 - m_flashAlphaTimer.getProgressNormalized();
+            renderer.fillRectangle({0, 0}, {gamedata::global::cameraWidth, gamedata::global::cameraHeight}, {m_flashColor.r, m_flashColor.g, m_flashColor.b, Uint8(m_flashColor.a * alpha)});
+        }
 
         auto priorityList = m_priorityHandler.getCurrentPriority();
 
@@ -340,6 +393,9 @@ protected:
 
     SDL_Texture *m_shadowsLayer;
 
+    SDL_Color m_flashColor = {0, 0, 0, 200};
+    FrameTimer m_flashLockedTimer;
+    FrameTimer m_flashAlphaTimer;
 };
 
 #endif

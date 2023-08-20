@@ -27,7 +27,8 @@ enum class PARTICLE_TYPES {
     HIT_1,
     HIT_2,
     HIT_2_SLOWED,
-    BLOCK
+    BLOCK,
+    CLASH
 };
 
 struct ParticleSpawnData

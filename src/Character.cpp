@@ -445,3 +445,8 @@ void Character::callForPriority()
 {
     m_priorityHandler->callForPriority(m_playerId);
 }
+
+void Character::applyClash(const Hit &clashedHit_)
+{
+    applyHitstop(20);
+}

@@ -119,6 +119,23 @@ void ParticleManager::spawnParticles(const ParticleSpawnData &partData_)
             m_particles.push_back(std::move(part));
             break;
         }
+
+        case (PARTICLE_TYPES::CLASH):
+        {
+            Animation anim(*m_animationManager, ANIMATIONS::PARTICLE_CLASH, LOOPMETHOD::NOLOOP);
+            Particle part{std::move(anim)};
+            part.m_pos = partData_.m_pos;
+            part.m_velocity = partData_.m_velocity;
+            part.m_lifetime = 24;
+            part.m_flip = partData_.m_flip;
+            part.m_scale = partData_.m_scale;
+            part.m_angle = partData_.m_angle;
+            part.m_accel = partData_.m_accel;
+            if (part.m_flip != SDL_FLIP_NONE)
+                part.m_angle *= -1;
+            m_particles.push_back(std::move(part));
+            break;
+        }
         
     }
 }
