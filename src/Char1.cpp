@@ -173,10 +173,6 @@ void Char1::initiate()
 
     m_inertiaDrag = gamedata::characters::char1::inertiaDrag;
 
-    m_standingHurtbox = {-70, -375, 140, 375};
-    m_airHitstunHurtbox = {-350/2, -160, 350, 120};
-    m_crouchingHurtbox = {-70, -200, 140, 200};
-
     switchToIdle();
 }
 
@@ -416,7 +412,12 @@ HitsVec Char1::getHits(bool allHits_)
 
 HurtboxVec Char1::getHurtboxes()
 {
-    if (m_currentState == CHAR1_STATE::IDLE ||
+    if (m_currentAction)
+    {
+        auto currentFrame = m_timer.getCurrentFrame() + 1;
+        return m_currentAction->getCurrentHurtboxes(currentFrame, m_pos, m_ownOrientation);
+    }
+    else if (m_currentState == CHAR1_STATE::IDLE ||
     m_currentState == CHAR1_STATE::CROUCH ||
     m_currentState == CHAR1_STATE::HITSTUN ||
     m_currentState == CHAR1_STATE::HITSTUN_AIR ||
@@ -428,11 +429,11 @@ HurtboxVec Char1::getHurtboxes()
     m_currentState == CHAR1_STATE::BLOCKSTUN_STANDING ||
     m_currentState == CHAR1_STATE::BLOCKSTUN_AIR)
     {
-        auto currentHBox = m_standingHurtbox;
+        auto currentHBox = gamedata::characters::char1::standingHurtbox;
         if (m_hitstunAnimation == HITSTUN_ANIMATION::FLOAT)
-            currentHBox = m_airHitstunHurtbox;
+            currentHBox = gamedata::characters::char1::airHitstunHurtbox;
         else if (m_currentState == CHAR1_STATE::CROUCH || m_currentState == CHAR1_STATE::BLOCKSTUN_CROUCHING || m_hitstunAnimation == HITSTUN_ANIMATION::CROUCH)
-            currentHBox = m_crouchingHurtbox;
+            currentHBox = gamedata::characters::char1::crouchingHurtbox;
 
         currentHBox.y += m_pos.y;
         if (m_ownOrientation == ORIENTATION::RIGHT)
@@ -441,15 +442,6 @@ HurtboxVec Char1::getHurtboxes()
             currentHBox.x = m_pos.x - currentHBox.x - currentHBox.w;
 
         return {currentHBox};
-    }
-    else if (m_currentAction)
-    {
-        auto currentFrame = m_timer.getCurrentFrame() + 1;
-        if (m_timer.isOver())
-            currentFrame = 1;
-        if (m_currentState == CHAR1_STATE::JUMP)
-            currentFrame = 0;
-        return m_currentAction->getCurrentHurtboxes(currentFrame, m_pos, m_ownOrientation);
     }
 
     return {};
@@ -548,13 +540,7 @@ HIT_RESULT Char1::applyHit(HitEvent &hitEvent)
             auto hitres = HIT_RESULT::HIT;
             bool isCounter = false;
 
-            if (m_currentAction && (m_currentAction->m_isAttack))
-            {
-                auto atkAction = dynamic_cast<const Action_attack<CHAR1_STATE, Char1Data, Char1>*>(m_currentAction);
-                if (atkAction->isInCounterState(m_timer.getCurrentFrame() + 1))
-                    isCounter = true;
-            }
-            else if (m_currentAction && (m_currentAction->m_isFullCounter))
+            if (m_currentAction && m_currentAction->isInCounterState(m_timer.getCurrentFrame() + 1))
             {
                 isCounter = true;
             }
@@ -677,25 +663,7 @@ void Char1::updateBlockState()
 {
     bool inBlockstun = isInBlockstun();
 
-    // TODO: turn into action property
-    bool canBlock = (m_currentState == CHAR1_STATE::IDLE ||
-                    m_currentState == CHAR1_STATE::CROUCH ||
-                    m_currentState == CHAR1_STATE::WALK_BWD ||
-                    m_currentState == CHAR1_STATE::WALK_FWD ||
-                    m_currentState == CHAR1_STATE::JUMP ||
-                    m_currentState == CHAR1_STATE::SOFT_LANDING_RECOVERY ||
-                    m_currentState == CHAR1_STATE::HARD_LANDING_RECOVERY ||
-                    m_currentState == CHAR1_STATE::GROUND_DASH ||
-                    m_currentState == CHAR1_STATE::GROUND_DASH_RECOVERY ||
-                    m_currentState == CHAR1_STATE::AIR_DASH_EXTENTION ||
-                    m_currentState == CHAR1_STATE::AIR_BACKDASH ||
-                    m_currentState == CHAR1_STATE::BLOCKSTUN_STANDING ||
-                    m_currentState == CHAR1_STATE::BLOCKSTUN_CROUCHING ||
-                    m_currentState == CHAR1_STATE::BLOCKSTUN_AIR ||
-                    m_currentState == CHAR1_STATE::THROW_TECH_OWN ||
-                    m_currentState == CHAR1_STATE::THROW_TECH_CHAR1 ||
-                    m_currentState == CHAR1_STATE::AIR_THROW_TECH_OWN ||
-                    m_currentState == CHAR1_STATE::AIR_THROW_TECH_CHAR1);
+    bool canBlock = (inBlockstun || m_currentAction && m_currentAction->canBlock(m_timer.getCurrentFrame() + 1));
 
     auto backButton = (m_dirToEnemy == ORIENTATION::RIGHT ? INPUT_BUTTON::LEFT : INPUT_BUTTON::RIGHT);
 
@@ -842,6 +810,86 @@ std::string Char1::CharStateData() const
             stateName = "STEP_RECOVERY";
             break;
 
+        case (CHAR1_STATE::THROW_BACK_AIR_HOLD):
+            stateName = "THROW_BACK_AIR_HOLD";
+            break;
+
+        case (CHAR1_STATE::THROW_BACK_AIR_STARTUP):
+            stateName = "THROW_BACK_AIR_STARTUP";
+            break;
+
+        case (CHAR1_STATE::THROW_BACK_HOLD):
+            stateName = "THROW_BACK_HOLD";
+            break;
+
+        case (CHAR1_STATE::THROW_BACK_STARTUP):
+            stateName = "THROW_BACK_STARTUP";
+            break;
+
+        case (CHAR1_STATE::THROW_NORMAL_AIR_ANIM):
+            stateName = "THROW_NORMAL_AIR_ANIM";
+            break;
+
+        case (CHAR1_STATE::THROW_NORMAL_AIR_HOLD):
+            stateName = "THROW_NORMAL_AIR_HOLD";
+            break;
+
+        case (CHAR1_STATE::THROW_NORMAL_AIR_STARTUP):
+            stateName = "THROW_NORMAL_AIR_STARTUP";
+            break;
+
+        case (CHAR1_STATE::THROW_NORMAL_AIR_WHIFF):
+            stateName = "THROW_NORMAL_AIR_WHIFF";
+            break;
+
+        case (CHAR1_STATE::THROW_NORMAL_ANIM):
+            stateName = "THROW_NORMAL_ANIM";
+        break;
+
+        case (CHAR1_STATE::THROW_NORMAL_HOLD):
+            stateName = "THROW_NORMAL_HOLD";
+        break;
+
+        case (CHAR1_STATE::THROW_NORMAL_STARTUP):
+            stateName = "THROW_NORMAL_STARTUP";
+        break;
+
+        case (CHAR1_STATE::THROW_NORMAL_WHIFF):
+            stateName = "THROW_NORMAL_WHIFF";
+        break;
+
+        case (CHAR1_STATE::THROW_TECH_CHAR1):
+            stateName = "THROW_TECH_CHAR1";
+        break;
+
+        case (CHAR1_STATE::THROW_TECH_OWN):
+            stateName = "THROW_TECH_OWN";
+        break;
+
+        case (CHAR1_STATE::THROWN_CHAR1_NORMAL_AIR_ANIM):
+            stateName = "THROWN_CHAR1_NORMAL_AIR_ANIM";
+        break;
+
+        case (CHAR1_STATE::THROWN_CHAR1_NORMAL_AIR_HOLD):
+            stateName = "THROWN_CHAR1_NORMAL_AIR_HOLD";
+        break;
+
+        case (CHAR1_STATE::THROWN_CHAR1_NORMAL_ANIM):
+            stateName = "THROWN_CHAR1_NORMAL_ANIM";
+        break;
+
+        case (CHAR1_STATE::THROWN_CHAR1_NORMAL_HOLD):
+            stateName = "THROWN_CHAR1_NORMAL_HOLD";
+        break;
+
+        case (CHAR1_STATE::AIR_THROW_TECH_CHAR1):
+            stateName = "AIR_THROW_TECH_CHAR1";
+        break;
+
+        case (CHAR1_STATE::AIR_THROW_TECH_OWN):
+            stateName = "AIR_THROW_TECH_OWN";
+        break;
+
         default:
             stateName = "OTHER_STATE";
     }
@@ -912,14 +960,10 @@ void Char1::switchToFloat()
 
 bool Char1::canApplyGravity() const
 {
-    if (!Character::canApplyGravity())
-        return false;
+    if (m_currentAction)
+        return m_currentAction->applyGravity(m_timer.getCurrentFrame() + 1);
 
-    // TODO: make property of state
-    if (m_currentState == CHAR1_STATE::AIR_DASH || m_currentState == CHAR1_STATE::AIR_DASH_EXTENTION ||
-    m_currentState == CHAR1_STATE::AIR_BACKDASH)
-        return false;
-    return true;
+    return Character::canApplyGravity();
 }
 
 void Char1::enterHitstunAnimation(const PostHitProperties &props_)

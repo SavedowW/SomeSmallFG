@@ -8,6 +8,7 @@
 #include <set>
 #include "BlockHandler.h"
 #include "ParticleManager.h"
+#include "TimelineProperty.h"
 
 using FrameWindow = std::pair<int, int>;
 
@@ -105,7 +106,7 @@ struct Hit : public HitData
 using ActiveFramesVec = std::vector<std::pair<FrameWindow, Hit>>;
 using HitsVec = std::vector<Hit>;
 
-using HurtboxFramesVec = std::vector<std::pair<FrameWindow, Collider>>;
+using HurtboxFramesVec = std::vector<std::pair<TimelineProperty<bool>, Collider>>;
 using HurtboxVec = std::vector<Collider>;
 
 struct HitEvent
@@ -133,7 +134,7 @@ namespace hitgeneration
 
 namespace hitutils
 {
-    int getLastActiveFrame(const ActiveFramesVec &hits_);
+    TimelineProperty<bool> getRegularCounterTimeline(const ActiveFramesVec &hits_);
 }
 
 #endif

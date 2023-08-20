@@ -607,7 +607,7 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_236C()
     return {{13, 16}, hit};
 }
 
-int hitutils::getLastActiveFrame(const ActiveFramesVec &hits_)
+TimelineProperty<bool> hitutils::getRegularCounterTimeline(const ActiveFramesVec &hits_)
 {
     int max = 0;
     for (const auto &el : hits_)
@@ -616,5 +616,5 @@ int hitutils::getLastActiveFrame(const ActiveFramesVec &hits_)
             max = el.first.second;
     }
 
-    return max;
+    return TimelineProperty<bool>({{0, true}, {max, false}});
 }

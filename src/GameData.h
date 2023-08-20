@@ -40,7 +40,7 @@ namespace gamedata
 
     namespace global
     {
-        inline constexpr float framerate = 60.0f;
+        inline constexpr float framerate = 5.0f;
         inline constexpr int numberOfLevels = 2;
         inline constexpr int initialLevelId = 1;
         inline constexpr float cameraWidth = 1600.0f;
@@ -65,6 +65,10 @@ namespace gamedata
         namespace char1
         {
             inline constexpr std::string_view charname = "Idk";
+            inline constexpr Collider standingHurtbox = {-70, -375, 140, 375};
+            inline constexpr Collider crouchingHurtbox = {-70, -200, 140, 200};
+            inline constexpr Collider airHitstunHurtbox = {-350/2, -160, 350, 120};
+            inline constexpr Collider floatingHurtbox = {-70, -350, 140, 300};
             inline constexpr float gravity = 1.5f;
             inline constexpr float inertiaDrag = 1.0f;
             inline constexpr float standingPushboxWidth = 100.0f;

@@ -3,6 +3,7 @@
 
 #include "Stage1.h"
 #include "Application.h"
+#include "TimelineProperty.h"
 
 int main(int argc, char* args[])
 {    

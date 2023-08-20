@@ -17,6 +17,7 @@ FrameTimer.cpp
 HUD.cpp
 TextManager.cpp
 ParticleManager.cpp
+TimelineProperty.cpp
 )
 
 add_library (Core ${CORE_SRC_FILES})

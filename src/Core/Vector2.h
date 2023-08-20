@@ -156,18 +156,18 @@ struct HorizontalOverlapResult
 struct Collider
 {
 	float x, y, w, h;
-	inline Collider(float nx = 0, float ny = 0, float nw = 0, float nh = 0)
+	constexpr inline Collider(float nx = 0, float ny = 0, float nw = 0, float nh = 0)
 	{
 		x = nx;
 		y = ny;
 		w = nw;
 		h = nh;
 	}
-	inline Collider operator+(const Vector2<float>& rhs) const
+	constexpr inline Collider operator+(const Vector2<float>& rhs) const
 	{
 		return { x + rhs.x, y + rhs.y, w, h };
 	}
-	inline int isCollideWith_x(const Collider& hbox) const
+	constexpr inline int isCollideWith_x(const Collider& hbox) const
 	{
 		if (x <= hbox.x && x + w > hbox.x)
 			return 1;
@@ -178,7 +178,7 @@ struct Collider
 		else
 			return 0;
 	}
-	inline int isCollideWith_y(const Collider& hbox) const
+	constexpr inline int isCollideWith_y(const Collider& hbox) const
 	{
 		if (y <= hbox.y && y + h > hbox.y)
 			return 1;
@@ -189,7 +189,7 @@ struct Collider
 		else
 			return 0;
 	}
-	inline bool isCollideWith(const Collider& hbox) const
+	constexpr inline bool isCollideWith(const Collider& hbox) const
 	{
 		return isCollideWith_x(hbox) && isCollideWith_y(hbox);
 	}
@@ -197,7 +197,7 @@ struct Collider
 	//-1 if beyond left bound
 	// 1 if beyond right bound
 	// 0 if within bounds
-	inline int isWithinHorizontalBounds(float leftBound_, float rightBound_) const
+	constexpr inline int isWithinHorizontalBounds(float leftBound_, float rightBound_) const
 	{
 		if (x < leftBound_)
 			return -1;
@@ -208,17 +208,17 @@ struct Collider
 		return 0;
 	}
 	
-	inline float rangeToLeftBound(float leftBound_) const
+	constexpr inline float rangeToLeftBound(float leftBound_) const
 	{
 		return x - leftBound_;
 	}
 
-	inline float rangeToRightBound(float rightBound_) const
+	constexpr inline float rangeToRightBound(float rightBound_) const
 	{
 		return rightBound_ - (x + w);
 	}
 
-	inline bool doesExceedOrTouchBoundaries(float leftBound_, float rightBound_) const
+	constexpr inline bool doesExceedOrTouchBoundaries(float leftBound_, float rightBound_) const
 	{
 		if (x <= leftBound_)
 			return true;
@@ -229,7 +229,7 @@ struct Collider
 		return false;
 	}
 
-	inline HorizontalOverlapResult getHorizontalOverlap(const Collider &rhs) const
+	constexpr inline HorizontalOverlapResult getHorizontalOverlap(const Collider &rhs) const
 	{
 		HorizontalOverlapResult res;
 
@@ -254,7 +254,7 @@ struct Collider
 		return res;
 	}
 
-	inline Collider getHitboxAtOffset(const Vector2<float> &offset_, ORIENTATION side_)
+	constexpr inline Collider getHitboxAtOffset(const Vector2<float> &offset_, ORIENTATION side_)
 	{
 		Collider hbox = *this;
 		if (side_ == ORIENTATION::RIGHT)
@@ -271,15 +271,15 @@ struct Collider
 	}
 
 
-	inline Vector2<float> getPos() const
+	constexpr inline Vector2<float> getPos() const
 	{
 		return {x, y};
 	}
-	inline Vector2<float> getSize() const
+	constexpr inline Vector2<float> getSize() const
 	{
 		return {w, h};
 	}
-	inline Vector2<float> getCenter() const
+	constexpr inline Vector2<float> getCenter() const
 	{
 		return {x + w / 2.0f, y + h / 2.0f};
 	}
