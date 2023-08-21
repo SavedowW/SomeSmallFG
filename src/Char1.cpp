@@ -1099,6 +1099,13 @@ void Char1::applyClash(const Hit &clashedHit_)
         (int)CHAR1_STATE::THROW_NORMAL_AIR_STARTUP,
         (int)CHAR1_STATE::THROW_BACK_AIR_STARTUP
     };
-    m_currentCancelWindow.second.erase((int)m_currentState);
     
+}
+
+void Char1::turnVelocityToInertia(float horMultiplier_)
+{
+    if (m_currentState == CHAR1_STATE::WALK_BWD || m_currentState == CHAR1_STATE::WALK_FWD)
+        m_velocity = {0, 0};
+
+    Character::turnVelocityToInertia(horMultiplier_);
 }

@@ -318,9 +318,10 @@ bool Character::canBeDraggedByInertia() const
     return true;
 }
 
-void Character::turnVelocityToInertia()
+void Character::turnVelocityToInertia(float horMultiplier_)
 {
-    m_inertia += m_velocity;
+    m_inertia.x += m_velocity.x * horMultiplier_;
+    m_inertia.y += m_velocity.y;
     m_velocity = {0.0f, 0.0f};
 }
 

@@ -205,7 +205,7 @@ public:
     virtual bool canApplyDrag() const;
     virtual bool canApplyGravity() const;
     virtual bool canBeDraggedByInertia() const;
-    void turnVelocityToInertia();
+    virtual void turnVelocityToInertia(float horMultiplier_ = 0.9f);
 
     virtual void generateWidgets(Application &application_, HUD &hud_);
 

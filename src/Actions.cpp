@@ -186,9 +186,9 @@ const Vector2<float> *Action_attack<CharState_t, CharData, Char_t>::getCurrentVe
 template <typename CharState_t, typename CharData, typename Char_t>
 void Action_attack<CharState_t, CharData, Char_t>::switchTo(Char_t &character_) const
 {
+    character_.turnVelocityToInertia();
     Action<CharState_t, CharData, Char_t>::switchTo(character_);
     character_.m_timer.begin(m_fullDuration);
-    character_.turnVelocityToInertia();
 }
 
 template <typename CharState_t, typename CharData, typename Char_t>
@@ -490,8 +490,8 @@ int Action_char1_idle::isPossible(const InputQueue &inputQueue_, Char1Data charD
 
 void Action_char1_idle::switchTo(Char1 &character_) const
 {
-    Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
     character_.turnVelocityToInertia();
+    Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
     character_.updateOwnOrientation();
     character_.m_healthHandler.resetScaling();
     character_.m_comboPhysHandler.reset();
@@ -702,15 +702,9 @@ int Action_char1_jump::isPossible(const InputQueue &inputQueue_, Char1Data charD
 
 void Action_char1_jump::switchTo(Char1 &character_) const
 {
-    auto oldState = character_.m_currentState;
+    character_.turnVelocityToInertia();
     Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
     character_.m_timer.begin(m_prejumpLen);
-
-    if (oldState != CHAR1_STATE::WALK_BWD && oldState != CHAR1_STATE::WALK_FWD)
-        character_.turnVelocityToInertia();
-    else
-        character_.m_velocity = {0.0f, 0.0f};
-
     character_.m_jumpFramesCounter = 5;
     character_.m_airadashFramesCounter = 6;
 }
@@ -1023,9 +1017,9 @@ void Action_char1_step_recovery::outdated(Char1 &character_) const
 
 void Action_char1_step_recovery::switchTo(Char1 &character_) const
 {
+    character_.turnVelocityToInertia();
     Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
     character_.m_timer.begin(m_recoveryLen);
-    character_.turnVelocityToInertia();
 }
 
 void Action_char1_step_recovery::update(Char1 &character_) const
@@ -1177,7 +1171,7 @@ Action_char1_air_backdash::Action_char1_air_backdash() :
             TimelineProperty(true),
             {-70, -350, 140, 300}
         }
-    }, ANIMATIONS::CHAR1_AIR_BACKDASH, TimelineProperty(false), TimelineProperty(false), TimelineProperty(false)),
+    }, ANIMATIONS::CHAR1_AIR_BACKDASH, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false)),
     m_duration(gamedata::characters::char1::airBackdashDuration)
 {
 }
@@ -1223,7 +1217,7 @@ void Action_char1_air_backdash::outdated(Char1 &character_) const
 void Action_char1_air_backdash::switchTo(Char1 &character_) const
 {
     character_.m_velocity = {0, 0};
-    character_.m_inertia = {0, 0};
+    character_.m_inertia = {0, -10.0f};
     character_.m_velocity = character_.getOwnHorDir().mulComponents(Vector2{-gamedata::characters::char1::airBackdashSpeed, 0.0f});
     Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
     character_.m_timer.begin(m_duration);
@@ -1319,9 +1313,9 @@ void Action_char1_ground_dash_recovery::outdated(Char1 &character_) const
 
 void Action_char1_ground_dash_recovery::switchTo(Char1 &character_) const
 {
+    character_.turnVelocityToInertia();
     Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
     character_.m_timer.begin(m_recoveryLen);
-    character_.turnVelocityToInertia();
 }
 
 // SOFT LANDING RECOVERY
@@ -1462,9 +1456,9 @@ void Action_char1_soft_knockdown::outdated(Char1 &character_) const
 
 void Action_char1_soft_knockdown::switchTo(Char1 &character_) const
 {
+    character_.turnVelocityToInertia();
     Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
     character_.m_timer.begin(8);
-    character_.turnVelocityToInertia();
 }
 
 // HARD KNOCKDOWN ACTION
@@ -1509,9 +1503,9 @@ void Action_char1_knockdown_recovery::outdated(Char1 &character_) const
 
 void Action_char1_knockdown_recovery::switchTo(Char1 &character_) const
 {
+    character_.turnVelocityToInertia();
     Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
     character_.m_timer.begin(21);
-    character_.turnVelocityToInertia();
     character_.m_healthHandler.resetScaling();
     character_.m_comboPhysHandler.reset();
 }

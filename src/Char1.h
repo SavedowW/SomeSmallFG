@@ -109,6 +109,7 @@ public:
     bool isKnockedDown() const final;
     bool canApplyGravity() const final;
     void touchedWall(int sideDir_) final;
+    void turnVelocityToInertia(float horMultiplier_ = 0.9f) final;
 
     void attemptThrow() final;
 
