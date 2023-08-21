@@ -345,11 +345,13 @@ void Char1::land()
         case (CHAR1_STATE::HITSTUN_AIR):
             if (m_hitProps.groundBounce)
             {
+                std::cout << "pos: " << m_pos << std::endl;
                 m_inertia.y = 0;
                 m_velocity.y = -m_comboPhysHandler.getGroundBounceForce(m_hitProps.groundBounceStrength);
                 m_hitProps.groundBounce = false;
                 m_hitstunAnimation = HITSTUN_ANIMATION::FLOAT;
                 m_currentAnimation = m_animations[ANIMATIONS::CHAR1_HITSTUN_AIR].get();
+                //m_pos.y = gamedata::stages::levelOfGround - 1;
             }
             else if (m_hitProps.hardKnd)
                 m_actionResolver.getAction(CHAR1_STATE::HARD_KNOCKDOWN)->switchTo(*this);
@@ -562,22 +564,42 @@ HIT_RESULT Char1::applyHit(HitEvent &hitEvent)
 
             if (!m_lockedInAnimation)
             {
+                Vector2<float> newImpulse;
+                auto hordir = getHorDirToEnemy();
+                
                 if (m_airborne)
                 {
-                    auto hordir = getHorDirToEnemy();
-                    auto newImpulse = m_hitProps.opponentImpulseOnAirHit.mulComponents(Vector2{hordir.x * -1.0f, 1.0f});
+                    newImpulse = m_hitProps.opponentImpulseOnAirHit.mulComponents(Vector2{hordir.x * -1.0f, 1.0f});
                     newImpulse = m_comboPhysHandler.getImpulseScaling(newImpulse, hordir);
+                    newImpulse += m_inertia * gamedata::characters::airborneImpulseIntoPushbackCarry;
                     m_inertia = newImpulse;
+
+                    newImpulse.x *= gamedata::characters::airbornePushbackMultiplier;
                 }
                 else
                 {
-                    auto hordir = getHorDirToEnemy();
-                    auto newImpulse = m_hitProps.opponentImpulseOnHit.mulComponents(Vector2{hordir.x * -1.0f, 1.0f});
+                    if (m_hitProps.opponentImpulseOnHit.y == 0)
+                    {
+                    newImpulse = m_hitProps.opponentImpulseOnHit.mulComponents(Vector2{hordir.x * -1.0f, 1.0f});
                     newImpulse = m_comboPhysHandler.getImpulseScaling(newImpulse, hordir);
-                    m_inertia = newImpulse;
-                    if (m_inertia.y < 0)
+                    }
+                    else
+                    {
                         m_airborne = true;
+    
+                        newImpulse = m_hitProps.opponentImpulseOnHit.mulComponents(Vector2{hordir.x * -1.0f, 1.0f});
+                        newImpulse = m_comboPhysHandler.getImpulseScaling(newImpulse, hordir);
+                        newImpulse += m_inertia * gamedata::characters::airborneImpulseIntoPushbackCarry;
+
+                        m_inertia += newImpulse;
+
+                        newImpulse.x *= gamedata::characters::airbornePushbackMultiplier;
+                        
+                    }
                 }
+
+                newImpulse.y = 0;
+                takePushback(newImpulse);
             }
 
 
@@ -607,11 +629,15 @@ HIT_RESULT Char1::applyHit(HitEvent &hitEvent)
             if (!isInstant)
             {
                 turnVelocityToInertia();
-                m_inertia.x *= 0.2f;
-                m_inertia += getHorDirToEnemy() * -1.0f * hitEvent.m_hitData.opponentPushbackOnBlock;
+                m_inertia.x *= gamedata::characters::pushblockInertiaCarry;
+                takePushback(getHorDirToEnemy() * -1.0f * hitEvent.m_hitData.opponentPushbackOnBlock);
             }
             else if (m_airborne)
+            {
                 turnVelocityToInertia();
+                if (!isInstant)
+                    takePushback(getHorDirToEnemy() * -1.0f * hitEvent.m_hitData.opponentPushbackOnBlock);
+            }
             else
             {
                 m_velocity = {0, 0};
@@ -1033,9 +1059,11 @@ float Char1::touchedWall(int sideDir_)
     if (utils::sameSign<float>(m_inertia.x, sideDir_))
         m_inertia.x = 0;
 
-    if (isInHitstun() || isInBlockstun())
+    if ((isInHitstun() || isInBlockstun()) && utils::sameSign<float>(m_pushback.x, sideDir_))
     {
-        return abs(fw.x);
+        auto pbx = m_pushback.x;
+        m_pushback.x = 0;
+        return abs(pbx + fw.x * gamedata::characters::inertiaIntoCornerPushbackCarry);
     }
 
     return 0;

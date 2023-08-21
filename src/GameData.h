@@ -59,6 +59,10 @@ namespace gamedata
         inline constexpr float initialBlockstunScaling = 2.0f;
         inline constexpr float finalBlockstunScaling = 1.0f;
         inline constexpr float blockstunScalingDiff = initialBlockstunScaling - finalBlockstunScaling;
+        inline constexpr float inertiaIntoCornerPushbackCarry = 0.1f;
+        inline constexpr float airborneImpulseIntoPushbackCarry = 0.1f;
+        inline constexpr float airbornePushbackMultiplier = 10.0f;
+        inline constexpr float pushblockInertiaCarry = 0.2f;
 
 
         namespace char1

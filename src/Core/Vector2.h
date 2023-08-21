@@ -133,6 +133,15 @@ namespace utils
 		return {clamp(val.x, min.x, max.x), clamp(val.y, min.y, max.y)};
 	}
 
+	template <typename T>
+	inline Vector2<T> limitVectorLength(const Vector2<T>& val, const T &limit)
+	{
+		if (val.getLen() > limit)
+			return val.normalised() * limit;
+
+		return val;
+	}
+
 	template <typename T, typename aT>
 	inline Vector2<T> lerp(const Vector2<T> &min, const Vector2<T> &max, const aT &alpha)
 	{

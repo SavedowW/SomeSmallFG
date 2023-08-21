@@ -96,16 +96,18 @@ void Character::updatePosition()
         posAddition += m_inertia;
     setPos(m_pos + posAddition);
 
+    auto pb = getPushbox();
+
     // Define if character is airborne
     if (m_pos.y < gamedata::stages::levelOfGround)
     {
         m_airborne = true;
     }
-    else if (m_airborne)
+    else if (m_airborne && pb.y + pb.h >= gamedata::stages::levelOfGround)
     {
-        m_pos.y = gamedata::stages::levelOfGround;
-        m_airborne = false;
         m_inertia.y = 0;
+        m_airborne = false;
+        m_pos.y = gamedata::stages::levelOfGround;
         land();
     }
 
@@ -125,6 +127,17 @@ void Character::updatePosition()
         auto m_inertiaSign = m_inertia.x / abs(m_inertia.x);
         absInertia = std::max(absInertia - m_inertiaDrag, 0.0f);
         m_inertia.x = m_inertiaSign * absInertia;
+    }
+
+    if ((m_pushback.x != 0 || m_pushback.y != 0) && !(isInHitstun() && m_airborne))
+    {
+        auto carry = utils::limitVectorLength(m_pushback, m_pushbackCurrentCarry);
+        m_pos += carry;
+        m_pushback -= carry;
+        if (m_pushback.getLen() < m_pushbackTreshold)
+        {
+            m_pushbackCurrentCarry = utils::clamp(m_pushbackCurrentCarry - m_pushbackDeterioration, 3.0f, m_pushbackMaxCarry);
+        }
     }
     
     m_currentAnimation->update();
@@ -245,6 +258,9 @@ void Character::draw(Renderer &renderer_, Camera &camera_)
                 renderer_.fillRectangle({hb.second.x, hb.second.y}, {hb.second.w, hb.second.h}, gamedata::characters::hitboxColor, camera_);
             }
         }
+
+        renderer_.fillRectangle({m_pos.x - 2.0f, m_pos.y - 25.0f}, {4.0f, 50.0f}, {255, 255, 255, 200}, camera_);
+        renderer_.fillRectangle({m_pos.x - 25.0f, m_pos.y - 2.0f}, {50.0f, 4.0f}, {255, 255, 255, 200}, camera_);
     }
     #endif
 }
@@ -339,7 +355,7 @@ HitData Character::getCurrentTakenHit()
     return temp;
 }
 
-void Character::takeCornerPushback(float pushback_, const Vector2<int> dirFromCorner_)
+void Character::takePushback(const Vector2<float> pushback_)
 {
     if (m_lockedInAnimation || m_tiedAnimWithOpponent)
         return;
@@ -354,11 +370,10 @@ void Character::takeCornerPushback(float pushback_, const Vector2<int> dirFromCo
         m_inertia += dirFromCorner_ * pbimpulse;
     }*/
 
-    if (isInAttackState())
-    {
-        m_inertia += dirFromCorner_ * pushback_;
-        std::cout << m_inertia << std::endl;
-    }
+    m_pushback = pushback_;
+    m_pushbackCurrentCarry = m_pushbackMaxCarry;
+    //m_inertia += dirFromCorner_ * pushback_;
+    std::cout << m_pushback << std::endl;
     
 }
 

@@ -200,7 +200,7 @@ public:
     virtual HIT_RESULT applyHit(HitEvent &hitEvent_) = 0;
     virtual void applyHitstop(int hitstopLength);
     HitData getCurrentTakenHit();
-    void takeCornerPushback(float pushback_, const Vector2<int> dirFromCorner_);
+    void takePushback(const Vector2<float> pushback_);
     virtual void applyClash(const Hit &clashedHit_);
 
     virtual bool canApplyDrag() const;
@@ -227,8 +227,13 @@ protected:
     Vector2<float> m_pos;
     Vector2<float> m_velocity;
     Vector2<float> m_inertia;
+    Vector2<float> m_pushback;
     float m_inertiaDrag = 1;
     bool m_airborne = false;
+    float m_pushbackMaxCarry = 10.0f;
+    float m_pushbackCurrentCarry = 10.0f;
+    float m_pushbackDeterioration = 2.0f;
+    float m_pushbackTreshold = 35.0f;
 
     bool m_inHitstop = false;
     FrameTimer m_hitstopTimer;

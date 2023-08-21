@@ -124,7 +124,7 @@ protected:
                 hitsWall[i] = true;
 
                 const Vector2 dirFromWall{1, 0};
-                m_characters[1-i]->takeCornerPushback(pushback, dirFromWall);
+                m_characters[1-i]->takePushback(dirFromWall * pushback);
             }
             else if (stageBoundResult > 0)
             {
@@ -134,7 +134,7 @@ protected:
                 hitsWall[i] = true;
 
                 const Vector2 dirFromWall{-1, 0};
-                m_characters[1-i]->takeCornerPushback(pushback, dirFromWall);
+                m_characters[1-i]->takePushback(dirFromWall * pushback);
             }
         }
 

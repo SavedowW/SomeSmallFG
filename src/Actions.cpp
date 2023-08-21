@@ -1455,6 +1455,7 @@ void Action_char1_soft_knockdown::outdated(Char1 &character_) const
 
 void Action_char1_soft_knockdown::switchTo(Char1 &character_) const
 {
+    character_.takePushback({0, 0});
     character_.turnVelocityToInertia();
     Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
     character_.m_timer.begin(8);
@@ -1478,6 +1479,7 @@ void Action_char1_hard_knockdown::outdated(Char1 &character_) const
 
 void Action_char1_hard_knockdown::switchTo(Char1 &character_) const
 {
+    character_.takePushback({0, 0});
     Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
     character_.m_timer.begin(30);
     character_.m_velocity = {0.0f, 0.0f};
@@ -1503,6 +1505,7 @@ void Action_char1_knockdown_recovery::outdated(Char1 &character_) const
 void Action_char1_knockdown_recovery::switchTo(Char1 &character_) const
 {
     character_.turnVelocityToInertia();
+    character_.takePushback({0, 0});
     Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
     character_.m_timer.begin(21);
     character_.m_healthHandler.resetScaling();
