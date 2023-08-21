@@ -70,6 +70,7 @@ namespace gamedata
             inline constexpr Collider floatingHurtbox = {-70, -350, 140, 300};
             inline constexpr float gravity = 1.5f;
             inline constexpr float inertiaDrag = 1.0f;
+            inline constexpr float maxCornerPushback = 20.0f;
             inline constexpr float standingPushboxWidth = 100.0f;
             inline constexpr float standingPushboxHeight = 300.0f;
             inline constexpr float crouchingPushboxWidth = 100.0f;

@@ -70,9 +70,6 @@ struct HitData
     int m_hitId;
     float damage = 0;
 
-    float cornerPushbackMaxRange;
-    float cornerPushbackMinImpulse;
-    float cornerPushbackMaxImpulse;
     float opponentPushbackOnBlock = 0;
 
     PostHitProperties hitProps;

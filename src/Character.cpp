@@ -339,12 +339,12 @@ HitData Character::getCurrentTakenHit()
     return temp;
 }
 
-void Character::takeCornerPushback(HitData fromHit_, float rangeToCorner_, const Vector2<int> dirFromCorner_)
+void Character::takeCornerPushback(float pushback_, const Vector2<int> dirFromCorner_)
 {
     if (m_lockedInAnimation || m_tiedAnimWithOpponent)
         return;
 
-    if (fromHit_.m_hitId != -1 && fromHit_.cornerPushbackMaxRange > rangeToCorner_)
+    /*if (fromHit_.m_hitId != -1 && fromHit_.cornerPushbackMaxRange > rangeToCorner_)
     {
         if (utils::sameSign((int)m_inertia.x, dirFromCorner_.x))
             m_inertia.x = 0;
@@ -352,7 +352,14 @@ void Character::takeCornerPushback(HitData fromHit_, float rangeToCorner_, const
         float pbimpulse = std::max((1 - rangeToCorner_ / fromHit_.cornerPushbackMaxRange) * fromHit_.cornerPushbackMaxImpulse, fromHit_.cornerPushbackMinImpulse);
 
         m_inertia += dirFromCorner_ * pbimpulse;
+    }*/
+
+    if (isInAttackState())
+    {
+        m_inertia += dirFromCorner_ * pushback_;
+        std::cout << m_inertia << std::endl;
     }
+    
 }
 
 void Character::generateWidgets(Application &application_, HUD &hud_)

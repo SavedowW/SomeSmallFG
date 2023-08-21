@@ -83,15 +83,12 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_jab()
 
     hdata.m_hitId = 1;
 
-    hdata.cornerPushbackMaxRange = 390.0f;
-    hdata.cornerPushbackMinImpulse = 8.0f;
-    hdata.cornerPushbackMaxImpulse = 25.0f;
     hdata.opponentPushbackOnBlock = 7.0f;
 
     hdata.hitProps.hitstop = 10;
     hdata.hitProps.hitstun = 12;
     hdata.hitProps.proratio = 0.8f;
-    hdata.hitProps.opponentImpulseOnHit = {6.0f, 0.0f};
+    hdata.hitProps.opponentImpulseOnHit = {7.5f, 0.0f};
     hdata.hitProps.opponentImpulseOnAirHit = {8.0f, -5.0f};
     hdata.hitProps.groundHitstunAnimation = HITSTUN_ANIMATION::HIGH;
     hdata.hitProps.airHitstunAnimation = HITSTUN_ANIMATION::FLOAT;
@@ -142,9 +139,6 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveB()
 
     hdata.m_hitId = 1;
 
-    hdata.cornerPushbackMaxRange = 390.0f;
-    hdata.cornerPushbackMinImpulse = 8.0f;
-    hdata.cornerPushbackMaxImpulse = 30.0f;
     hdata.opponentPushbackOnBlock = 5.6f;
 
     hdata.hitProps.hitstop = 11;
@@ -200,9 +194,6 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveC()
 
     hdata.m_hitId = 1;
 
-    hdata.cornerPushbackMaxRange = 300.0f;
-    hdata.cornerPushbackMinImpulse = 10.0f;
-    hdata.cornerPushbackMaxImpulse = 35.0f;
     hdata.opponentPushbackOnBlock = 15.0f;
 
     hdata.hitProps.hitstop = 13;
@@ -259,9 +250,6 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveStepC()
 
     hdata.m_hitId = 1;
 
-    hdata.cornerPushbackMaxRange = 300.0f;
-    hdata.cornerPushbackMinImpulse = 10.0f;
-    hdata.cornerPushbackMaxImpulse = 35.0f;
     hdata.opponentPushbackOnBlock = 15.0f;
 
     hdata.hitProps.hitstop = 13;
@@ -318,9 +306,6 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_move2B()
 
     hdata.m_hitId = 1;
 
-    hdata.cornerPushbackMaxRange = 390.0f;
-    hdata.cornerPushbackMinImpulse = 15.0f;
-    hdata.cornerPushbackMaxImpulse = 31.0f;
     hdata.opponentPushbackOnBlock = 3.0f;
 
     hdata.hitProps.hitstop = 11;
@@ -380,9 +365,6 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_JA()
 
     hdata.m_hitId = 1;
 
-    hdata.cornerPushbackMaxRange = 390.0f;
-    hdata.cornerPushbackMinImpulse = 8.0f;
-    hdata.cornerPushbackMaxImpulse = 25.0f;
     hdata.opponentPushbackOnBlock = 7.0f;
 
     hdata.hitProps.hitstop = 10;
@@ -439,9 +421,6 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_JC()
 
     hdata.m_hitId = 1;
 
-    hdata.cornerPushbackMaxRange = 400.0f;
-    hdata.cornerPushbackMinImpulse = 5.0f;
-    hdata.cornerPushbackMaxImpulse = 15.0f;
     hdata.opponentPushbackOnBlock = 10.0f;
     
     hdata.hitProps.hitstun = 12;
@@ -501,9 +480,6 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_214C()
 
     hdata.m_hitId = 1;
 
-    hdata.cornerPushbackMaxRange = 300.0f;
-    hdata.cornerPushbackMinImpulse = 5.0f;
-    hdata.cornerPushbackMaxImpulse = 8.0f;
     hdata.opponentPushbackOnBlock = 5.6f;
 
     hdata.hitProps.hitstun = 28;
@@ -568,9 +544,6 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_236C()
 
     hdata.m_hitId = 1;
 
-    hdata.cornerPushbackMaxRange = 300.0f;
-    hdata.cornerPushbackMinImpulse = 8.0f;
-    hdata.cornerPushbackMaxImpulse = 30.0f;
     hdata.opponentPushbackOnBlock = 3.0f;
 
     hdata.hitProps.hitstop = 13;

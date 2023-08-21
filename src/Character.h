@@ -182,13 +182,14 @@ public:
     virtual bool isInHitstun() const = 0;
     virtual bool isInBlockstun() const = 0;
     virtual bool isKnockedDown() const = 0;
+    virtual bool isInAttackState() const = 0;
     bool passableThrough() const;
 
     virtual bool canBeThrown(THROW_LIST throw_) const;
     void setThrowInvul();
     virtual void attemptThrow() = 0;
 
-    virtual void touchedWall(int sideDir_) = 0;
+    virtual float touchedWall(int sideDir_) = 0;
 
     virtual std::string CharStateData() const = 0;
 
@@ -199,7 +200,7 @@ public:
     virtual HIT_RESULT applyHit(HitEvent &hitEvent_) = 0;
     virtual void applyHitstop(int hitstopLength);
     HitData getCurrentTakenHit();
-    void takeCornerPushback(HitData fromHit_, float rangeToCorner_, const Vector2<int> dirFromCorner_);
+    void takeCornerPushback(float pushback_, const Vector2<int> dirFromCorner_);
     virtual void applyClash(const Hit &clashedHit_);
 
     virtual bool canApplyDrag() const;

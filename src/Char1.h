@@ -106,9 +106,10 @@ public:
     void updateBlockState() final;
     bool isInHitstun() const final;
     bool isInBlockstun() const final;
+    bool isInAttackState() const final;
     bool isKnockedDown() const final;
     bool canApplyGravity() const final;
-    void touchedWall(int sideDir_) final;
+    float touchedWall(int sideDir_) final;
     void turnVelocityToInertia(float horMultiplier_ = 0.9f) final;
 
     void attemptThrow() final;

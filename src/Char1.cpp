@@ -1010,14 +1010,28 @@ void Char1::enterHitstunAnimation(const PostHitProperties &props_)
     m_currentAction = nullptr;
 }
 
-void Char1::touchedWall(int sideDir_)
+float Char1::touchedWall(int sideDir_)
 {
-    if (sideDir_ * getFullVelocity().x > 0 && isInHitstun() && m_airborne && m_hitProps.wallBounce)
+    auto fw = getFullVelocity();
+
+    if (sideDir_ * fw.x > 0 && isInHitstun() && m_airborne && m_hitProps.wallBounce)
     {
         m_velocity.x *= -1;
         m_inertia.x *= -1;
         m_hitProps.wallBounce = false;
     }
+
+    if (utils::sameSign<float>(m_velocity.x, sideDir_))
+        m_velocity.x = 0;
+    if (utils::sameSign<float>(m_inertia.x, sideDir_))
+        m_inertia.x = 0;
+
+    if (isInHitstun() || isInBlockstun())
+    {
+        return abs(fw.x);
+    }
+
+    return 0;
 }
 
 Collider Char1::getUntiedPushbox() const
@@ -1108,4 +1122,9 @@ void Char1::turnVelocityToInertia(float horMultiplier_)
         m_velocity = {0, 0};
 
     Character::turnVelocityToInertia(horMultiplier_);
+}
+
+bool Char1::isInAttackState() const
+{
+    return (m_currentAction && m_currentAction->m_isAttack);
 }

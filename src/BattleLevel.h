@@ -120,27 +120,21 @@ protected:
             {
                 auto offset = Vector2<float>{results[i].pushbox.x, 0};
                 m_characters[i]->setPos(m_characters[i]->getPos() - offset);
-                m_characters[i]->touchedWall(stageBoundResult);
+                float pushback = m_characters[i]->touchedWall(stageBoundResult);
                 hitsWall[i] = true;
 
                 const Vector2 dirFromWall{1, 0};
-                float rangeFromWall = m_characters[1-i]->getPos().x;
-                auto hit = m_characters[i]->getCurrentTakenHit();
-                if (hit.m_hitId != -1)
-                    m_characters[1-i]->takeCornerPushback(hit, rangeFromWall, dirFromWall);
+                m_characters[1-i]->takeCornerPushback(pushback, dirFromWall);
             }
             else if (stageBoundResult > 0)
             {
                 auto offset = Vector2<float>{results[i].pushbox.x + results[i].pushbox.w - m_size.x, 0};
                 m_characters[i]->setPos(m_characters[i]->getPos() - offset);
-                m_characters[i]->touchedWall(stageBoundResult);
+                float pushback = m_characters[i]->touchedWall(stageBoundResult);
                 hitsWall[i] = true;
 
                 const Vector2 dirFromWall{-1, 0};
-                float rangeFromWall = m_size.x - m_characters[1-i]->getPos().x;
-                auto hit = m_characters[i]->getCurrentTakenHit();
-                if (hit.m_hitId != -1)
-                    m_characters[1-i]->takeCornerPushback(hit, rangeFromWall, dirFromWall);
+                m_characters[1-i]->takeCornerPushback(pushback, dirFromWall);
             }
         }
 
@@ -337,7 +331,7 @@ protected:
         m_camera.update();
         m_hud.update();
         m_particleManager.update();
-        std::cout << m_characters[0]->CharStateData() << " | " << m_characters[1]->CharStateData() << std::endl;
+        //std::cout << m_characters[0]->CharStateData() << " | " << m_characters[1]->CharStateData() << std::endl;
     }
 
     void draw() override

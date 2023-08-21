@@ -1261,7 +1261,6 @@ void Action_char1_air_dash_extention::switchTo(Char1 &character_) const
 void Action_char1_air_dash_extention::setVelocity(Char1 &character_) const
 {
     character_.m_velocity.x = character_.getOwnHorDir().x * (m_baseSpd - m_spdMultiplier * (character_.m_timer.getCurrentFrame() + 1));
-    std::cout << character_.m_velocity.x << std::endl;
 }
 
 void Action_char1_air_dash_extention::update(Char1 &character_) const
