@@ -15,6 +15,8 @@ Renderer::Renderer(Window &window_)
 
 	SDL_SetRenderDrawBlendMode(m_renderer, SDL_BLENDMODE_BLEND);
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
+
+	SDL_RenderSetLogicalSize(m_renderer, 1600, 900);
 }
 
 Renderer::~Renderer()
