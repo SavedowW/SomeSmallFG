@@ -25,10 +25,6 @@ HitData hitgeneration::generate_char1_normal_throw()
     HitParticleData pdatatemp;
 
     pdatatemp.m_partType = PARTICLE_TYPES::HIT_1;
-    pdatatemp.m_baseOffsetMin = {90.0f, -100.0f};
-    pdatatemp.m_baseOffsetMax = {90.0f, -100.0f};
-    pdatatemp.minRange = 1.0f;
-    pdatatemp.maxRange = 1.0f;
     pdatatemp.m_scale = 0.6f;
     hdata.particlesOnHit.push_back(pdatatemp);
     hdata.particlesOnCH.push_back(pdatatemp);
@@ -68,15 +64,11 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_jab()
     HitParticleData pdatatemp;
 
     pdatatemp.m_partType = PARTICLE_TYPES::BLOCK;
-    pdatatemp.m_baseOffsetMin = {50.0f, -285.0f};
-    pdatatemp.m_baseOffsetMax = {200.0f, -285.0f};
-    pdatatemp.minRange = 100.0f;
-    pdatatemp.maxRange = 240.0f;
     pdatatemp.m_scale = 0.5f;
     hdata.particlesOnBlock.push_back(pdatatemp);
 
     pdatatemp.m_partType = PARTICLE_TYPES::HIT_1;
-    pdatatemp.m_scale = 0.3f;
+    pdatatemp.m_scale = 0.4f;
     hdata.particlesOnHit.push_back(pdatatemp);
     hdata.particlesOnCH.push_back(pdatatemp);
 
@@ -126,10 +118,6 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveB()
     HitParticleData pdatatemp;
 
     pdatatemp.m_partType = PARTICLE_TYPES::BLOCK;
-    pdatatemp.m_baseOffsetMin = {50.0f, -230.0f};
-    pdatatemp.m_baseOffsetMax = {242.0f, -230.0f};
-    pdatatemp.minRange = 100.0f;
-    pdatatemp.maxRange = 310.0f;
     pdatatemp.m_scale = 0.6f;
     hdata.particlesOnBlock.push_back(pdatatemp);
 
@@ -181,10 +169,6 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveC()
     HitParticleData pdatatemp;
 
     pdatatemp.m_partType = PARTICLE_TYPES::BLOCK;
-    pdatatemp.m_baseOffsetMin = {100.0f, -270.0f};
-    pdatatemp.m_baseOffsetMax = {100.0f, -270.0f};
-    pdatatemp.minRange = 100.0f;
-    pdatatemp.maxRange = 210.0f;
     pdatatemp.m_scale = 0.8f;
     hdata.particlesOnBlock.push_back(pdatatemp);
 
@@ -237,10 +221,6 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveStepC()
     HitParticleData pdatatemp;
 
     pdatatemp.m_partType = PARTICLE_TYPES::BLOCK;
-    pdatatemp.m_baseOffsetMin = {100.0f, -270.0f};
-    pdatatemp.m_baseOffsetMax = {100.0f, -270.0f};
-    pdatatemp.minRange = 100.0f;
-    pdatatemp.maxRange = 210.0f;
     pdatatemp.m_scale = 0.8f;
     hdata.particlesOnBlock.push_back(pdatatemp);
 
@@ -293,10 +273,6 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_move2B()
     HitParticleData pdatatemp;
 
     pdatatemp.m_partType = PARTICLE_TYPES::BLOCK;
-    pdatatemp.m_baseOffsetMin = {100.0f, -50.0f};
-    pdatatemp.m_baseOffsetMax = {190.0f, -50.0f};
-    pdatatemp.minRange = 100.0f;
-    pdatatemp.maxRange = 230.0f;
     pdatatemp.m_scale = 0.6f;
     hdata.particlesOnBlock.push_back(pdatatemp);
 
@@ -348,10 +324,6 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_move4A()
     HitParticleData pdatatemp;
 
     pdatatemp.m_partType = PARTICLE_TYPES::BLOCK;
-    pdatatemp.m_baseOffsetMin = {60.0f, -335.0f};
-    pdatatemp.m_baseOffsetMax = {140.0f, -335.0f};
-    pdatatemp.minRange = 100.0f;
-    pdatatemp.maxRange = 310.0f;
     pdatatemp.m_scale = 0.6f;
     hdata.particlesOnBlock.push_back(pdatatemp);
 
@@ -404,10 +376,6 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_JA()
     HitParticleData pdatatemp;
 
     pdatatemp.m_partType = PARTICLE_TYPES::BLOCK;
-    pdatatemp.m_baseOffsetMin = {90.0f, -240.0f};
-    pdatatemp.m_baseOffsetMax = {160.0f, -170.0f};
-    pdatatemp.minRange = 100.0f;
-    pdatatemp.maxRange = 260.0f;
     pdatatemp.m_scale = 0.6f;
     pdatatemp.m_angle = 45.0f;
     hdata.particlesOnBlock.push_back(pdatatemp);
@@ -463,10 +431,6 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_JC()
     HitParticleData pdatatemp;
 
     pdatatemp.m_partType = PARTICLE_TYPES::BLOCK;
-    pdatatemp.m_baseOffsetMin = {50.0f, -80.0f};
-    pdatatemp.m_baseOffsetMax = {100.0f, -30.0f};
-    pdatatemp.minRange = 100.0f;
-    pdatatemp.maxRange = 380.0f;
     pdatatemp.m_scale = 0.9f;
     hdata.particlesOnBlock.push_back(pdatatemp);
 
@@ -523,15 +487,9 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_214C()
     HitParticleData pdatatemp;
 
     pdatatemp.m_partType = PARTICLE_TYPES::BLOCK;
-    pdatatemp.m_baseOffsetMin = {115.0f, -200.0f};
-    pdatatemp.m_baseOffsetMax = {150.0f, -200.0f};
-    pdatatemp.minRange = 100.0f;
-    pdatatemp.maxRange = 400.0f;
     hdata.particlesOnBlock.push_back(pdatatemp);
 
     pdatatemp.m_partType = PARTICLE_TYPES::HIT_2_SLOWED;
-    pdatatemp.m_baseOffsetMin = {115.0f, -400.0f};
-    pdatatemp.m_baseOffsetMax = {150.0f, -440.0f};
     pdatatemp.m_angle = 90.0f;
     hdata.particlesOnHit.push_back(pdatatemp);
     hdata.particlesOnCH.push_back(pdatatemp);
@@ -587,10 +545,6 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_236C()
     HitParticleData pdatatemp;
 
     pdatatemp.m_partType = PARTICLE_TYPES::BLOCK;
-    pdatatemp.m_baseOffsetMin = {100.0f, -270.0f};
-    pdatatemp.m_baseOffsetMax = {100.0f, -270.0f};
-    pdatatemp.minRange = 100.0f;
-    pdatatemp.maxRange = 210.0f;
     pdatatemp.m_scale = 0.8f;
     pdatatemp.m_angle = -45.0;
     hdata.particlesOnBlock.push_back(pdatatemp);
@@ -648,4 +602,48 @@ TimelineProperty<bool> hitutils::getRegularCounterTimeline(const ActiveFramesVec
     }
 
     return TimelineProperty<bool>({{0, true}, {max, false}});
+}
+
+Vector2<float> hitutils::getHitPosition(const std::vector<std::pair<FrameWindow, Collider>> &hits_, const HurtboxVec &hurtboxes_)
+{
+    if (hits_.empty() || hurtboxes_.empty())
+        return {0, 0};
+
+    Vector2<float> hitTL = {hits_[0].second.x, hits_[0].second.y};
+    Vector2<float> hitBR = {hits_[0].second.x + hits_[0].second.w, hits_[0].second.y + hits_[0].second.h};
+    for (const auto &hit : hits_)
+    {
+        if (hit.second.x < hitTL.x)
+            hitTL.x = hit.second.x;
+
+        if (hit.second.y < hitTL.y)
+            hitTL.y = hit.second.y;
+
+        if (hit.second.x + hit.second.w > hitBR.x)
+            hitBR.x = hit.second.x + hit.second.w;
+
+        if (hit.second.y + hit.second.h > hitBR.y)
+            hitBR.y = hit.second.y + hit.second.h;
+    }
+    Collider hitFullCollider = {hitTL.x, hitTL.y, hitBR.x - hitTL.x, hitBR.y - hitTL.y};
+
+    Vector2<float> hurtTL = {hurtboxes_[0].x, hurtboxes_[0].y};
+    Vector2<float> hurtBR = {hurtboxes_[0].x + hurtboxes_[0].w, hurtboxes_[0].y + hurtboxes_[0].h};
+    for (const auto &hurtbox : hurtboxes_)
+    {
+        if (hurtbox.x < hurtTL.x)
+            hurtTL.x = hurtbox.x;
+
+        if (hurtbox.y < hurtTL.y)
+            hurtTL.y = hurtbox.y;
+
+        if (hurtbox.x + hurtbox.w > hurtBR.x)
+            hurtBR.x = hurtbox.x + hurtbox.w;
+
+        if (hurtbox.y + hurtbox.h > hurtBR.y)
+            hurtBR.y = hurtbox.y + hurtbox.h;
+    }
+    Collider hurtFullCollider = {hurtTL.x, hurtTL.y, hurtBR.x - hurtTL.x, hurtBR.y - hurtTL.y};
+
+    return hitFullCollider.getOverlapArea(hurtFullCollider).getCenter();
 }

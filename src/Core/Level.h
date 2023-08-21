@@ -41,6 +41,8 @@ protected:
     Timer m_frameTimer;
     Application *m_application;
     float m_timeForFrame;
+
+    bool m_globalPause = false;
 };
 
 #endif

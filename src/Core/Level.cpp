@@ -9,6 +9,7 @@ Level::Level(Application *application_, const Vector2<float> &size_, int lvlId_)
 	m_timeForFrame(1000.0f / gamedata::global::framerate)
 {
 	subscribe(EVENTS::QUIT);
+	subscribe(EVENTS::FN3);
 
 	setInputEnabled(false);
 }
@@ -37,8 +38,11 @@ LevelResult Level::proceed()
 		//system("cls");
 		m_input->handleInput();
 
-		update();
-		draw();
+		if (!m_globalPause)
+		{
+			update();
+			draw();
+		}
 		//destroyRequested();
 
 		auto passed = m_frameTimer.getPassedMS();
@@ -64,6 +68,11 @@ void Level::receiveInput(EVENTS event, const float scale_)
 		case (EVENTS::QUIT):
 			m_returnVal = { -1 };
 			m_state = STATE::LEAVE;
+			break;
+
+		case (EVENTS::FN3):
+			if (scale_ > 0)
+				m_globalPause = !m_globalPause;
 			break;
 	}
 }

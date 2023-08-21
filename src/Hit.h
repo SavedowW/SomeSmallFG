@@ -25,11 +25,6 @@ struct HitParticleData
     float m_angle = 0.0f;
     float m_scale = 1.0f;
 
-    float minRange = 1;
-    float maxRange = 1;
-    Vector2<float> m_baseOffsetMin;
-    Vector2<float> m_baseOffsetMax;
-
     Vector2<float> m_baseVelocity;
     bool m_randVelocity = false;
     Vector2<int> m_velocityRange;
@@ -137,6 +132,7 @@ namespace hitgeneration
 namespace hitutils
 {
     TimelineProperty<bool> getRegularCounterTimeline(const ActiveFramesVec &hits_);
+    Vector2<float> getHitPosition(const std::vector<std::pair<FrameWindow, Collider>> &hits_, const HurtboxVec &hurtboxes_);
 }
 
 #endif

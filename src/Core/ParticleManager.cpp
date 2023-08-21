@@ -58,7 +58,7 @@ void ParticleManager::spawnParticles(const ParticleSpawnData &partData_)
             Particle part{std::move(anim)};
             part.m_pos = partData_.m_pos;
             part.m_velocity = partData_.m_velocity;
-            part.m_lifetime = 5;
+            part.m_lifetime = 10;
             part.m_flip = partData_.m_flip;
             part.m_scale = partData_.m_scale;
             part.m_angle = partData_.m_angle;
@@ -75,7 +75,7 @@ void ParticleManager::spawnParticles(const ParticleSpawnData &partData_)
             Particle part{std::move(anim)};
             part.m_pos = partData_.m_pos;
             part.m_velocity = partData_.m_velocity;
-            part.m_lifetime = 6;
+            part.m_lifetime = 15;
             part.m_flip = partData_.m_flip;
             part.m_scale = partData_.m_scale;
             part.m_angle = partData_.m_angle;
@@ -92,7 +92,7 @@ void ParticleManager::spawnParticles(const ParticleSpawnData &partData_)
             Particle part{std::move(anim)};
             part.m_pos = partData_.m_pos;
             part.m_velocity = partData_.m_velocity;
-            part.m_lifetime = 12;
+            part.m_lifetime = 20;
             part.m_flip = partData_.m_flip;
             part.m_scale = partData_.m_scale;
             part.m_angle = partData_.m_angle;

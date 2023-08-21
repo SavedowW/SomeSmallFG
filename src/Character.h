@@ -210,6 +210,8 @@ public:
 
     virtual void generateWidgets(Application &application_, HUD &hud_);
 
+    virtual void generateHitParticles(HitEvent &ev_, const Vector2<float> hitpos_);
+
 protected:
     virtual void enterHitstunAnimation(const PostHitProperties &props_) = 0;
     void startShine(const SDL_Color &col_, int lockedDuration_, int alphaDuration_);
