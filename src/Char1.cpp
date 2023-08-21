@@ -1016,8 +1016,15 @@ float Char1::touchedWall(int sideDir_)
 
     if (sideDir_ * fw.x > 0 && isInHitstun() && m_airborne && m_hitProps.wallBounce)
     {
-        m_velocity.x *= -1;
-        m_inertia.x *= -1;
+        m_velocity.x *= -1 * m_hitProps.wallbounceInertiaMultiplierX;
+        m_inertia.x *= -1 * m_hitProps.wallbounceInertiaMultiplierX;
+        
+        if (m_inertia.y < 0)
+            m_inertia.y *= m_hitProps.wallbounceInertiaMultiplierY;
+
+        if (m_velocity.y < 0)
+            m_velocity.y *= m_hitProps.wallbounceInertiaMultiplierY;
+
         m_hitProps.wallBounce = false;
     }
 

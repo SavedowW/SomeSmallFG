@@ -50,6 +50,8 @@ struct PostHitProperties
     float groundBounceStrength = 0.0f;
 
     bool wallBounce = false;
+    float wallbounceInertiaMultiplierX = 1.0f;
+    float wallbounceInertiaMultiplierY = 1.0f;
 
     int hitstun = 0;
     int hitstop = 0;

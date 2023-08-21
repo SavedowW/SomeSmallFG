@@ -431,6 +431,8 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_JC()
     hdata.hitProps.groundHitstunAnimation = HITSTUN_ANIMATION::HIGH;
     hdata.hitProps.airHitstunAnimation = HITSTUN_ANIMATION::FLOAT;
     hdata.hitProps.wallBounce = true;
+    hdata.hitProps.wallbounceInertiaMultiplierX = 1.0f;
+    hdata.hitProps.wallbounceInertiaMultiplierY = 0.5f;
 
     hdata.chProps = hdata.hitProps;
     hdata.chProps.hitstun += 4;
