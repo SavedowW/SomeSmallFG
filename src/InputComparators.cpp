@@ -333,6 +333,25 @@ bool InputComparator2BPress::operator()(const InputQueue &inputQueue_, ORIENTATI
     return false;
 }
 
+bool InputComparator4APress::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_, int extendBuffer_) const
+{
+    if (inputQueue_.getFilled() == 0)
+        return false;
+
+    int lookAt = std::min(inputQueue_.getFilled() - 1, gamedata::global::inputBufferLength + extendBuffer_);
+    float backdir = (faceDirection_ == ORIENTATION::RIGHT ? -1.0f : 1.0f);
+    for (int i = 0; i <= lookAt; ++i)
+    {
+        auto &in = inputQueue_[i];
+        if (in.inputs.at(INPUT_BUTTON::A) == INPUT_BUTTON_STATE::PRESSED && in.dir.x == backdir)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 bool InputComparator2CPress::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_, int extendBuffer_) const
 {
     if (inputQueue_.getFilled() == 0)

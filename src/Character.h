@@ -49,7 +49,7 @@
  * * Character who lands a hit or a throw gets a priority.
  * * Priority defines who's drawn on top of another, who's updates are calculated first and who techs in same frame situation
  * Projectiles
- * Clash, forced clash property [DONE clash, need a new attack for forced clash]
+ * Clash, forced clash property [DONE]
  * parries, guard points
  * wallbang (?)
  * * Wallbang (?): when character blocks an attack with wallbang (?) property, he gets into a wallbang blockstun.

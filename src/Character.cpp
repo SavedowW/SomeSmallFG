@@ -218,7 +218,8 @@ void Character::draw(Renderer &renderer_, Camera &camera_)
         auto spr = m_currentAnimation->getSprite();
         bool shining = m_shineLockedTimer.isActive() || m_shineAlphaTimer.isActive();
 
-        renderer_.renderTexture(spr, texPos.x + xoffset, texPos.y, camera_, flip);
+        auto sprsize = m_currentAnimation->getSize();
+        renderer_.renderTexture(spr, texPos.x + xoffset, texPos.y, sprsize.x , sprsize.y, camera_, 0.0f, flip);
         if (shining)
         {
             float alpha = 1 - m_shineAlphaTimer.getProgressNormalized();
@@ -227,7 +228,7 @@ void Character::draw(Renderer &renderer_, Camera &camera_)
             SDL_SetTextureColorMod(pw, m_colorShine.r, m_colorShine.g, m_colorShine.b);
             SDL_SetTextureAlphaMod(pw, alpha * m_colorShine.a);
             
-            renderer_.renderTexture(pw, texPos.x + xoffset, texPos.y, camera_, flip);
+            renderer_.renderTexture(pw, texPos.x + xoffset, texPos.y, sprsize.x, sprsize.y, camera_, 0, flip);
 
             SDL_SetTextureColorMod(pw, 255, 255, 255);
             SDL_SetTextureAlphaMod(pw, 255);

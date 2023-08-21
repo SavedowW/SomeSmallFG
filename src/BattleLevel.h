@@ -260,28 +260,66 @@ protected:
         std::array<HitsVec, 2> hits = {m_characters[0]->getHits(), m_characters[1]->getHits()};
         std::array<HurtboxVec, 2> hurtboxes = {m_characters[0]->getHurtboxes(), m_characters[1]->getHurtboxes()};
 
-        for (const auto &pid : priorityList)
+        //Check for forced clashes
+        for (auto &hit1 : hits[0])
         {
-            int p2id = 1 - pid;
-            bool hitFound = false;
-            for (int ihit = 0; ihit < hits[pid].size() && !hitFound; ++ihit)
+            for (auto &hit2 : hits[1])
             {
-                auto hboxes = hits[pid][ihit].getHitboxes();
-                for (int ihitbox = 0; ihitbox < hboxes.size() && !hitFound; ++ihitbox)
+                if (hit1.forcedClash || hit2.forcedClash)
                 {
-                    for (int ihurtbox = 0; ihurtbox < hurtboxes[p2id].size() && !hitFound; ++ihurtbox)
+                    auto hboxes1 = hit1.getHitboxes();
+                    for (auto &hbox1 : hboxes1)
                     {
-                        if (hboxes[ihitbox].second.isCollideWith(hurtboxes[p2id][ihurtbox]))
+                        auto hboxes2 = hit2.getHitboxes();
+                        for (auto &hbox2 : hboxes2)
                         {
-                            hitFound = true;
-                            HitEvent ev;
-                            ev.m_hittingPlayerId = pid + 1;
-                            ev.m_hitData = hits[pid][ihit].getHitData();
-                            m_characters[p2id]->applyHit(ev);
-                            m_characters[pid]->applyHit(ev);
-                            m_camera.startShake(ev.m_hitData.hitBlockShakeAmp, ev.m_hitData.hitProps.hitstop + 1);
+                            if (hbox1.second.isCollideWith(hbox2.second))
+                            {
+                                m_characters[0]->applyClash(hit1);
+                                m_characters[1]->applyClash(hit2);
+                                startFlash(10, 5);
 
-                            noHit = false;
+                                ParticleSpawnData spdata;
+                                auto pos = hbox1.second.getOverlapArea(hbox2.second).getCenter();
+                                spdata.m_pos = pos;
+                                spdata.m_particleType = PARTICLE_TYPES::CLASH;
+                                spdata.m_scale = 0.65f;
+                                m_particleManager.spawnParticles(spdata);
+
+                                noHit = false;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (noHit)
+        {
+            // Check for hits
+            for (const auto &pid : priorityList)
+            {
+                int p2id = 1 - pid;
+                bool hitFound = false;
+                for (int ihit = 0; ihit < hits[pid].size() && !hitFound; ++ihit)
+                {
+                    auto hboxes = hits[pid][ihit].getHitboxes();
+                    for (int ihitbox = 0; ihitbox < hboxes.size() && !hitFound; ++ihitbox)
+                    {
+                        for (int ihurtbox = 0; ihurtbox < hurtboxes[p2id].size() && !hitFound; ++ihurtbox)
+                        {
+                            if (hboxes[ihitbox].second.isCollideWith(hurtboxes[p2id][ihurtbox]))
+                            {
+                                hitFound = true;
+                                HitEvent ev;
+                                ev.m_hittingPlayerId = pid + 1;
+                                ev.m_hitData = hits[pid][ihit].getHitData();
+                                m_characters[p2id]->applyHit(ev);
+                                m_characters[pid]->applyHit(ev);
+                                m_camera.startShake(ev.m_hitData.hitBlockShakeAmp, ev.m_hitData.hitProps.hitstop + 1);
+
+                                noHit = false;
+                            }
                         }
                     }
                 }
@@ -361,7 +399,7 @@ protected:
             chr->drawGroundProjection(renderer, m_camera, angle);
         }
         renderer.setRenderTarget(nullptr);
-        renderer.renderTexture(m_shadowsLayer, 0, 0);
+        renderer.renderTexture(m_shadowsLayer, 0, 0, gamedata::global::cameraWidth, gamedata::global::cameraHeight);
 
         for (const auto &i : priorityList | std::views::reverse)
             m_characters[i]->draw(*m_application->getRenderer(), m_camera);

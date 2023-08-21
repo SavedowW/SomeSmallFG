@@ -16,6 +16,7 @@ namespace fonts
     {
         SDL_Texture *tex = nullptr;
         int minx, maxx, miny, maxy, advance;
+        int w, h;
         Symbol() = default;
         Symbol& operator=(Symbol &rhs) = delete;
         Symbol(Symbol &rhs) = delete;

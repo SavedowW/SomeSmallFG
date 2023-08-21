@@ -86,7 +86,7 @@ void Renderer::renderTexture(SDL_Texture* tex_, const SDL_FRect *src_, const SDL
 	SDL_RenderCopyExF(m_renderer, tex_, &src, dst_, angle_, center_, flip_);
 }
 
-void Renderer::renderTexture(SDL_Texture* tex_, float x_, float y_, const Camera &cam_, SDL_RendererFlip flip_)
+/*void Renderer::renderTexture(SDL_Texture* tex_, float x_, float y_, const Camera &cam_, SDL_RendererFlip flip_)
 {
 	int tw, th;
 	SDL_QueryTexture(tex_, NULL, NULL, &tw, &th);
@@ -98,7 +98,7 @@ void Renderer::renderTexture(SDL_Texture* tex_, float x_, float y_, const Camera
 	auto size = texBR - texTL;
 	
 	renderTexture(tex_, texTL.x, texTL.y, size.x, size.y, 0, nullptr, flip_);
-}
+}*/
 
 void Renderer::renderTexture(SDL_Texture* tex_, float x_, float y_, float w_, float h_, const Camera &cam_, float angle_, SDL_RendererFlip flip_)
 {
@@ -115,13 +115,13 @@ void Renderer::renderTexture(SDL_Texture* tex_, float x_, float y_, float w_, fl
 	renderTexture(tex_, texTL.x, texTL.y, size.x, size.y, angle_, &center, flip_);
 }
 
-void Renderer::renderTexture(SDL_Texture* tex_, float x_, float y_, float angle_, SDL_FPoint* center_, SDL_RendererFlip flip_)
+/*void Renderer::renderTexture(SDL_Texture* tex_, float x_, float y_, float angle_, SDL_FPoint* center_, SDL_RendererFlip flip_)
 {
 	int w, h;
 	SDL_QueryTexture(tex_, NULL, NULL, &w, &h);
 
 	renderTexture(tex_, x_, y_, w, h, angle_, center_, flip_);
-}
+}*/
 
 void Renderer::renderTexture(SDL_Texture* tex_, float x_, float y_, float w_, float h_)
 {
@@ -135,12 +135,12 @@ void Renderer::renderTexture(SDL_Texture* tex_, float x_, float y_, float w_, fl
 	SDL_RenderCopyF(m_renderer, tex_, NULL, &dst);
 }
 
-void Renderer::renderTexture(SDL_Texture* tex_, float x_, float y_)
+/*void Renderer::renderTexture(SDL_Texture* tex_, float x_, float y_)
 {
 	int w, h;
 	SDL_QueryTexture(tex_, NULL, NULL, &w, &h);
 	renderTexture(tex_, x_, y_, w, h);
-}
+}*/
 
 void Renderer::drawRectangle(const Vector2<float> &pos_, const Vector2<float> &size_, const SDL_Color& col_, const Camera &cam_)
 {

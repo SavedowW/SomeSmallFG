@@ -570,6 +570,12 @@ public:
     Action_char1_move_2B();
 };
 
+class Action_char1_move_4A : public Action_char1_ground_attack
+{
+public:
+    Action_char1_move_4A();
+};
+
 class Action_char1_move_JA : public Action_char1_air_attack
 {
 public:

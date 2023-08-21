@@ -71,6 +71,8 @@ struct HitData
 
     int m_hitId;
     float damage = 0;
+    
+    bool forcedClash = false;
 
     float opponentPushbackOnBlock = 0;
 
@@ -125,6 +127,7 @@ namespace hitgeneration
     std::pair<FrameWindow, Hit> generate_char1_moveC();
     std::pair<FrameWindow, Hit> generate_char1_moveStepC();
     std::pair<FrameWindow, Hit> generate_char1_move2B();
+    std::pair<FrameWindow, Hit> generate_char1_move4A();
     std::pair<FrameWindow, Hit> generate_char1_JA();
     std::pair<FrameWindow, Hit> generate_char1_JC();
     std::pair<FrameWindow, Hit> generate_char1_214C();

@@ -30,6 +30,7 @@ enum class ANIMATIONS
 	CHAR1_MOVE_STEP_C,
 	CHAR1_MOVE_236C,
 	CHAR1_MOVE_2B,
+	CHAR1_MOVE_4A,
 	CHAR1_MOVE_JA,
 	CHAR1_MOVE_JC,
 	CHAR1_MOVE_214C,
@@ -64,6 +65,11 @@ struct TextureArr
 
 		//Sizes are based on first sprite
 		SDL_QueryTexture(tex[0], NULL, NULL, &w, &h);
+	}
+
+	TextureArr(SDL_Texture** tex_, int amount_, int totalDuration_, const std::vector<int> &framesData_, int w_, int h_) :
+		tex(tex_), amount(amount_), totalDuration(totalDuration_), framesData(framesData_), w(w_), h(h_)
+	{
 	}
 
 	SDL_Texture* operator[](const int rhs)
@@ -124,6 +130,7 @@ private:
 		"Resources/Sprites/Char1/MoveStepC/",
 		"Resources/Sprites/Char1/Move236C/",
 		"Resources/Sprites/Char1/Move2B/",
+		"Resources/Sprites/Char1/Move4A/",
 		"Resources/Sprites/Char1/MoveJA/",
 		"Resources/Sprites/Char1/MoveJC/",
 		"Resources/Sprites/Char1/Move214C/",

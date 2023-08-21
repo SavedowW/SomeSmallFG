@@ -24,12 +24,12 @@ public:
 
 	//Texture render
 	void renderTexture(SDL_Texture* tex_, float x_, float y_, float w_, float h_);
-    void renderTexture(SDL_Texture* tex_, float x_, float y_, const Camera &cam_, SDL_RendererFlip flip_ = SDL_FLIP_NONE);
-	void renderTexture(SDL_Texture* tex_, float x_, float y_);
+    //void renderTexture(SDL_Texture* tex_, float x_, float y_, const Camera &cam_, SDL_RendererFlip flip_ = SDL_FLIP_NONE);
+	//void renderTexture(SDL_Texture* tex_, float x_, float y_);
 	void renderTexture(SDL_Texture* tex_, float x_, float y_, float w_, float h_, float angle_, SDL_FPoint* center_, SDL_RendererFlip flip_);
 	void renderTexture(SDL_Texture* tex_, float x_, float y_, float w_, float h_, const Camera &cam_, float angle_, SDL_RendererFlip flip_);
 	void renderTexture(SDL_Texture* tex_, const SDL_FRect *src, const SDL_FRect *dst, float angle_, SDL_FPoint* center_, SDL_RendererFlip flip_);
-	void renderTexture(SDL_Texture* tex_, float x_, float y_, float angle_, SDL_FPoint* center_, SDL_RendererFlip flip_);
+	//void renderTexture(SDL_Texture* tex_, float x_, float y_, float angle_, SDL_FPoint* center_, SDL_RendererFlip flip_);
 
 	//Primitives
 	void drawRectangle(const Vector2<float> &pos_, const Vector2<float> &size_, const SDL_Color& col_, const Camera &cam_);

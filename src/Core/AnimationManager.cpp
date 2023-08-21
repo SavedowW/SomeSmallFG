@@ -42,7 +42,23 @@ std::shared_ptr<TextureArr> AnimationManager::getTextureArr(ANIMATIONS tex_)
 		std::ifstream loadData(m_rootPath + m_filePaths[(int)tex_] + "animinfo.txt");
 		std::string prefix;
 		int ibegin, iend;
-		loadData >> prefix >> ibegin >> iend;
+		int w = 0;
+		int h = 0;
+		int ver = 1;
+		std::string temp;
+		loadData >> temp;
+		if (temp == "V.2.0")
+		{
+			ver = 2;
+			loadData >> w;
+			loadData >> h;
+			loadData >> prefix;
+		}
+		else
+		{
+			prefix = temp;
+		}
+		loadData >> ibegin >> iend;
 		int amount = iend - ibegin + 1;
 
 		//Load all textures
@@ -63,9 +79,18 @@ std::shared_ptr<TextureArr> AnimationManager::getTextureArr(ANIMATIONS tex_)
 		}
 
 		//Create TextureArray with loaded textures
-		std::shared_ptr<TextureArr> reqElem(new TextureArr(texs, amount, totalDuration, framesData));
-		m_textureArrPointers[tex_] = reqElem;
-		return reqElem;
+		if (ver == 2)
+		{
+			std::shared_ptr<TextureArr> reqElem(new TextureArr(texs, amount, totalDuration, framesData, w, h));
+			m_textureArrPointers[tex_] = reqElem;
+			return reqElem;
+		}
+		else
+		{
+			std::shared_ptr<TextureArr> reqElem(new TextureArr(texs, amount, totalDuration, framesData));
+			m_textureArrPointers[tex_] = reqElem;
+			return reqElem;
+		}
 	}
 	else
 	{
@@ -115,7 +140,7 @@ void Animation::generateWhite(Renderer &renderer_)
         renderer_.fillRenderer({255, 255, 255, 0});
 
         SDL_SetTextureBlendMode(regtex, blendmode);
-        renderer_.renderTexture(regtex, 0, 0);
+        renderer_.renderTexture(regtex, 0, 0, m_textures->w, m_textures->h);
         SDL_SetTextureBlendMode(regtex, SDL_BLENDMODE_BLEND);
         SDL_SetTextureBlendMode(texs[i], SDL_BLENDMODE_BLEND);
 	}

@@ -106,6 +106,9 @@ void TextManager::generateOutlinedTexturedSymbols(std::array<fonts::Symbol, 256>
         SDL_RenderCopy(sdlrenderer, grad, nullptr, nullptr);
 
         symbols_[i].tex = renderer_.createTexture(w1, h1);
+        symbols_[i].w = w1;
+        symbols_[i].h = h1;
+        
         TTF_GlyphMetrics32(font, Uint32(i), &symbols_[i].minx, &symbols_[i].maxx, &symbols_[i].miny, &symbols_[i].maxy, &symbols_[i].advance);
         SDL_SetTextureBlendMode(symbols_[i].tex, SDL_BLENDMODE_BLEND);
 
@@ -169,6 +172,8 @@ void TextManager::generateOutlinedSymbols(std::array<fonts::Symbol, 256> &symbol
 
 
         symbols_[i].tex = renderer_.createTexture(w1, h1);
+        symbols_[i].w = w1;
+        symbols_[i].h = h1;
         TTF_GlyphMetrics32(font, Uint32(i), &symbols_[i].minx, &symbols_[i].maxx, &symbols_[i].miny, &symbols_[i].maxy, &symbols_[i].advance);
         SDL_SetTextureBlendMode(symbols_[i].tex, SDL_BLENDMODE_BLEND);
 
@@ -205,6 +210,7 @@ void TextManager::generateSimpleSymbols(std::array<fonts::Symbol, 256> &symbols_
         SDL_FreeSurface(surf);
 
         symbols_[i].tex = text;
+        SDL_QueryTexture(text, nullptr, nullptr, &symbols_[i].w, &symbols_[i].h);
         TTF_GlyphMetrics32(font, Uint32(i), &symbols_[i].minx, &symbols_[i].maxx, &symbols_[i].miny, &symbols_[i].maxy, &symbols_[i].advance);
         SDL_SetTextureBlendMode(symbols_[i].tex, SDL_BLENDMODE_BLEND);
     }
@@ -237,7 +243,7 @@ void TextManager::renderText(const std::string &text, int fontid, Vector2<float>
     for (auto &ch : text)
     {
         auto &sym = m_fonts[fontid][ch];
-        m_renderer->renderTexture(sym.tex, pos.x, pos.y + sym.miny);
+        m_renderer->renderTexture(sym.tex, pos.x, pos.y + sym.miny, sym.w, sym.h);
         pos.x += sym.advance;
     }
 }

@@ -1828,6 +1828,26 @@ Action_char1_move_2B::Action_char1_move_2B() :
 {
 }
 
+// MOVE 4A ACTION
+Action_char1_move_4A::Action_char1_move_4A() :
+    Action_char1_ground_attack(CHAR1_STATE::MOVE_4A, ANIMATIONS::CHAR1_MOVE_4A, TimelineProperty(true), std::make_unique<InputComparator4APress>(), 24,
+    {
+        hitgeneration::generate_char1_move4A()
+    },
+    {
+        {
+            TimelineProperty(true),
+            gamedata::characters::char1::standingHurtbox
+        },
+        {
+            TimelineProperty<bool>({{8, true}, {18, false}}),
+            {60.0f, -420.0f, 60.0f, 150.0f}
+        }
+    },
+    {})
+{
+}
+
 // j.A ACTION
 Action_char1_move_JA::Action_char1_move_JA() :
     Action_char1_air_attack(CHAR1_STATE::MOVE_JA, ANIMATIONS::CHAR1_MOVE_JA, TimelineProperty(true), std::make_unique<InputComparatorAPress>(), 17,

@@ -110,11 +110,11 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_jab()
 
     hit.cancelsOnHit.first.first = 1;
     hit.cancelsOnHit.first.second = 8;
-    hit.cancelsOnHit.second = {(int)CHAR1_STATE::PREJUMP, (int)CHAR1_STATE::MOVE_A, (int)CHAR1_STATE::MOVE_B, (int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_2B, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
+    hit.cancelsOnHit.second = {(int)CHAR1_STATE::PREJUMP, (int)CHAR1_STATE::MOVE_A, (int)CHAR1_STATE::MOVE_B, (int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_2B, (int)CHAR1_STATE::MOVE_4A, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
 
     hit.cancelsOnBlock.first.first = 1;
     hit.cancelsOnBlock.first.second = 8;
-    hit.cancelsOnBlock.second = {(int)CHAR1_STATE::MOVE_A, (int)CHAR1_STATE::MOVE_B, (int)CHAR1_STATE::MOVE_2B, (int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
+    hit.cancelsOnBlock.second = {(int)CHAR1_STATE::MOVE_A, (int)CHAR1_STATE::MOVE_B, (int)CHAR1_STATE::MOVE_2B, (int)CHAR1_STATE::MOVE_4A, (int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
 
     return {{5, 7}, hit};
 }
@@ -165,11 +165,11 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveB()
 
     hit.cancelsOnHit.first.first = 1;
     hit.cancelsOnHit.first.second = 8;
-    hit.cancelsOnHit.second = {(int)CHAR1_STATE::PREJUMP, (int)CHAR1_STATE::MOVE_2B, (int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
+    hit.cancelsOnHit.second = {(int)CHAR1_STATE::PREJUMP, (int)CHAR1_STATE::MOVE_2B, (int)CHAR1_STATE::MOVE_4A, (int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
 
     hit.cancelsOnBlock.first.first = 1;
     hit.cancelsOnBlock.first.second = 8;
-    hit.cancelsOnBlock.second = {(int)CHAR1_STATE::MOVE_2B, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::STEP};
+    hit.cancelsOnBlock.second = {(int)CHAR1_STATE::MOVE_2B, (int)CHAR1_STATE::MOVE_4A, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::STEP};
 
     return {{7, 10}, hit};
 }
@@ -221,11 +221,11 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveC()
 
     hit.cancelsOnHit.first.first = 1;
     hit.cancelsOnHit.first.second = 10;
-    hit.cancelsOnHit.second = {(int)CHAR1_STATE::PREJUMP, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
+    hit.cancelsOnHit.second = {(int)CHAR1_STATE::PREJUMP, (int)CHAR1_STATE::MOVE_4A, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
 
     hit.cancelsOnBlock.first.first = 1;
     hit.cancelsOnBlock.first.second = 10;
-    hit.cancelsOnBlock.second = {(int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
+    hit.cancelsOnBlock.second = {(int)CHAR1_STATE::MOVE_4A, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
 
     return {{11, 16}, hit};
 }
@@ -332,13 +332,69 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_move2B()
 
     hit.cancelsOnHit.first.first = 1;
     hit.cancelsOnHit.first.second = 15;
-    hit.cancelsOnHit.second = {(int)CHAR1_STATE::PREJUMP, (int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
+    hit.cancelsOnHit.second = {(int)CHAR1_STATE::PREJUMP, (int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_4A, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
 
     hit.cancelsOnBlock.first.first = 1;
     hit.cancelsOnBlock.first.second = 15;
-    hit.cancelsOnBlock.second = {(int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
+    hit.cancelsOnBlock.second = {(int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_4A, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
 
     return {{10, 12}, hit};
+}
+
+std::pair<FrameWindow, Hit> hitgeneration::generate_char1_move4A()
+{
+    HitData hdata;
+
+    HitParticleData pdatatemp;
+
+    pdatatemp.m_partType = PARTICLE_TYPES::BLOCK;
+    pdatatemp.m_baseOffsetMin = {60.0f, -335.0f};
+    pdatatemp.m_baseOffsetMax = {140.0f, -335.0f};
+    pdatatemp.minRange = 100.0f;
+    pdatatemp.maxRange = 310.0f;
+    pdatatemp.m_scale = 0.6f;
+    hdata.particlesOnBlock.push_back(pdatatemp);
+
+    pdatatemp.m_partType = PARTICLE_TYPES::HIT_1;
+    hdata.particlesOnHit.push_back(pdatatemp);
+    hdata.particlesOnCH.push_back(pdatatemp);
+
+    hdata.m_hitId = 1;
+
+    hdata.opponentPushbackOnBlock = 120.0f;
+    hdata.forcedClash = true;
+
+    hdata.hitProps.hitstop = 11;
+    hdata.hitProps.hitstun = 15;
+    hdata.hitProps.proratio = 0.9f;
+    hdata.hitProps.opponentImpulseOnHit = {100.0f, 0.0f};
+    hdata.hitProps.opponentImpulseOnAirHit = {8.0f, -15.0f};
+    hdata.hitProps.groundHitstunAnimation = HITSTUN_ANIMATION::MID;
+    hdata.hitProps.airHitstunAnimation = HITSTUN_ANIMATION::FLOAT;
+
+    hdata.chProps = hdata.hitProps;
+    hdata.chProps.hitstun += 3;
+    hdata.chProps.hitstop += 4;
+
+    hdata.canBeBlockedAs = {BLOCK_STATE::HIGH, BLOCK_STATE::LOW, BLOCK_STATE::AIR, BLOCK_STATE::AUTO};
+
+    hdata.blockstun = 13;
+
+    hdata.hitBlockShakeAmp = 20;
+
+    hdata.damage = 15.0f / hdata.hitProps.proratio;
+
+    Hit hit(hdata, {{{8, 11}, {60.0f, -420.0f, 80.0f, 170.0f}}});
+
+    hit.cancelsOnHit.first.first = 1;
+    hit.cancelsOnHit.first.second = 8;
+    hit.cancelsOnHit.second = {(int)CHAR1_STATE::PREJUMP, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
+
+    hit.cancelsOnBlock.first.first = 1;
+    hit.cancelsOnBlock.first.second = 8;
+    hit.cancelsOnBlock.second = {(int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
+
+    return {{7, 10}, hit};
 }
 
 std::pair<FrameWindow, Hit> hitgeneration::generate_char1_JA()
