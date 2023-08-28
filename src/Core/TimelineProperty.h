@@ -22,10 +22,13 @@ public:
 
     void addPropertyValue(uint32_t timeMark_, T &&value_);
 
+    bool isEmpty() const;
+
     const T &operator[](uint32_t timeMark_) const;
 
 private:
     std::vector<std::pair<uint32_t, T>> m_values;
+    bool m_isEmpty;
 
 };
 

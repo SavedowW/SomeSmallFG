@@ -1,7 +1,10 @@
 #include "TimelineProperty.h"
+#include "Vector2.h"
 
 template<typename T>
-TimelineProperty<T>::TimelineProperty(std::vector<std::pair<uint32_t, T>> &&values_) {
+TimelineProperty<T>::TimelineProperty(std::vector<std::pair<uint32_t, T>> &&values_) :
+    m_isEmpty(false)
+{
     m_values = std::move(values_);
 
     std::ranges::sort(m_values,
@@ -19,34 +22,44 @@ template<typename T>
 TimelineProperty<T>::TimelineProperty(const TimelineProperty<T> &rhs)
 {
     m_values = rhs.m_values;
+    m_isEmpty = rhs.m_isEmpty;
 }
 
 template<typename T>
-TimelineProperty<T>::TimelineProperty(T &&value_) {
+TimelineProperty<T>::TimelineProperty(T &&value_)
+{
     m_values.push_back(std::make_pair<uint32_t, T>(0, std::move(value_)));
+    m_isEmpty = false;
 }
 
 template<typename T>
-TimelineProperty<T>::TimelineProperty(const T &value_) {
+TimelineProperty<T>::TimelineProperty(const T &value_)
+{
     m_values.push_back(std::make_pair(0, value_));
+    m_isEmpty = false;
 }
 
 template<typename T>
 TimelineProperty<T>::TimelineProperty(TimelineProperty<T> &&rhs)
 {
     m_values = std::move(rhs.m_values);
+    m_isEmpty = rhs.m_isEmpty;
+    rhs.m_isEmpty = true;
 }
 
 template<typename T>
 TimelineProperty<T>::TimelineProperty()
 {
     m_values.insert(m_values.begin(), std::make_pair<uint32_t, T>(0, std::move(T())));
+    m_isEmpty = true;
 }
 
 template<typename T>
 TimelineProperty<T>& TimelineProperty<T>::operator=(TimelineProperty<T> &&rhs)
 {
     m_values = std::move(rhs.m_values);
+    m_isEmpty = rhs.m_isEmpty;
+    rhs.m_isEmpty = true;
     return *this;
 }
 
@@ -69,6 +82,8 @@ void TimelineProperty<T>::addPropertyValue(uint32_t timeMark_, T &&value_)
     {
         m_values.push_back(std::make_pair(timeMark_, std::move(value_)));
     }
+
+    m_isEmpty = false;
 }
 
 template<typename T>
@@ -83,4 +98,11 @@ const T &TimelineProperty<T>::operator[](uint32_t timeMark_) const
     return m_values.front().second;
 }
 
+template<typename T>
+bool TimelineProperty<T>::isEmpty() const
+{
+    return m_isEmpty;
+}
+
 template TimelineProperty<bool>;
+template TimelineProperty<Vector2<float>>;

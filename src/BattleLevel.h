@@ -319,6 +319,7 @@ protected:
                                 m_camera.startShake(ev.m_hitData.hitBlockShakeAmp, ev.m_hitData.hitProps.hitstop + 1);
 
                                 auto hitpos = hitutils::getHitPosition(hboxes, hurtboxes[p2id]);
+                                m_hitpos = hitpos - m_hitsize / 2;
                                 m_characters[pid]->generateHitParticles(ev, hitpos);
 
                                 noHit = false;
@@ -372,7 +373,7 @@ protected:
         m_camera.update();
         m_hud.update();
         m_particleManager.update();
-        std::cout << m_characters[0]->CharStateData() << " | " << m_characters[1]->CharStateData() << std::endl;
+        //std::cout << m_characters[0]->CharStateData() << " | " << m_characters[1]->CharStateData() << std::endl;
     }
 
     void draw() override
@@ -411,6 +412,8 @@ protected:
 
         m_particleManager.draw(m_camera);
 
+        renderer.fillRectangle(m_hitpos, m_hitsize, {255, 255, 255, 255}, m_camera);
+
     	renderer.updateScreen();
     }
 
@@ -431,6 +434,9 @@ protected:
     SDL_Color m_flashColor = {0, 0, 0, 200};
     FrameTimer m_flashLockedTimer;
     FrameTimer m_flashAlphaTimer;
+
+    Vector2<float> m_hitpos;
+    Vector2<float> m_hitsize = {20.0f, 20.0f};
 };
 
 #endif

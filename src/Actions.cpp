@@ -128,11 +128,11 @@ Action_jump<CharState_t, CharData, Char_t>::Action_jump(CharState_t actionState_
 
 // ABSTRACT ATTACK ACTION
 template <typename CharState_t, typename CharData, typename Char_t>
-Action_attack<CharState_t, CharData, Char_t>::Action_attack(CharState_t actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, std::vector<std::pair<std::pair<int, int>, Vector2<float>>> velocity_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, bool noLandTransition_, bool isCrouchState_, bool stepOnly_) :
+Action_attack<CharState_t, CharData, Char_t>::Action_attack(CharState_t actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, TimelineProperty<Vector2<float>> &&velocity_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, bool noLandTransition_, bool isCrouchState_, bool stepOnly_) :
     Action<CharState_t, CharData, Char_t>(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, hitutils::getRegularCounterTimeline(hits_), std::move(gravityWindow_), TimelineProperty(false), true, noLandTransition_, isCrouchState_),
     m_fullDuration(fullDuration_),
     m_hits(hits_),
-    m_velocity(velocity_),
+    m_velocity(std::move(velocity_)),
     m_stepOnly(stepOnly_)
 {
 }
@@ -169,21 +169,6 @@ const HitsVec Action_attack<CharState_t, CharData, Char_t>::getCurrentHits(int c
 }
 
 template <typename CharState_t, typename CharData, typename Char_t>
-const Vector2<float> *Action_attack<CharState_t, CharData, Char_t>::getCurrentVelocity(int currentFrame_) const
-{
-    for (const auto &el : m_velocity)
-    {
-        if (el.first.first <= currentFrame_ && el.first.second >= currentFrame_)
-            return &el.second;
-    }
-
-    if (m_velocity.empty())
-        return nullptr;
-    else
-        return &nullvec;
-}
-
-template <typename CharState_t, typename CharData, typename Char_t>
 void Action_attack<CharState_t, CharData, Char_t>::switchTo(Char_t &character_) const
 {
     character_.turnVelocityToInertia();
@@ -194,9 +179,10 @@ void Action_attack<CharState_t, CharData, Char_t>::switchTo(Char_t &character_) 
 template <typename CharState_t, typename CharData, typename Char_t>
 void Action_attack<CharState_t, CharData, Char_t>::update(Char_t &character_) const
 {
-    auto newVelocity = getCurrentVelocity(character_.m_timer.getCurrentFrame() + 1);
-    if (newVelocity)
-        character_.m_velocity = newVelocity->mulComponents(Vector2{character_.getOwnHorDir().x, 1.0f});
+    if (!m_velocity.isEmpty())
+    {
+        character_.m_velocity = m_velocity[character_.m_timer.getCurrentFrame() + 1].mulComponents(Vector2{character_.getOwnHorDir().x, 1.0f});
+    }
 }
 
 
@@ -1513,8 +1499,8 @@ void Action_char1_knockdown_recovery::switchTo(Char1 &character_) const
 }
 
 // ABSTRACT CHAR1 GROUND ATTACK ACTION
-Action_char1_ground_attack::Action_char1_ground_attack(CHAR1_STATE actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, std::vector<std::pair<std::pair<int, int>, Vector2<float>>> velocity_, bool noLandTransition_, bool isCrouchState_, bool stepOnly_) :
-    Action_attack<CHAR1_STATE, Char1Data, Char1>(actionState_, std::move(incmp_), fullDuration_, hits_, std::move(hurtboxes_), velocity_, anim_, std::move(gravityWindow_), noLandTransition_, isCrouchState_, stepOnly_)
+Action_char1_ground_attack::Action_char1_ground_attack(CHAR1_STATE actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, TimelineProperty<Vector2<float>> &&velocity_, bool noLandTransition_, bool isCrouchState_, bool stepOnly_) :
+    Action_attack<CHAR1_STATE, Char1Data, Char1>(actionState_, std::move(incmp_), fullDuration_, hits_, std::move(hurtboxes_), std::move(velocity_), anim_, std::move(gravityWindow_), noLandTransition_, isCrouchState_, stepOnly_)
 {
 }
 
@@ -1585,7 +1571,7 @@ void Action_char1_ground_attack::switchTo(Char1 &character_) const
 
 // ABSTRACT CHAR1 AIR ATTACK ACTION
 Action_char1_air_attack::Action_char1_air_attack(CHAR1_STATE actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_) :
-    Action_attack<CHAR1_STATE, Char1Data, Char1>(actionState_, std::move(incmp_), fullDuration_, hits_, std::move(hurtboxes_), {}, anim_, std::move(gravityWindow_))
+    Action_attack<CHAR1_STATE, Char1Data, Char1>(actionState_, std::move(incmp_), fullDuration_, hits_, std::move(hurtboxes_), TimelineProperty<Vector2<float>>{}, anim_, std::move(gravityWindow_))
 {
 }
 
@@ -1673,8 +1659,8 @@ Action_char1_move_B::Action_char1_move_B() :
             TimelineProperty<bool>({{7, true}, {20, false}}),
             {50.0f, -275.0f, 175.0f, 80.0f}
         }
-    },
-    {
+    }, TimelineProperty<Vector2<float>>({{1, {3.5f, 0.0f}}, {7, {0, 0}}, {20, {-2.0f, 0.0f}}, {23, {0, 0}}}))
+    /*{
         {
             {1, 6},
             {3.5f, 0.0f}
@@ -1683,7 +1669,7 @@ Action_char1_move_B::Action_char1_move_B() :
             {20, 22},
             {-2.0f, 0.0f}
         }
-    })
+    })*/
 {
 }
 
@@ -1702,8 +1688,8 @@ Action_char1_move_C::Action_char1_move_C() :
             TimelineProperty<bool>({{11, true}, {23, false}}),
             {60.0f, -220.0f, 60.0f, 100.0f}
         }
-    },
-    {
+    }, TimelineProperty<Vector2<float>>({{3, {20.0f, 0.0f}}, {6, {0, 0}}, {22, {20.0f, 0.0f}}, {27, {0, 0}}}))
+    /*{
         {
             {3, 5},
             {20.0f, 0.0f}
@@ -1712,7 +1698,7 @@ Action_char1_move_C::Action_char1_move_C() :
             {22, 26},
             {20.0f, 0.0f}
         }
-    })
+    })*/
 {
 }
 
@@ -1731,13 +1717,14 @@ Action_char1_move_step_C::Action_char1_move_step_C() :
             TimelineProperty<bool>({{6, true}, {32, false}}),
             {60.0f, -450.0f, 200.0f, 400.0f}
         }
-    },
-    {
+    }, TimelineProperty<Vector2<float>>({{1, {30.0f, 0.0f}}, {4, {0, 0}}}),
+    false, false, true)
+    /*{
         {
             {1, 3},
             {30.0f, 0.0f}
         },
-    }, false, false, true)
+    }, false, false, true)*/
 {
 }
 
@@ -1764,8 +1751,16 @@ Action_char1_move_236C::Action_char1_move_236C() :
             TimelineProperty<bool>({{17, true}, {34, false}}),
             {60.0f, -350.0f, 40.0f, 150.0f}
         },
-    },
-    {
+    }, TimelineProperty<Vector2<float>>(
+        {
+            {1, {20.0f, 0.0f}},
+            {6, {15.0f, 0.0f}},
+            {9, {10.0f, 0.0f}},
+            {12, {6.0f, 0.0f}},
+            {13, {0, 0}},
+            {30, {-1.5f, 0.0f}},
+        }))
+    /*{
         {
             {1, 5},
             {20.0f, 0.0f}
@@ -1786,8 +1781,7 @@ Action_char1_move_236C::Action_char1_move_236C() :
             {30, 40},
             {-1.5f, 0.0f}
         }
-    })
-    //{ { 1.0f, {{0.0f, 0.0f, 10.0f, 10.0f}}} })
+    })*/
 {
 }
 
@@ -1806,8 +1800,16 @@ Action_char1_move_2B::Action_char1_move_2B() :
             TimelineProperty<bool>({{9, true}, {22, false}}),
             {10.0f, -110.0f, 200.0f, 110.0f}
         }
-    },
-    {
+    }, TimelineProperty<Vector2<float>>(
+        {
+            {1, {23.0f, 0.0f}},
+            {5, {7.0f, 0.0f}},
+            {9, {0.0f, 0.0f}},
+            {22, {-7.0f, 0.0f}},
+            {26, {-23.0f, 0.0f}}
+        }),
+        false, true)
+    /*{
         {
             {1, 4},
             {23.0f, 0.0f}
@@ -1824,7 +1826,7 @@ Action_char1_move_2B::Action_char1_move_2B() :
             {26, 29},
             {-23.0f, 0.0f}
         }
-    }, false, true)
+    }, false, true)*/
 {
 }
 
@@ -1907,6 +1909,8 @@ void Action_char1_move_JC::update(Char1 &character_) const
         character_.m_velocity.y = -20.0f;
         character_.m_velocity.x = character_.getOwnHorDir().x * 3.0f;
     }
+
+    std::cout << "(" << character_.m_velocity << ") : (" << character_.m_inertia << ")\n";
 }
 
 // MOVE 214C ACTION
@@ -1928,8 +1932,16 @@ Action_char1_move_214C::Action_char1_move_214C() :
             TimelineProperty<bool>({{18, true}, {36, false}}),
             {50.0f, -120.0f, 30.0f, 120.0f}
         }
-    },
-    {
+    }, TimelineProperty<Vector2<float>>(
+        {
+            {1, {6.0f, 0.0f}},
+            {5, {0.0f, 0.0f}},
+            {10, {2.0f, 0.0f}},
+            {16, {0.0f, 0.0f}},
+            {18, {80.0f, 0.0f}},
+            {19, {0.0f, 0.0f}}
+        }))
+    /*{
         {
             {1, 4},
             {6.0f, 0.0f}
@@ -1942,7 +1954,7 @@ Action_char1_move_214C::Action_char1_move_214C() :
             {18, 18},
             {80.0f, 0.0f}
         }
-    })
+    })*/
 {
 }
 

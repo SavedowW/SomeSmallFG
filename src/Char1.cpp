@@ -470,22 +470,17 @@ HIT_RESULT Char1::applyHit(HitEvent &hitEvent)
 
         applyHitstop(hitEvent.m_hitData.hitProps.hitstop);
 
-        if (m_currentState != CHAR1_STATE::HITSTUN && m_currentState != CHAR1_STATE::HITSTUN)
+        if (!isInHitstun())
         {
             m_appliedHits.insert(hitEvent.m_hitData.m_hitId);
 
             if (hitEvent.m_hitRes == HIT_RESULT::HIT || hitEvent.m_hitRes == HIT_RESULT::COUNTER)
-            {
                 m_currentCancelWindow = hitEvent.m_hitData.cancelsOnHit;
-                if (!m_currentCancelWindow.second.empty())
-                    m_cancelTimer.begin(m_currentCancelWindow.first.second + 1);
-            }
             else
-            {
                 m_currentCancelWindow = hitEvent.m_hitData.cancelsOnBlock;
-                if (!m_currentCancelWindow.second.empty())
+
+            if (!m_currentCancelWindow.second.empty())
                     m_cancelTimer.begin(m_currentCancelWindow.first.second + 1);
-            }
 
         }
 
@@ -726,6 +721,10 @@ std::string Char1::CharStateData() const
         
         case (CHAR1_STATE::MOVE_A):
             stateName = "MOVE_A";
+            break;
+
+        case (CHAR1_STATE::MOVE_4A):
+            stateName = "MOVE_4A";
             break;
 
         case (CHAR1_STATE::MOVE_B):
@@ -1112,6 +1111,9 @@ void Char1::applyClash(const Hit &clashedHit_)
         (int)CHAR1_STATE::THROW_NORMAL_AIR_STARTUP,
         (int)CHAR1_STATE::THROW_BACK_AIR_STARTUP
     };
+
+    if (!m_currentCancelWindow.second.empty())
+        m_cancelTimer.begin(m_currentCancelWindow.first.second + 1);
     
 }
 

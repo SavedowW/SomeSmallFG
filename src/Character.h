@@ -232,8 +232,8 @@ protected:
     Vector2<float> m_pushback;
     float m_inertiaDrag = 1;
     bool m_airborne = false;
-    float m_pushbackMaxCarry = 10.0f;
-    float m_pushbackCurrentCarry = 10.0f;
+    float m_pushbackMaxCarry = 12.0f;
+    float m_pushbackCurrentCarry = 12.0f;
     float m_pushbackDeterioration = 2.0f;
     float m_pushbackTreshold = 35.0f;
 
