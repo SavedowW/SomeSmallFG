@@ -241,9 +241,6 @@ protected:
     FrameTimer m_hitstopTimer;
     int m_extendedBuffer = 0;
 
-    Collider m_pushbox;
-    Collider m_airbornePushbox;
-    Collider m_crouchingPushbox;
     Character *m_otherCharacter;
     int m_playerId;
 

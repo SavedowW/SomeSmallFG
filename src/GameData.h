@@ -75,13 +75,10 @@ namespace gamedata
             inline constexpr float gravity = 1.5f;
             inline constexpr float inertiaDrag = 1.0f;
             inline constexpr float maxCornerPushback = 20.0f;
-            inline constexpr float standingPushboxWidth = 100.0f;
-            inline constexpr float standingPushboxHeight = 300.0f;
-            inline constexpr float crouchingPushboxWidth = 100.0f;
-            inline constexpr float crouchingPushboxHeight = 200.0f;
-            inline constexpr float airbornePushboxWidth = 100.0f;
-            inline constexpr float airbornePushboxHeight = 200.0f;
-            inline constexpr float airbornePushboxOffset = 50.0f;
+            inline constexpr Collider standingPushbox = {-50.0f, -300.0f, 100.0f, 300.0f};
+            inline constexpr Collider crouchingPushbox = {-50.0f, -200.0f, 100.0f, 200.0f};
+            inline constexpr Collider airbornePushbox = {-50.0f, -300.0f, 100.0f, 200.0f};
+            inline constexpr Collider airborneHitstunPushbox = {-75.0f, -150.0f, 150.0f, 100.0f};
             inline constexpr float forwardWalkSpd = 6.0f;
             inline constexpr float backwardWalkSpd = 6.0f;
             inline constexpr float groundJumpVerticalImpulse = 30.0f;

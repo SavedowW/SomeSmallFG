@@ -34,7 +34,7 @@ bool Action<CharState_t, CharData, Char_t>::isInputPossible(const InputQueue &in
 }
 
 template <typename CharState_t, typename CharData, typename Char_t>
-const HurtboxVec Action<CharState_t, CharData, Char_t>::getCurrentHurtboxes(int currentFrame_, const Vector2<float>& offset_, ORIENTATION ownOrientation_) const
+const HurtboxVec Action<CharState_t, CharData, Char_t>::getCurrentHurtboxes(uint32_t currentFrame_, const Vector2<float>& offset_, ORIENTATION ownOrientation_) const
 {
     HurtboxVec vec;
     for (const auto &el : m_hurtboxes)
@@ -138,7 +138,7 @@ Action_attack<CharState_t, CharData, Char_t>::Action_attack(CharState_t actionSt
 }
 
 template <typename CharState_t, typename CharData, typename Char_t>
-const HitsVec Action_attack<CharState_t, CharData, Char_t>::getCurrentHits(int currentFrame_, const Vector2<float>& offset_, ORIENTATION ownOrientation_) const
+const HitsVec Action_attack<CharState_t, CharData, Char_t>::getCurrentHits(uint32_t currentFrame_, const Vector2<float>& offset_, ORIENTATION ownOrientation_) const
 {
     HitsVec vec;
     for (const auto &el : m_hits)

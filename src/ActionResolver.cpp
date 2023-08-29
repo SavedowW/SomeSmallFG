@@ -149,6 +149,8 @@ Action<CharState_t, CharData, Char_t> *ActionResolver<CharState_t, CharData, Cha
     for (auto &el : m_actions)
         if (el->actionState == state_)
             return el.get();
+
+    return nullptr;
 }
 
 template <typename CharState_t, typename CharData, typename Char_t>
@@ -159,6 +161,8 @@ INPUT_BUTTON_STATE ActionResolver<CharState_t, CharData, Char_t>::getPostFrameBu
     {
         return m_inputQueue[0].inputs.at(button_);
     }
+
+    return INPUT_BUTTON_STATE::OFF;
 }
 
 template ActionResolver<CHAR1_STATE, Char1Data, Char1>;

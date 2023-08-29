@@ -10,7 +10,7 @@
 #include "ParticleManager.h"
 #include "TimelineProperty.h"
 
-using FrameWindow = std::pair<int, int>;
+using FrameWindow = std::pair<uint32_t, uint32_t>;
 
 enum class HIT_RESULT {HIT, THROWN, COUNTER, BLOCK_HIGH, BLOCK_LOW, BLOCK_AIR, NONE}; // Potentially more options with guard points, parries, etc
 enum class HITSTUN_ANIMATION {HIGH, MID, LOW, CROUCH, FLOAT, NONE};
