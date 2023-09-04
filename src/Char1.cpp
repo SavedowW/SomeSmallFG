@@ -1083,6 +1083,7 @@ void Char1::applyClash(const Hit &clashedHit_)
         (int)CHAR1_STATE::MOVE_B,
         (int)CHAR1_STATE::MOVE_C,
         (int)CHAR1_STATE::MOVE_2B,
+        (int)CHAR1_STATE::MOVE_4A,
         (int)CHAR1_STATE::MOVE_236C,
         (int)CHAR1_STATE::MOVE_214C,
         (int)CHAR1_STATE::MOVE_JA,
