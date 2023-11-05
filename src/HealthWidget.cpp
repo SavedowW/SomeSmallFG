@@ -28,7 +28,7 @@ void HealthWidget::updateHealth(float scale_)
     if (delta > 0)
     {
         m_redHealthLen += m_barLen * delta;
-        m_redHealthBaseX = m_screenCenter + m_redHealthDir * (m_centerOffset + scale_ * m_barLen);
+        m_redHealthBaseX = m_screenCenter + m_redHealthDir * (m_centerOffset + newScale * m_barLen);
 
         // Limiting red health length in case if I will ever add healing
         if (m_redHealthDir * (m_redHealthBaseX + m_redHealthDir * m_redHealthLen) - m_redHealthDir * (m_screenCenter + m_redHealthDir * m_centerOffset) > m_barLen)
