@@ -63,6 +63,7 @@ namespace gamedata
         inline constexpr float airborneImpulseIntoPushbackCarry = 0.1f;
         inline constexpr float airbornePushbackMultiplier = 10.0f;
         inline constexpr float pushblockInertiaCarry = 0.2f;
+        inline constexpr float takenHitInertiaCarry = 0.3f;
 
 
         namespace char1

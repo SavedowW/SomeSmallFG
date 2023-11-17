@@ -474,7 +474,8 @@ HIT_RESULT Char1::applyHit(HitEvent &hitEvent)
         // Took hit
         if (!blocked)
         {
-            m_velocity = {0.0f, 0.0f};
+            turnVelocityToInertia();
+            m_inertia.x *= gamedata::characters::takenHitInertiaCarry;
             std::cout << "Took hit!\n";
 
             auto hitres = HIT_RESULT::HIT;
