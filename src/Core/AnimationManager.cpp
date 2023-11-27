@@ -146,6 +146,7 @@ void Animation::generateWhite(Renderer &renderer_)
 	}
 
 	m_whiteTextures = std::make_unique<TextureArr>(texs, m_textures->amount, m_textures->totalDuration, m_textures->framesData);
+	renderer_.setRenderTarget(nullptr);
 }
 
 void Animation::update()
