@@ -435,9 +435,6 @@ HIT_RESULT Char1::applyHit(HitEvent &hitEvent)
 {
     float range = (m_pos - m_otherCharacter->getPos()).getLen();
 
-    if (m_playerId == 1)
-        m_notifyWidget->addNotification(std::to_string(range));
-
     // Attacker's side
     if (hitEvent.m_hittingPlayerId == m_playerId)
     {
@@ -446,6 +443,7 @@ HIT_RESULT Char1::applyHit(HitEvent &hitEvent)
         {
             m_notifyWidget->addNotification("COUNTER!");
         }
+        m_notifyWidget->addNotification(std::to_string(hitEvent.realDamage));
 
         applyHitstop(hitEvent.m_hitData.hitProps.hitstop);
 
@@ -498,7 +496,7 @@ HIT_RESULT Char1::applyHit(HitEvent &hitEvent)
             }
 
             hitEvent.m_hitRes = hitres;
-            m_healthHandler.takeDamage(hitEvent);
+            hitEvent.realDamage = m_healthHandler.takeDamage(hitEvent);
             m_comboPhysHandler.takeHit(hitEvent);
 
             if (!m_lockedInAnimation)
@@ -616,7 +614,7 @@ HIT_RESULT Char1::applyHit(HitEvent &hitEvent)
             hitEvent.m_hitRes = res;
             if (!isInstant)
             {
-                m_healthHandler.takeDamage(hitEvent);
+                hitEvent.realDamage = m_healthHandler.takeDamage(hitEvent);
             }
 
             return res;

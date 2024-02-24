@@ -9,7 +9,7 @@ class HealthHandler
 {
 public:
     HealthHandler(float maxHealth_, HealthWidget *widget_ = nullptr);
-    void takeDamage(HitEvent &ev);
+    float takeDamage(HitEvent &ev);
     void resetScaling();
     void setWidget(HealthWidget *widget_);
 

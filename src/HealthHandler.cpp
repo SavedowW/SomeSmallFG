@@ -8,8 +8,10 @@ HealthHandler::HealthHandler(float maxHealth_, HealthWidget *widget_) :
 
 }
 
-void HealthHandler::takeDamage(HitEvent &ev)
+float HealthHandler::takeDamage(HitEvent &ev)
 {
+    float damage = 0;
+
     if (ev.m_hitRes == HIT_RESULT::HIT || ev.m_hitRes == HIT_RESULT::COUNTER)
     {
         if (m_currentHit == 0)
@@ -27,7 +29,7 @@ void HealthHandler::takeDamage(HitEvent &ev)
 
         m_currentHit++;
 
-        float damage = m_currentScaling * ev.m_hitData.damage * m_proratio;
+        damage = m_currentScaling * ev.m_hitData.damage * m_proratio;
         if (ev.m_hitRes == HIT_RESULT::COUNTER)
             damage *= 1.1f;
 
@@ -42,7 +44,7 @@ void HealthHandler::takeDamage(HitEvent &ev)
     {
         ev.hitInSequence = 0;
         
-        float damage = ev.m_hitData.chipDamage;
+        damage = ev.m_hitData.chipDamage;
         std::cout << damage << std::endl;
 
         m_currentHealth -= damage;
@@ -52,6 +54,8 @@ void HealthHandler::takeDamage(HitEvent &ev)
 
     if (m_widget)
         m_widget->updateHealth(m_currentHealth / m_maxHealth);
+
+    return damage;
 }
 
 void HealthHandler::resetScaling()

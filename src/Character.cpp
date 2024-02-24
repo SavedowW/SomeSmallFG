@@ -103,7 +103,7 @@ void Character::updatePosition()
     {
         m_airborne = true;
     }
-    else if (m_airborne && pb.y + pb.h >= gamedata::stages::levelOfGround)
+    else if (m_airborne && m_pos.y >= gamedata::stages::levelOfGround)
     {
         m_inertia.y = 0;
         m_airborne = false;
