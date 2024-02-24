@@ -995,10 +995,12 @@ float Char1::touchedWall(int sideDir_)
         m_hitProps.wallBounce = false;
     }
 
-    if (utils::sameSign<float>(m_velocity.x, sideDir_))
+    // With code below, if the character reaches max range and continues to walk back and another character moves in,
+    // character that walks back would be stuck in 1 point
+    /*if (utils::sameSign<float>(m_velocity.x, sideDir_))
         m_velocity.x = 0;
     if (utils::sameSign<float>(m_inertia.x, sideDir_))
-        m_inertia.x = 0;
+        m_inertia.x = 0;*/
 
     if ((isInHitstun() || isInBlockstun()) && utils::sameSign<float>(m_pushback.x, sideDir_))
     {

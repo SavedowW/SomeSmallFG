@@ -44,6 +44,8 @@ sdl_ttf::sdl_ttf
 ${SDL2_MIXER_LIBRARIES}
 )
 
+message(${LINK_LIBRARIES})
+
 add_executable (${PROJECT_NAME} ${SRC_FILES})
 
 add_subdirectory (Core)
