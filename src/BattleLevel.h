@@ -20,7 +20,7 @@ public:
     BattleLevel(Application *application_, const Vector2<float>& size_, int lvlId_) :
     	Level(application_, size_, lvlId_),
     	m_camera(gamedata::stages::startingCameraPos, {gamedata::global::cameraWidth, gamedata::global::cameraHeight}, m_size),
-        m_frameTimer(gamedata::stages::framesBeforeZoom),
+        m_frameTimerBeforeZoom(gamedata::stages::framesBeforeZoom),
         m_maxCharRange(gamedata::stages::maxCharRange),
         m_particleManager(application_->getRenderer(), application_->getAnimationManager())
     {
@@ -50,6 +50,7 @@ public:
         Level::enter();
         m_camera.setPos(gamedata::stages::startingCameraPos);
         m_camera.setScale(gamedata::stages::startingCameraScale);
+        lastScale_ = gamedata::stages::startingCameraScale;
 
         auto &renderer = *m_application->getRenderer();
 
@@ -85,8 +86,79 @@ protected:
             }
         }
 
+        // Camera handling
+        {
+            auto p1 = m_characters[0]->getPos();
+            auto p2 = m_characters[1]->getPos();
+
+            float charRangeForScale = abs((p1 - p2).mulComponents(Vector2{1.0f, 3.0f}).getLen());
+            auto newScale = utils::clamp((charRangeForScale + gamedata::stages::reservedScaleRange) / gamedata::stages::maxCharRange * gamedata::stages::maxCameraScale,
+            gamedata::stages::minCameraScale, gamedata::stages::maxCameraScale);
+
+            bool scaleCamera = true;
+
+            // If the camera should zoom in for characters, it should delay scaling a bit
+
+            //
+            if (lastScale_ > newScale)
+            {
+                if (m_frameTimerBeforeZoom.isActive())
+                {
+                    scaleCamera = false;
+                }
+                else if (m_frameTimerBeforeZoom.isOver() || !m_frameTimerBeforeZoom.isActive())
+                {
+                    m_frameTimerBeforeZoom.begin(gamedata::stages::framesBeforeZoom);
+                }
+            }
+            else
+            {
+                m_frameTimerBeforeZoom.begin(0);
+            }
+
+            if (scaleCamera)
+            {
+                lastScale_ = newScale;
+                m_camera.smoothScaleTowards(newScale);
+            }
+            // Make sure that if camera scales out and then newScale quickly falls down, it will reach max required scale anyway
+            // Example: consecutive jumps
+            // In this case, camera might scale out bit by bit with every jump, causing weird shaking
+            else if (lastScale_ > m_camera.getScale())
+            {
+                m_camera.smoothScaleTowards(lastScale_);
+            }
+
+            // When moving camera, vertical priority should be given to the player without hitstun
+            float x = (p1.x + p2.x) / 2;
+            float miny, maxy;
+            bool minyHitstun, maxyHitstun;
+            float verticalScaler = gamedata::stages::heightMovePriority;
+            if (p1.y < p2.y)
+            {
+                miny = p1.y;
+                maxy = p2.y;
+                minyHitstun = m_characters[0]->isInHitstun() && m_characters[0]->isAirborne();
+                maxyHitstun = m_characters[1]->isInHitstun() && m_characters[1]->isAirborne();
+            }
+            else
+            {
+                miny = p2.y;
+                maxy = p1.y;
+                minyHitstun = m_characters[1]->isInHitstun() && m_characters[1]->isAirborne();
+                maxyHitstun = m_characters[0]->isInHitstun() && m_characters[0]->isAirborne();
+            }
+
+            if (minyHitstun)
+                verticalScaler += gamedata::stages::hitstunCameraPriorityReduction;
+            if (maxyHitstun)
+                verticalScaler -= gamedata::stages::hitstunCameraPriorityReduction;
+
+            m_camera.smoothMoveTowards(Vector2{x, std::lerp(miny, maxy, verticalScaler)} - Vector2{0.0f,  gamedata::stages::verticalCameraOffset});
+        }
+
         // Align camera with players
-        if (m_frameTimer.update())
+        if (m_frameTimerBeforeZoom.update())
         {
             auto p1 = m_characters[0]->getPos();
             auto p2 = m_characters[1]->getPos();
@@ -417,7 +489,8 @@ protected:
     	renderer.updateScreen();
     }
 
-    FrameTimer m_frameTimer;
+    FrameTimer m_frameTimerBeforeZoom;
+    float lastScale_;
 
     Camera m_camera;
     std::unique_ptr<BackType> m_background;
