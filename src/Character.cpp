@@ -450,6 +450,11 @@ Collider Character::getPushbox() const
     return realpb;
 }
 
+bool Character::isAirborne()
+{
+    return m_airborne;
+}
+
 bool Character::passableThrough() const
 {
     return m_tiedAnimWithOpponent || m_lockedInAnimation;

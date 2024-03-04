@@ -13,9 +13,10 @@ namespace gamedata
         inline constexpr float stageWidth = 2500.0f;
         inline constexpr float stageHeight = 2500.0f;
         inline constexpr float levelOfGround = 2400.0f;
-        inline constexpr int framesBeforeZoom = 30;
+        inline constexpr int framesBeforeZoom = 60;
         inline constexpr float maxCharRange = 1500.0f;
         inline constexpr Vector2<float> startingCameraPos = {stageWidth / 2.0f, stageHeight * 0.75f};
+        inline constexpr float hitstunCameraPriorityReduction = 0.2f;
         inline constexpr float startingCameraScale = 1.2f;
         inline constexpr float charSpawnRange = 300.0f;
         inline constexpr std::array<Vector2<float>, 2> spawnPoints = {{

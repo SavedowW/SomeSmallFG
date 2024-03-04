@@ -183,6 +183,7 @@ public:
     virtual bool isInBlockstun() const = 0;
     virtual bool isKnockedDown() const = 0;
     virtual bool isInAttackState() const = 0;
+    virtual bool isAirborne();
     bool passableThrough() const;
 
     virtual bool canBeThrown(THROW_LIST throw_) const;
