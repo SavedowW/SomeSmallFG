@@ -29,6 +29,8 @@ AnimationManager::AnimationManager(Renderer* renderer_, const std::string &rootP
 
 std::shared_ptr<TextureArr> AnimationManager::getTextureArr(ANIMATIONS tex_)
 {
+	if (tex_ == ANIMATIONS::CHAR1_PROJECTILE_STARTUP)
+		std::cout << "here\n";
 	if (m_preloadedArrs[(int)tex_] != nullptr)
 	{
 		//Logger::print("Texture arr is preloaded\n");
@@ -39,6 +41,7 @@ std::shared_ptr<TextureArr> AnimationManager::getTextureArr(ANIMATIONS tex_)
 		//Logger::print("Texture arr does not exist, creating new\n");
 
 		//Parse data.txt
+		std::string ppth = m_rootPath + m_filePaths[(int)tex_] + "animinfo.txt";
 		std::ifstream loadData(m_rootPath + m_filePaths[(int)tex_] + "animinfo.txt");
 		std::string prefix;
 		int ibegin, iend;

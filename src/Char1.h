@@ -64,7 +64,8 @@ enum class CHAR1_STATE {
     THROW_TECH_OWN,
     THROW_TECH_CHAR1,
     AIR_THROW_TECH_OWN,
-    AIR_THROW_TECH_CHAR1
+    AIR_THROW_TECH_CHAR1,
+    PROJECTILE_CHAR
     };
 
 struct Char1Data : public CharData<CHAR1_STATE>

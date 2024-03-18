@@ -27,6 +27,7 @@ void ActionResolver_Char1::createActions()
     m_actions.push_back(std::make_unique<Action_char1_move_JC>());
     m_actions.push_back(std::make_unique<Action_char1_move_JA>());
     m_actions.push_back(std::make_unique<Action_char1_move_214C>());
+    m_actions.push_back(std::make_unique<Action_char1_move_projectile>());
     m_actions.push_back(std::make_unique<Action_char1_move_4A>());
     m_actions.push_back(std::make_unique<Action_char1_move_2B>());
     m_actions.push_back(std::make_unique<Action_char1_move_236C>());
@@ -130,6 +131,7 @@ void Char1::loadAnimations(Application &application_)
     m_animations[ANIMATIONS::CHAR1_THROWN_CHAR1_NORMAL] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_THROWN_CHAR1_NORMAL, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_THROW_TECH] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_THROW_TECH, LOOPMETHOD::NOLOOP);
     m_animations[ANIMATIONS::CHAR1_NORMAL_THROW_WHIFF] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_NORMAL_THROW_WHIFF, LOOPMETHOD::NOLOOP);
+    m_animations[ANIMATIONS::CHAR1_PROJECTILE_CHAR_ANIM] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_PROJECTILE_CHAR_ANIM, LOOPMETHOD::NOLOOP);
 
     /*
     CHAR1_NORMAL_THROW_STARTUP,

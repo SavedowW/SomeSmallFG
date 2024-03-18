@@ -145,6 +145,13 @@ public:
     bool operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_, int extendBuffer_) const final;
 };
 
+class InputComparator214APress : public InputComparator
+{
+public:
+    bool operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_, int extendBuffer_) const final;
+};
+
+
 using InputComparator_ptr = std::unique_ptr<InputComparator>;
 
 #endif

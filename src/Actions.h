@@ -594,6 +594,12 @@ public:
     virtual void update(Char1 &character_) const override;
 };
 
+class Action_char1_move_projectile : public Action_char1_ground_attack
+{
+public:
+    Action_char1_move_projectile();
+};
+
 // THROW RELATED STUFF
 
 // THROW ACTIONS

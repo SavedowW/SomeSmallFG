@@ -1969,6 +1969,35 @@ void Action_char1_move_214C::update(Char1 &character_) const
     }
 }
 
+// MOVE PROJECTILE ACTION
+Action_char1_move_projectile::Action_char1_move_projectile() :
+    Action_char1_ground_attack(CHAR1_STATE::PROJECTILE_CHAR, ANIMATIONS::CHAR1_PROJECTILE_CHAR_ANIM, TimelineProperty(true), std::make_unique<InputComparator214APress>(), 60,
+    {
+    },
+    {
+        {
+            TimelineProperty(true),
+            gamedata::characters::char1::standingHurtbox
+        },
+        {
+            TimelineProperty<bool>({{31, true}, {53, false}}),
+            {60.0f, -420.0f, 60.0f, 350.0f}
+        },
+        {
+            TimelineProperty<bool>({{31, true}, {35, false}}),
+            {120.0f, -370.0f, 60.0f, 250.0f}
+        }
+    },
+    TimelineProperty<Vector2<float>>(
+        {
+            {1, {-4.0f, 0.0f}},
+            {4, {-7.0f, 0.0f}},
+            {15, {-3.0f, 0.0f}},
+            {25, {0.0f, 0.0f}},
+        }))
+{
+}
+
 // Normal throw startup
 Action_char1_normal_throw_startup::Action_char1_normal_throw_startup() :
     Action_throw_startup<CHAR1_STATE, Char1Data, Char1>(CHAR1_STATE::THROW_NORMAL_STARTUP, CHAR1_STATE::THROW_NORMAL_WHIFF, CHAR1_STATE::THROW_NORMAL_HOLD,

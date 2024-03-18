@@ -51,6 +51,10 @@ enum class ANIMATIONS
 	CHAR1_THROWN_CHAR1_NORMAL,
 	CHAR1_THROW_TECH,
 	CHAR1_NORMAL_THROW_WHIFF,
+	CHAR1_PROJECTILE_CHAR_ANIM,
+	CHAR1_PROJECTILE_STARTUP,
+	CHAR1_PROJECTILE_FILLER,
+	CHAR1_PROJECTILE_FADEOUT,
 	NONE
 };
 
@@ -151,6 +155,10 @@ private:
 		"Resources/Sprites/Char1/ThrownChar1/",
 		"Resources/Sprites/Char1/ThrowTech/",
 		"Resources/Sprites/Char1/ThrowWhiff/",
+		"Resources/Sprites/Char1/MoveProjectileCharAnim/",
+		"Resources/Sprites/Char1/ProjectileFirewallStartup/",
+		"Resources/Sprites/Char1/ProjectileFirewallFiller/",
+		"Resources/Sprites/Char1/ProjectileFirewallFadeout/",
 	};
 	std::map<ANIMATIONS, std::weak_ptr<TextureArr>> m_textureArrPointers;
 
