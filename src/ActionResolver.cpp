@@ -107,9 +107,6 @@ const Action<CharState_t, CharData, Char_t> *ActionResolver<CharState_t, CharDat
 {
    //std::cout << "=== UPDATE RESOLVER ===\n";
 
-    if (!charData.inHitstop && charData.state == CHAR1_STATE::MOVE_JA && m_currentInput.isInputActive(INPUT_BUTTON::UP))
-        std::cout << "";
-
     m_currentInput.setDirFromButtons();
 
     m_inputQueue.push(m_currentInput);
@@ -163,6 +160,12 @@ INPUT_BUTTON_STATE ActionResolver<CharState_t, CharData, Char_t>::getPostFrameBu
     }
 
     return INPUT_BUTTON_STATE::OFF;
+}
+
+template <typename CharState_t, typename CharData, typename Char_t>
+void ActionResolver<CharState_t, CharData, Char_t>::addAction(std::unique_ptr<Action<CharState_t, CharData, Char_t>> &&action_)
+{
+    m_actions.push_back(std::move(action_));
 }
 
 template ActionResolver<CHAR1_STATE, Char1Data, Char1>;

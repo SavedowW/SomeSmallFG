@@ -23,7 +23,7 @@ public:
     Vector2<int> getCurrentInputDir() const;
     INPUT_BUTTON_STATE getPostFrameButtonState(INPUT_BUTTON button_) const;
 
-    virtual void createActions() = 0;
+    virtual void addAction(std::unique_ptr<Action<CharState_t, CharData, Char_t>> &&action_);
 
     const Action<CharState_t, CharData, Char_t> *update(Char1Data charData, int extendBuffer_ = 0);
 

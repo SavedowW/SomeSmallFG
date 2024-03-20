@@ -4,80 +4,74 @@
 #include "Actions.h"
 #include <stdexcept>
 
-ActionResolver_Char1::ActionResolver_Char1(InputSystem *input_) :
-    ActionResolver(input_)
+void Char1::provideActions()
 {
+    m_actionResolver.addAction(std::make_unique<Action_char1_back_air_throw_startup>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_normal_air_throw_startup>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_back_throw_startup>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_normal_throw_startup>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_air_throw_tech>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_throw_tech>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_step>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_air_dash>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_air_backdash>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_backward_doublejump>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_forward_doublejump>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_neutral_doublejump>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_move_JC>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_move_JA>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_move_214C>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_move_projectile>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_move_4A>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_move_2B>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_move_236C>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_move_step_C>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_move_C>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_move_B>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_jab>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_ground_backdash>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_ground_dash>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_backward_jump>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_forward_jump>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_neutral_jump>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_walk_bwd>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_walk_fwd>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_ground_dash_recovery>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_crouch>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_idle>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_soft_landing_recovery>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_vulnerable_landing_recovery>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_hard_landing_recovery>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_jc_landing_recovery>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_hard_knockdown>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_soft_knockdown>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_knockdown_recovery>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_float>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_air_dash_extention>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_step_recovery>());
 
-}
+    m_actionResolver.addAction(std::make_unique<Action_char1_normal_throw_hold>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_normal_throw_whiff>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_normal_throw>());
 
-void ActionResolver_Char1::createActions()
-{
-    m_actions.push_back(std::make_unique<Action_char1_back_air_throw_startup>());
-    m_actions.push_back(std::make_unique<Action_char1_normal_air_throw_startup>());
-    m_actions.push_back(std::make_unique<Action_char1_back_throw_startup>());
-    m_actions.push_back(std::make_unique<Action_char1_normal_throw_startup>());
-    m_actions.push_back(std::make_unique<Action_char1_air_throw_tech>());
-    m_actions.push_back(std::make_unique<Action_char1_throw_tech>());
-    m_actions.push_back(std::make_unique<Action_char1_step>());
-    m_actions.push_back(std::make_unique<Action_char1_air_dash>());
-    m_actions.push_back(std::make_unique<Action_char1_air_backdash>());
-    m_actions.push_back(std::make_unique<Action_char1_backward_doublejump>());
-    m_actions.push_back(std::make_unique<Action_char1_forward_doublejump>());
-    m_actions.push_back(std::make_unique<Action_char1_neutral_doublejump>());
-    m_actions.push_back(std::make_unique<Action_char1_move_JC>());
-    m_actions.push_back(std::make_unique<Action_char1_move_JA>());
-    m_actions.push_back(std::make_unique<Action_char1_move_214C>());
-    m_actions.push_back(std::make_unique<Action_char1_move_projectile>());
-    m_actions.push_back(std::make_unique<Action_char1_move_4A>());
-    m_actions.push_back(std::make_unique<Action_char1_move_2B>());
-    m_actions.push_back(std::make_unique<Action_char1_move_236C>());
-    m_actions.push_back(std::make_unique<Action_char1_move_step_C>());
-    m_actions.push_back(std::make_unique<Action_char1_move_C>());
-    m_actions.push_back(std::make_unique<Action_char1_move_B>());
-    m_actions.push_back(std::make_unique<Action_char1_jab>());
-    m_actions.push_back(std::make_unique<Action_char1_ground_backdash>());
-    m_actions.push_back(std::make_unique<Action_char1_ground_dash>());
-    m_actions.push_back(std::make_unique<Action_char1_backward_jump>());
-    m_actions.push_back(std::make_unique<Action_char1_forward_jump>());
-    m_actions.push_back(std::make_unique<Action_char1_neutral_jump>());
-    m_actions.push_back(std::make_unique<Action_char1_walk_bwd>());
-    m_actions.push_back(std::make_unique<Action_char1_walk_fwd>());
-    m_actions.push_back(std::make_unique<Action_char1_ground_dash_recovery>());
-    m_actions.push_back(std::make_unique<Action_char1_crouch>());
-    m_actions.push_back(std::make_unique<Action_char1_idle>());
-    m_actions.push_back(std::make_unique<Action_char1_soft_landing_recovery>());
-    m_actions.push_back(std::make_unique<Action_char1_vulnerable_landing_recovery>());
-    m_actions.push_back(std::make_unique<Action_char1_hard_landing_recovery>());
-    m_actions.push_back(std::make_unique<Action_char1_jc_landing_recovery>());
-    m_actions.push_back(std::make_unique<Action_char1_hard_knockdown>());
-    m_actions.push_back(std::make_unique<Action_char1_soft_knockdown>());
-    m_actions.push_back(std::make_unique<Action_char1_knockdown_recovery>());
-    m_actions.push_back(std::make_unique<Action_char1_float>());
-    m_actions.push_back(std::make_unique<Action_char1_air_dash_extention>());
-    m_actions.push_back(std::make_unique<Action_char1_step_recovery>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_back_throw_hold>());
 
-    m_actions.push_back(std::make_unique<Action_char1_normal_throw_hold>());
-    m_actions.push_back(std::make_unique<Action_char1_normal_throw_whiff>());
-    m_actions.push_back(std::make_unique<Action_char1_normal_throw>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_thrown_char1_normal_hold>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_thrown_char1_normal>());
 
-    m_actions.push_back(std::make_unique<Action_char1_back_throw_hold>());
-
-    m_actions.push_back(std::make_unique<Action_char1_thrown_char1_normal_hold>());
-    m_actions.push_back(std::make_unique<Action_char1_thrown_char1_normal>());
-
-    m_actions.push_back(std::make_unique<Action_char1_throw_tech_char1>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_throw_tech_char1>());
 
 
-    m_actions.push_back(std::make_unique<Action_char1_normal_air_throw_hold>());
-    m_actions.push_back(std::make_unique<Action_char1_normal_air_throw_whiff>());
-    m_actions.push_back(std::make_unique<Action_char1_normal_air_throw>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_normal_air_throw_hold>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_normal_air_throw_whiff>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_normal_air_throw>());
 
-    m_actions.push_back(std::make_unique<Action_char1_back_air_throw_hold>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_back_air_throw_hold>());
 
-    m_actions.push_back(std::make_unique<Action_char1_thrown_char1_normal_air_hold>());
-    m_actions.push_back(std::make_unique<Action_char1_thrown_char1_normal_air>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_thrown_char1_normal_air_hold>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_thrown_char1_normal_air>());
 
-    m_actions.push_back(std::make_unique<Action_char1_air_throw_tech_char1>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_air_throw_tech_char1>());
 }
 
 Char1::Char1(Application &application_, Vector2<float> pos_, Camera *cam_, ParticleManager *particleManager_) :
@@ -85,7 +79,7 @@ Char1::Char1(Application &application_, Vector2<float> pos_, Camera *cam_, Parti
     m_actionResolver(application_.getInputSystem()),
     m_currentAction(nullptr)
 {
-
+    provideActions();
 }
 
 void Char1::loadAnimations(Application &application_)
@@ -157,7 +151,6 @@ void Char1::initiate()
     else
         throw std::runtime_error("Trying to initiate character without player ID");
 
-    m_actionResolver.createActions();
     m_actionResolver.setInputEnabled(true);
 
     m_inertiaDrag = gamedata::characters::char1::inertiaDrag;

@@ -80,19 +80,13 @@ struct Char1Data : public CharData<CHAR1_STATE>
     std::set<int> *cancelOptions = nullptr;
 };
 
-class ActionResolver_Char1 : public ActionResolver<CHAR1_STATE, Char1Data, Char1>
-{
-public:
-    ActionResolver_Char1(InputSystem *input_);
-
-    void createActions() final;
-};
-
 class Char1 : public Character
 {
 public:
     Char1(Application &application_, Vector2<float> pos_, Camera *cam_, ParticleManager *particleManager_);
     virtual ~Char1() {};
+
+    void provideActions();
 
     void loadAnimations(Application &application_) final;
     void initiate() final;
@@ -137,7 +131,7 @@ protected:
 
     const Action<CHAR1_STATE, Char1Data, Char1> *m_currentAction;
     const Action<CHAR1_STATE, Char1Data, Char1> *m_reservedAction = nullptr;
-    ActionResolver_Char1 m_actionResolver;
+    ActionResolver<CHAR1_STATE, Char1Data, Char1> m_actionResolver;
 
     CHAR1_STATE m_currentState = CHAR1_STATE::IDLE;
     FrameTimer m_timer;

@@ -40,7 +40,7 @@ namespace gamedata
 
     namespace global
     {
-        inline constexpr float framerate = 60.0f;
+        inline constexpr float framerate = 5.0f;
         inline constexpr int numberOfLevels = 2;
         inline constexpr int initialLevelId = 1;
         inline constexpr float cameraWidth = 1600.0f;
