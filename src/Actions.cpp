@@ -9,12 +9,11 @@
  *========================== */
 
 template <typename Char_t>
-Action<Char_t>::Action(int actionState_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, bool isAttack_, bool noLandTransition_, bool isCrouchState_, bool isThrowStartup_) :
+Action<Char_t>::Action(int actionState_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, bool isAttack_, bool isCrouchState_, bool isThrowStartup_) :
     actionState(actionState_),
     m_hurtboxes(std::move(hurtboxes_)),
     m_anim(anim_),
     m_isAttack(isAttack_),
-    m_noLandTransition(noLandTransition_),
     m_isCrouchState(isCrouchState_),
     m_isThrowStartup(isThrowStartup_),
     m_counterWindow(std::move(counterWindow_)),
@@ -99,7 +98,7 @@ bool Action<Char_t>::canBlock(uint32_t currentFrame_) const
 // ABSTRACT PROLONGED ACTION
 template <typename Char_t>
 Action_prolonged<Char_t>::Action_prolonged(int actionState_, InputComparator_ptr incmp_, InputComparator_ptr incmp_prolonged_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_) :
-    Action<Char_t>(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, std::move(counterWindow_), std::move(gravityWindow_), std::move(blockWindow_))
+    Action<Char_t>(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, std::move(counterWindow_), std::move(gravityWindow_), std::move(blockWindow_), false, false, false)
 {
     incmp_prolonged = std::move(incmp_prolonged_);
 }
@@ -115,7 +114,7 @@ int Action_prolonged<Char_t>::isPossibleToProlong(const InputQueue &inputQueue_,
 // ABSTRACT JUMP ACTION
 template <typename Char_t>
 Action_jump<Char_t>::Action_jump(int actionState_, const Vector2<float> &impulse_, float prejumpLen_, float maxHorInertia_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&blockWindow_) :
-    Action<Char_t>(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, std::move(counterWindow_), TimelineProperty(true), std::move(blockWindow_)),
+    Action<Char_t>(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, std::move(counterWindow_), TimelineProperty(true), std::move(blockWindow_), false, false, false),
     m_impulse(impulse_),
     m_prejumpLen(prejumpLen_),
     m_maxHorInertia(maxHorInertia_)
@@ -127,8 +126,8 @@ Action_jump<Char_t>::Action_jump(int actionState_, const Vector2<float> &impulse
 
 // ABSTRACT ATTACK ACTION
 template <typename Char_t>
-Action_attack<Char_t>::Action_attack(int actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, TimelineProperty<Vector2<float>> &&velocity_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, bool noLandTransition_, bool isCrouchState_, bool stepOnly_) :
-    Action<Char_t>(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, hitutils::getRegularCounterTimeline(hits_), std::move(gravityWindow_), TimelineProperty(false), true, noLandTransition_, isCrouchState_),
+Action_attack<Char_t>::Action_attack(int actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, TimelineProperty<Vector2<float>> &&velocity_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, bool isCrouchState_, bool stepOnly_) :
+    Action<Char_t>(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, hitutils::getRegularCounterTimeline(hits_), std::move(gravityWindow_), TimelineProperty(false), true, isCrouchState_, false),
     m_fullDuration(fullDuration_),
     m_hits(hits_),
     m_velocity(std::move(velocity_)),
@@ -188,7 +187,7 @@ void Action_attack<Char_t>::update(Char_t &character_) const
 // ABSTRACT THROW STARTUP
 template <typename Char_t>
 Action_throw_startup<Char_t>::Action_throw_startup(int actionState_, int whiffState_, int holdState_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, float range_, FrameWindow activeWindow_, bool requiredAirborne_, THROW_LIST throw_) :
-    Action<Char_t>(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, TimelineProperty(true), std::move(gravityWindow_), TimelineProperty(false), false, false, false, true),
+    Action<Char_t>(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, TimelineProperty(true), std::move(gravityWindow_), TimelineProperty(false), false, false, true),
     m_whiffState(whiffState_),
     m_holdState(holdState_),
     m_range(range_),
@@ -236,7 +235,7 @@ void Action_throw_startup<Char_t>::outdated(Char_t &character_) const
 // ABSTRACT THROW HOLD
 template <typename Char_t>
 Action_throw_hold<Char_t>::Action_throw_hold(int actionState_, int throwState_, float setRange_, float duration_, bool sideSwitch_) :
-    Action<Char_t>(actionState_, nullptr, {}, ANIMATIONS::NONE, TimelineProperty(false), TimelineProperty(false), TimelineProperty(false)),
+    Action<Char_t>(actionState_, nullptr, {}, ANIMATIONS::NONE, TimelineProperty(false), TimelineProperty(false), TimelineProperty(false), false, false, false),
     m_setRange(setRange_),
     m_duration(duration_),
     m_throwState(throwState_),
@@ -305,7 +304,7 @@ void Action_throw_hold<Char_t>::outdated(Char_t &character_) const
 // ABSTRACT THROW WHIFF
 template <typename Char_t>
 Action_throw_whiff<Char_t>::Action_throw_whiff(int actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, float duration_, HurtboxFramesVec &&hurtboxes_) :
-    Action<Char_t>(actionState_, nullptr, std::move(hurtboxes_), anim_, TimelineProperty(false), std::move(gravityWindow_), TimelineProperty(false)),
+    Action<Char_t>(actionState_, nullptr, std::move(hurtboxes_), anim_, TimelineProperty(false), std::move(gravityWindow_), TimelineProperty(false), false, false, false),
     m_duration(duration_)
 {
 }
@@ -335,7 +334,7 @@ void Action_throw_whiff<Char_t>::outdated(Char_t &character_) const
 // ABSTRACT THROWN HOLD
 template <typename Char_t>
 Action_thrown_hold<Char_t>::Action_thrown_hold(int actionState_, int thrownState_, ANIMATIONS anim_, float duration_) :
-    Action<Char_t>(actionState_, nullptr, {}, anim_, TimelineProperty(false), TimelineProperty(false), TimelineProperty(false)),
+    Action<Char_t>(actionState_, nullptr, {}, anim_, TimelineProperty(false), TimelineProperty(false), TimelineProperty(false), false, false, false),
     m_duration(duration_),
     m_thrownState(thrownState_)
 {
@@ -369,7 +368,7 @@ void Action_thrown_hold<Char_t>::outdated(Char_t &character_) const
 // ABSTRACT THROW TECH
 template <typename Char_t>
 Action_throw_tech<Char_t>::Action_throw_tech(int actionState_, InputComparator_ptr incmp_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, float duration_, HurtboxFramesVec &&hurtboxes_, THROW_TECHS_LIST throwTech_) :
-    Action<Char_t>(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, TimelineProperty(false), std::move(gravityWindow_), std::move(blockWindow_)),
+    Action<Char_t>(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, TimelineProperty(false), std::move(gravityWindow_), std::move(blockWindow_), false, false, false),
     m_duration(duration_),
     m_throwTech(throwTech_)
 {
@@ -403,7 +402,7 @@ void Action_throw_tech<Char_t>::outdated(Char_t &character_) const
 // ABSTRACT LOCKED ANIMATION
 template <typename Char_t>
 Action_locked_animation<Char_t>::Action_locked_animation(int actionState_, int quitState_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, float duration_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&blockWindow_) :
-    Action<Char_t>(actionState_, nullptr, std::move(hurtboxes_), anim_, std::move(counterWindow_), TimelineProperty(false), std::move(blockWindow_)),
+    Action<Char_t>(actionState_, nullptr, std::move(hurtboxes_), anim_, std::move(counterWindow_), TimelineProperty(false), std::move(blockWindow_), false, false, false),
     m_duration(duration_),
     m_quitState(quitState_)
 {
@@ -441,7 +440,7 @@ void Action_locked_animation<Char_t>::outdated(Char_t &character_) const
 
 // IDLE ACTION
 Action_char1_idle::Action_char1_idle() :
-    Action((int)CHAR1_STATE::IDLE, std::make_unique<InputComparatorIdle>(), {{TimelineProperty(true), gamedata::characters::char1::standingHurtbox}}, ANIMATIONS::CHAR1_IDLE, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true))
+    Action((int)CHAR1_STATE::IDLE, std::make_unique<InputComparatorIdle>(), {{TimelineProperty(true), gamedata::characters::char1::standingHurtbox}}, ANIMATIONS::CHAR1_IDLE, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true), false, false, false)
 {
 }
 
@@ -492,7 +491,7 @@ void Action_char1_idle::update(Char1 &character_) const
 
 // CROUCH ACTION
 Action_char1_crouch::Action_char1_crouch() :
-    Action((int)CHAR1_STATE::CROUCH, std::make_unique<InputComparatorDownHold>(), {{TimelineProperty(true), gamedata::characters::char1::crouchingHurtbox}}, ANIMATIONS::CHAR1_CROUCH_IDLE, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true),  false, false, true)
+    Action((int)CHAR1_STATE::CROUCH, std::make_unique<InputComparatorDownHold>(), {{TimelineProperty(true), gamedata::characters::char1::crouchingHurtbox}}, ANIMATIONS::CHAR1_CROUCH_IDLE, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true),  false, false, false)
 {
 }
 
@@ -546,7 +545,7 @@ Action_char1_walk_fwd::Action_char1_walk_fwd() :
             TimelineProperty(true),
             gamedata::characters::char1::standingHurtbox
         }
-    }, ANIMATIONS::CHAR1_WALK_FWD, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true))
+    }, ANIMATIONS::CHAR1_WALK_FWD, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true), false, false, false)
 {
 }
 
@@ -596,7 +595,7 @@ Action_char1_walk_bwd::Action_char1_walk_bwd() :
             TimelineProperty(true),
             gamedata::characters::char1::standingHurtbox
         }
-    }, ANIMATIONS::CHAR1_WALK_BWD, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true))
+    }, ANIMATIONS::CHAR1_WALK_BWD, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true), false, false, false)
 {
 }
 
@@ -765,7 +764,7 @@ Action_char1_float::Action_char1_float() :
             TimelineProperty(true),
             {-70, -350, 140, 300}
         }
-    }, ANIMATIONS::CHAR1_JUMP, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true))
+    }, ANIMATIONS::CHAR1_JUMP, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true), false, false, false)
 {
 }
 
@@ -792,7 +791,7 @@ Action_char1_airjump::Action_char1_airjump(const Vector2<float> &impulse_, Input
             TimelineProperty(true),
             {-70, -350, 140, 300}
         }
-    }, ANIMATIONS::CHAR1_JUMP, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true)),
+    }, ANIMATIONS::CHAR1_JUMP, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true), false, false, false),
     m_impulse(impulse_)
 {
 }
@@ -933,7 +932,7 @@ Action_char1_step::Action_char1_step() :
             TimelineProperty(true),
             {-70, -350, 140, 300}
         }
-    }, ANIMATIONS::CHAR1_STEP, TimelineProperty(true), TimelineProperty(true), TimelineProperty(false)),
+    }, ANIMATIONS::CHAR1_STEP, TimelineProperty(true), TimelineProperty(true), TimelineProperty(false), false, false, false),
     m_duration(gamedata::characters::char1::stepDuration)
 {
 }
@@ -976,7 +975,7 @@ Action_char1_step_recovery::Action_char1_step_recovery() :
             TimelineProperty(true),
             gamedata::characters::char1::standingHurtbox
         }
-    }, ANIMATIONS::CHAR1_STEP_RECOVERY, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false)),
+    }, ANIMATIONS::CHAR1_STEP_RECOVERY, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false), false, false, false),
     m_recoveryLen(gamedata::characters::char1::stepRecoveryDuration)
 {
 }
@@ -1021,7 +1020,7 @@ Action_char1_ground_backdash::Action_char1_ground_backdash() :
             TimelineProperty<bool>({{gamedata::characters::char1::backdashInvulDuration + 1, true}}),
             {-100, -300, 200, 300}
         }
-    }, ANIMATIONS::CHAR1_BACKDASH, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false)),
+    }, ANIMATIONS::CHAR1_BACKDASH, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false), false, false, false),
     m_totalDuration(gamedata::characters::char1::backdashDuration)
 {
 }
@@ -1092,7 +1091,7 @@ Action_char1_air_dash::Action_char1_air_dash() :
             TimelineProperty(true),
             {-70, -350, 140, 300}
         }
-    }, ANIMATIONS::CHAR1_AIRDASH, TimelineProperty(false), TimelineProperty(false), TimelineProperty(false)),
+    }, ANIMATIONS::CHAR1_AIRDASH, TimelineProperty(false), TimelineProperty(false), TimelineProperty(false), false, false, false),
     m_duration(gamedata::characters::char1::airdashDuration)
 {
 }
@@ -1152,7 +1151,7 @@ Action_char1_air_backdash::Action_char1_air_backdash() :
             TimelineProperty(true),
             {-70, -350, 140, 300}
         }
-    }, ANIMATIONS::CHAR1_AIR_BACKDASH, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false)),
+    }, ANIMATIONS::CHAR1_AIR_BACKDASH, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false), false, false, false),
     m_duration(gamedata::characters::char1::airBackdashDuration)
 {
 }
@@ -1210,7 +1209,7 @@ Action_char1_air_dash_extention::Action_char1_air_dash_extention() :
             TimelineProperty(true),
             {-70, -350, 140, 300}
         }
-    }, ANIMATIONS::CHAR1_AIRDASH, TimelineProperty(false), TimelineProperty(false), TimelineProperty(true)),
+    }, ANIMATIONS::CHAR1_AIRDASH, TimelineProperty(false), TimelineProperty(false), TimelineProperty(true), false, false, false),
     m_duration(gamedata::characters::char1::airdashExtentionDuration),
     m_baseSpd(gamedata::characters::char1::airdashExtentionMaxSpeed),
     m_spdMultiplier((gamedata::characters::char1::airdashExtentionMaxSpeed - gamedata::characters::char1::airdashExtentionMinSpeed) / gamedata::characters::char1::airdashExtentionDuration)
@@ -1255,7 +1254,7 @@ Action_char1_ground_dash_recovery::Action_char1_ground_dash_recovery() :
             TimelineProperty(true),
             {-100, -300, 200, 300}
         }
-    }, ANIMATIONS::CHAR1_GROUND_DASH_RECOVERY, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true)),
+    }, ANIMATIONS::CHAR1_GROUND_DASH_RECOVERY, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true), false, false, false),
     m_recoveryLen(gamedata::characters::char1::dashRecovery)
 {
 }
@@ -1305,7 +1304,7 @@ Action_char1_soft_landing_recovery::Action_char1_soft_landing_recovery() :
             TimelineProperty(true),
             {-100, -300, 200, 300}
         }
-    }, ANIMATIONS::CHAR1_LANDING_RECOVERY, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true)),
+    }, ANIMATIONS::CHAR1_LANDING_RECOVERY, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true), false, false, false),
     m_recoveryLen(gamedata::characters::char1::softLandingRecovery)
 {
 }
@@ -1335,7 +1334,7 @@ Action_char1_hard_landing_recovery::Action_char1_hard_landing_recovery() :
             TimelineProperty(true),
             {-100, -300, 200, 300}
         }
-    }, ANIMATIONS::CHAR1_LANDING_RECOVERY, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true)),
+    }, ANIMATIONS::CHAR1_LANDING_RECOVERY, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true), false, false, false),
     m_recoveryLen(gamedata::characters::char1::hardLandingRecovery)
 {
 }
@@ -1365,7 +1364,7 @@ Action_char1_vulnerable_landing_recovery::Action_char1_vulnerable_landing_recove
             TimelineProperty(true),
             {-100, -300, 200, 300}
         }
-    }, ANIMATIONS::CHAR1_LANDING_RECOVERY, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false)),
+    }, ANIMATIONS::CHAR1_LANDING_RECOVERY, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false), false, false, false),
     m_recoveryLen(gamedata::characters::char1::vulnerableLandingRecovery)
 {
 }
@@ -1395,7 +1394,7 @@ Action_char1_jc_landing_recovery::Action_char1_jc_landing_recovery() :
             TimelineProperty(true),
             {-100, -300, 200, 300}
         }
-    }, ANIMATIONS::CHAR1_JC_LANDING_RECOVERY, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false)),
+    }, ANIMATIONS::CHAR1_JC_LANDING_RECOVERY, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false), false, false, false),
     m_recoveryLen(gamedata::characters::char1::jcLandingRecovery)
 {
 }
@@ -1420,7 +1419,7 @@ void Action_char1_jc_landing_recovery::switchTo(Char1 &character_) const
 
 // SOFT KNOCKDOWN ACTION
 Action_char1_soft_knockdown::Action_char1_soft_knockdown() :
-    Action((int)CHAR1_STATE::SOFT_KNOCKDOWN, nullptr, {}, ANIMATIONS::CHAR1_SOFT_KNOCKDOWN, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false))
+    Action((int)CHAR1_STATE::SOFT_KNOCKDOWN, nullptr, {}, ANIMATIONS::CHAR1_SOFT_KNOCKDOWN, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false), false, false, false)
 {
 }
 
@@ -1444,7 +1443,7 @@ void Action_char1_soft_knockdown::switchTo(Char1 &character_) const
 
 // HARD KNOCKDOWN ACTION
 Action_char1_hard_knockdown::Action_char1_hard_knockdown() :
-    Action((int)CHAR1_STATE::HARD_KNOCKDOWN, nullptr, {}, ANIMATIONS::CHAR1_KNOCKDOWN, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false))
+    Action((int)CHAR1_STATE::HARD_KNOCKDOWN, nullptr, {}, ANIMATIONS::CHAR1_KNOCKDOWN, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false), false, false, false)
 {
 }
 
@@ -1468,7 +1467,7 @@ void Action_char1_hard_knockdown::switchTo(Char1 &character_) const
 
 // KNOCKDOWN RECOVERY ACTION
 Action_char1_knockdown_recovery::Action_char1_knockdown_recovery() :
-    Action((int)CHAR1_STATE::KNOCKDOWN_RECOVERY, nullptr, {}, ANIMATIONS::CHAR1_KNOCKDOWN_RECOVERY, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false))
+    Action((int)CHAR1_STATE::KNOCKDOWN_RECOVERY, nullptr, {}, ANIMATIONS::CHAR1_KNOCKDOWN_RECOVERY, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false), false, false, false)
 {
 }
 
@@ -1494,8 +1493,8 @@ void Action_char1_knockdown_recovery::switchTo(Char1 &character_) const
 }
 
 // ABSTRACT CHAR1 GROUND ATTACK ACTION
-Action_char1_ground_attack::Action_char1_ground_attack(int actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, TimelineProperty<Vector2<float>> &&velocity_, bool noLandTransition_, bool isCrouchState_, bool stepOnly_) :
-    Action_attack<Char1>(actionState_, std::move(incmp_), fullDuration_, hits_, std::move(hurtboxes_), std::move(velocity_), anim_, std::move(gravityWindow_), noLandTransition_, isCrouchState_, stepOnly_)
+Action_char1_ground_attack::Action_char1_ground_attack(int actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, TimelineProperty<Vector2<float>> &&velocity_, bool isCrouchState_, bool stepOnly_) :
+    Action_attack<Char1>(actionState_, std::move(incmp_), fullDuration_, hits_, std::move(hurtboxes_), std::move(velocity_), anim_, std::move(gravityWindow_), isCrouchState_, stepOnly_)
 {
 }
 
@@ -1563,7 +1562,7 @@ void Action_char1_ground_attack::switchTo(Char1 &character_) const
 
 // ABSTRACT CHAR1 AIR ATTACK ACTION
 Action_char1_air_attack::Action_char1_air_attack(int actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_) :
-    Action_attack<Char1>(actionState_, std::move(incmp_), fullDuration_, hits_, std::move(hurtboxes_), TimelineProperty<Vector2<float>>{}, anim_, std::move(gravityWindow_))
+    Action_attack<Char1>(actionState_, std::move(incmp_), fullDuration_, hits_, std::move(hurtboxes_), TimelineProperty<Vector2<float>>{}, anim_, std::move(gravityWindow_), false, false)
 {
 }
 
@@ -1608,7 +1607,6 @@ void Action_char1_air_attack::switchTo(Char1 &character_) const
         character_.turnVelocityToInertia();
     }
 
-    character_.m_reservedAction = character_.m_currentAction;
     Action<Char1>::switchTo(character_);
     character_.m_timer.begin(m_fullDuration);
 }
@@ -1684,7 +1682,7 @@ Action_char1_move_214C::Action_char1_move_214C() :
             {16, {0.0f, 0.0f}},
             {18, {80.0f, 0.0f}},
             {19, {0.0f, 0.0f}}
-        }))
+        }), false, false)
     /*{
         {
             {1, 4},
@@ -1738,7 +1736,7 @@ Action_char1_move_projectile::Action_char1_move_projectile() :
             {4, {-7.0f, 0.0f}},
             {15, {-3.0f, 0.0f}},
             {25, {0.0f, 0.0f}},
-        }))
+        }), false, false)
 {
 }
 

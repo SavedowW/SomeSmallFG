@@ -32,7 +32,7 @@ template <typename Char_t>
 class Action
 {
 public:
-    Action(int actionState_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, bool isAttack_ = false, bool noLandTransition_ = false, bool isCrouchState_ = false, bool isThrowStartup_ = false);
+    Action(int actionState_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, bool isAttack_, bool isCrouchState_, bool isThrowStartup_); // all false
     virtual bool isInputPossible(const InputQueue &inputQueue_, ORIENTATION ownDirection_, int extendBuffer_) const;
     virtual const HurtboxVec getCurrentHurtboxes(uint32_t currentFrame_, const Vector2<float>& offset_, ORIENTATION ownOrientation_) const;
     virtual void outdated(Char_t &character_) const {};
@@ -54,7 +54,6 @@ public:
     const ANIMATIONS m_anim;
     const bool m_isAttack;
     const bool m_isThrowStartup;
-    const bool m_noLandTransition;
     const bool m_isCrouchState;
 
 protected:
@@ -115,7 +114,7 @@ template <typename Char_t>
 class Action_attack : public Action<Char_t>
 {
 public:
-    Action_attack(int actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, TimelineProperty<Vector2<float>> &&velocity_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, bool noLandTransition_ = false, bool isCrouchState_ = false, bool stepOnly_ = false);
+    Action_attack(int actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, TimelineProperty<Vector2<float>> &&velocity_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, bool isCrouchState_, bool stepOnly_);
     virtual const HitsVec getCurrentHits(uint32_t currentFrame_, const Vector2<float>& offset_, ORIENTATION ownOrientation_) const;
     virtual void switchTo(Char_t &character_) const override;
     virtual void update(Char_t &character_) const override;
@@ -514,7 +513,7 @@ public:
 class Action_char1_ground_attack : public Action_attack<Char1>
 {
 public:
-    Action_char1_ground_attack(int actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, TimelineProperty<Vector2<float>> &&velocity_, bool noLandTransition_ = false, bool isCrouchState_ = false, bool stepOnly_ = false);
+    Action_char1_ground_attack(int actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, TimelineProperty<Vector2<float>> &&velocity_, bool isCrouchState_, bool stepOnly_);
     virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
     virtual void outdated(Char1 &character_) const override;
     virtual void switchTo(Char1 &character_) const override;

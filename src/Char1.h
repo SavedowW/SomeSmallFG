@@ -120,7 +120,6 @@ protected:
     std::set<int> m_appliedHits;
 
     const Action<Char1> *m_currentAction;
-    const Action<Char1> *m_reservedAction = nullptr;
     ActionResolver<Char1> m_actionResolver;
 
     FrameTimer m_timer;
