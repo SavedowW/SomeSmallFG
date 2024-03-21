@@ -366,6 +366,31 @@ HitData Character::getCurrentTakenHit()
     return temp;
 }
 
+void Character::applyCancelWindow(CancelWindow cw_)
+{
+    if (cw_.first.first == 0 && cw_.first.second == 0)
+    {
+        if (m_playerId == 1)
+            std::cout << "Drop cancels\n";
+        m_currentCancelWindow = cw_;
+        m_cancelAvailable = false;
+        m_cancelTimer.begin(0);
+    }
+
+    m_currentCancelWindow.first = std::move(cw_.first);
+    m_currentCancelWindow.second = std::move(cw_.second);
+    m_cancelAvailable = false;
+    if (m_currentCancelWindow.second.size() > 0)
+        m_cancelTimer.begin(m_currentCancelWindow.first.first);
+    else
+        m_cancelTimer.begin(0);
+}
+
+bool Character::isCancelAllowed(int cancelTarget_)
+{
+    return m_cancelAvailable && m_currentCancelWindow.second.contains(cancelTarget_);
+}
+
 void Character::takePushback(const Vector2<float> pushback_)
 {
     if (m_lockedInAnimation || m_tiedAnimWithOpponent)

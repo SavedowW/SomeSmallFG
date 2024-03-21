@@ -19,16 +19,165 @@ void Char1::provideActions()
     m_actionResolver.addAction(std::make_unique<Action_char1_forward_doublejump>());
     m_actionResolver.addAction(std::make_unique<Action_char1_neutral_doublejump>());
     m_actionResolver.addAction(std::make_unique<Action_char1_move_JC>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_move_JA>());
+
+    // j.A
+    m_actionResolver.addAction(std::unique_ptr<Action_char1_air_attack>(new Action_char1_air_attack((int)CHAR1_STATE::MOVE_JA, ANIMATIONS::CHAR1_MOVE_JA, TimelineProperty(true), std::make_unique<InputComparatorAPress>(), 17,
+    {
+        hitgeneration::generate_char1_JA()
+    },
+    {
+        {
+            TimelineProperty<bool>({{1, true}, {18, false}}),
+            {-70, -350, 140, 300}
+        },
+        {
+            TimelineProperty<bool>({{5, true}, {12, false}}),
+            {40.0f, -290.0f, 100.0f, 100.0f}
+        }
+    })));
+
     m_actionResolver.addAction(std::make_unique<Action_char1_move_214C>());
     m_actionResolver.addAction(std::make_unique<Action_char1_move_projectile>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_move_4A>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_move_2B>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_move_236C>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_move_step_C>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_move_C>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_move_B>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_jab>());
+
+    //4A
+    m_actionResolver.addAction(std::unique_ptr<Action_char1_ground_attack>(new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_4A, ANIMATIONS::CHAR1_MOVE_4A, TimelineProperty(true), std::make_unique<InputComparator4APress>(), 24,
+    {
+        hitgeneration::generate_char1_move4A()
+    },
+    {
+        {
+            TimelineProperty(true),
+            gamedata::characters::char1::standingHurtbox
+        },
+        {
+            TimelineProperty<bool>({{8, true}, {18, false}}),
+            {60.0f, -420.0f, 60.0f, 150.0f}
+        }
+    },
+    {})));
+
+    // 2B
+    m_actionResolver.addAction(std::unique_ptr<Action_char1_ground_attack>(new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_2B, ANIMATIONS::CHAR1_MOVE_2B, TimelineProperty(true), std::make_unique<InputComparator2BPress>(), 29,
+    {
+        hitgeneration::generate_char1_move2B()
+    },
+    {
+        {
+            TimelineProperty<bool>({{1, true}, {30, false}}),
+            {-70, -200, 140, 200}
+        },
+        {
+            TimelineProperty<bool>({{9, true}, {22, false}}),
+            {10.0f, -110.0f, 200.0f, 110.0f}
+        }
+    }, TimelineProperty<Vector2<float>>(
+        {
+            {1, {23.0f, 0.0f}},
+            {5, {7.0f, 0.0f}},
+            {9, {0.0f, 0.0f}},
+            {22, {-7.0f, 0.0f}},
+            {26, {-23.0f, 0.0f}}
+        }),
+        false, true)));
+
+    // 236C
+    m_actionResolver.addAction(std::unique_ptr<Action_char1_ground_attack>(new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_236C, ANIMATIONS::CHAR1_MOVE_236C, TimelineProperty(true), std::make_unique<InputComparator236CPress>(), 40,
+    {
+        hitgeneration::generate_char1_236C()
+    },
+    {
+        {
+            TimelineProperty<bool>({{1, true}, {41, false}}),
+            {-70, -200, 140, 200}
+        },
+        {
+            TimelineProperty<bool>({{1, true}, {5, false}}),
+            {-70.0f, -300.0f, 140.0f, 100.0f}
+        },
+        {
+            TimelineProperty<bool>({{13, true}, {41, false}}),
+            {-70.0f, -300.0f, 140.0f, 100.0f}
+        },
+        {
+            TimelineProperty<bool>({{17, true}, {34, false}}),
+            {60.0f, -350.0f, 40.0f, 150.0f}
+        },
+    }, TimelineProperty<Vector2<float>>(
+        {
+            {1, {20.0f, 0.0f}},
+            {6, {15.0f, 0.0f}},
+            {9, {10.0f, 0.0f}},
+            {12, {6.0f, 0.0f}},
+            {13, {0, 0}},
+            {30, {-1.5f, 0.0f}},
+        }))));
+
+    // s.5C
+    m_actionResolver.addAction(std::unique_ptr<Action_char1_ground_attack>(new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_STEP_C, ANIMATIONS::CHAR1_MOVE_STEP_C, TimelineProperty(true), std::make_unique<InputComparatorCPress>(), 53,
+    {
+        hitgeneration::generate_char1_moveStepC()
+    },
+    {
+        {
+            TimelineProperty(true),
+            gamedata::characters::char1::standingHurtbox
+        },
+        {
+            TimelineProperty<bool>({{6, true}, {32, false}}),
+            {60.0f, -450.0f, 200.0f, 400.0f}
+        }
+    }, TimelineProperty<Vector2<float>>({{1, {30.0f, 0.0f}}, {4, {0, 0}}}),
+    false, false, true)));
+
+    // 5C
+    m_actionResolver.addAction(std::unique_ptr<Action_char1_ground_attack>(new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_C, ANIMATIONS::CHAR1_MOVE_C, TimelineProperty(true), std::make_unique<InputComparatorCPress>(), 26,
+    {
+        hitgeneration::generate_char1_moveC()
+    },
+    {
+        {
+            TimelineProperty(true),
+            gamedata::characters::char1::standingHurtbox
+        },
+        {
+            TimelineProperty<bool>({{11, true}, {23, false}}),
+            {60.0f, -220.0f, 60.0f, 100.0f}
+        }
+    }, TimelineProperty<Vector2<float>>({{3, {20.0f, 0.0f}}, {6, {0, 0}}, {22, {20.0f, 0.0f}}, {27, {0, 0}}}))));
+
+    // 5B
+    m_actionResolver.addAction(std::unique_ptr<Action_char1_ground_attack>(new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_B, ANIMATIONS::CHAR1_MOVE_B, TimelineProperty(true), std::make_unique<InputComparatorBPress>(), 22,
+    {
+        hitgeneration::generate_char1_moveB()
+    },
+    {
+        {
+            TimelineProperty(true),
+            gamedata::characters::char1::standingHurtbox
+        },
+        {
+            TimelineProperty<bool>({{7, true}, {20, false}}),
+            {50.0f, -275.0f, 175.0f, 80.0f}
+        }
+    }, TimelineProperty<Vector2<float>>({{1, {3.5f, 0.0f}}, {7, {0, 0}}, {20, {-2.0f, 0.0f}}, {23, {0, 0}}}))));
+
+    // 5A
+    m_actionResolver.addAction(std::unique_ptr<Action_char1_ground_attack>(new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_A, ANIMATIONS::CHAR1_MOVE_A, TimelineProperty(true), std::make_unique<InputComparatorAPress>(), 16,
+    {
+        hitgeneration::generate_char1_jab()
+    },
+    {
+        {
+            TimelineProperty(true),
+            gamedata::characters::char1::standingHurtbox
+        },
+        {
+            TimelineProperty<bool>({{4, true}, {13, false}}),
+            {40.0f, -310.0f, 140.0f, 50.0f}
+        }
+    },
+    {})));
+
     m_actionResolver.addAction(std::make_unique<Action_char1_ground_backdash>());
     m_actionResolver.addAction(std::make_unique<Action_char1_ground_dash>());
     m_actionResolver.addAction(std::make_unique<Action_char1_backward_jump>());
@@ -205,15 +354,26 @@ void Char1::updateState()
 {
     framesInState++;
 
-    if (!m_currentCancelWindow.second.empty() && !m_inHitstop)
+    // Update cancel window
+    if (!m_inHitstop)
     {
-        m_cancelTimer.update();
-        auto timer = m_cancelTimer.getCurrentFrame();
-        if (timer > m_currentCancelWindow.first.second)
+        auto timerres = m_cancelTimer.update();
+        if (m_playerId == 1)
+            std::cout << timerres << std::endl;
+        if (timerres)
         {
-            std::cout << "Cancel window outdated\n";
-            m_cancelTimer.begin(0);
-            m_currentCancelWindow = {};
+            if (!m_cancelAvailable)
+            {
+                m_cancelTimer.begin(m_currentCancelWindow.first.second - m_currentCancelWindow.first.first + 1);
+                std::cout << "Cancel window opened\n";
+                m_cancelAvailable = true;
+            }
+            else
+            {
+                std::cout << "Cancel window outdated\n";
+                m_cancelTimer.begin(0);
+                m_cancelAvailable = false;
+            }
         }
     }
 
@@ -416,12 +576,9 @@ HIT_RESULT Char1::applyHit(HitEvent &hitEvent)
             m_appliedHits.insert(hitEvent.m_hitData.m_hitId);
 
             if (hitEvent.m_hitRes == HIT_RESULT::HIT || hitEvent.m_hitRes == HIT_RESULT::COUNTER)
-                m_currentCancelWindow = hitEvent.m_hitData.cancelsOnHit;
+                applyCancelWindow(hitEvent.m_hitData.cancelsOnHit);
             else
-                m_currentCancelWindow = hitEvent.m_hitData.cancelsOnBlock;
-
-            if (!m_currentCancelWindow.second.empty())
-                    m_cancelTimer.begin(m_currentCancelWindow.first.second + 1);
+                applyCancelWindow(hitEvent.m_hitData.cancelsOnBlock);
 
         }
 
@@ -505,9 +662,8 @@ HIT_RESULT Char1::applyHit(HitEvent &hitEvent)
 
 
             enterHitstunAnimation(m_hitProps);
-
-            m_currentCancelWindow = {};
-            m_cancelTimer.begin(0);
+            
+            applyCancelWindow({{0, 0}, {}});
             applyHitstop(m_hitProps.hitstop);
 
             return hitres;
@@ -1041,8 +1197,10 @@ void Char1::applyClash(const Hit &clashedHit_)
     
     m_appliedHits.insert(clashedHit_.m_hitId);
 
-    m_currentCancelWindow.first = {1, 20};
-    m_currentCancelWindow.second = {
+    CancelWindow tempwindow;
+
+    tempwindow.first = {1, 20};
+    tempwindow.second = {
         (int)CHAR1_STATE::PREJUMP,
         (int)CHAR1_STATE::GROUND_BACKDASH,
         (int)CHAR1_STATE::STEP,
@@ -1064,8 +1222,7 @@ void Char1::applyClash(const Hit &clashedHit_)
         (int)CHAR1_STATE::THROW_BACK_AIR_STARTUP
     };
 
-    if (!m_currentCancelWindow.second.empty())
-        m_cancelTimer.begin(m_currentCancelWindow.first.second + 1);
+    applyCancelWindow(tempwindow);
     
 }
 

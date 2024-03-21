@@ -72,8 +72,7 @@ void Action<Char_t>::switchTo(Char_t &character_) const
     }
 
     character_.m_currentAction = this;
-    character_.m_currentCancelWindow = {};
-    character_.m_cancelTimer.begin(0);
+    character_.applyCancelWindow({{0, 0}, {}});
     character_.framesInState = 0;
     character_.m_appliedHits.clear();
     character_.m_hitstunAnimation = HITSTUN_ANIMATION::NONE;
@@ -656,18 +655,16 @@ int Action_char1_jump::isPossible(const InputQueue &inputQueue_, Character *char
     if (char_->isInHitstop() || char_->isAirborne())
         return 0;
 
-    auto *chr1 = dynamic_cast<Char1*>(char_);
-
 
     if (char_->isInInstantBlockstun())
         return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
 
-    if (chr1->m_currentCancelWindow.second.contains((int)actionState))
+    if (char_->isCancelAllowed(actionState))
     {
         return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
     }
 
-    switch (chr1->m_currentState)
+    switch (char_->m_currentState)
     {
         case ((int)CHAR1_STATE::PREJUMP):
             return -1;
@@ -810,12 +807,12 @@ int Action_char1_airjump::isPossible(const InputQueue &inputQueue_, Character *c
     if (char_->isInInstantBlockstun())
         return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
 
-    if (chr1->m_currentCancelWindow.second.contains((int)actionState))
+    if (char_->isCancelAllowed(actionState))
     {
         return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
     }
 
-    switch (chr1->m_currentState)
+    switch (char_->m_currentState)
     {
         case ((int)CHAR1_STATE::AIR_DASH_EXTENTION):
             [[fallthrough]];
@@ -895,7 +892,7 @@ int Action_char1_ground_dash::isPossible(const InputQueue &inputQueue_, Characte
 
     auto *chr1 = dynamic_cast<Char1*>(char_);
 
-    if (chr1->m_currentCancelWindow.second.contains((int)actionState))
+    if (char_->isCancelAllowed(actionState))
     {
         return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
     }
@@ -945,13 +942,11 @@ int Action_char1_step::isPossible(const InputQueue &inputQueue_, Character *char
 {
     if (char_->isInHitstop() || char_->isAirborne())
         return 0;
-
-    auto *chr1 = dynamic_cast<Char1*>(char_);
     
     if (char_->isInInstantBlockstun())
         return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
 
-    if (chr1->m_currentCancelWindow.second.contains((int)actionState))
+    if (char_->isCancelAllowed(actionState))
     {
         return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
     }
@@ -1036,14 +1031,12 @@ int Action_char1_ground_backdash::isPossible(const InputQueue &inputQueue_, Char
     if (char_->isInHitstop() || char_->isAirborne())
         return 0;
 
-    auto *chr1 = dynamic_cast<Char1*>(char_);
-
-    if (chr1->m_currentCancelWindow.second.contains((int)actionState))
+    if (char_->isCancelAllowed(actionState))
     {
         return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
     }
 
-    switch (chr1->m_currentState)
+    switch (char_->m_currentState)
     {
         case ((int)CHAR1_STATE::GROUND_BACKDASH):
             return -1;
@@ -1114,12 +1107,12 @@ int Action_char1_air_dash::isPossible(const InputQueue &inputQueue_, Character *
     if (char_->isInInstantBlockstun())
         return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
 
-    if (chr1->m_currentCancelWindow.second.contains((int)actionState))
+    if (char_->isCancelAllowed(actionState))
     {
         return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
     }
 
-    switch (chr1->m_currentState)
+    switch (char_->m_currentState)
     {
         case ((int)CHAR1_STATE::AIR_DASH):
             return -1;
@@ -1173,12 +1166,12 @@ int Action_char1_air_backdash::isPossible(const InputQueue &inputQueue_, Charact
     if (char_->isInHitstop() || chr1->m_usedAirDash || !(chr1->m_airadashFramesCounter == 0) || !char_->isAirborne())
         return 0;
 
-    if (chr1->m_currentCancelWindow.second.contains((int)actionState))
+    if (char_->isCancelAllowed(actionState))
     {
         return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
     }
 
-    switch (chr1->m_currentState)
+    switch (char_->m_currentState)
     {
         case ((int)CHAR1_STATE::AIR_BACKDASH):
             return -1;
@@ -1514,22 +1507,20 @@ int Action_char1_ground_attack::isPossible(const InputQueue &inputQueue_, Charac
     if (char_->isInHitstop() || char_->isAirborne())
         return 0;
 
-    auto *chr1 = dynamic_cast<Char1*>(char_);
-
-    if (chr1->m_currentCancelWindow.second.contains((int)actionState))
+    if (char_->isCancelAllowed(actionState))
     {
         return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
     }
 
     if (m_stepOnly)
     {
-        if (chr1->m_currentState == (int)CHAR1_STATE::STEP_RECOVERY)
+        if (char_->m_currentState == (int)CHAR1_STATE::STEP_RECOVERY)
             return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
         else
             return 0;
     }
 
-    switch (chr1->m_currentState)
+    switch (char_->m_currentState)
     {
 
         case ((int)CHAR1_STATE::SOFT_LANDING_RECOVERY):
@@ -1584,14 +1575,12 @@ int Action_char1_air_attack::isPossible(const InputQueue &inputQueue_, Character
     if (char_->isInHitstop() || !char_->isAirborne())
         return 0;
 
-    auto *chr1 = dynamic_cast<Char1*>(char_);
-
-    if (chr1->m_currentCancelWindow.second.contains((int)actionState))
+    if (char_->isCancelAllowed(actionState))
     {
         return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
     }
 
-    switch (chr1->m_currentState)
+    switch (char_->m_currentState)
     {
 
         case ((int)CHAR1_STATE::AIR_DASH_EXTENTION):
@@ -1625,251 +1614,6 @@ void Action_char1_air_attack::switchTo(Char1 &character_) const
     character_.m_reservedAction = character_.m_currentAction;
     Action<Char1>::switchTo(character_);
     character_.m_timer.begin(m_fullDuration);
-}
-
-// JAB ACTION
-Action_char1_jab::Action_char1_jab() :
-    Action_char1_ground_attack((int)CHAR1_STATE::MOVE_A, ANIMATIONS::CHAR1_MOVE_A, TimelineProperty(true), std::make_unique<InputComparatorAPress>(), 16,
-    {
-        hitgeneration::generate_char1_jab()
-    },
-    {
-        {
-            TimelineProperty(true),
-            gamedata::characters::char1::standingHurtbox
-        },
-        {
-            TimelineProperty<bool>({{4, true}, {13, false}}),
-            {40.0f, -310.0f, 140.0f, 50.0f}
-        }
-    },
-    {})
-{
-}
-
-// MOVE B ACTION
-Action_char1_move_B::Action_char1_move_B() :
-    Action_char1_ground_attack((int)CHAR1_STATE::MOVE_B, ANIMATIONS::CHAR1_MOVE_B, TimelineProperty(true), std::make_unique<InputComparatorBPress>(), 22,
-    {
-        hitgeneration::generate_char1_moveB()
-    },
-    {
-        {
-            TimelineProperty(true),
-            gamedata::characters::char1::standingHurtbox
-        },
-        {
-            TimelineProperty<bool>({{7, true}, {20, false}}),
-            {50.0f, -275.0f, 175.0f, 80.0f}
-        }
-    }, TimelineProperty<Vector2<float>>({{1, {3.5f, 0.0f}}, {7, {0, 0}}, {20, {-2.0f, 0.0f}}, {23, {0, 0}}}))
-    /*{
-        {
-            {1, 6},
-            {3.5f, 0.0f}
-        },
-        {
-            {20, 22},
-            {-2.0f, 0.0f}
-        }
-    })*/
-{
-}
-
-// MOVE C ACTION
-Action_char1_move_C::Action_char1_move_C() :
-    Action_char1_ground_attack((int)CHAR1_STATE::MOVE_C, ANIMATIONS::CHAR1_MOVE_C, TimelineProperty(true), std::make_unique<InputComparatorCPress>(), 26,
-    {
-        hitgeneration::generate_char1_moveC()
-    },
-    {
-        {
-            TimelineProperty(true),
-            gamedata::characters::char1::standingHurtbox
-        },
-        {
-            TimelineProperty<bool>({{11, true}, {23, false}}),
-            {60.0f, -220.0f, 60.0f, 100.0f}
-        }
-    }, TimelineProperty<Vector2<float>>({{3, {20.0f, 0.0f}}, {6, {0, 0}}, {22, {20.0f, 0.0f}}, {27, {0, 0}}}))
-    /*{
-        {
-            {3, 5},
-            {20.0f, 0.0f}
-        },
-        {
-            {22, 26},
-            {20.0f, 0.0f}
-        }
-    })*/
-{
-}
-
-// MOVE C ACTION
-Action_char1_move_step_C::Action_char1_move_step_C() :
-    Action_char1_ground_attack((int)CHAR1_STATE::MOVE_STEP_C, ANIMATIONS::CHAR1_MOVE_STEP_C, TimelineProperty(true), std::make_unique<InputComparatorCPress>(), 53,
-    {
-        hitgeneration::generate_char1_moveStepC()
-    },
-    {
-        {
-            TimelineProperty(true),
-            gamedata::characters::char1::standingHurtbox
-        },
-        {
-            TimelineProperty<bool>({{6, true}, {32, false}}),
-            {60.0f, -450.0f, 200.0f, 400.0f}
-        }
-    }, TimelineProperty<Vector2<float>>({{1, {30.0f, 0.0f}}, {4, {0, 0}}}),
-    false, false, true)
-    /*{
-        {
-            {1, 3},
-            {30.0f, 0.0f}
-        },
-    }, false, false, true)*/
-{
-}
-
-// MOVE 236C ACTION
-Action_char1_move_236C::Action_char1_move_236C() :
-    Action_char1_ground_attack((int)CHAR1_STATE::MOVE_236C, ANIMATIONS::CHAR1_MOVE_236C, TimelineProperty(true), std::make_unique<InputComparator236CPress>(), 40,
-    {
-        hitgeneration::generate_char1_236C()
-    },
-    {
-        {
-            TimelineProperty<bool>({{1, true}, {41, false}}),
-            {-70, -200, 140, 200}
-        },
-        {
-            TimelineProperty<bool>({{1, true}, {5, false}}),
-            {-70.0f, -300.0f, 140.0f, 100.0f}
-        },
-        {
-            TimelineProperty<bool>({{13, true}, {41, false}}),
-            {-70.0f, -300.0f, 140.0f, 100.0f}
-        },
-        {
-            TimelineProperty<bool>({{17, true}, {34, false}}),
-            {60.0f, -350.0f, 40.0f, 150.0f}
-        },
-    }, TimelineProperty<Vector2<float>>(
-        {
-            {1, {20.0f, 0.0f}},
-            {6, {15.0f, 0.0f}},
-            {9, {10.0f, 0.0f}},
-            {12, {6.0f, 0.0f}},
-            {13, {0, 0}},
-            {30, {-1.5f, 0.0f}},
-        }))
-    /*{
-        {
-            {1, 5},
-            {20.0f, 0.0f}
-        },
-        {
-            {6, 8},
-            {15.0f, 0.0f}
-        },
-        {
-            {9, 11},
-            {10.0f, 0.0f},
-        },
-        {
-            {12, 12},
-            {6.0f, 0.0f}
-        },
-        {
-            {30, 40},
-            {-1.5f, 0.0f}
-        }
-    })*/
-{
-}
-
-// MOVE 2B ACTION
-Action_char1_move_2B::Action_char1_move_2B() :
-    Action_char1_ground_attack((int)CHAR1_STATE::MOVE_2B, ANIMATIONS::CHAR1_MOVE_2B, TimelineProperty(true), std::make_unique<InputComparator2BPress>(), 29,
-    {
-        hitgeneration::generate_char1_move2B()
-    },
-    {
-        {
-            TimelineProperty<bool>({{1, true}, {30, false}}),
-            {-70, -200, 140, 200}
-        },
-        {
-            TimelineProperty<bool>({{9, true}, {22, false}}),
-            {10.0f, -110.0f, 200.0f, 110.0f}
-        }
-    }, TimelineProperty<Vector2<float>>(
-        {
-            {1, {23.0f, 0.0f}},
-            {5, {7.0f, 0.0f}},
-            {9, {0.0f, 0.0f}},
-            {22, {-7.0f, 0.0f}},
-            {26, {-23.0f, 0.0f}}
-        }),
-        false, true)
-    /*{
-        {
-            {1, 4},
-            {23.0f, 0.0f}
-        },
-        {
-            {5, 8},
-            {7.0f, 0.0f}
-        },
-        {
-            {22, 25},
-            {-7.0f, 0.0f}
-        },
-        {
-            {26, 29},
-            {-23.0f, 0.0f}
-        }
-    }, false, true)*/
-{
-}
-
-// MOVE 4A ACTION
-Action_char1_move_4A::Action_char1_move_4A() :
-    Action_char1_ground_attack((int)CHAR1_STATE::MOVE_4A, ANIMATIONS::CHAR1_MOVE_4A, TimelineProperty(true), std::make_unique<InputComparator4APress>(), 24,
-    {
-        hitgeneration::generate_char1_move4A()
-    },
-    {
-        {
-            TimelineProperty(true),
-            gamedata::characters::char1::standingHurtbox
-        },
-        {
-            TimelineProperty<bool>({{8, true}, {18, false}}),
-            {60.0f, -420.0f, 60.0f, 150.0f}
-        }
-    },
-    {})
-{
-}
-
-// j.A ACTION
-Action_char1_move_JA::Action_char1_move_JA() :
-    Action_char1_air_attack((int)CHAR1_STATE::MOVE_JA, ANIMATIONS::CHAR1_MOVE_JA, TimelineProperty(true), std::make_unique<InputComparatorAPress>(), 17,
-    {
-        hitgeneration::generate_char1_JA()
-    },
-    {
-        {
-            TimelineProperty<bool>({{1, true}, {18, false}}),
-            {-70, -350, 140, 300}
-        },
-        {
-            TimelineProperty<bool>({{5, true}, {12, false}}),
-            {40.0f, -290.0f, 100.0f, 100.0f}
-        }
-    })
-{
 }
 
 // j.C ACTION
@@ -2020,14 +1764,12 @@ int Action_char1_normal_throw_startup::isPossible(const InputQueue &inputQueue_,
     if (char_->isInHitstop() || char_->isAirborne())
         return 0;
 
-    auto *chr1 = dynamic_cast<Char1*>(char_);
-
-    if (chr1->m_currentCancelWindow.second.contains((int)actionState))
+    if (char_->isCancelAllowed(actionState))
     {
         return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
     }
 
-    switch (chr1->m_currentState)
+    switch (char_->m_currentState)
     {
 
         case ((int)CHAR1_STATE::SOFT_LANDING_RECOVERY):
@@ -2082,14 +1824,12 @@ int Action_char1_back_throw_startup::isPossible(const InputQueue &inputQueue_, C
     if (char_->isInHitstop() || char_->isAirborne())
         return 0;
 
-    auto *chr1 = dynamic_cast<Char1*>(char_);
-
-    if (chr1->m_currentCancelWindow.second.contains((int)actionState))
+    if (char_->isCancelAllowed(actionState))
     {
         return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
     }
 
-    switch (chr1->m_currentState)
+    switch (char_->m_currentState)
     {
 
         case ((int)CHAR1_STATE::SOFT_LANDING_RECOVERY):
@@ -2182,14 +1922,12 @@ int Action_char1_normal_air_throw_startup::isPossible(const InputQueue &inputQue
     if (char_->isInHitstop() || !char_->isAirborne())
         return 0;
 
-    auto *chr1 = dynamic_cast<Char1*>(char_);
-
-    if (chr1->m_currentCancelWindow.second.contains((int)actionState))
+    if (char_->isCancelAllowed(actionState))
     {
         return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
     }
 
-    switch (chr1->m_currentState)
+    switch (char_->m_currentState)
     {
         case ((int)CHAR1_STATE::AIR_DASH_EXTENTION):
             [[fallthrough]];
@@ -2233,12 +1971,12 @@ int Action_char1_back_air_throw_startup::isPossible(const InputQueue &inputQueue
 
     auto *chr1 = dynamic_cast<Char1*>(char_);
 
-    if (chr1->m_currentCancelWindow.second.contains((int)actionState))
+    if (char_->isCancelAllowed(actionState))
     {
         return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
     }
 
-    switch (chr1->m_currentState)
+    switch (char_->m_currentState)
     {
         case ((int)CHAR1_STATE::AIR_DASH_EXTENTION):
             [[fallthrough]];
@@ -2316,14 +2054,12 @@ int Action_char1_throw_tech::isPossible(const InputQueue &inputQueue_, Character
     if (char_->isInHitstop())
         return 0;
 
-    auto *chr1 = dynamic_cast<Char1*>(char_);
-
-    if (chr1->m_currentCancelWindow.second.contains((int)actionState))
+    if (char_->isCancelAllowed(actionState))
     {
         return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
     }
 
-    switch (chr1->m_currentState)
+    switch (char_->m_currentState)
     {
 
         case ((int)CHAR1_STATE::THROWN_CHAR1_NORMAL_HOLD):
@@ -2388,14 +2124,12 @@ int Action_char1_air_throw_tech::isPossible(const InputQueue &inputQueue_, Chara
     if (char_->isInHitstop())
         return 0;
 
-    auto *chr1 = dynamic_cast<Char1*>(char_);
-
-    if (chr1->m_currentCancelWindow.second.contains((int)actionState))
+    if (char_->isCancelAllowed(actionState))
     {
         return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
     }
 
-    switch (chr1->m_currentState)
+    switch (char_->m_currentState)
     {
 
         case ((int)CHAR1_STATE::THROWN_CHAR1_NORMAL_AIR_HOLD):

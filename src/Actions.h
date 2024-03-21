@@ -529,55 +529,6 @@ public:
     virtual void switchTo(Char1 &character_) const override;
 };
 
-class Action_char1_jab : public Action_char1_ground_attack
-{
-public:
-    Action_char1_jab();
-};
-
-class Action_char1_move_B : public Action_char1_ground_attack
-{
-public:
-    Action_char1_move_B();
-};
-
-class Action_char1_move_C : public Action_char1_ground_attack
-{
-public:
-    Action_char1_move_C();
-};
-
-class Action_char1_move_step_C : public Action_char1_ground_attack
-{
-public:
-    Action_char1_move_step_C();
-};
-
-
-class Action_char1_move_236C : public Action_char1_ground_attack
-{
-public:
-    Action_char1_move_236C();
-};
-
-class Action_char1_move_2B : public Action_char1_ground_attack
-{
-public:
-    Action_char1_move_2B();
-};
-
-class Action_char1_move_4A : public Action_char1_ground_attack
-{
-public:
-    Action_char1_move_4A();
-};
-
-class Action_char1_move_JA : public Action_char1_air_attack
-{
-public:
-    Action_char1_move_JA();
-};
-
 class Action_char1_move_JC : public Action_char1_air_attack
 {
 public:

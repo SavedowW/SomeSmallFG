@@ -131,9 +131,6 @@ protected:
     int framesInState = 1;
     CHAR1_STATE lastState = CHAR1_STATE::IDLE;
 
-    CancelWindow m_currentCancelWindow;
-    FrameTimer m_cancelTimer;
-
     int m_jumpFramesCounter = 0;
     int m_airadashFramesCounter = 0;
     
