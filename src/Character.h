@@ -232,6 +232,8 @@ protected:
     FrameTimer m_hitstopTimer;
     int m_extendedBuffer = 0;
 
+    int m_currentState;
+
     Character *m_otherCharacter;
     int m_playerId;
 
@@ -269,12 +271,12 @@ protected:
 
     bool m_throwPossible = false;
 
-    friend Action_throw_startup<CHAR1_STATE, Char1>;
-    friend Action_throw_tech<CHAR1_STATE, Char1>;
-    friend Action_throw_hold<CHAR1_STATE, Char1>;
-    friend Action_thrown_hold<CHAR1_STATE, Char1>;
-    friend Action_throw_whiff<CHAR1_STATE, Char1>;
-    friend Action_locked_animation<CHAR1_STATE, Char1>;
+    friend Action_throw_startup<Char1>;
+    friend Action_throw_tech<Char1>;
+    friend Action_throw_hold<Char1>;
+    friend Action_thrown_hold<Char1>;
+    friend Action_throw_whiff<Char1>;
+    friend Action_locked_animation<Char1>;
 };
 
 #endif

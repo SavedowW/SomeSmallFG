@@ -180,15 +180,15 @@ void Char1::proceedCurrentState()
 
             switch (m_currentState)
             {
-                case (CHAR1_STATE::PREJUMP):
+                case ((int)CHAR1_STATE::PREJUMP):
                     jumpUsingAction();
                     break;
                 
-                case (CHAR1_STATE::HITSTUN):
+                case ((int)CHAR1_STATE::HITSTUN):
                     [[fallthrough]];
-                case (CHAR1_STATE::BLOCKSTUN_CROUCHING):
+                case ((int)CHAR1_STATE::BLOCKSTUN_CROUCHING):
                     [[fallthrough]];
-                case (CHAR1_STATE::BLOCKSTUN_STANDING):                
+                case ((int)CHAR1_STATE::BLOCKSTUN_STANDING):                
                     switchToIdle();
                     m_currentTakenHit.m_hitId = -1;
                     break;
@@ -230,7 +230,7 @@ void Char1::updateState()
 
 void Char1::switchToIdle()
 {
-    m_actionResolver.getAction(CHAR1_STATE::IDLE)->switchTo(*this);
+    m_actionResolver.getAction((int)CHAR1_STATE::IDLE)->switchTo(*this);
 }
 
 void Char1::jumpUsingAction()
@@ -239,7 +239,7 @@ void Char1::jumpUsingAction()
 
     auto ownOrientationVector = getOwnHorDir();
     ownOrientationVector.y = 1;
-    auto jumpAction = dynamic_cast<const Action_jump<CHAR1_STATE, Char1>*>(m_currentAction);
+    auto jumpAction = dynamic_cast<const Action_jump<Char1>*>(m_currentAction);
     m_velocity = (jumpAction)->m_impulse.mulComponents(ownOrientationVector);
     if (m_inertia.y > 0)
         m_inertia.y = 0;
@@ -252,7 +252,7 @@ void Char1::jumpUsingAction()
         m_inertia.x = jumpAction->m_maxHorInertia * ownOrientationVector.x;
     }
 
-    m_currentState = CHAR1_STATE::JUMP;
+    m_currentState = (int)CHAR1_STATE::JUMP;
     m_currentAnimation = m_animations[ANIMATIONS::CHAR1_JUMP].get();
     m_currentAnimation->reset();
 
@@ -261,7 +261,7 @@ void Char1::jumpUsingAction()
 
 void Char1::switchToSoftLandingRecovery()
 {
-    m_actionResolver.getAction(CHAR1_STATE::SOFT_LANDING_RECOVERY)->switchTo(*this);
+    m_actionResolver.getAction((int)CHAR1_STATE::SOFT_LANDING_RECOVERY)->switchTo(*this);
 }
 
 void Char1::land()
@@ -278,22 +278,22 @@ void Char1::land()
     switch (m_currentState)
     {
 
-        case (CHAR1_STATE::GROUND_BACKDASH):
+        case ((int)CHAR1_STATE::GROUND_BACKDASH):
             m_velocity = {0.0f, 0.0f};
             m_inertia = {0.0f, 0.0f};
             break;
 
-        case (CHAR1_STATE::AIR_THROW_TECH_CHAR1):
+        case ((int)CHAR1_STATE::AIR_THROW_TECH_CHAR1):
             [[fallthrough]];
-        case (CHAR1_STATE::BLOCKSTUN_AIR):
-            m_actionResolver.getAction(CHAR1_STATE::HARD_LANDING_RECOVERY)->switchTo(*this);
+        case ((int)CHAR1_STATE::BLOCKSTUN_AIR):
+            m_actionResolver.getAction((int)CHAR1_STATE::HARD_LANDING_RECOVERY)->switchTo(*this);
             break;
             
-        case (CHAR1_STATE::MOVE_JC):
-            m_actionResolver.getAction(CHAR1_STATE::MOVE_JC_LANDING_RECOVERY)->switchTo(*this);
+        case ((int)CHAR1_STATE::MOVE_JC):
+            m_actionResolver.getAction((int)CHAR1_STATE::MOVE_JC_LANDING_RECOVERY)->switchTo(*this);
             break;
 
-        case (CHAR1_STATE::HITSTUN_AIR):
+        case ((int)CHAR1_STATE::HITSTUN_AIR):
             if (m_hitProps.groundBounce)
             {
                 std::cout << "pos: " << m_pos << std::endl;
@@ -305,15 +305,15 @@ void Char1::land()
                 //m_pos.y = gamedata::stages::levelOfGround - 1;
             }
             else if (m_hitProps.hardKnd)
-                m_actionResolver.getAction(CHAR1_STATE::HARD_KNOCKDOWN)->switchTo(*this);
+                m_actionResolver.getAction((int)CHAR1_STATE::HARD_KNOCKDOWN)->switchTo(*this);
             else
-                m_actionResolver.getAction(CHAR1_STATE::SOFT_KNOCKDOWN)->switchTo(*this);
+                m_actionResolver.getAction((int)CHAR1_STATE::SOFT_KNOCKDOWN)->switchTo(*this);
             m_currentTakenHit.m_hitId = -1;
             break;
 
         default:
             if (vulnerable)
-                m_actionResolver.getAction(CHAR1_STATE::VULNERABLE_LANDING_RECOVERY)->switchTo(*this);
+                m_actionResolver.getAction((int)CHAR1_STATE::VULNERABLE_LANDING_RECOVERY)->switchTo(*this);
             else
                 switchToSoftLandingRecovery();
     }
@@ -323,7 +323,7 @@ bool Char1::canApplyDrag() const
 {
     switch (m_currentState)
     {
-        case (CHAR1_STATE::PREJUMP):
+        case ((int)CHAR1_STATE::PREJUMP):
             return false;
 
         default:
@@ -335,7 +335,7 @@ bool Char1::canBeDraggedByInertia() const
 {
     switch (m_currentState)
     {
-        case (CHAR1_STATE::PREJUMP):
+        case ((int)CHAR1_STATE::PREJUMP):
             return false;
 
         default:
@@ -347,7 +347,7 @@ HitsVec Char1::getHits(bool allHits_)
 {
     if (m_currentAction && m_currentAction->m_isAttack)
     {
-        auto hits = dynamic_cast<const Action_attack<CHAR1_STATE, Char1>*>(m_currentAction)->getCurrentHits(m_timer.getCurrentFrame() + 1, m_pos, m_ownOrientation);
+        auto hits = dynamic_cast<const Action_attack<Char1>*>(m_currentAction)->getCurrentHits(m_timer.getCurrentFrame() + 1, m_pos, m_ownOrientation);
         int i = 0;
         while (i < hits.size())
         {
@@ -370,16 +370,16 @@ HurtboxVec Char1::getHurtboxes()
         auto currentFrame = m_timer.getCurrentFrame() + 1;
         return m_currentAction->getCurrentHurtboxes(currentFrame, m_pos, m_ownOrientation);
     }
-    else if (m_currentState == CHAR1_STATE::HITSTUN ||
-    m_currentState == CHAR1_STATE::HITSTUN_AIR ||
-    m_currentState == CHAR1_STATE::BLOCKSTUN_CROUCHING ||
-    m_currentState == CHAR1_STATE::BLOCKSTUN_STANDING ||
-    m_currentState == CHAR1_STATE::BLOCKSTUN_AIR)
+    else if (m_currentState == (int)CHAR1_STATE::HITSTUN ||
+    m_currentState == (int)CHAR1_STATE::HITSTUN_AIR ||
+    m_currentState == (int)CHAR1_STATE::BLOCKSTUN_CROUCHING ||
+    m_currentState == (int)CHAR1_STATE::BLOCKSTUN_STANDING ||
+    m_currentState == (int)CHAR1_STATE::BLOCKSTUN_AIR)
     {
         auto currentHBox = gamedata::characters::char1::standingHurtbox;
         if (m_hitstunAnimation == HITSTUN_ANIMATION::FLOAT)
             currentHBox = gamedata::characters::char1::airHitstunHurtbox;
-        else if (m_currentState == CHAR1_STATE::CROUCH || m_currentState == CHAR1_STATE::BLOCKSTUN_CROUCHING || m_hitstunAnimation == HITSTUN_ANIMATION::CROUCH)
+        else if (m_currentState == (int)CHAR1_STATE::CROUCH || m_currentState == (int)CHAR1_STATE::BLOCKSTUN_CROUCHING || m_hitstunAnimation == HITSTUN_ANIMATION::CROUCH)
             currentHBox = gamedata::characters::char1::crouchingHurtbox;
 
         currentHBox.y += m_pos.y;
@@ -555,19 +555,19 @@ HIT_RESULT Char1::applyHit(HitEvent &hitEvent)
                     [[fallthrough]];
                 case (BLOCK_STATE::HIGH):
                     m_currentAnimation = m_animations[ANIMATIONS::CHAR1_BLOCKSTUN_STANDING].get();
-                    m_currentState = CHAR1_STATE::BLOCKSTUN_STANDING;
+                    m_currentState = (int)CHAR1_STATE::BLOCKSTUN_STANDING;
                     res = HIT_RESULT::BLOCK_HIGH;
                     break;
 
                 case (BLOCK_STATE::LOW):
                     m_currentAnimation = m_animations[ANIMATIONS::CHAR1_BLOCKSTUN_CROUCHING].get();
-                    m_currentState = CHAR1_STATE::BLOCKSTUN_CROUCHING;
+                    m_currentState = (int)CHAR1_STATE::BLOCKSTUN_CROUCHING;
                     res = HIT_RESULT::BLOCK_LOW;
                     break;
 
                 case (BLOCK_STATE::AIR):
                     m_currentAnimation = m_animations[ANIMATIONS::CHAR1_BLOCKSTUN_STANDING].get();
-                    m_currentState = CHAR1_STATE::BLOCKSTUN_AIR;
+                    m_currentState = (int)CHAR1_STATE::BLOCKSTUN_AIR;
                     res = HIT_RESULT::BLOCK_AIR;
                     break;
             }
@@ -605,219 +605,219 @@ std::string Char1::CharStateData() const
     std::string stateName = "";
     switch (m_currentState)
     {
-        case (CHAR1_STATE::IDLE):
+        case ((int)CHAR1_STATE::IDLE):
             stateName = "IDLE";
             break;
         
-        case (CHAR1_STATE::CROUCH):
+        case ((int)CHAR1_STATE::CROUCH):
             stateName = "CROUCH";
             break;
 
-        case (CHAR1_STATE::HITSTUN):
+        case ((int)CHAR1_STATE::HITSTUN):
             stateName = "HITSTUN";
             break;
 
-        case (CHAR1_STATE::HITSTUN_AIR):
+        case ((int)CHAR1_STATE::HITSTUN_AIR):
             stateName = "HITSTUN_AIR";
             break;
 
-        case (CHAR1_STATE::WALK_FWD):
+        case ((int)CHAR1_STATE::WALK_FWD):
             stateName = "WALK_FWD";
             break;
 
-        case (CHAR1_STATE::WALK_BWD):
+        case ((int)CHAR1_STATE::WALK_BWD):
             stateName = "WALK_BWD";
             break;
 
-        case (CHAR1_STATE::PREJUMP):
+        case ((int)CHAR1_STATE::PREJUMP):
             stateName = "PREJUMP";
             break;
         
-        case (CHAR1_STATE::JUMP):
+        case ((int)CHAR1_STATE::JUMP):
             stateName = "JUMP";
             break;
 
-        case (CHAR1_STATE::GROUND_BACKDASH):
+        case ((int)CHAR1_STATE::GROUND_BACKDASH):
             stateName = "GROUND_BACKDASH";
             break;
 
-        case (CHAR1_STATE::SOFT_LANDING_RECOVERY):
+        case ((int)CHAR1_STATE::SOFT_LANDING_RECOVERY):
             stateName = "SOFT_LANDING_RECOVERY";
             break;
         
-        case (CHAR1_STATE::VULNERABLE_LANDING_RECOVERY):
+        case ((int)CHAR1_STATE::VULNERABLE_LANDING_RECOVERY):
             stateName = "VULNERABLE_LANDING_RECOVERY";
             break;
 
-        case (CHAR1_STATE::HARD_LANDING_RECOVERY):
+        case ((int)CHAR1_STATE::HARD_LANDING_RECOVERY):
             stateName = "HARD_LANDING_RECOVERY";
             break;
 
-        case (CHAR1_STATE::GROUND_DASH):
+        case ((int)CHAR1_STATE::GROUND_DASH):
             stateName = "GROUND_DASH";
             break;
 
-        case (CHAR1_STATE::GROUND_DASH_RECOVERY):
+        case ((int)CHAR1_STATE::GROUND_DASH_RECOVERY):
             stateName = "GROUND_DASH_RECOVERY";
             break;
         
-        case (CHAR1_STATE::MOVE_A):
+        case ((int)CHAR1_STATE::MOVE_A):
             stateName = "MOVE_A";
             break;
 
-        case (CHAR1_STATE::MOVE_4A):
+        case ((int)CHAR1_STATE::MOVE_4A):
             stateName = "MOVE_4A";
             break;
 
-        case (CHAR1_STATE::MOVE_B):
+        case ((int)CHAR1_STATE::MOVE_B):
             stateName = "MOVE_B";
             break;
 
-        case (CHAR1_STATE::MOVE_C):
+        case ((int)CHAR1_STATE::MOVE_C):
             stateName = "MOVE_C";
             break;
 
-        case (CHAR1_STATE::MOVE_STEP_C):
+        case ((int)CHAR1_STATE::MOVE_STEP_C):
             stateName = "MOVE_STEP_C";
             break;
 
-        case (CHAR1_STATE::MOVE_236C):
+        case ((int)CHAR1_STATE::MOVE_236C):
             stateName = "MOVE_236C";
             break;
 
-        case (CHAR1_STATE::MOVE_2B):
+        case ((int)CHAR1_STATE::MOVE_2B):
             stateName = "MOVE_2B";
             break;
         
-        case (CHAR1_STATE::BLOCKSTUN_STANDING):
+        case ((int)CHAR1_STATE::BLOCKSTUN_STANDING):
             stateName = "BLOCKSTUN_STANDING";
             break;
 
-        case (CHAR1_STATE::BLOCKSTUN_CROUCHING):
+        case ((int)CHAR1_STATE::BLOCKSTUN_CROUCHING):
             stateName = "BLOCKSTUN_CROUCHING";
             break;
         
-        case (CHAR1_STATE::BLOCKSTUN_AIR):
+        case ((int)CHAR1_STATE::BLOCKSTUN_AIR):
             stateName = "BLOCKSTUN_AIR";
             break;
 
-        case (CHAR1_STATE::HARD_KNOCKDOWN):
+        case ((int)CHAR1_STATE::HARD_KNOCKDOWN):
             stateName = "HARD_KNOCKDOWN";
             break;
 
-        case (CHAR1_STATE::KNOCKDOWN_RECOVERY):
+        case ((int)CHAR1_STATE::KNOCKDOWN_RECOVERY):
             stateName = "KNOCKDOWN_RECOVERY";
             break;
 
-        case (CHAR1_STATE::AIR_DASH):
+        case ((int)CHAR1_STATE::AIR_DASH):
             stateName = "AIR_DASH";
             break;
 
-        case (CHAR1_STATE::AIR_DASH_EXTENTION):
+        case ((int)CHAR1_STATE::AIR_DASH_EXTENTION):
             stateName = "AIR_DASH_EXTENTION";
             break;
 
-        case (CHAR1_STATE::AIR_BACKDASH):
+        case ((int)CHAR1_STATE::AIR_BACKDASH):
             stateName = "AIR_BACKDASH";
             break;
         
-        case (CHAR1_STATE::MOVE_JC):
+        case ((int)CHAR1_STATE::MOVE_JC):
             stateName = "MOVE_JC";
             break;
 
-        case (CHAR1_STATE::MOVE_JC_LANDING_RECOVERY):
+        case ((int)CHAR1_STATE::MOVE_JC_LANDING_RECOVERY):
             stateName = "MOVE_JC_LANDING_RECOVERY";
             break;
 
-        case (CHAR1_STATE::MOVE_214C):
+        case ((int)CHAR1_STATE::MOVE_214C):
             stateName = "MOVE_214C";
             break;
 
-        case (CHAR1_STATE::STEP):
+        case ((int)CHAR1_STATE::STEP):
             stateName = "STEP";
             break;
 
-        case (CHAR1_STATE::STEP_RECOVERY):
+        case ((int)CHAR1_STATE::STEP_RECOVERY):
             stateName = "STEP_RECOVERY";
             break;
 
-        case (CHAR1_STATE::THROW_BACK_AIR_HOLD):
+        case ((int)CHAR1_STATE::THROW_BACK_AIR_HOLD):
             stateName = "THROW_BACK_AIR_HOLD";
             break;
 
-        case (CHAR1_STATE::THROW_BACK_AIR_STARTUP):
+        case ((int)CHAR1_STATE::THROW_BACK_AIR_STARTUP):
             stateName = "THROW_BACK_AIR_STARTUP";
             break;
 
-        case (CHAR1_STATE::THROW_BACK_HOLD):
+        case ((int)CHAR1_STATE::THROW_BACK_HOLD):
             stateName = "THROW_BACK_HOLD";
             break;
 
-        case (CHAR1_STATE::THROW_BACK_STARTUP):
+        case ((int)CHAR1_STATE::THROW_BACK_STARTUP):
             stateName = "THROW_BACK_STARTUP";
             break;
 
-        case (CHAR1_STATE::THROW_NORMAL_AIR_ANIM):
+        case ((int)CHAR1_STATE::THROW_NORMAL_AIR_ANIM):
             stateName = "THROW_NORMAL_AIR_ANIM";
             break;
 
-        case (CHAR1_STATE::THROW_NORMAL_AIR_HOLD):
+        case ((int)CHAR1_STATE::THROW_NORMAL_AIR_HOLD):
             stateName = "THROW_NORMAL_AIR_HOLD";
             break;
 
-        case (CHAR1_STATE::THROW_NORMAL_AIR_STARTUP):
+        case ((int)CHAR1_STATE::THROW_NORMAL_AIR_STARTUP):
             stateName = "THROW_NORMAL_AIR_STARTUP";
             break;
 
-        case (CHAR1_STATE::THROW_NORMAL_AIR_WHIFF):
+        case ((int)CHAR1_STATE::THROW_NORMAL_AIR_WHIFF):
             stateName = "THROW_NORMAL_AIR_WHIFF";
             break;
 
-        case (CHAR1_STATE::THROW_NORMAL_ANIM):
+        case ((int)CHAR1_STATE::THROW_NORMAL_ANIM):
             stateName = "THROW_NORMAL_ANIM";
         break;
 
-        case (CHAR1_STATE::THROW_NORMAL_HOLD):
+        case ((int)CHAR1_STATE::THROW_NORMAL_HOLD):
             stateName = "THROW_NORMAL_HOLD";
         break;
 
-        case (CHAR1_STATE::THROW_NORMAL_STARTUP):
+        case ((int)CHAR1_STATE::THROW_NORMAL_STARTUP):
             stateName = "THROW_NORMAL_STARTUP";
         break;
 
-        case (CHAR1_STATE::THROW_NORMAL_WHIFF):
+        case ((int)CHAR1_STATE::THROW_NORMAL_WHIFF):
             stateName = "THROW_NORMAL_WHIFF";
         break;
 
-        case (CHAR1_STATE::THROW_TECH_CHAR1):
+        case ((int)CHAR1_STATE::THROW_TECH_CHAR1):
             stateName = "THROW_TECH_CHAR1";
         break;
 
-        case (CHAR1_STATE::THROW_TECH_OWN):
+        case ((int)CHAR1_STATE::THROW_TECH_OWN):
             stateName = "THROW_TECH_OWN";
         break;
 
-        case (CHAR1_STATE::THROWN_CHAR1_NORMAL_AIR_ANIM):
+        case ((int)CHAR1_STATE::THROWN_CHAR1_NORMAL_AIR_ANIM):
             stateName = "THROWN_CHAR1_NORMAL_AIR_ANIM";
         break;
 
-        case (CHAR1_STATE::THROWN_CHAR1_NORMAL_AIR_HOLD):
+        case ((int)CHAR1_STATE::THROWN_CHAR1_NORMAL_AIR_HOLD):
             stateName = "THROWN_CHAR1_NORMAL_AIR_HOLD";
         break;
 
-        case (CHAR1_STATE::THROWN_CHAR1_NORMAL_ANIM):
+        case ((int)CHAR1_STATE::THROWN_CHAR1_NORMAL_ANIM):
             stateName = "THROWN_CHAR1_NORMAL_ANIM";
         break;
 
-        case (CHAR1_STATE::THROWN_CHAR1_NORMAL_HOLD):
+        case ((int)CHAR1_STATE::THROWN_CHAR1_NORMAL_HOLD):
             stateName = "THROWN_CHAR1_NORMAL_HOLD";
         break;
 
-        case (CHAR1_STATE::AIR_THROW_TECH_CHAR1):
+        case ((int)CHAR1_STATE::AIR_THROW_TECH_CHAR1):
             stateName = "AIR_THROW_TECH_CHAR1";
         break;
 
-        case (CHAR1_STATE::AIR_THROW_TECH_OWN):
+        case ((int)CHAR1_STATE::AIR_THROW_TECH_OWN):
             stateName = "AIR_THROW_TECH_OWN";
         break;
 
@@ -852,7 +852,7 @@ bool Char1::isInActiveFrames() const
 {
     if (m_currentAction && m_currentAction->m_isAttack)
     {
-        auto atkAction = dynamic_cast<const Action_attack<CHAR1_STATE, Char1>*>(m_currentAction);
+        auto atkAction = dynamic_cast<const Action_attack<Char1>*>(m_currentAction);
         return atkAction->getCurrentHits(m_timer.getCurrentFrame() + 1, m_pos, m_ownOrientation).size();
     }
 
@@ -861,15 +861,15 @@ bool Char1::isInActiveFrames() const
 
 bool Char1::isInHitstun() const
 {
-    return (m_currentState == CHAR1_STATE::HITSTUN || m_currentState == CHAR1_STATE::HITSTUN_AIR);
+    return (m_currentState == (int)CHAR1_STATE::HITSTUN || m_currentState == (int)CHAR1_STATE::HITSTUN_AIR);
 }
 
 bool Char1::isInBlockstun() const
 {
-    return (m_currentState == CHAR1_STATE::BLOCKSTUN_STANDING ||
-                        m_currentState == CHAR1_STATE::BLOCKSTUN_CROUCHING ||
-                        m_currentState == CHAR1_STATE::BLOCKSTUN_AIR ||
-                        m_currentState == CHAR1_STATE::HARD_LANDING_RECOVERY);
+    return (m_currentState == (int)CHAR1_STATE::BLOCKSTUN_STANDING ||
+                        m_currentState == (int)CHAR1_STATE::BLOCKSTUN_CROUCHING ||
+                        m_currentState == (int)CHAR1_STATE::BLOCKSTUN_AIR ||
+                        m_currentState == (int)CHAR1_STATE::HARD_LANDING_RECOVERY);
 }
 
 bool Char1::isInInstantBlockstun() const
@@ -879,19 +879,19 @@ bool Char1::isInInstantBlockstun() const
 
 bool Char1::isKnockedDown() const
 {
-    return (m_currentState == CHAR1_STATE::KNOCKDOWN_RECOVERY ||
-            m_currentState == CHAR1_STATE::HARD_KNOCKDOWN ||
-            m_currentState == CHAR1_STATE::SOFT_KNOCKDOWN);
+    return (m_currentState == (int)CHAR1_STATE::KNOCKDOWN_RECOVERY ||
+            m_currentState == (int)CHAR1_STATE::HARD_KNOCKDOWN ||
+            m_currentState == (int)CHAR1_STATE::SOFT_KNOCKDOWN);
 }
 
 void Char1::enterKndRecovery()
 {
-    m_actionResolver.getAction(CHAR1_STATE::KNOCKDOWN_RECOVERY)->switchTo(*this);
+    m_actionResolver.getAction((int)CHAR1_STATE::KNOCKDOWN_RECOVERY)->switchTo(*this);
 }
 
 void Char1::switchToFloat()
 {
-    m_actionResolver.getAction(CHAR1_STATE::FLOAT)->switchTo(*this);
+    m_actionResolver.getAction((int)CHAR1_STATE::FLOAT)->switchTo(*this);
 }
 
 bool Char1::canApplyGravity() const
@@ -910,14 +910,14 @@ void Char1::enterHitstunAnimation(const PostHitProperties &props_)
 
     if (m_airborne)
     {
-        m_currentState = CHAR1_STATE::HITSTUN_AIR;
+        m_currentState = (int)CHAR1_STATE::HITSTUN_AIR;
         m_hitstunAnimation = props_.airHitstunAnimation;
 
         m_currentAnimation = m_animations[ANIMATIONS::CHAR1_HITSTUN_AIR].get();
     }
     else
     {
-        m_currentState = CHAR1_STATE::HITSTUN;
+        m_currentState = (int)CHAR1_STATE::HITSTUN;
         m_timer.begin(m_hitProps.hitstun);
 
         if (m_currentAction && m_currentAction->m_isCrouchState || m_hitstunAnimation == HITSTUN_ANIMATION::CROUCH || props_.forceCrouch)
@@ -1006,11 +1006,11 @@ void Char1::enterThrown(THROW_LIST throw_)
     switch (throw_)
     {
         case (THROW_LIST::CHAR1_NORMAL_THROW):
-            m_actionResolver.getAction(CHAR1_STATE::THROWN_CHAR1_NORMAL_HOLD)->switchTo(*this);
+            m_actionResolver.getAction((int)CHAR1_STATE::THROWN_CHAR1_NORMAL_HOLD)->switchTo(*this);
             break;
 
         case (THROW_LIST::CHAR1_AIR_THROW):
-            m_actionResolver.getAction(CHAR1_STATE::THROWN_CHAR1_NORMAL_AIR_HOLD)->switchTo(*this);
+            m_actionResolver.getAction((int)CHAR1_STATE::THROWN_CHAR1_NORMAL_AIR_HOLD)->switchTo(*this);
             break;
     }
 }
@@ -1020,17 +1020,17 @@ void Char1::throwTeched(THROW_TECHS_LIST tech_)
     std::cout << "Called tech\n";
 
     if (tech_ == THROW_TECHS_LIST::CHAR1_GROUND)
-        m_actionResolver.getAction(CHAR1_STATE::THROW_TECH_CHAR1)->switchTo(*this);
+        m_actionResolver.getAction((int)CHAR1_STATE::THROW_TECH_CHAR1)->switchTo(*this);
 
     else if (tech_ == THROW_TECHS_LIST::CHAR1_AIR)
-        m_actionResolver.getAction(CHAR1_STATE::AIR_THROW_TECH_CHAR1)->switchTo(*this);
+        m_actionResolver.getAction((int)CHAR1_STATE::AIR_THROW_TECH_CHAR1)->switchTo(*this);
 }
 
 void Char1::attemptThrow()
 {
     if (m_currentAction && m_currentAction->m_isThrowStartup)
     {
-        auto action = dynamic_cast<const Action_throw_startup<CHAR1_STATE, Char1>*>(m_currentAction);
+        auto action = dynamic_cast<const Action_throw_startup<Char1>*>(m_currentAction);
         action->attemptThrow(*this);
     }
 }
@@ -1071,7 +1071,7 @@ void Char1::applyClash(const Hit &clashedHit_)
 
 void Char1::turnVelocityToInertia(float horMultiplier_)
 {
-    if (m_currentState == CHAR1_STATE::WALK_BWD || m_currentState == CHAR1_STATE::WALK_FWD)
+    if (m_currentState == (int)CHAR1_STATE::WALK_BWD || m_currentState == (int)CHAR1_STATE::WALK_FWD)
         m_velocity = {0, 0};
 
     Character::turnVelocityToInertia(horMultiplier_);
@@ -1080,7 +1080,7 @@ void Char1::turnVelocityToInertia(float horMultiplier_)
 ORIENTATION Char1::getInputDir() const
 {
     auto res = m_ownOrientation;
-    if (m_currentState == CHAR1_STATE::SOFT_LANDING_RECOVERY || m_currentState == CHAR1_STATE::GROUND_DASH_RECOVERY)
+    if (m_currentState == (int)CHAR1_STATE::SOFT_LANDING_RECOVERY || m_currentState == (int)CHAR1_STATE::GROUND_DASH_RECOVERY)
         res = m_dirToEnemy;
     return res;
 }

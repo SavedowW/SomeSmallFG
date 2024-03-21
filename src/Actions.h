@@ -6,7 +6,6 @@
 #include "AnimationManager.h"
 #include "TimelineProperty.h"
 
-enum class CHAR1_STATE;
 class Character;
 class Char1;
 
@@ -29,11 +28,11 @@ enum class THROW_TECHS_LIST {
  *  be handled by the character.
  *
  *========================== */
-template <typename CharState_t, typename Char_t>
+template <typename Char_t>
 class Action
 {
 public:
-    Action(CharState_t actionState_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, bool isAttack_ = false, bool noLandTransition_ = false, bool isCrouchState_ = false, bool isThrowStartup_ = false);
+    Action(int actionState_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, bool isAttack_ = false, bool noLandTransition_ = false, bool isCrouchState_ = false, bool isThrowStartup_ = false);
     virtual bool isInputPossible(const InputQueue &inputQueue_, ORIENTATION ownDirection_, int extendBuffer_) const;
     virtual const HurtboxVec getCurrentHurtboxes(uint32_t currentFrame_, const Vector2<float>& offset_, ORIENTATION ownOrientation_) const;
     virtual void outdated(Char_t &character_) const {};
@@ -50,7 +49,7 @@ public:
     virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const = 0;
     virtual ~Action() {};
 
-    const CharState_t actionState;
+    const int actionState;
     const HurtboxFramesVec m_hurtboxes;
     const ANIMATIONS m_anim;
     const bool m_isAttack;
@@ -79,11 +78,11 @@ protected:
  *   hold X to continue), etc
  *
  *========================== */
-template <typename CharState_t, typename Char_t>
-class Action_prolonged : public Action<CharState_t, Char_t>
+template <typename Char_t>
+class Action_prolonged : public Action<Char_t>
 {
 public:
-    Action_prolonged(CharState_t actionState_, InputComparator_ptr incmp_, InputComparator_ptr incmp_prolonged_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_);
+    Action_prolonged(int actionState_, InputComparator_ptr incmp_, InputComparator_ptr incmp_prolonged_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_);
     virtual int isPossibleToProlong(const InputQueue &inputQueue_, ORIENTATION ownDirection_) const;
 
 protected:
@@ -96,11 +95,11 @@ protected:
  *       ABSTRACT GROUND JUMP
  *
  *========================== */
-template <typename CharState_t, typename Char_t>
-class Action_jump : public Action<CharState_t, Char_t>
+template <typename Char_t>
+class Action_jump : public Action<Char_t>
 {
 public:
-    Action_jump(CharState_t actionState_, const Vector2<float> &impulse_, float prejumpLen_, float maxHorInertia_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&blockWindow_);
+    Action_jump(int actionState_, const Vector2<float> &impulse_, float prejumpLen_, float maxHorInertia_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&blockWindow_);
     const Vector2<float> m_impulse;
     const float m_prejumpLen;
     const float m_maxHorInertia;
@@ -112,11 +111,11 @@ public:
  *       ABSTRACT ATTACK
  *
  *========================== */
-template <typename CharState_t, typename Char_t>
-class Action_attack : public Action<CharState_t, Char_t>
+template <typename Char_t>
+class Action_attack : public Action<Char_t>
 {
 public:
-    Action_attack(CharState_t actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, TimelineProperty<Vector2<float>> &&velocity_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, bool noLandTransition_ = false, bool isCrouchState_ = false, bool stepOnly_ = false);
+    Action_attack(int actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, TimelineProperty<Vector2<float>> &&velocity_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, bool noLandTransition_ = false, bool isCrouchState_ = false, bool stepOnly_ = false);
     virtual const HitsVec getCurrentHits(uint32_t currentFrame_, const Vector2<float>& offset_, ORIENTATION ownOrientation_) const;
     virtual void switchTo(Char_t &character_) const override;
     virtual void update(Char_t &character_) const override;
@@ -133,11 +132,11 @@ protected:
  *       ABSTRACT THROW STARTUP
  *
  *========================== */
-template <typename CharState_t, typename Char_t>
-class Action_throw_startup : public Action<CharState_t, Char_t>
+template <typename Char_t>
+class Action_throw_startup : public Action<Char_t>
 {
 public:
-    Action_throw_startup(CharState_t actionState_, CharState_t whiffState_, CharState_t holdState_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, float range_, FrameWindow activeWindow_, bool requiredAirborne_, THROW_LIST throw_);
+    Action_throw_startup(int actionState_, int whiffState_, int holdState_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, float range_, FrameWindow activeWindow_, bool requiredAirborne_, THROW_LIST throw_);
     virtual void switchTo(Char_t &character_) const override;
     virtual void attemptThrow(Char_t &character_) const;
 
@@ -146,8 +145,8 @@ public:
 
 protected:
     const float m_range;
-    const CharState_t m_whiffState;
-    const CharState_t m_holdState;
+    const int m_whiffState;
+    const int m_holdState;
     const THROW_LIST m_throw;
     const bool m_requiredAirborne;
 };
@@ -157,11 +156,11 @@ protected:
  *       ABSTRACT THROW HOLD
  *
  *========================== */
-template <typename CharState_t, typename Char_t>
-class Action_throw_hold : public Action<CharState_t, Char_t>
+template <typename Char_t>
+class Action_throw_hold : public Action<Char_t>
 {
 public:
-    Action_throw_hold(CharState_t actionState_, CharState_t throwState_, float setRange_, float duration_, bool sideSwitch_);
+    Action_throw_hold(int actionState_, int throwState_, float setRange_, float duration_, bool sideSwitch_);
     virtual void switchTo(Char_t &character_) const override;
     virtual void update(Char_t &character_) const override;
     void outdated(Char_t &character_) const override;
@@ -171,7 +170,7 @@ protected:
     const float m_setRange;
     const float m_duration;
     bool m_sideSwitch;
-    const CharState_t m_throwState;
+    const int m_throwState;
 };
 
 /* ============================
@@ -179,18 +178,18 @@ protected:
  *       ABSTRACT THROWN HOLD
  *
  *========================== */
-template <typename CharState_t, typename Char_t>
-class Action_thrown_hold : public Action<CharState_t, Char_t>
+template <typename Char_t>
+class Action_thrown_hold : public Action<Char_t>
 {
 public:
-    Action_thrown_hold(CharState_t actionState_, CharState_t thrownState_, ANIMATIONS anim_, float duration_);
+    Action_thrown_hold(int actionState_, int thrownState_, ANIMATIONS anim_, float duration_);
     virtual void switchTo(Char_t &character_) const override;
     void outdated(Char_t &character_) const override;
     virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
 
 protected:
     const float m_duration;
-    const CharState_t m_thrownState;
+    const int m_thrownState;
 
 };
 
@@ -199,11 +198,11 @@ protected:
  *       ABSTRACT THROW WHIFF
  *
  *========================== */
-template <typename CharState_t, typename Char_t>
-class Action_throw_whiff : public Action<CharState_t, Char_t>
+template <typename Char_t>
+class Action_throw_whiff : public Action<Char_t>
 {
 public:
-    Action_throw_whiff(CharState_t actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, float duration_, HurtboxFramesVec &&hurtboxes_);
+    Action_throw_whiff(int actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, float duration_, HurtboxFramesVec &&hurtboxes_);
     virtual void switchTo(Char_t &character_) const override;
     void outdated(Char_t &character_) const override;
     virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
@@ -217,11 +216,11 @@ protected:
  *       ABSTRACT THROW TECH
  *
  *========================== */
-template <typename CharState_t, typename Char_t>
-class Action_throw_tech : public Action<CharState_t, Char_t>
+template <typename Char_t>
+class Action_throw_tech : public Action<Char_t>
 {
 public:
-    Action_throw_tech(CharState_t actionState_, InputComparator_ptr incmp_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, float duration_, HurtboxFramesVec &&hurtboxes_, THROW_TECHS_LIST throwTech_);
+    Action_throw_tech(int actionState_, InputComparator_ptr incmp_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, float duration_, HurtboxFramesVec &&hurtboxes_, THROW_TECHS_LIST throwTech_);
     virtual void switchTo(Char_t &character_) const override;
     void outdated(Char_t &character_) const override;
 
@@ -238,11 +237,11 @@ protected:
  *      from hits and does not change animation
  *
  *========================== */
-template <typename CharState_t, typename Char_t>
-class Action_locked_animation : public Action<CharState_t, Char_t>
+template <typename Char_t>
+class Action_locked_animation : public Action<Char_t>
 {
 public:
-    Action_locked_animation(CharState_t actionState_, CharState_t quitState_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, float duration_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&blockWindow_);
+    Action_locked_animation(int actionState_, int quitState_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, float duration_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&blockWindow_);
     virtual void switchTo(Char_t &character_) const override;
     //virtual void update(Char_t &character_) const override;
     void outdated(Char_t &character_) const override;
@@ -250,7 +249,7 @@ public:
 
 protected:
     const float m_duration;
-    CharState_t m_quitState;
+    int m_quitState;
 };
 
 
@@ -260,7 +259,7 @@ protected:
  *
  *========================== */
 
-class Action_char1_idle : public Action<CHAR1_STATE, Char1>
+class Action_char1_idle : public Action<Char1>
 {
 public:
     Action_char1_idle();
@@ -269,7 +268,7 @@ public:
     virtual void update(Char1 &character_) const override;
 };
 
-class Action_char1_crouch : public Action<CHAR1_STATE, Char1>
+class Action_char1_crouch : public Action<Char1>
 {
 public:
     Action_char1_crouch();
@@ -278,7 +277,7 @@ public:
     virtual void update(Char1 &character_) const override;
 };
 
-class Action_char1_walk_fwd : public Action<CHAR1_STATE, Char1>
+class Action_char1_walk_fwd : public Action<Char1>
 {
 public:
     Action_char1_walk_fwd();
@@ -287,7 +286,7 @@ public:
     virtual void update(Char1 &character_) const override;
 };
 
-class Action_char1_walk_bwd : public Action<CHAR1_STATE, Char1>
+class Action_char1_walk_bwd : public Action<Char1>
 {
 public:
     Action_char1_walk_bwd();
@@ -296,10 +295,10 @@ public:
     virtual void update(Char1 &character_) const override;
 };
 
-class Action_char1_jump : public Action_jump<CHAR1_STATE, Char1>
+class Action_char1_jump : public Action_jump<Char1>
 {
 public:
-    Action_char1_jump(CHAR1_STATE actionState_, const Vector2<float> &impulse_, float prejumpLen_, float maxHorInertia_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_);
+    Action_char1_jump(int actionState_, const Vector2<float> &impulse_, float prejumpLen_, float maxHorInertia_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_);
     virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
     virtual void switchTo(Char1 &character_) const override;
     const Vector2<float> m_impulse;
@@ -325,7 +324,7 @@ public:
     Action_char1_backward_jump();
 };
 
-class Action_char1_float : public Action<CHAR1_STATE, Char1>
+class Action_char1_float : public Action<Char1>
 {
 public:
     Action_char1_float();
@@ -333,7 +332,7 @@ public:
     virtual void switchTo(Char1 &character_) const override;
 };
 
-class Action_char1_air_dash_extention : public Action<CHAR1_STATE, Char1>
+class Action_char1_air_dash_extention : public Action<Char1>
 {
 public:
     Action_char1_air_dash_extention();
@@ -347,7 +346,7 @@ public:
     const float m_spdMultiplier;
 };
 
-class Action_char1_airjump : public Action<CHAR1_STATE, Char1>
+class Action_char1_airjump : public Action<Char1>
 {
 public:
     Action_char1_airjump(const Vector2<float> &impulse_, InputComparator_ptr incmp_);
@@ -374,7 +373,7 @@ public:
     Action_char1_backward_doublejump();
 };
 
-class Action_char1_ground_dash : public Action_prolonged<CHAR1_STATE, Char1>
+class Action_char1_ground_dash : public Action_prolonged<Char1>
 {
 public:
     Action_char1_ground_dash();
@@ -384,7 +383,7 @@ public:
     const float m_maxspd;
 };
 
-class Action_char1_step: public Action<CHAR1_STATE, Char1>
+class Action_char1_step: public Action<Char1>
 {
 public:
     Action_char1_step();
@@ -394,7 +393,7 @@ public:
     const int m_duration;
 };
 
-class Action_char1_step_recovery : public Action<CHAR1_STATE, Char1>
+class Action_char1_step_recovery : public Action<Char1>
 {
 public:
     Action_char1_step_recovery();
@@ -405,7 +404,7 @@ public:
     const int m_recoveryLen;
 };
 
-class Action_char1_ground_backdash: public Action<CHAR1_STATE, Char1>
+class Action_char1_ground_backdash: public Action<Char1>
 {
 public:
     Action_char1_ground_backdash();
@@ -415,7 +414,7 @@ public:
     const int m_totalDuration;
 };
 
-class Action_char1_ground_dash_recovery : public Action<CHAR1_STATE, Char1>
+class Action_char1_ground_dash_recovery : public Action<Char1>
 {
 public:
     Action_char1_ground_dash_recovery();
@@ -425,7 +424,7 @@ public:
     const int m_recoveryLen;
 };
 
-class Action_char1_air_dash : public Action<CHAR1_STATE, Char1>
+class Action_char1_air_dash : public Action<Char1>
 {
 public:
     Action_char1_air_dash();
@@ -435,7 +434,7 @@ public:
     const int m_duration;
 };
 
-class Action_char1_air_backdash : public Action<CHAR1_STATE, Char1>
+class Action_char1_air_backdash : public Action<Char1>
 {
 public:
     Action_char1_air_backdash();
@@ -445,7 +444,7 @@ public:
     const int m_duration;
 };
 
-class Action_char1_soft_landing_recovery : public Action<CHAR1_STATE, Char1>
+class Action_char1_soft_landing_recovery : public Action<Char1>
 {
 public:
     Action_char1_soft_landing_recovery();
@@ -455,7 +454,7 @@ public:
     const int m_recoveryLen;
 };
 
-class Action_char1_hard_landing_recovery : public Action<CHAR1_STATE, Char1>
+class Action_char1_hard_landing_recovery : public Action<Char1>
 {
 public:
     Action_char1_hard_landing_recovery();
@@ -465,7 +464,7 @@ public:
     const int m_recoveryLen;
 };
 
-class Action_char1_vulnerable_landing_recovery : public Action<CHAR1_STATE, Char1>
+class Action_char1_vulnerable_landing_recovery : public Action<Char1>
 {
 public:
     Action_char1_vulnerable_landing_recovery();
@@ -475,7 +474,7 @@ public:
     const int m_recoveryLen;
 };
 
-class Action_char1_jc_landing_recovery : public Action<CHAR1_STATE, Char1>
+class Action_char1_jc_landing_recovery : public Action<Char1>
 {
 public:
     Action_char1_jc_landing_recovery();
@@ -485,7 +484,7 @@ public:
     const int m_recoveryLen;
 };
 
-class Action_char1_soft_knockdown : public Action<CHAR1_STATE, Char1>
+class Action_char1_soft_knockdown : public Action<Char1>
 {
 public:
     Action_char1_soft_knockdown();
@@ -494,7 +493,7 @@ public:
     virtual void switchTo(Char1 &character_) const override;
 };
 
-class Action_char1_hard_knockdown : public Action<CHAR1_STATE, Char1>
+class Action_char1_hard_knockdown : public Action<Char1>
 {
 public:
     Action_char1_hard_knockdown();
@@ -503,7 +502,7 @@ public:
     virtual void switchTo(Char1 &character_) const override;
 };
 
-class Action_char1_knockdown_recovery : public Action<CHAR1_STATE, Char1>
+class Action_char1_knockdown_recovery : public Action<Char1>
 {
 public:
     Action_char1_knockdown_recovery();
@@ -512,19 +511,19 @@ public:
     virtual void switchTo(Char1 &character_) const override;
 };
 
-class Action_char1_ground_attack : public Action_attack<CHAR1_STATE, Char1>
+class Action_char1_ground_attack : public Action_attack<Char1>
 {
 public:
-    Action_char1_ground_attack(CHAR1_STATE actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, TimelineProperty<Vector2<float>> &&velocity_, bool noLandTransition_ = false, bool isCrouchState_ = false, bool stepOnly_ = false);
+    Action_char1_ground_attack(int actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, TimelineProperty<Vector2<float>> &&velocity_, bool noLandTransition_ = false, bool isCrouchState_ = false, bool stepOnly_ = false);
     virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
     virtual void outdated(Char1 &character_) const override;
     virtual void switchTo(Char1 &character_) const override;
 };
 
-class Action_char1_air_attack : public Action_attack<CHAR1_STATE, Char1>
+class Action_char1_air_attack : public Action_attack<Char1>
 {
 public:
-    Action_char1_air_attack(CHAR1_STATE actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_);
+    Action_char1_air_attack(int actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_);
     virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
     virtual void outdated(Char1 &character_) const override;
     virtual void switchTo(Char1 &character_) const override;
@@ -604,39 +603,39 @@ public:
 // THROW ACTIONS
 
 // NORMAL THROW
-class Action_char1_normal_throw_startup : public Action_throw_startup<CHAR1_STATE, Char1>
+class Action_char1_normal_throw_startup : public Action_throw_startup<Char1>
 {
 public:
     Action_char1_normal_throw_startup();
     virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
 };
 
-class Action_char1_normal_throw_hold : public Action_throw_hold<CHAR1_STATE, Char1>
+class Action_char1_normal_throw_hold : public Action_throw_hold<Char1>
 {
 public:
     Action_char1_normal_throw_hold();
 };
 
-class Action_char1_back_throw_startup : public Action_throw_startup<CHAR1_STATE, Char1>
+class Action_char1_back_throw_startup : public Action_throw_startup<Char1>
 {
 public:
     Action_char1_back_throw_startup();
     virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
 };
 
-class Action_char1_back_throw_hold : public Action_throw_hold<CHAR1_STATE, Char1>
+class Action_char1_back_throw_hold : public Action_throw_hold<Char1>
 {
 public:
     Action_char1_back_throw_hold();
 };
 
-class Action_char1_normal_throw_whiff : public Action_throw_whiff<CHAR1_STATE, Char1>
+class Action_char1_normal_throw_whiff : public Action_throw_whiff<Char1>
 {
 public:
     Action_char1_normal_throw_whiff();
 };
 
-class Action_char1_normal_throw : public Action_locked_animation<CHAR1_STATE, Char1>
+class Action_char1_normal_throw : public Action_locked_animation<Char1>
 {
 public:
     Action_char1_normal_throw();
@@ -645,39 +644,39 @@ public:
 
 // AIR THROW
 
-class Action_char1_normal_air_throw_startup : public Action_throw_startup<CHAR1_STATE, Char1>
+class Action_char1_normal_air_throw_startup : public Action_throw_startup<Char1>
 {
 public:
     Action_char1_normal_air_throw_startup();
     virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
 };
 
-class Action_char1_normal_air_throw_hold : public Action_throw_hold<CHAR1_STATE, Char1>
+class Action_char1_normal_air_throw_hold : public Action_throw_hold<Char1>
 {
 public:
     Action_char1_normal_air_throw_hold();
 };
 
-class Action_char1_back_air_throw_startup : public Action_throw_startup<CHAR1_STATE, Char1>
+class Action_char1_back_air_throw_startup : public Action_throw_startup<Char1>
 {
 public:
     Action_char1_back_air_throw_startup();
     virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
 };
 
-class Action_char1_back_air_throw_hold : public Action_throw_hold<CHAR1_STATE, Char1>
+class Action_char1_back_air_throw_hold : public Action_throw_hold<Char1>
 {
 public:
     Action_char1_back_air_throw_hold();
 };
 
-class Action_char1_normal_air_throw_whiff : public Action_throw_whiff<CHAR1_STATE, Char1>
+class Action_char1_normal_air_throw_whiff : public Action_throw_whiff<Char1>
 {
 public:
     Action_char1_normal_air_throw_whiff();
 };
 
-class Action_char1_normal_air_throw : public Action_locked_animation<CHAR1_STATE, Char1>
+class Action_char1_normal_air_throw : public Action_locked_animation<Char1>
 {
 public:
     Action_char1_normal_air_throw();
@@ -686,7 +685,7 @@ public:
 
 
 // THROW TECHS
-class Action_char1_throw_tech : public Action_throw_tech<CHAR1_STATE, Char1>
+class Action_char1_throw_tech : public Action_throw_tech<Char1>
 {
 public:
     Action_char1_throw_tech();
@@ -694,7 +693,7 @@ public:
     virtual void switchTo(Char1 &character_) const override;
 };
 
-class Action_char1_throw_tech_char1 : public Action_throw_tech<CHAR1_STATE, Char1>
+class Action_char1_throw_tech_char1 : public Action_throw_tech<Char1>
 {
 public:
     Action_char1_throw_tech_char1();
@@ -702,7 +701,7 @@ public:
     virtual void switchTo(Char1 &character_) const override;
 };
 
-class Action_char1_air_throw_tech : public Action_throw_tech<CHAR1_STATE, Char1>
+class Action_char1_air_throw_tech : public Action_throw_tech<Char1>
 {
 public:
     Action_char1_air_throw_tech();
@@ -710,7 +709,7 @@ public:
     virtual void switchTo(Char1 &character_) const override;
 };
 
-class Action_char1_air_throw_tech_char1 : public Action_throw_tech<CHAR1_STATE, Char1>
+class Action_char1_air_throw_tech_char1 : public Action_throw_tech<Char1>
 {
 public:
     Action_char1_air_throw_tech_char1();
@@ -721,13 +720,13 @@ public:
 
 // GETTING THROWN ACTIONS
 
-class Action_char1_thrown_char1_normal_hold : public Action_thrown_hold<CHAR1_STATE, Char1>
+class Action_char1_thrown_char1_normal_hold : public Action_thrown_hold<Char1>
 {
 public:
     Action_char1_thrown_char1_normal_hold();
 };
 
-class Action_char1_thrown_char1_normal : public Action_locked_animation<CHAR1_STATE, Char1>
+class Action_char1_thrown_char1_normal : public Action_locked_animation<Char1>
 {
 public:
     Action_char1_thrown_char1_normal();
@@ -735,13 +734,13 @@ public:
     virtual void outdated(Char1 &character_) const override;
 };
 
-class Action_char1_thrown_char1_normal_air_hold : public Action_thrown_hold<CHAR1_STATE, Char1>
+class Action_char1_thrown_char1_normal_air_hold : public Action_thrown_hold<Char1>
 {
 public:
     Action_char1_thrown_char1_normal_air_hold();
 };
 
-class Action_char1_thrown_char1_normal_air : public Action_locked_animation<CHAR1_STATE, Char1>
+class Action_char1_thrown_char1_normal_air : public Action_locked_animation<Char1>
 {
 public:
     Action_char1_thrown_char1_normal_air();

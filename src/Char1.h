@@ -119,11 +119,10 @@ protected:
 
     std::set<int> m_appliedHits;
 
-    const Action<CHAR1_STATE, Char1> *m_currentAction;
-    const Action<CHAR1_STATE, Char1> *m_reservedAction = nullptr;
-    ActionResolver<CHAR1_STATE, Char1> m_actionResolver;
+    const Action<Char1> *m_currentAction;
+    const Action<Char1> *m_reservedAction = nullptr;
+    ActionResolver<Char1> m_actionResolver;
 
-    CHAR1_STATE m_currentState = CHAR1_STATE::IDLE;
     FrameTimer m_timer;
     bool m_usedDoubleJump = false;
     bool m_usedAirDash = false;
@@ -139,13 +138,13 @@ protected:
     int m_airadashFramesCounter = 0;
     
 
-    friend Action<CHAR1_STATE, Char1>;
-    friend Action_throw_startup<CHAR1_STATE, Char1>;
-    friend Action_throw_hold<CHAR1_STATE, Char1>;
-    friend Action_thrown_hold<CHAR1_STATE, Char1>;
-    friend Action_throw_whiff<CHAR1_STATE, Char1>;
-    friend Action_throw_tech<CHAR1_STATE, Char1>;
-    friend Action_locked_animation<CHAR1_STATE, Char1>;
+    friend Action<Char1>;
+    friend Action_throw_startup<Char1>;
+    friend Action_throw_hold<Char1>;
+    friend Action_thrown_hold<Char1>;
+    friend Action_throw_whiff<Char1>;
+    friend Action_throw_tech<Char1>;
+    friend Action_locked_animation<Char1>;
     friend Action_char1_normal_throw;
     friend Action_char1_normal_throw_startup;
     friend Action_char1_normal_air_throw_startup;
@@ -158,9 +157,9 @@ protected:
     friend Action_char1_throw_tech_char1;
     friend Action_char1_air_throw_tech;
     friend Action_char1_air_throw_tech_char1;
-    friend Action_jump<CHAR1_STATE, Char1>;
-    friend Action_prolonged<CHAR1_STATE, Char1>;
-    friend Action_attack<CHAR1_STATE, Char1>;
+    friend Action_jump<Char1>;
+    friend Action_prolonged<Char1>;
+    friend Action_attack<Char1>;
     friend Action_char1_ground_attack;
     friend Action_char1_crouch;
     friend Action_char1_idle;
