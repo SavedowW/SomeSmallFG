@@ -68,18 +68,6 @@ enum class CHAR1_STATE {
     PROJECTILE_CHAR
     };
 
-struct Char1Data : public CharData<CHAR1_STATE>
-{
-    bool usedDoubleJump;
-    bool canDoubleJumpAfterPrejump;
-    bool canAirdashAfterPrejump;
-    bool usedAirDash;
-    bool inHitstop;
-    bool inBlockstun;
-    BLOCK_FRAME blockFrame;
-    std::set<int> *cancelOptions = nullptr;
-};
-
 class Char1 : public Character
 {
 public:
@@ -102,11 +90,14 @@ public:
     void updateBlockState() final;
     bool isInHitstun() const final;
     bool isInBlockstun() const final;
+    bool isInInstantBlockstun() const final;
     bool isInAttackState() const final;
     bool isKnockedDown() const final;
     bool canApplyGravity() const final;
     float touchedWall(int sideDir_) final;
     void turnVelocityToInertia(float horMultiplier_ = 0.9f) final;
+
+    virtual ORIENTATION getInputDir() const final;
 
     void attemptThrow() final;
 
@@ -118,7 +109,6 @@ protected:
     void switchToSoftLandingRecovery();
     void enterKndRecovery();
     void switchToFloat();
-    Char1Data generateCharData();
     bool isInActiveFrames() const;
     void enterHitstunAnimation(const PostHitProperties &props_) final;
 
@@ -129,9 +119,9 @@ protected:
 
     std::set<int> m_appliedHits;
 
-    const Action<CHAR1_STATE, Char1Data, Char1> *m_currentAction;
-    const Action<CHAR1_STATE, Char1Data, Char1> *m_reservedAction = nullptr;
-    ActionResolver<CHAR1_STATE, Char1Data, Char1> m_actionResolver;
+    const Action<CHAR1_STATE, Char1> *m_currentAction;
+    const Action<CHAR1_STATE, Char1> *m_reservedAction = nullptr;
+    ActionResolver<CHAR1_STATE, Char1> m_actionResolver;
 
     CHAR1_STATE m_currentState = CHAR1_STATE::IDLE;
     FrameTimer m_timer;
@@ -149,14 +139,18 @@ protected:
     int m_airadashFramesCounter = 0;
     
 
-    friend Action<CHAR1_STATE, Char1Data, Char1>;
-    friend Action_throw_startup<CHAR1_STATE, Char1Data, Char1>;
-    friend Action_throw_hold<CHAR1_STATE, Char1Data, Char1>;
-    friend Action_thrown_hold<CHAR1_STATE, Char1Data, Char1>;
-    friend Action_throw_whiff<CHAR1_STATE, Char1Data, Char1>;
-    friend Action_throw_tech<CHAR1_STATE, Char1Data, Char1>;
-    friend Action_locked_animation<CHAR1_STATE, Char1Data, Char1>;
+    friend Action<CHAR1_STATE, Char1>;
+    friend Action_throw_startup<CHAR1_STATE, Char1>;
+    friend Action_throw_hold<CHAR1_STATE, Char1>;
+    friend Action_thrown_hold<CHAR1_STATE, Char1>;
+    friend Action_throw_whiff<CHAR1_STATE, Char1>;
+    friend Action_throw_tech<CHAR1_STATE, Char1>;
+    friend Action_locked_animation<CHAR1_STATE, Char1>;
     friend Action_char1_normal_throw;
+    friend Action_char1_normal_throw_startup;
+    friend Action_char1_normal_air_throw_startup;
+    friend Action_char1_back_air_throw_startup;
+    friend Action_char1_back_throw_startup;
     friend Action_char1_normal_air_throw;
     friend Action_char1_thrown_char1_normal;
     friend Action_char1_thrown_char1_normal_air;
@@ -164,9 +158,9 @@ protected:
     friend Action_char1_throw_tech_char1;
     friend Action_char1_air_throw_tech;
     friend Action_char1_air_throw_tech_char1;
-    friend Action_jump<CHAR1_STATE, Char1Data, Char1>;
-    friend Action_prolonged<CHAR1_STATE, Char1Data, Char1>;
-    friend Action_attack<CHAR1_STATE, Char1Data, Char1>;
+    friend Action_jump<CHAR1_STATE, Char1>;
+    friend Action_prolonged<CHAR1_STATE, Char1>;
+    friend Action_attack<CHAR1_STATE, Char1>;
     friend Action_char1_ground_attack;
     friend Action_char1_crouch;
     friend Action_char1_idle;

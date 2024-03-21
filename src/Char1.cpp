@@ -217,7 +217,7 @@ void Char1::updateState()
         }
     }
 
-    auto resolverRes = m_actionResolver.update(generateCharData(), m_extendedBuffer);
+    auto resolverRes = m_actionResolver.update(this, m_extendedBuffer);
 
     if (resolverRes)
     {
@@ -239,7 +239,7 @@ void Char1::jumpUsingAction()
 
     auto ownOrientationVector = getOwnHorDir();
     ownOrientationVector.y = 1;
-    auto jumpAction = dynamic_cast<const Action_jump<CHAR1_STATE, Char1Data, Char1>*>(m_currentAction);
+    auto jumpAction = dynamic_cast<const Action_jump<CHAR1_STATE, Char1>*>(m_currentAction);
     m_velocity = (jumpAction)->m_impulse.mulComponents(ownOrientationVector);
     if (m_inertia.y > 0)
         m_inertia.y = 0;
@@ -262,37 +262,6 @@ void Char1::jumpUsingAction()
 void Char1::switchToSoftLandingRecovery()
 {
     m_actionResolver.getAction(CHAR1_STATE::SOFT_LANDING_RECOVERY)->switchTo(*this);
-}
-
-Char1Data Char1::generateCharData()
-{
-    Char1Data charData;
-    charData.pos = m_pos;
-    charData.airborne = m_airborne;
-    charData.velocity = m_velocity;
-    charData.inertia = m_inertia;
-    charData.dirToEnemy = m_dirToEnemy;
-    charData.ownDirection = m_ownOrientation;
-    charData.dirToEnemyVec = getHorDirToEnemy();
-    charData.ownDirectionVec = getOwnHorDir();
-    charData.state = m_currentState;
-    charData.usedDoubleJump = m_usedDoubleJump;
-    charData.usedAirDash = m_usedAirDash;
-    charData.inHitstop = m_inHitstop;
-    charData.canDoubleJumpAfterPrejump = (m_jumpFramesCounter == 0);
-    charData.canAirdashAfterPrejump = (m_airadashFramesCounter == 0);
-    charData.inBlockstun = isInBlockstun();
-    charData.blockFrame = m_blockstunType;
-
-    charData.inputDir = m_ownOrientation;
-    if (m_currentState == CHAR1_STATE::SOFT_LANDING_RECOVERY || m_currentState == CHAR1_STATE::GROUND_DASH_RECOVERY)
-        charData.inputDir = m_dirToEnemy;
-
-
-    if (!m_currentCancelWindow.second.empty())
-        charData.cancelOptions = &m_currentCancelWindow.second;
-
-    return charData;
 }
 
 void Char1::land()
@@ -378,7 +347,7 @@ HitsVec Char1::getHits(bool allHits_)
 {
     if (m_currentAction && m_currentAction->m_isAttack)
     {
-        auto hits = dynamic_cast<const Action_attack<CHAR1_STATE, Char1Data, Char1>*>(m_currentAction)->getCurrentHits(m_timer.getCurrentFrame() + 1, m_pos, m_ownOrientation);
+        auto hits = dynamic_cast<const Action_attack<CHAR1_STATE, Char1>*>(m_currentAction)->getCurrentHits(m_timer.getCurrentFrame() + 1, m_pos, m_ownOrientation);
         int i = 0;
         while (i < hits.size())
         {
@@ -883,7 +852,7 @@ bool Char1::isInActiveFrames() const
 {
     if (m_currentAction && m_currentAction->m_isAttack)
     {
-        auto atkAction = dynamic_cast<const Action_attack<CHAR1_STATE, Char1Data, Char1>*>(m_currentAction);
+        auto atkAction = dynamic_cast<const Action_attack<CHAR1_STATE, Char1>*>(m_currentAction);
         return atkAction->getCurrentHits(m_timer.getCurrentFrame() + 1, m_pos, m_ownOrientation).size();
     }
 
@@ -901,6 +870,11 @@ bool Char1::isInBlockstun() const
                         m_currentState == CHAR1_STATE::BLOCKSTUN_CROUCHING ||
                         m_currentState == CHAR1_STATE::BLOCKSTUN_AIR ||
                         m_currentState == CHAR1_STATE::HARD_LANDING_RECOVERY);
+}
+
+bool Char1::isInInstantBlockstun() const
+{
+    return isInBlockstun() && m_blockstunType == BLOCK_FRAME::INSTANT;
 }
 
 bool Char1::isKnockedDown() const
@@ -1056,7 +1030,7 @@ void Char1::attemptThrow()
 {
     if (m_currentAction && m_currentAction->m_isThrowStartup)
     {
-        auto action = dynamic_cast<const Action_throw_startup<CHAR1_STATE, Char1Data, Char1>*>(m_currentAction);
+        auto action = dynamic_cast<const Action_throw_startup<CHAR1_STATE, Char1>*>(m_currentAction);
         action->attemptThrow(*this);
     }
 }
@@ -1101,6 +1075,14 @@ void Char1::turnVelocityToInertia(float horMultiplier_)
         m_velocity = {0, 0};
 
     Character::turnVelocityToInertia(horMultiplier_);
+}
+
+ORIENTATION Char1::getInputDir() const
+{
+    auto res = m_ownOrientation;
+    if (m_currentState == CHAR1_STATE::SOFT_LANDING_RECOVERY || m_currentState == CHAR1_STATE::GROUND_DASH_RECOVERY)
+        res = m_dirToEnemy;
+    return res;
 }
 
 bool Char1::isInAttackState() const

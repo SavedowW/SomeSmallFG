@@ -1,15 +1,15 @@
 #include "ActionResolver.h"
 #include "Char1.h"
 
-template <typename CharState_t, typename CharData, typename Char_t>
-ActionResolver<CharState_t, CharData, Char_t>::ActionResolver(InputSystem *input_) :
+template <typename CharState_t, typename Char_t>
+ActionResolver<CharState_t, Char_t>::ActionResolver(InputSystem *input_) :
     InputReactor(input_)
 {
 
 }
 
-template <typename CharState_t, typename CharData, typename Char_t>
-void ActionResolver<CharState_t, CharData, Char_t>::subscribe_p1()
+template <typename CharState_t, typename Char_t>
+void ActionResolver<CharState_t, Char_t>::subscribe_p1()
 {
     //std::cout << "Subscribed to p1\n";
     subscribe(EVENTS::UP_P1);
@@ -24,8 +24,8 @@ void ActionResolver<CharState_t, CharData, Char_t>::subscribe_p1()
     subscribe(EVENTS::S_P1);
 }
 
-template <typename CharState_t, typename CharData, typename Char_t>
-void ActionResolver<CharState_t, CharData, Char_t>::subscribe_p2()
+template <typename CharState_t, typename Char_t>
+void ActionResolver<CharState_t, Char_t>::subscribe_p2()
 {
     //std::cout << "Subscribed to p2\n";
     subscribe(EVENTS::UP_P2);
@@ -40,14 +40,14 @@ void ActionResolver<CharState_t, CharData, Char_t>::subscribe_p2()
     subscribe(EVENTS::S_P2);
 }
 
-template <typename CharState_t, typename CharData, typename Char_t>
-void ActionResolver<CharState_t, CharData, Char_t>::unsubscribe_all()
+template <typename CharState_t, typename Char_t>
+void ActionResolver<CharState_t, Char_t>::unsubscribe_all()
 {
     unsubscribeFromAll();
 }
 
-template <typename CharState_t, typename CharData, typename Char_t>
-void ActionResolver<CharState_t, CharData, Char_t>::receiveInput(EVENTS event_, const float scale_)
+template <typename CharState_t, typename Char_t>
+void ActionResolver<CharState_t, Char_t>::receiveInput(EVENTS event_, const float scale_)
 {
     switch(event_)
     {
@@ -102,18 +102,18 @@ void ActionResolver<CharState_t, CharData, Char_t>::receiveInput(EVENTS event_, 
     }
 }
 
-template <typename CharState_t, typename CharData, typename Char_t>
-const Action<CharState_t, CharData, Char_t> *ActionResolver<CharState_t, CharData, Char_t>::update(Char1Data charData, int extendBuffer_)
+template <typename CharState_t, typename Char_t>
+const Action<CharState_t, Char_t> *ActionResolver<CharState_t, Char_t>::update(Char_t *char_, int extendBuffer_)
 {
    //std::cout << "=== UPDATE RESOLVER ===\n";
 
     m_currentInput.setDirFromButtons();
 
     m_inputQueue.push(m_currentInput);
-    const Action<CharState_t, CharData, Char_t> *availableAction = nullptr;
+    const Action<CharState_t, Char_t> *availableAction = nullptr;
     for (auto &el : m_actions)
     {
-        auto res = el->isPossible(m_inputQueue, charData, extendBuffer_);
+        auto res = el->isPossible(m_inputQueue, char_, extendBuffer_);
 
         // If this action is already active
         if (res == -1)
@@ -134,14 +134,14 @@ const Action<CharState_t, CharData, Char_t> *ActionResolver<CharState_t, CharDat
     return availableAction;
 }
 
-template <typename CharState_t, typename CharData, typename Char_t>
-Vector2<int> ActionResolver<CharState_t, CharData, Char_t>::getCurrentInputDir() const
+template <typename CharState_t, typename Char_t>
+Vector2<int> ActionResolver<CharState_t, Char_t>::getCurrentInputDir() const
 {
     return m_currentInput.dir;
 }
 
-template <typename CharState_t, typename CharData, typename Char_t>
-Action<CharState_t, CharData, Char_t> *ActionResolver<CharState_t, CharData, Char_t>::getAction(CharState_t state_) const
+template <typename CharState_t, typename Char_t>
+Action<CharState_t, Char_t> *ActionResolver<CharState_t, Char_t>::getAction(CharState_t state_) const
 {
     for (auto &el : m_actions)
         if (el->actionState == state_)
@@ -150,8 +150,8 @@ Action<CharState_t, CharData, Char_t> *ActionResolver<CharState_t, CharData, Cha
     return nullptr;
 }
 
-template <typename CharState_t, typename CharData, typename Char_t>
-INPUT_BUTTON_STATE ActionResolver<CharState_t, CharData, Char_t>::getPostFrameButtonState(INPUT_BUTTON button_) const
+template <typename CharState_t, typename Char_t>
+INPUT_BUTTON_STATE ActionResolver<CharState_t, Char_t>::getPostFrameButtonState(INPUT_BUTTON button_) const
 {
     //return m_currentInput.inputs.at(button_);
     if (m_inputQueue.getFilled() >= 1)
@@ -162,10 +162,10 @@ INPUT_BUTTON_STATE ActionResolver<CharState_t, CharData, Char_t>::getPostFrameBu
     return INPUT_BUTTON_STATE::OFF;
 }
 
-template <typename CharState_t, typename CharData, typename Char_t>
-void ActionResolver<CharState_t, CharData, Char_t>::addAction(std::unique_ptr<Action<CharState_t, CharData, Char_t>> &&action_)
+template <typename CharState_t, typename Char_t>
+void ActionResolver<CharState_t, Char_t>::addAction(std::unique_ptr<Action<CharState_t, Char_t>> &&action_)
 {
     m_actions.push_back(std::move(action_));
 }
 
-template ActionResolver<CHAR1_STATE, Char1Data, Char1>;
+template ActionResolver<CHAR1_STATE, Char1>;

@@ -288,6 +288,16 @@ Vector2<float> Character::getOwnHorDir() const
     return Vector2<float>{(m_ownOrientation == ORIENTATION::RIGHT ? 1.0f : -1.0f), 0.0f};
 }
 
+ORIENTATION Character::getOwnOrientation() const
+{
+    return m_ownOrientation;
+}
+
+ORIENTATION Character::getOrientationToEnemy() const
+{
+    return m_dirToEnemy;
+}
+
 Vector2<float> Character::getVelocity() const
 {
     return m_velocity;
@@ -519,4 +529,9 @@ void Character::generateHitParticles(HitEvent &ev_, const Vector2<float> hitpos_
             m_particleManager->spawnParticles(psd);
         }
     }
+}
+
+bool Character::isInHitstop() const
+{
+    return m_inHitstop;
 }

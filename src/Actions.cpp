@@ -8,8 +8,8 @@
  *
  *========================== */
 
-template <typename CharState_t, typename CharData, typename Char_t>
-Action<CharState_t, CharData, Char_t>::Action(CharState_t actionState_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, bool isAttack_, bool noLandTransition_, bool isCrouchState_, bool isThrowStartup_) :
+template <typename CharState_t, typename Char_t>
+Action<CharState_t, Char_t>::Action(CharState_t actionState_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, bool isAttack_, bool noLandTransition_, bool isCrouchState_, bool isThrowStartup_) :
     actionState(actionState_),
     m_hurtboxes(std::move(hurtboxes_)),
     m_anim(anim_),
@@ -24,8 +24,8 @@ Action<CharState_t, CharData, Char_t>::Action(CharState_t actionState_, InputCom
     incmp = std::move(incmp_);
 }
 
-template <typename CharState_t, typename CharData, typename Char_t>
-bool Action<CharState_t, CharData, Char_t>::isInputPossible(const InputQueue &inputQueue_, ORIENTATION ownDirection_, int extendBuffer_) const
+template <typename CharState_t, typename Char_t>
+bool Action<CharState_t, Char_t>::isInputPossible(const InputQueue &inputQueue_, ORIENTATION ownDirection_, int extendBuffer_) const
 {
     if (incmp)
         return (*incmp)(inputQueue_, ownDirection_, extendBuffer_);
@@ -33,8 +33,8 @@ bool Action<CharState_t, CharData, Char_t>::isInputPossible(const InputQueue &in
         return false;
 }
 
-template <typename CharState_t, typename CharData, typename Char_t>
-const HurtboxVec Action<CharState_t, CharData, Char_t>::getCurrentHurtboxes(uint32_t currentFrame_, const Vector2<float>& offset_, ORIENTATION ownOrientation_) const
+template <typename CharState_t, typename Char_t>
+const HurtboxVec Action<CharState_t, Char_t>::getCurrentHurtboxes(uint32_t currentFrame_, const Vector2<float>& offset_, ORIENTATION ownOrientation_) const
 {
     HurtboxVec vec;
     for (const auto &el : m_hurtboxes)
@@ -59,8 +59,8 @@ const HurtboxVec Action<CharState_t, CharData, Char_t>::getCurrentHurtboxes(uint
     return vec;
 }
 
-template <typename CharState_t, typename CharData, typename Char_t>
-void Action<CharState_t, CharData, Char_t>::switchTo(Char_t &character_) const
+template <typename CharState_t, typename Char_t>
+void Action<CharState_t, Char_t>::switchTo(Char_t &character_) const
 {
     character_.m_timer.begin(0);
     character_.m_currentState = actionState;
@@ -79,34 +79,34 @@ void Action<CharState_t, CharData, Char_t>::switchTo(Char_t &character_) const
     character_.m_hitstunAnimation = HITSTUN_ANIMATION::NONE;
 }
 
-template <typename CharState_t, typename CharData, typename Char_t>
-bool Action<CharState_t, CharData, Char_t>::isInCounterState(uint32_t currentFrame_) const
+template <typename CharState_t, typename Char_t>
+bool Action<CharState_t, Char_t>::isInCounterState(uint32_t currentFrame_) const
 {
     return m_counterWindow[currentFrame_];
 }
 
-template <typename CharState_t, typename CharData, typename Char_t>
-bool Action<CharState_t, CharData, Char_t>::applyGravity(uint32_t currentFrame_) const
+template <typename CharState_t, typename Char_t>
+bool Action<CharState_t, Char_t>::applyGravity(uint32_t currentFrame_) const
 {
     return m_gravityWindow[currentFrame_];
 }
 
-template <typename CharState_t, typename CharData, typename Char_t>
-bool Action<CharState_t, CharData, Char_t>::canBlock(uint32_t currentFrame_) const
+template <typename CharState_t, typename Char_t>
+bool Action<CharState_t, Char_t>::canBlock(uint32_t currentFrame_) const
 {
     return m_blockWindow[currentFrame_];
 }
 
 // ABSTRACT PROLONGED ACTION
-template <typename CharState_t, typename CharData, typename Char_t>
-Action_prolonged<CharState_t, CharData, Char_t>::Action_prolonged(CharState_t actionState_, InputComparator_ptr incmp_, InputComparator_ptr incmp_prolonged_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_) :
-    Action<CharState_t, CharData, Char_t>(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, std::move(counterWindow_), std::move(gravityWindow_), std::move(blockWindow_))
+template <typename CharState_t, typename Char_t>
+Action_prolonged<CharState_t, Char_t>::Action_prolonged(CharState_t actionState_, InputComparator_ptr incmp_, InputComparator_ptr incmp_prolonged_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_) :
+    Action<CharState_t, Char_t>(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, std::move(counterWindow_), std::move(gravityWindow_), std::move(blockWindow_))
 {
     incmp_prolonged = std::move(incmp_prolonged_);
 }
 
-template <typename CharState_t, typename CharData, typename Char_t>
-int Action_prolonged<CharState_t, CharData, Char_t>::isPossibleToProlong(const InputQueue &inputQueue_, ORIENTATION ownDirection_) const
+template <typename CharState_t, typename Char_t>
+int Action_prolonged<CharState_t, Char_t>::isPossibleToProlong(const InputQueue &inputQueue_, ORIENTATION ownDirection_) const
 {
     return (*incmp_prolonged)(inputQueue_, ownDirection_);
 }
@@ -114,9 +114,9 @@ int Action_prolonged<CharState_t, CharData, Char_t>::isPossibleToProlong(const I
 
 
 // ABSTRACT JUMP ACTION
-template <typename CharState_t, typename CharData, typename Char_t>
-Action_jump<CharState_t, CharData, Char_t>::Action_jump(CharState_t actionState_, const Vector2<float> &impulse_, float prejumpLen_, float maxHorInertia_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&blockWindow_) :
-    Action<CharState_t, CharData, Char_t>(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, std::move(counterWindow_), TimelineProperty(true), std::move(blockWindow_)),
+template <typename CharState_t, typename Char_t>
+Action_jump<CharState_t, Char_t>::Action_jump(CharState_t actionState_, const Vector2<float> &impulse_, float prejumpLen_, float maxHorInertia_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&blockWindow_) :
+    Action<CharState_t, Char_t>(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, std::move(counterWindow_), TimelineProperty(true), std::move(blockWindow_)),
     m_impulse(impulse_),
     m_prejumpLen(prejumpLen_),
     m_maxHorInertia(maxHorInertia_)
@@ -127,9 +127,9 @@ Action_jump<CharState_t, CharData, Char_t>::Action_jump(CharState_t actionState_
 
 
 // ABSTRACT ATTACK ACTION
-template <typename CharState_t, typename CharData, typename Char_t>
-Action_attack<CharState_t, CharData, Char_t>::Action_attack(CharState_t actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, TimelineProperty<Vector2<float>> &&velocity_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, bool noLandTransition_, bool isCrouchState_, bool stepOnly_) :
-    Action<CharState_t, CharData, Char_t>(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, hitutils::getRegularCounterTimeline(hits_), std::move(gravityWindow_), TimelineProperty(false), true, noLandTransition_, isCrouchState_),
+template <typename CharState_t, typename Char_t>
+Action_attack<CharState_t, Char_t>::Action_attack(CharState_t actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, TimelineProperty<Vector2<float>> &&velocity_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, bool noLandTransition_, bool isCrouchState_, bool stepOnly_) :
+    Action<CharState_t, Char_t>(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, hitutils::getRegularCounterTimeline(hits_), std::move(gravityWindow_), TimelineProperty(false), true, noLandTransition_, isCrouchState_),
     m_fullDuration(fullDuration_),
     m_hits(hits_),
     m_velocity(std::move(velocity_)),
@@ -137,8 +137,8 @@ Action_attack<CharState_t, CharData, Char_t>::Action_attack(CharState_t actionSt
 {
 }
 
-template <typename CharState_t, typename CharData, typename Char_t>
-const HitsVec Action_attack<CharState_t, CharData, Char_t>::getCurrentHits(uint32_t currentFrame_, const Vector2<float>& offset_, ORIENTATION ownOrientation_) const
+template <typename CharState_t, typename Char_t>
+const HitsVec Action_attack<CharState_t, Char_t>::getCurrentHits(uint32_t currentFrame_, const Vector2<float>& offset_, ORIENTATION ownOrientation_) const
 {
     HitsVec vec;
     for (const auto &el : m_hits)
@@ -168,16 +168,16 @@ const HitsVec Action_attack<CharState_t, CharData, Char_t>::getCurrentHits(uint3
     return vec;
 }
 
-template <typename CharState_t, typename CharData, typename Char_t>
-void Action_attack<CharState_t, CharData, Char_t>::switchTo(Char_t &character_) const
+template <typename CharState_t, typename Char_t>
+void Action_attack<CharState_t, Char_t>::switchTo(Char_t &character_) const
 {
     character_.turnVelocityToInertia();
-    Action<CharState_t, CharData, Char_t>::switchTo(character_);
+    Action<CharState_t, Char_t>::switchTo(character_);
     character_.m_timer.begin(m_fullDuration);
 }
 
-template <typename CharState_t, typename CharData, typename Char_t>
-void Action_attack<CharState_t, CharData, Char_t>::update(Char_t &character_) const
+template <typename CharState_t, typename Char_t>
+void Action_attack<CharState_t, Char_t>::update(Char_t &character_) const
 {
     if (!m_velocity.isEmpty())
     {
@@ -187,9 +187,9 @@ void Action_attack<CharState_t, CharData, Char_t>::update(Char_t &character_) co
 
 
 // ABSTRACT THROW STARTUP
-template <typename CharState_t, typename CharData, typename Char_t>
-Action_throw_startup<CharState_t, CharData, Char_t>::Action_throw_startup(CharState_t actionState_, CharState_t whiffState_, CharState_t holdState_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, float range_, FrameWindow activeWindow_, bool requiredAirborne_, THROW_LIST throw_) :
-    Action<CharState_t, CharData, Char_t>(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, TimelineProperty(true), std::move(gravityWindow_), TimelineProperty(false), false, false, false, true),
+template <typename CharState_t, typename Char_t>
+Action_throw_startup<CharState_t, Char_t>::Action_throw_startup(CharState_t actionState_, CharState_t whiffState_, CharState_t holdState_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, float range_, FrameWindow activeWindow_, bool requiredAirborne_, THROW_LIST throw_) :
+    Action<CharState_t, Char_t>(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, TimelineProperty(true), std::move(gravityWindow_), TimelineProperty(false), false, false, false, true),
     m_whiffState(whiffState_),
     m_holdState(holdState_),
     m_range(range_),
@@ -199,18 +199,18 @@ Action_throw_startup<CharState_t, CharData, Char_t>::Action_throw_startup(CharSt
 {
 }
 
-template <typename CharState_t, typename CharData, typename Char_t>
-void Action_throw_startup<CharState_t, CharData, Char_t>::switchTo(Char_t &character_) const
+template <typename CharState_t, typename Char_t>
+void Action_throw_startup<CharState_t, Char_t>::switchTo(Char_t &character_) const
 {
     character_.turnVelocityToInertia();
-    Action<CharState_t, CharData, Char_t>::switchTo(character_);
+    Action<CharState_t, Char_t>::switchTo(character_);
     character_.m_timer.begin(m_activeWindow.second);
     if (character_.m_airborne)
         character_.m_usedAirAttack = true;
 }
 
-template <typename CharState_t, typename CharData, typename Char_t>
-void Action_throw_startup<CharState_t, CharData, Char_t>::attemptThrow(Char_t &character_) const
+template <typename CharState_t, typename Char_t>
+void Action_throw_startup<CharState_t, Char_t>::attemptThrow(Char_t &character_) const
 {
     auto currentFrame = character_.m_timer.getCurrentFrame() + 1;
     if (currentFrame < m_activeWindow.first || currentFrame > m_activeWindow.second)
@@ -228,16 +228,16 @@ void Action_throw_startup<CharState_t, CharData, Char_t>::attemptThrow(Char_t &c
     }
 }
 
-template <typename CharState_t, typename CharData, typename Char_t>
-void Action_throw_startup<CharState_t, CharData, Char_t>::outdated(Char_t &character_) const
+template <typename CharState_t, typename Char_t>
+void Action_throw_startup<CharState_t, Char_t>::outdated(Char_t &character_) const
 {
     character_.m_actionResolver.getAction(m_whiffState)->switchTo(character_);
 }
 
 // ABSTRACT THROW HOLD
-template <typename CharState_t, typename CharData, typename Char_t>
-Action_throw_hold<CharState_t, CharData, Char_t>::Action_throw_hold(CharState_t actionState_, CharState_t throwState_, float setRange_, float duration_, bool sideSwitch_) :
-    Action<CharState_t, CharData, Char_t>(actionState_, nullptr, {}, ANIMATIONS::NONE, TimelineProperty(false), TimelineProperty(false), TimelineProperty(false)),
+template <typename CharState_t, typename Char_t>
+Action_throw_hold<CharState_t, Char_t>::Action_throw_hold(CharState_t actionState_, CharState_t throwState_, float setRange_, float duration_, bool sideSwitch_) :
+    Action<CharState_t, Char_t>(actionState_, nullptr, {}, ANIMATIONS::NONE, TimelineProperty(false), TimelineProperty(false), TimelineProperty(false)),
     m_setRange(setRange_),
     m_duration(duration_),
     m_throwState(throwState_),
@@ -245,18 +245,18 @@ Action_throw_hold<CharState_t, CharData, Char_t>::Action_throw_hold(CharState_t 
 {
 }
 
-template <typename CharState_t, typename CharData, typename Char_t>
-int Action_throw_hold<CharState_t, CharData, Char_t>::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
+template <typename CharState_t, typename Char_t>
+int Action_throw_hold<CharState_t, Char_t>::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
     return false;
 }
 
-template <typename CharState_t, typename CharData, typename Char_t>
-void Action_throw_hold<CharState_t, CharData, Char_t>::switchTo(Char_t &character_) const
+template <typename CharState_t, typename Char_t>
+void Action_throw_hold<CharState_t, Char_t>::switchTo(Char_t &character_) const
 {
     character_.m_velocity = {0, 0};
     character_.m_inertia = {0, 0};
-    Action<CharState_t, CharData, Char_t>::switchTo(character_);
+    Action<CharState_t, Char_t>::switchTo(character_);
     character_.m_timer.begin(m_duration);
 
     Character &otherChar = *character_.m_otherCharacter;
@@ -277,13 +277,13 @@ void Action_throw_hold<CharState_t, CharData, Char_t>::switchTo(Char_t &characte
     otherChar.updateOwnOrientation();
 }
 
-template <typename CharState_t, typename CharData, typename Char_t>
-void Action_throw_hold<CharState_t, CharData, Char_t>::update(Char_t &character_) const
+template <typename CharState_t, typename Char_t>
+void Action_throw_hold<CharState_t, Char_t>::update(Char_t &character_) const
 {
 }
 
-template <typename CharState_t, typename CharData, typename Char_t>
-void Action_throw_hold<CharState_t, CharData, Char_t>::outdated(Char_t &character_) const
+template <typename CharState_t, typename Char_t>
+void Action_throw_hold<CharState_t, Char_t>::outdated(Char_t &character_) const
 {
     //character_.switchToIdle();
     if (m_sideSwitch)
@@ -304,28 +304,28 @@ void Action_throw_hold<CharState_t, CharData, Char_t>::outdated(Char_t &characte
 }
 
 // ABSTRACT THROW WHIFF
-template <typename CharState_t, typename CharData, typename Char_t>
-Action_throw_whiff<CharState_t, CharData, Char_t>::Action_throw_whiff(CharState_t actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, float duration_, HurtboxFramesVec &&hurtboxes_) :
-    Action<CharState_t, CharData, Char_t>(actionState_, nullptr, std::move(hurtboxes_), anim_, TimelineProperty(false), std::move(gravityWindow_), TimelineProperty(false)),
+template <typename CharState_t, typename Char_t>
+Action_throw_whiff<CharState_t, Char_t>::Action_throw_whiff(CharState_t actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, float duration_, HurtboxFramesVec &&hurtboxes_) :
+    Action<CharState_t, Char_t>(actionState_, nullptr, std::move(hurtboxes_), anim_, TimelineProperty(false), std::move(gravityWindow_), TimelineProperty(false)),
     m_duration(duration_)
 {
 }
 
-template <typename CharState_t, typename CharData, typename Char_t>
-int Action_throw_whiff<CharState_t, CharData, Char_t>::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
+template <typename CharState_t, typename Char_t>
+int Action_throw_whiff<CharState_t, Char_t>::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
     return false;
 }
 
-template <typename CharState_t, typename CharData, typename Char_t>
-void Action_throw_whiff<CharState_t, CharData, Char_t>::switchTo(Char_t &character_) const
+template <typename CharState_t, typename Char_t>
+void Action_throw_whiff<CharState_t, Char_t>::switchTo(Char_t &character_) const
 {
-    Action<CharState_t, CharData, Char_t>::switchTo(character_);
+    Action<CharState_t, Char_t>::switchTo(character_);
     character_.m_timer.begin(m_duration);
 }
 
-template <typename CharState_t, typename CharData, typename Char_t>
-void Action_throw_whiff<CharState_t, CharData, Char_t>::outdated(Char_t &character_) const
+template <typename CharState_t, typename Char_t>
+void Action_throw_whiff<CharState_t, Char_t>::outdated(Char_t &character_) const
 {
     if (!character_.m_airborne)
         character_.switchToIdle();
@@ -334,54 +334,54 @@ void Action_throw_whiff<CharState_t, CharData, Char_t>::outdated(Char_t &charact
 }
 
 // ABSTRACT THROWN HOLD
-template <typename CharState_t, typename CharData, typename Char_t>
-Action_thrown_hold<CharState_t, CharData, Char_t>::Action_thrown_hold(CharState_t actionState_, CharState_t thrownState_, ANIMATIONS anim_, float duration_) :
-    Action<CharState_t, CharData, Char_t>(actionState_, nullptr, {}, anim_, TimelineProperty(false), TimelineProperty(false), TimelineProperty(false)),
+template <typename CharState_t, typename Char_t>
+Action_thrown_hold<CharState_t, Char_t>::Action_thrown_hold(CharState_t actionState_, CharState_t thrownState_, ANIMATIONS anim_, float duration_) :
+    Action<CharState_t, Char_t>(actionState_, nullptr, {}, anim_, TimelineProperty(false), TimelineProperty(false), TimelineProperty(false)),
     m_duration(duration_),
     m_thrownState(thrownState_)
 {
 }
 
-template <typename CharState_t, typename CharData, typename Char_t>
-int Action_thrown_hold<CharState_t, CharData, Char_t>::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
+template <typename CharState_t, typename Char_t>
+int Action_thrown_hold<CharState_t, Char_t>::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
     return false;
 }
 
-template <typename CharState_t, typename CharData, typename Char_t>
-void Action_thrown_hold<CharState_t, CharData, Char_t>::switchTo(Char_t &character_) const
+template <typename CharState_t, typename Char_t>
+void Action_thrown_hold<CharState_t, Char_t>::switchTo(Char_t &character_) const
 {
     character_.m_velocity = {0, 0};
     character_.m_inertia = {0, 0};
-    Action<CharState_t, CharData, Char_t>::switchTo(character_);
+    Action<CharState_t, Char_t>::switchTo(character_);
     character_.m_timer.begin(m_duration);
 
     character_.lockInAnimation();
     character_.tieAnimWithOpponent();
 }
 
-template <typename CharState_t, typename CharData, typename Char_t>
-void Action_thrown_hold<CharState_t, CharData, Char_t>::outdated(Char_t &character_) const
+template <typename CharState_t, typename Char_t>
+void Action_thrown_hold<CharState_t, Char_t>::outdated(Char_t &character_) const
 {
     //character_.switchToIdle();
     character_.m_actionResolver.getAction(m_thrownState)->switchTo(character_);
 }
 
 // ABSTRACT THROW TECH
-template <typename CharState_t, typename CharData, typename Char_t>
-Action_throw_tech<CharState_t, CharData, Char_t>::Action_throw_tech(CharState_t actionState_, InputComparator_ptr incmp_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, float duration_, HurtboxFramesVec &&hurtboxes_, THROW_TECHS_LIST throwTech_) :
-    Action<CharState_t, CharData, Char_t>(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, TimelineProperty(false), std::move(gravityWindow_), std::move(blockWindow_)),
+template <typename CharState_t, typename Char_t>
+Action_throw_tech<CharState_t, Char_t>::Action_throw_tech(CharState_t actionState_, InputComparator_ptr incmp_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, float duration_, HurtboxFramesVec &&hurtboxes_, THROW_TECHS_LIST throwTech_) :
+    Action<CharState_t, Char_t>(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, TimelineProperty(false), std::move(gravityWindow_), std::move(blockWindow_)),
     m_duration(duration_),
     m_throwTech(throwTech_)
 {
 }
 
-template <typename CharState_t, typename CharData, typename Char_t>
-void Action_throw_tech<CharState_t, CharData, Char_t>::switchTo(Char_t &character_) const
+template <typename CharState_t, typename Char_t>
+void Action_throw_tech<CharState_t, Char_t>::switchTo(Char_t &character_) const
 {
     character_.m_velocity = {0, 0};
     character_.m_inertia = {0, 0};
-    Action<CharState_t, CharData, Char_t>::switchTo(character_);
+    Action<CharState_t, Char_t>::switchTo(character_);
     character_.m_timer.begin(m_duration);
     
     character_.releaseFromAnimation();
@@ -392,8 +392,8 @@ void Action_throw_tech<CharState_t, CharData, Char_t>::switchTo(Char_t &characte
     }
 }
 
-template <typename CharState_t, typename CharData, typename Char_t>
-void Action_throw_tech<CharState_t, CharData, Char_t>::outdated(Char_t &character_) const
+template <typename CharState_t, typename Char_t>
+void Action_throw_tech<CharState_t, Char_t>::outdated(Char_t &character_) const
 {
     if (!character_.m_airborne)
         character_.switchToIdle();
@@ -402,32 +402,32 @@ void Action_throw_tech<CharState_t, CharData, Char_t>::outdated(Char_t &characte
 }
 
 // ABSTRACT LOCKED ANIMATION
-template <typename CharState_t, typename CharData, typename Char_t>
-Action_locked_animation<CharState_t, CharData, Char_t>::Action_locked_animation(CharState_t actionState_, CharState_t quitState_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, float duration_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&blockWindow_) :
-    Action<CharState_t, CharData, Char_t>(actionState_, nullptr, std::move(hurtboxes_), anim_, std::move(counterWindow_), TimelineProperty(false), std::move(blockWindow_)),
+template <typename CharState_t, typename Char_t>
+Action_locked_animation<CharState_t, Char_t>::Action_locked_animation(CharState_t actionState_, CharState_t quitState_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, float duration_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&blockWindow_) :
+    Action<CharState_t, Char_t>(actionState_, nullptr, std::move(hurtboxes_), anim_, std::move(counterWindow_), TimelineProperty(false), std::move(blockWindow_)),
     m_duration(duration_),
     m_quitState(quitState_)
 {
 }
 
-template <typename CharState_t, typename CharData, typename Char_t>
-int Action_locked_animation<CharState_t, CharData, Char_t>::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
+template <typename CharState_t, typename Char_t>
+int Action_locked_animation<CharState_t, Char_t>::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
     return false;
 }
 
-template <typename CharState_t, typename CharData, typename Char_t>
-void Action_locked_animation<CharState_t, CharData, Char_t>::switchTo(Char_t &character_) const
+template <typename CharState_t, typename Char_t>
+void Action_locked_animation<CharState_t, Char_t>::switchTo(Char_t &character_) const
 {
     character_.m_velocity = {0, 0};
     character_.m_inertia = {0, 0};
-    Action<CharState_t, CharData, Char_t>::switchTo(character_);
+    Action<CharState_t, Char_t>::switchTo(character_);
     character_.m_timer.begin(m_duration);
     character_.lockInAnimation();
 }
 
-template <typename CharState_t, typename CharData, typename Char_t>
-void Action_locked_animation<CharState_t, CharData, Char_t>::outdated(Char_t &character_) const
+template <typename CharState_t, typename Char_t>
+void Action_locked_animation<CharState_t, Char_t>::outdated(Char_t &character_) const
 {
     character_.releaseFromAnimation();
     character_.untieAnimWithOpponent();
@@ -446,12 +446,14 @@ Action_char1_idle::Action_char1_idle() :
 {
 }
 
-int Action_char1_idle::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
+int Action_char1_idle::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
-    if (charData_.inHitstop)
+    if (char_->isInHitstop())
         return 0;
 
-    switch (charData_.state)
+    auto *chr1 = dynamic_cast<Char1*>(char_);
+
+    switch (chr1->m_currentState)
     {
         case (CHAR1_STATE::IDLE):
             return -1;
@@ -462,7 +464,7 @@ int Action_char1_idle::isPossible(const InputQueue &inputQueue_, Char1Data charD
         case (CHAR1_STATE::WALK_FWD):
             [[fallthrough]];
         case (CHAR1_STATE::WALK_BWD):
-            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
+            return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
             break;
 
         default:
@@ -477,7 +479,7 @@ int Action_char1_idle::isPossible(const InputQueue &inputQueue_, Char1Data charD
 void Action_char1_idle::switchTo(Char1 &character_) const
 {
     character_.turnVelocityToInertia();
-    Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    Action<CHAR1_STATE, Char1>::switchTo(character_);
     character_.updateOwnOrientation();
     character_.m_healthHandler.resetScaling();
     character_.m_comboPhysHandler.reset();
@@ -495,15 +497,17 @@ Action_char1_crouch::Action_char1_crouch() :
 {
 }
 
-int Action_char1_crouch::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
+int Action_char1_crouch::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
-    if (charData_.inHitstop)
+    if (char_->isInHitstop())
         return 0;
 
-    switch (charData_.state)
+    auto *chr1 = dynamic_cast<Char1*>(char_);
+
+    switch (chr1->m_currentState)
     {
         case (CHAR1_STATE::CROUCH):
-            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? -1 : 0);
+            return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? -1 : 0);
             break;
 
         case (CHAR1_STATE::IDLE):
@@ -511,7 +515,7 @@ int Action_char1_crouch::isPossible(const InputQueue &inputQueue_, Char1Data cha
         case (CHAR1_STATE::WALK_FWD):
             [[fallthrough]];
         case (CHAR1_STATE::WALK_BWD):
-            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
+            return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
             break;
 
         default:
@@ -525,7 +529,7 @@ int Action_char1_crouch::isPossible(const InputQueue &inputQueue_, Char1Data cha
 
 void Action_char1_crouch::switchTo(Char1 &character_) const
 {
-    Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    Action<CHAR1_STATE, Char1>::switchTo(character_);
     character_.m_velocity = {0.0f, 0.0f};
 }
 
@@ -547,21 +551,23 @@ Action_char1_walk_fwd::Action_char1_walk_fwd() :
 {
 }
 
-int Action_char1_walk_fwd::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
+int Action_char1_walk_fwd::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
-    if (charData_.inHitstop)
+    if (char_->isInHitstop())
         return 0;
 
-    switch (charData_.state)
+    auto *chr1 = dynamic_cast<Char1*>(char_);
+
+    switch (chr1->m_currentState)
     {
         case (CHAR1_STATE::WALK_FWD):
-            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? -1 : 0);
+            return (isInputPossible(inputQueue_, chr1->getInputDir(), extendBuffer_) ? -1 : 0);
             break;
 
         case (CHAR1_STATE::WALK_BWD):
             [[fallthrough]];
         case (CHAR1_STATE::IDLE):
-            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
+            return (isInputPossible(inputQueue_, chr1->getInputDir(), extendBuffer_) ? 1 : 0);
             break;
 
         default:
@@ -575,7 +581,7 @@ int Action_char1_walk_fwd::isPossible(const InputQueue &inputQueue_, Char1Data c
 
 void Action_char1_walk_fwd::switchTo(Char1 &character_) const
 {
-    Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    Action<CHAR1_STATE, Char1>::switchTo(character_);
     character_.m_velocity = character_.getHorDirToEnemy().mulComponents(Vector2{6.0f, 0.0f});
 }
 
@@ -595,21 +601,23 @@ Action_char1_walk_bwd::Action_char1_walk_bwd() :
 {
 }
 
-int Action_char1_walk_bwd::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
+int Action_char1_walk_bwd::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
-    if (charData_.inHitstop)
+    if (char_->isInHitstop())
         return 0;
 
-    switch (charData_.state)
+    auto *chr1 = dynamic_cast<Char1*>(char_);
+
+    switch (chr1->m_currentState)
     {
         case (CHAR1_STATE::WALK_BWD):
-            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? -1 : 0);
+            return (isInputPossible(inputQueue_, chr1->getInputDir(), extendBuffer_) ? -1 : 0);
             break;
 
         case (CHAR1_STATE::WALK_FWD):
             [[fallthrough]];
         case (CHAR1_STATE::IDLE):
-            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
+            return (isInputPossible(inputQueue_, chr1->getInputDir(), extendBuffer_) ? 1 : 0);
             break;
 
         default:
@@ -623,7 +631,7 @@ int Action_char1_walk_bwd::isPossible(const InputQueue &inputQueue_, Char1Data c
 
 void Action_char1_walk_bwd::switchTo(Char1 &character_) const
 {
-    Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    Action<CHAR1_STATE, Char1>::switchTo(character_);
     character_.m_currentAnimation->reset(65, -1);
     character_.m_velocity = character_.getHorDirToEnemy().mulComponents(Vector2{-6.0f, 0.0f});
 }
@@ -636,30 +644,30 @@ void Action_char1_walk_bwd::update(Char1 &character_) const
 
 // ABSTRACT CHAR1 JUMP ACTION
 Action_char1_jump::Action_char1_jump(CHAR1_STATE actionState_, const Vector2<float> &impulse_, float prejumpLen_, float maxHorInertia_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_) :
-    Action_jump<CHAR1_STATE, Char1Data, Char1>(actionState_, impulse_, prejumpLen_, maxHorInertia_, std::move(incmp_), std::move(hurtboxes_), ANIMATIONS::CHAR1_PREJUMP, TimelineProperty(false), TimelineProperty(true)),
+    Action_jump<CHAR1_STATE, Char1>(actionState_, impulse_, prejumpLen_, maxHorInertia_, std::move(incmp_), std::move(hurtboxes_), ANIMATIONS::CHAR1_PREJUMP, TimelineProperty(false), TimelineProperty(true)),
     m_impulse(impulse_),
     m_prejumpLen(prejumpLen_),
     m_maxHorInertia(maxHorInertia_)
 {
 }
 
-int Action_char1_jump::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
+int Action_char1_jump::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
-    if (charData_.inHitstop || charData_.airborne)
+    if (char_->isInHitstop() || char_->isAirborne())
         return 0;
 
-    if (charData_.inBlockstun && charData_.blockFrame == BLOCK_FRAME::INSTANT)
-        return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
+    auto *chr1 = dynamic_cast<Char1*>(char_);
 
-    if (charData_.cancelOptions)
+
+    if (char_->isInInstantBlockstun())
+        return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
+
+    if (chr1->m_currentCancelWindow.second.contains((int)actionState))
     {
-        if (charData_.cancelOptions->contains((int)actionState))
-        {
-            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
-        }
+        return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
     }
 
-    switch (charData_.state)
+    switch (chr1->m_currentState)
     {
         case (CHAR1_STATE::PREJUMP):
             return -1;
@@ -674,7 +682,7 @@ int Action_char1_jump::isPossible(const InputQueue &inputQueue_, Char1Data charD
         case (CHAR1_STATE::WALK_FWD):
             [[fallthrough]];
         case (CHAR1_STATE::IDLE):
-            return (isInputPossible(inputQueue_, charData_.inputDir, extendBuffer_) ? 1 : 0);
+            return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
             break;
 
         default:
@@ -689,7 +697,7 @@ int Action_char1_jump::isPossible(const InputQueue &inputQueue_, Char1Data charD
 void Action_char1_jump::switchTo(Char1 &character_) const
 {
     character_.turnVelocityToInertia();
-    Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    Action<CHAR1_STATE, Char1>::switchTo(character_);
     character_.m_timer.begin(m_prejumpLen);
     character_.m_jumpFramesCounter = 5;
     character_.m_airadashFramesCounter = 6;
@@ -764,14 +772,14 @@ Action_char1_float::Action_char1_float() :
 {
 }
 
-int Action_char1_float::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
+int Action_char1_float::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
     return false;
 }
 
 void Action_char1_float::switchTo(Char1 &character_) const
 {
-    Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    Action<CHAR1_STATE, Char1>::switchTo(character_);
     character_.m_currentAnimation->reset(20);
 
     //character_.turnVelocityToInertia();
@@ -792,28 +800,27 @@ Action_char1_airjump::Action_char1_airjump(const Vector2<float> &impulse_, Input
 {
 }
 
-int Action_char1_airjump::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
+int Action_char1_airjump::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
-    if (charData_.inHitstop || charData_.usedDoubleJump || !charData_.canDoubleJumpAfterPrejump || !charData_.airborne)
+    auto *chr1 = dynamic_cast<Char1*>(char_);
+
+    if (char_->isInHitstop() || chr1->m_usedDoubleJump || !(chr1->m_jumpFramesCounter == 0) || !char_->isAirborne())
         return 0;
 
-    if (charData_.inBlockstun && charData_.blockFrame == BLOCK_FRAME::INSTANT)
-        return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
+    if (char_->isInInstantBlockstun())
+        return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
 
-    if (charData_.cancelOptions)
+    if (chr1->m_currentCancelWindow.second.contains((int)actionState))
     {
-        if (charData_.cancelOptions->contains((int)actionState))
-        {
-            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
-        }
+        return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
     }
 
-    switch (charData_.state)
+    switch (chr1->m_currentState)
     {
         case (CHAR1_STATE::AIR_DASH_EXTENTION):
             [[fallthrough]];
         case (CHAR1_STATE::JUMP):
-            return ((isInputPossible(inputQueue_, charData_.dirToEnemy, extendBuffer_)) ? 1 : 0);
+            return ((isInputPossible(inputQueue_, char_->getOrientationToEnemy(), extendBuffer_)) ? 1 : 0);
             break;
 
         default:
@@ -835,7 +842,7 @@ void Action_char1_airjump::switchTo(Char1 &character_) const
         character_.m_inertia.x /= gamedata::characters::char1::doubleJumpInertiaDivider;
     }
 
-    Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    Action<CHAR1_STATE, Char1>::switchTo(character_);
 
     auto ownOrientationVector = character_.getOwnHorDir();
     ownOrientationVector.y = 1;
@@ -881,23 +888,22 @@ Action_char1_ground_dash::Action_char1_ground_dash() :
 {
 }
 
-int Action_char1_ground_dash::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
+int Action_char1_ground_dash::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
-    if (charData_.inHitstop)
+    if (char_->isInHitstop())
         return 0;
 
-    if (charData_.cancelOptions)
+    auto *chr1 = dynamic_cast<Char1*>(char_);
+
+    if (chr1->m_currentCancelWindow.second.contains((int)actionState))
     {
-        if (charData_.cancelOptions->contains((int)actionState))
-        {
-            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
-        }
+        return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
     }
 
-    switch (charData_.state)
+    switch (chr1->m_currentState)
     {
         case (CHAR1_STATE::GROUND_DASH):
-            return (isPossibleToProlong(inputQueue_, charData_.ownDirection) ? -1 : 0);
+            return (isPossibleToProlong(inputQueue_, char_->getInputDir()) ? -1 : 0);
             break;
 
         case (CHAR1_STATE::WALK_FWD):
@@ -905,7 +911,7 @@ int Action_char1_ground_dash::isPossible(const InputQueue &inputQueue_, Char1Dat
         case (CHAR1_STATE::WALK_BWD):
             [[fallthrough]];
         case (CHAR1_STATE::IDLE):
-            return ((!charData_.usedDoubleJump && !charData_.usedAirDash && isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_)) ? 1 : 0);
+            return ((isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_)) ? 1 : 0);
             break;
 
         default:
@@ -935,20 +941,19 @@ Action_char1_step::Action_char1_step() :
 {
 }
 
-int Action_char1_step::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
+int Action_char1_step::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
-    if (charData_.inHitstop || charData_.airborne)
+    if (char_->isInHitstop() || char_->isAirborne())
         return 0;
-    
-    if (charData_.inBlockstun && charData_.blockFrame == BLOCK_FRAME::INSTANT)
-        return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
 
-    if (charData_.cancelOptions)
+    auto *chr1 = dynamic_cast<Char1*>(char_);
+    
+    if (char_->isInInstantBlockstun())
+        return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
+
+    if (chr1->m_currentCancelWindow.second.contains((int)actionState))
     {
-        if (charData_.cancelOptions->contains((int)actionState))
-        {
-            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
-        }
+        return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
     }
 
     return false;
@@ -965,7 +970,7 @@ void Action_char1_step::switchTo(Char1 &character_) const
     character_.m_velocity = {0, 0};
     character_.m_inertia = {0, 0};
     character_.m_velocity = character_.getOwnHorDir().mulComponents(Vector2{gamedata::characters::char1::stepSpeed, 0.0f});
-    Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    Action<CHAR1_STATE, Char1>::switchTo(character_);
     character_.m_timer.begin(m_duration);
 }
 
@@ -981,10 +986,11 @@ Action_char1_step_recovery::Action_char1_step_recovery() :
 {
 }
 
-int Action_char1_step_recovery::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
+int Action_char1_step_recovery::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
+    auto *chr1 = dynamic_cast<Char1*>(char_);
 
-    switch (charData_.state)
+    switch (chr1->m_currentState)
     {
         case (CHAR1_STATE::STEP_RECOVERY):
             return -1;
@@ -1004,7 +1010,7 @@ void Action_char1_step_recovery::outdated(Char1 &character_) const
 void Action_char1_step_recovery::switchTo(Char1 &character_) const
 {
     character_.turnVelocityToInertia();
-    Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    Action<CHAR1_STATE, Char1>::switchTo(character_);
     character_.m_timer.begin(m_recoveryLen);
 }
 
@@ -1025,20 +1031,19 @@ Action_char1_ground_backdash::Action_char1_ground_backdash() :
 {
 }
 
-int Action_char1_ground_backdash::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
+int Action_char1_ground_backdash::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
-    if (charData_.inHitstop || charData_.airborne)
+    if (char_->isInHitstop() || char_->isAirborne())
         return 0;
 
-    if (charData_.cancelOptions)
+    auto *chr1 = dynamic_cast<Char1*>(char_);
+
+    if (chr1->m_currentCancelWindow.second.contains((int)actionState))
     {
-        if (charData_.cancelOptions->contains((int)actionState))
-        {
-            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
-        }
+        return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
     }
 
-    switch (charData_.state)
+    switch (chr1->m_currentState)
     {
         case (CHAR1_STATE::GROUND_BACKDASH):
             return -1;
@@ -1053,7 +1058,7 @@ int Action_char1_ground_backdash::isPossible(const InputQueue &inputQueue_, Char
         case (CHAR1_STATE::CROUCH):
             [[fallthrough]];
         case (CHAR1_STATE::IDLE):
-            return (isInputPossible(inputQueue_, charData_.inputDir, extendBuffer_) ? 1 : 0);
+            return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
             break;
 
         default:
@@ -1077,7 +1082,7 @@ void Action_char1_ground_backdash::switchTo(Char1 &character_) const
         character_.updateOwnOrientation();
     }
 
-    Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    Action<CHAR1_STATE, Char1>::switchTo(character_);
 
     character_.m_timer.begin(m_totalDuration);
     auto dir = character_.getOwnHorDir();
@@ -1099,30 +1104,29 @@ Action_char1_air_dash::Action_char1_air_dash() :
 {
 }
 
-int Action_char1_air_dash::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
+int Action_char1_air_dash::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
-    if (charData_.inHitstop || charData_.usedAirDash || !charData_.canAirdashAfterPrejump)
+    auto *chr1 = dynamic_cast<Char1*>(char_);
+
+    if (char_->isInHitstop() || chr1->m_usedAirDash || !(chr1->m_airadashFramesCounter == 0))
         return 0;
 
-    if (charData_.inBlockstun && charData_.blockFrame == BLOCK_FRAME::INSTANT)
-        return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
+    if (char_->isInInstantBlockstun())
+        return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
 
-        if (charData_.cancelOptions)
+    if (chr1->m_currentCancelWindow.second.contains((int)actionState))
     {
-        if (charData_.cancelOptions->contains((int)actionState))
-        {
-            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) && !charData_.usedAirDash ? 1 : 0);
-        }
+        return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
     }
 
-    switch (charData_.state)
+    switch (chr1->m_currentState)
     {
         case (CHAR1_STATE::AIR_DASH):
             return -1;
             break;
 
         case (CHAR1_STATE::JUMP):
-            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) && !charData_.usedAirDash ? 1 : 0);
+            return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) && !chr1->m_usedAirDash ? 1 : 0);
             break;
 
         default:
@@ -1145,7 +1149,7 @@ void Action_char1_air_dash::switchTo(Char1 &character_) const
     character_.m_velocity = {0, 0};
     character_.m_inertia = {0, 0};
     character_.m_velocity = character_.getOwnHorDir().mulComponents(Vector2{gamedata::characters::char1::airdashSpeed, 0.0f});
-    Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    Action<CHAR1_STATE, Char1>::switchTo(character_);
     character_.m_timer.begin(m_duration);
     character_.m_usedAirDash = true;
 }
@@ -1162,27 +1166,26 @@ Action_char1_air_backdash::Action_char1_air_backdash() :
 {
 }
 
-int Action_char1_air_backdash::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
+int Action_char1_air_backdash::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
-    if (charData_.inHitstop || charData_.usedAirDash || !charData_.canAirdashAfterPrejump || !charData_.airborne)
+    auto *chr1 = dynamic_cast<Char1*>(char_);
+
+    if (char_->isInHitstop() || chr1->m_usedAirDash || !(chr1->m_airadashFramesCounter == 0) || !char_->isAirborne())
         return 0;
 
-    if (charData_.cancelOptions)
+    if (chr1->m_currentCancelWindow.second.contains((int)actionState))
     {
-        if (charData_.cancelOptions->contains((int)actionState))
-        {
-            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
-        }
+        return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
     }
 
-    switch (charData_.state)
+    switch (chr1->m_currentState)
     {
         case (CHAR1_STATE::AIR_BACKDASH):
             return -1;
             break;
 
         case (CHAR1_STATE::JUMP):
-            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
+            return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
             break;
 
         default:
@@ -1205,7 +1208,7 @@ void Action_char1_air_backdash::switchTo(Char1 &character_) const
     character_.m_velocity = {0, 0};
     character_.m_inertia = {0, -10.0f};
     character_.m_velocity = character_.getOwnHorDir().mulComponents(Vector2{-gamedata::characters::char1::airBackdashSpeed, 0.0f});
-    Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    Action<CHAR1_STATE, Char1>::switchTo(character_);
     character_.m_timer.begin(m_duration);
     character_.m_usedAirDash = true;
 }
@@ -1224,7 +1227,7 @@ Action_char1_air_dash_extention::Action_char1_air_dash_extention() :
 {
 }
 
-int Action_char1_air_dash_extention::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
+int Action_char1_air_dash_extention::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
     return false;
 }
@@ -1240,7 +1243,7 @@ void Action_char1_air_dash_extention::switchTo(Char1 &character_) const
     character_.m_velocity = {0, 0};
     character_.m_inertia = {0, 0};
     character_.m_velocity = character_.getOwnHorDir().mulComponents(Vector2{(float)m_baseSpd, 0.0f});
-    Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    Action<CHAR1_STATE, Char1>::switchTo(character_);
     character_.m_timer.begin(m_duration);
 }
 
@@ -1267,12 +1270,14 @@ Action_char1_ground_dash_recovery::Action_char1_ground_dash_recovery() :
 {
 }
 
-int Action_char1_ground_dash_recovery::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
+int Action_char1_ground_dash_recovery::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
-    if (charData_.inHitstop)
+    if (char_->isInHitstop())
         return 0;
 
-    switch (charData_.state)
+    auto *chr1 = dynamic_cast<Char1*>(char_);
+
+    switch (chr1->m_currentState)
     {
         case (CHAR1_STATE::GROUND_DASH_RECOVERY):
             return -1;
@@ -1299,7 +1304,7 @@ void Action_char1_ground_dash_recovery::outdated(Char1 &character_) const
 void Action_char1_ground_dash_recovery::switchTo(Char1 &character_) const
 {
     character_.turnVelocityToInertia();
-    Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    Action<CHAR1_STATE, Char1>::switchTo(character_);
     character_.m_timer.begin(m_recoveryLen);
 }
 
@@ -1315,7 +1320,7 @@ Action_char1_soft_landing_recovery::Action_char1_soft_landing_recovery() :
 {
 }
 
-int Action_char1_soft_landing_recovery::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
+int Action_char1_soft_landing_recovery::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
     return false;
 }
@@ -1327,7 +1332,7 @@ void Action_char1_soft_landing_recovery::outdated(Char1 &character_) const
 
 void Action_char1_soft_landing_recovery::switchTo(Char1 &character_) const
 {
-    Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    Action<CHAR1_STATE, Char1>::switchTo(character_);
     character_.m_velocity = {0.0f, 0.0f};
     character_.m_inertia = {0.0f, 0.0f};
     character_.m_timer.begin(m_recoveryLen);
@@ -1345,7 +1350,7 @@ Action_char1_hard_landing_recovery::Action_char1_hard_landing_recovery() :
 {
 }
 
-int Action_char1_hard_landing_recovery::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
+int Action_char1_hard_landing_recovery::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
     return false;
 }
@@ -1357,7 +1362,7 @@ void Action_char1_hard_landing_recovery::outdated(Char1 &character_) const
 
 void Action_char1_hard_landing_recovery::switchTo(Char1 &character_) const
 {
-    Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    Action<CHAR1_STATE, Char1>::switchTo(character_);
     character_.m_velocity = {0.0f, 0.0f};
     character_.m_inertia = {0.0f, 0.0f};
     character_.m_timer.begin(m_recoveryLen);
@@ -1375,7 +1380,7 @@ Action_char1_vulnerable_landing_recovery::Action_char1_vulnerable_landing_recove
 {
 }
 
-int Action_char1_vulnerable_landing_recovery::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
+int Action_char1_vulnerable_landing_recovery::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
     return false;
 }
@@ -1387,7 +1392,7 @@ void Action_char1_vulnerable_landing_recovery::outdated(Char1 &character_) const
 
 void Action_char1_vulnerable_landing_recovery::switchTo(Char1 &character_) const
 {
-    Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    Action<CHAR1_STATE, Char1>::switchTo(character_);
     character_.m_velocity = {0.0f, 0.0f};
     character_.m_inertia = {0.0f, 0.0f};
     character_.m_timer.begin(m_recoveryLen);
@@ -1405,7 +1410,7 @@ Action_char1_jc_landing_recovery::Action_char1_jc_landing_recovery() :
 {
 }
 
-int Action_char1_jc_landing_recovery::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
+int Action_char1_jc_landing_recovery::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
     return false;
 }
@@ -1417,7 +1422,7 @@ void Action_char1_jc_landing_recovery::outdated(Char1 &character_) const
 
 void Action_char1_jc_landing_recovery::switchTo(Char1 &character_) const
 {
-    Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    Action<CHAR1_STATE, Char1>::switchTo(character_);
     character_.m_velocity = {0.0f, 0.0f};
     character_.m_inertia = {0.0f, 0.0f};
     character_.m_timer.begin(m_recoveryLen);
@@ -1429,7 +1434,7 @@ Action_char1_soft_knockdown::Action_char1_soft_knockdown() :
 {
 }
 
-int Action_char1_soft_knockdown::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
+int Action_char1_soft_knockdown::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
     return false;
 }
@@ -1443,7 +1448,7 @@ void Action_char1_soft_knockdown::switchTo(Char1 &character_) const
 {
     character_.takePushback({0, 0});
     character_.turnVelocityToInertia();
-    Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    Action<CHAR1_STATE, Char1>::switchTo(character_);
     character_.m_timer.begin(8);
 }
 
@@ -1453,7 +1458,7 @@ Action_char1_hard_knockdown::Action_char1_hard_knockdown() :
 {
 }
 
-int Action_char1_hard_knockdown::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
+int Action_char1_hard_knockdown::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
     return false;
 }
@@ -1466,7 +1471,7 @@ void Action_char1_hard_knockdown::outdated(Char1 &character_) const
 void Action_char1_hard_knockdown::switchTo(Char1 &character_) const
 {
     character_.takePushback({0, 0});
-    Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    Action<CHAR1_STATE, Char1>::switchTo(character_);
     character_.m_timer.begin(30);
     character_.m_velocity = {0.0f, 0.0f};
 }
@@ -1477,7 +1482,7 @@ Action_char1_knockdown_recovery::Action_char1_knockdown_recovery() :
 {
 }
 
-int Action_char1_knockdown_recovery::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
+int Action_char1_knockdown_recovery::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
     return false;
 }
@@ -1492,7 +1497,7 @@ void Action_char1_knockdown_recovery::switchTo(Char1 &character_) const
 {
     character_.turnVelocityToInertia();
     character_.takePushback({0, 0});
-    Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    Action<CHAR1_STATE, Char1>::switchTo(character_);
     character_.m_timer.begin(21);
     character_.m_healthHandler.resetScaling();
     character_.m_comboPhysHandler.reset();
@@ -1500,32 +1505,31 @@ void Action_char1_knockdown_recovery::switchTo(Char1 &character_) const
 
 // ABSTRACT CHAR1 GROUND ATTACK ACTION
 Action_char1_ground_attack::Action_char1_ground_attack(CHAR1_STATE actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, TimelineProperty<Vector2<float>> &&velocity_, bool noLandTransition_, bool isCrouchState_, bool stepOnly_) :
-    Action_attack<CHAR1_STATE, Char1Data, Char1>(actionState_, std::move(incmp_), fullDuration_, hits_, std::move(hurtboxes_), std::move(velocity_), anim_, std::move(gravityWindow_), noLandTransition_, isCrouchState_, stepOnly_)
+    Action_attack<CHAR1_STATE, Char1>(actionState_, std::move(incmp_), fullDuration_, hits_, std::move(hurtboxes_), std::move(velocity_), anim_, std::move(gravityWindow_), noLandTransition_, isCrouchState_, stepOnly_)
 {
 }
 
-int Action_char1_ground_attack::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
+int Action_char1_ground_attack::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
-    if (charData_.inHitstop || charData_.airborne)
+    if (char_->isInHitstop() || char_->isAirborne())
         return 0;
 
-    if (charData_.cancelOptions)
+    auto *chr1 = dynamic_cast<Char1*>(char_);
+
+    if (chr1->m_currentCancelWindow.second.contains((int)actionState))
     {
-        if (charData_.cancelOptions->contains((int)actionState))
-        {
-            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
-        }
+        return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
     }
 
     if (m_stepOnly)
     {
-        if (charData_.state == CHAR1_STATE::STEP_RECOVERY)
-            return (isInputPossible(inputQueue_, charData_.inputDir, extendBuffer_) ? 1 : 0);
+        if (chr1->m_currentState == CHAR1_STATE::STEP_RECOVERY)
+            return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
         else
             return 0;
     }
 
-    switch (charData_.state)
+    switch (chr1->m_currentState)
     {
 
         case (CHAR1_STATE::SOFT_LANDING_RECOVERY):
@@ -1543,7 +1547,7 @@ int Action_char1_ground_attack::isPossible(const InputQueue &inputQueue_, Char1D
         case (CHAR1_STATE::STEP_RECOVERY):
             [[fallthrough]];
         case (CHAR1_STATE::IDLE):
-            return (isInputPossible(inputQueue_, charData_.inputDir, extendBuffer_) ? 1 : 0);
+            return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
             break;
 
         default:
@@ -1566,35 +1570,34 @@ void Action_char1_ground_attack::switchTo(Char1 &character_) const
     if (character_.m_currentState == CHAR1_STATE::SOFT_LANDING_RECOVERY)
                     character_.updateOwnOrientation();
 
-    Action_attack<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    Action_attack<CHAR1_STATE, Char1>::switchTo(character_);
 }
 
 // ABSTRACT CHAR1 AIR ATTACK ACTION
 Action_char1_air_attack::Action_char1_air_attack(CHAR1_STATE actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_) :
-    Action_attack<CHAR1_STATE, Char1Data, Char1>(actionState_, std::move(incmp_), fullDuration_, hits_, std::move(hurtboxes_), TimelineProperty<Vector2<float>>{}, anim_, std::move(gravityWindow_))
+    Action_attack<CHAR1_STATE, Char1>(actionState_, std::move(incmp_), fullDuration_, hits_, std::move(hurtboxes_), TimelineProperty<Vector2<float>>{}, anim_, std::move(gravityWindow_))
 {
 }
 
-int Action_char1_air_attack::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
+int Action_char1_air_attack::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
-    if (charData_.inHitstop || !charData_.airborne)
+    if (char_->isInHitstop() || !char_->isAirborne())
         return 0;
 
-    if (charData_.cancelOptions)
+    auto *chr1 = dynamic_cast<Char1*>(char_);
+
+    if (chr1->m_currentCancelWindow.second.contains((int)actionState))
     {
-        if (charData_.cancelOptions->contains((int)actionState))
-        {
-            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
-        }
+        return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
     }
 
-    switch (charData_.state)
+    switch (chr1->m_currentState)
     {
 
         case (CHAR1_STATE::AIR_DASH_EXTENTION):
             [[fallthrough]];
         case (CHAR1_STATE::JUMP):
-            return (isInputPossible(inputQueue_, charData_.inputDir, extendBuffer_) ? 1 : 0);
+            return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
             break;
 
         default:
@@ -1620,7 +1623,7 @@ void Action_char1_air_attack::switchTo(Char1 &character_) const
     }
 
     character_.m_reservedAction = character_.m_currentAction;
-    Action<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    Action<CHAR1_STATE, Char1>::switchTo(character_);
     character_.m_timer.begin(m_fullDuration);
 }
 
@@ -1960,7 +1963,7 @@ Action_char1_move_214C::Action_char1_move_214C() :
 
 void Action_char1_move_214C::update(Char1 &character_) const
 {
-    Action_attack<CHAR1_STATE, Char1Data, Char1>::update(character_);
+    Action_attack<CHAR1_STATE, Char1>::update(character_);
 
     auto frame = character_.m_timer.getCurrentFrame() + 1;
     if (frame == 18)
@@ -2000,7 +2003,7 @@ Action_char1_move_projectile::Action_char1_move_projectile() :
 
 // Normal throw startup
 Action_char1_normal_throw_startup::Action_char1_normal_throw_startup() :
-    Action_throw_startup<CHAR1_STATE, Char1Data, Char1>(CHAR1_STATE::THROW_NORMAL_STARTUP, CHAR1_STATE::THROW_NORMAL_WHIFF, CHAR1_STATE::THROW_NORMAL_HOLD,
+    Action_throw_startup<CHAR1_STATE, Char1>(CHAR1_STATE::THROW_NORMAL_STARTUP, CHAR1_STATE::THROW_NORMAL_WHIFF, CHAR1_STATE::THROW_NORMAL_HOLD,
     std::make_unique<InputComparatorBCPress>(),
     {
         {
@@ -2012,20 +2015,19 @@ Action_char1_normal_throw_startup::Action_char1_normal_throw_startup() :
 {
 }
 
-int Action_char1_normal_throw_startup::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
+int Action_char1_normal_throw_startup::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
-    if (charData_.inHitstop || charData_.airborne)
+    if (char_->isInHitstop() || char_->isAirborne())
         return 0;
 
-    if (charData_.cancelOptions)
+    auto *chr1 = dynamic_cast<Char1*>(char_);
+
+    if (chr1->m_currentCancelWindow.second.contains((int)actionState))
     {
-        if (charData_.cancelOptions->contains((int)actionState))
-        {
-            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
-        }
+        return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
     }
 
-    switch (charData_.state)
+    switch (chr1->m_currentState)
     {
 
         case (CHAR1_STATE::SOFT_LANDING_RECOVERY):
@@ -2043,7 +2045,7 @@ int Action_char1_normal_throw_startup::isPossible(const InputQueue &inputQueue_,
         case (CHAR1_STATE::STEP_RECOVERY):
             [[fallthrough]];
         case (CHAR1_STATE::IDLE):
-            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
+            return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
             break;
 
         default:
@@ -2057,13 +2059,13 @@ int Action_char1_normal_throw_startup::isPossible(const InputQueue &inputQueue_,
 
 // Normal throw hold
 Action_char1_normal_throw_hold::Action_char1_normal_throw_hold() :
-    Action_throw_hold<CHAR1_STATE, Char1Data, Char1>(CHAR1_STATE::THROW_NORMAL_HOLD, CHAR1_STATE::THROW_NORMAL_ANIM, 90, 10, false)
+    Action_throw_hold<CHAR1_STATE, Char1>(CHAR1_STATE::THROW_NORMAL_HOLD, CHAR1_STATE::THROW_NORMAL_ANIM, 90, 10, false)
 {
 }
 
 // Back throw startup
 Action_char1_back_throw_startup::Action_char1_back_throw_startup() :
-    Action_throw_startup<CHAR1_STATE, Char1Data, Char1>(CHAR1_STATE::THROW_BACK_STARTUP, CHAR1_STATE::THROW_NORMAL_WHIFF, CHAR1_STATE::THROW_BACK_HOLD,
+    Action_throw_startup<CHAR1_STATE, Char1>(CHAR1_STATE::THROW_BACK_STARTUP, CHAR1_STATE::THROW_NORMAL_WHIFF, CHAR1_STATE::THROW_BACK_HOLD,
     std::make_unique<InputComparator4BCPress>(),
     {
         {
@@ -2075,20 +2077,19 @@ Action_char1_back_throw_startup::Action_char1_back_throw_startup() :
 {
 }
 
-int Action_char1_back_throw_startup::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
+int Action_char1_back_throw_startup::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
-    if (charData_.inHitstop || charData_.airborne)
+    if (char_->isInHitstop() || char_->isAirborne())
         return 0;
 
-    if (charData_.cancelOptions)
+    auto *chr1 = dynamic_cast<Char1*>(char_);
+
+    if (chr1->m_currentCancelWindow.second.contains((int)actionState))
     {
-        if (charData_.cancelOptions->contains((int)actionState))
-        {
-            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
-        }
+        return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
     }
 
-    switch (charData_.state)
+    switch (chr1->m_currentState)
     {
 
         case (CHAR1_STATE::SOFT_LANDING_RECOVERY):
@@ -2106,7 +2107,7 @@ int Action_char1_back_throw_startup::isPossible(const InputQueue &inputQueue_, C
         case (CHAR1_STATE::STEP_RECOVERY):
             [[fallthrough]];
         case (CHAR1_STATE::IDLE):
-            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
+            return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
             break;
 
         default:
@@ -2120,13 +2121,13 @@ int Action_char1_back_throw_startup::isPossible(const InputQueue &inputQueue_, C
 
 // Back throw hold
 Action_char1_back_throw_hold::Action_char1_back_throw_hold() :
-    Action_throw_hold<CHAR1_STATE, Char1Data, Char1>(CHAR1_STATE::THROW_BACK_HOLD, CHAR1_STATE::THROW_NORMAL_ANIM, 90, 10, true)
+    Action_throw_hold<CHAR1_STATE, Char1>(CHAR1_STATE::THROW_BACK_HOLD, CHAR1_STATE::THROW_NORMAL_ANIM, 90, 10, true)
 {
 }
 
 // Normal throw whiff
 Action_char1_normal_throw_whiff::Action_char1_normal_throw_whiff() :
-    Action_throw_whiff<CHAR1_STATE, Char1Data, Char1>(CHAR1_STATE::THROW_NORMAL_WHIFF, ANIMATIONS::CHAR1_NORMAL_THROW_WHIFF, TimelineProperty(true), 30, {
+    Action_throw_whiff<CHAR1_STATE, Char1>(CHAR1_STATE::THROW_NORMAL_WHIFF, ANIMATIONS::CHAR1_NORMAL_THROW_WHIFF, TimelineProperty(true), 30, {
         {
             TimelineProperty(true),
             gamedata::characters::char1::standingHurtbox
@@ -2137,7 +2138,7 @@ Action_char1_normal_throw_whiff::Action_char1_normal_throw_whiff() :
 
 // NORMAL THROW ACTION
 Action_char1_normal_throw::Action_char1_normal_throw() :
-    Action_locked_animation<CHAR1_STATE, Char1Data, Char1>(CHAR1_STATE::THROW_NORMAL_ANIM, CHAR1_STATE::IDLE, {
+    Action_locked_animation<CHAR1_STATE, Char1>(CHAR1_STATE::THROW_NORMAL_ANIM, CHAR1_STATE::IDLE, {
         {
             TimelineProperty(true),
             gamedata::characters::char1::standingHurtbox
@@ -2164,7 +2165,7 @@ void Action_char1_normal_throw::update(Char1 &character_) const
 
 // Air throw startup
 Action_char1_normal_air_throw_startup::Action_char1_normal_air_throw_startup() :
-    Action_throw_startup<CHAR1_STATE, Char1Data, Char1>(CHAR1_STATE::THROW_NORMAL_AIR_STARTUP, CHAR1_STATE::THROW_NORMAL_AIR_WHIFF, CHAR1_STATE::THROW_NORMAL_AIR_HOLD,
+    Action_throw_startup<CHAR1_STATE, Char1>(CHAR1_STATE::THROW_NORMAL_AIR_STARTUP, CHAR1_STATE::THROW_NORMAL_AIR_WHIFF, CHAR1_STATE::THROW_NORMAL_AIR_HOLD,
     std::make_unique<InputComparatorBCPress>(),
     {
         {
@@ -2176,25 +2177,24 @@ Action_char1_normal_air_throw_startup::Action_char1_normal_air_throw_startup() :
 {
 }
 
-int Action_char1_normal_air_throw_startup::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
+int Action_char1_normal_air_throw_startup::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
-    if (charData_.inHitstop || !charData_.airborne)
+    if (char_->isInHitstop() || !char_->isAirborne())
         return 0;
 
-    if (charData_.cancelOptions)
+    auto *chr1 = dynamic_cast<Char1*>(char_);
+
+    if (chr1->m_currentCancelWindow.second.contains((int)actionState))
     {
-        if (charData_.cancelOptions->contains((int)actionState))
-        {
-            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
-        }
+        return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
     }
 
-    switch (charData_.state)
+    switch (chr1->m_currentState)
     {
         case (CHAR1_STATE::AIR_DASH_EXTENTION):
             [[fallthrough]];
         case (CHAR1_STATE::JUMP):
-            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
+            return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
             break;
 
         default:
@@ -2208,13 +2208,13 @@ int Action_char1_normal_air_throw_startup::isPossible(const InputQueue &inputQue
 
 // Air throw hold
 Action_char1_normal_air_throw_hold::Action_char1_normal_air_throw_hold() :
-    Action_throw_hold<CHAR1_STATE, Char1Data, Char1>(CHAR1_STATE::THROW_NORMAL_AIR_HOLD, CHAR1_STATE::THROW_NORMAL_AIR_ANIM, 90, 10, false)
+    Action_throw_hold<CHAR1_STATE, Char1>(CHAR1_STATE::THROW_NORMAL_AIR_HOLD, CHAR1_STATE::THROW_NORMAL_AIR_ANIM, 90, 10, false)
 {
 }
 
 // Air back throw startup
 Action_char1_back_air_throw_startup::Action_char1_back_air_throw_startup() :
-    Action_throw_startup<CHAR1_STATE, Char1Data, Char1>(CHAR1_STATE::THROW_BACK_AIR_STARTUP, CHAR1_STATE::THROW_NORMAL_AIR_WHIFF, CHAR1_STATE::THROW_BACK_AIR_HOLD,
+    Action_throw_startup<CHAR1_STATE, Char1>(CHAR1_STATE::THROW_BACK_AIR_STARTUP, CHAR1_STATE::THROW_NORMAL_AIR_WHIFF, CHAR1_STATE::THROW_BACK_AIR_HOLD,
     std::make_unique<InputComparator4BCPress>(),
     {
         {
@@ -2226,25 +2226,24 @@ Action_char1_back_air_throw_startup::Action_char1_back_air_throw_startup() :
 {
 }
 
-int Action_char1_back_air_throw_startup::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
+int Action_char1_back_air_throw_startup::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
-    if (charData_.inHitstop || !charData_.airborne)
+    if (char_->isInHitstop() || !char_->isAirborne())
         return 0;
 
-    if (charData_.cancelOptions)
+    auto *chr1 = dynamic_cast<Char1*>(char_);
+
+    if (chr1->m_currentCancelWindow.second.contains((int)actionState))
     {
-        if (charData_.cancelOptions->contains((int)actionState))
-        {
-            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
-        }
+        return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
     }
 
-    switch (charData_.state)
+    switch (chr1->m_currentState)
     {
         case (CHAR1_STATE::AIR_DASH_EXTENTION):
             [[fallthrough]];
         case (CHAR1_STATE::JUMP):
-            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
+            return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
             break;
 
         default:
@@ -2258,13 +2257,13 @@ int Action_char1_back_air_throw_startup::isPossible(const InputQueue &inputQueue
 
 // Air back throw hold
 Action_char1_back_air_throw_hold::Action_char1_back_air_throw_hold() :
-    Action_throw_hold<CHAR1_STATE, Char1Data, Char1>(CHAR1_STATE::THROW_BACK_AIR_HOLD, CHAR1_STATE::THROW_NORMAL_AIR_ANIM, 90, 10, true)
+    Action_throw_hold<CHAR1_STATE, Char1>(CHAR1_STATE::THROW_BACK_AIR_HOLD, CHAR1_STATE::THROW_NORMAL_AIR_ANIM, 90, 10, true)
 {
 }
 
 // Air throw whiff
 Action_char1_normal_air_throw_whiff::Action_char1_normal_air_throw_whiff() :
-    Action_throw_whiff<CHAR1_STATE, Char1Data, Char1>(CHAR1_STATE::THROW_NORMAL_AIR_WHIFF, ANIMATIONS::CHAR1_NORMAL_THROW_WHIFF, TimelineProperty(true), 200, {
+    Action_throw_whiff<CHAR1_STATE, Char1>(CHAR1_STATE::THROW_NORMAL_AIR_WHIFF, ANIMATIONS::CHAR1_NORMAL_THROW_WHIFF, TimelineProperty(true), 200, {
         {
             TimelineProperty(true),
             gamedata::characters::char1::floatingHurtbox
@@ -2275,7 +2274,7 @@ Action_char1_normal_air_throw_whiff::Action_char1_normal_air_throw_whiff() :
 
 // AIR THROW ACTION
 Action_char1_normal_air_throw::Action_char1_normal_air_throw() :
-    Action_locked_animation<CHAR1_STATE, Char1Data, Char1>(CHAR1_STATE::THROW_NORMAL_AIR_ANIM, CHAR1_STATE::IDLE, {
+    Action_locked_animation<CHAR1_STATE, Char1>(CHAR1_STATE::THROW_NORMAL_AIR_ANIM, CHAR1_STATE::IDLE, {
         {
             TimelineProperty<bool>({{1, true}, {51, false}}),
             {-70, -350, 140, 300}
@@ -2301,7 +2300,7 @@ void Action_char1_normal_air_throw::update(Char1 &character_) const
 
 // Throw tech
 Action_char1_throw_tech::Action_char1_throw_tech() :
-    Action_throw_tech<CHAR1_STATE, Char1Data, Char1>(CHAR1_STATE::THROW_TECH_OWN,
+    Action_throw_tech<CHAR1_STATE, Char1>(CHAR1_STATE::THROW_TECH_OWN,
     std::make_unique<InputComparatorBCPress>(), ANIMATIONS::CHAR1_THROW_TECH, TimelineProperty(true), TimelineProperty(true), 15,
     {
         {
@@ -2312,24 +2311,23 @@ Action_char1_throw_tech::Action_char1_throw_tech() :
 {
 }
 
-int Action_char1_throw_tech::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
+int Action_char1_throw_tech::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
-    if (charData_.inHitstop)
+    if (char_->isInHitstop())
         return 0;
 
-    if (charData_.cancelOptions)
+    auto *chr1 = dynamic_cast<Char1*>(char_);
+
+    if (chr1->m_currentCancelWindow.second.contains((int)actionState))
     {
-        if (charData_.cancelOptions->contains((int)actionState))
-        {
-            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
-        }
+        return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
     }
 
-    switch (charData_.state)
+    switch (chr1->m_currentState)
     {
 
         case (CHAR1_STATE::THROWN_CHAR1_NORMAL_HOLD):
-            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
+            return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
             break;
 
         default:
@@ -2343,14 +2341,14 @@ int Action_char1_throw_tech::isPossible(const InputQueue &inputQueue_, Char1Data
 
 void Action_char1_throw_tech::switchTo(Char1 &character_) const
 {
-    Action_throw_tech<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    Action_throw_tech<CHAR1_STATE, Char1>::switchTo(character_);
     character_.m_inertia.x += -character_.getOwnHorDir().x * 5.0f;
     character_.callForPriority();
 }
 
 // Throw tech state when Char1 breaks throw
 Action_char1_throw_tech_char1::Action_char1_throw_tech_char1() :
-    Action_throw_tech<CHAR1_STATE, Char1Data, Char1>(CHAR1_STATE::THROW_TECH_CHAR1,
+    Action_throw_tech<CHAR1_STATE, Char1>(CHAR1_STATE::THROW_TECH_CHAR1,
     std::make_unique<InputComparatorBCPress>(), ANIMATIONS::CHAR1_THROW_TECH, TimelineProperty(true), TimelineProperty(true), 25,
     {
         {
@@ -2361,20 +2359,20 @@ Action_char1_throw_tech_char1::Action_char1_throw_tech_char1() :
 {
 }
 
-int Action_char1_throw_tech_char1::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
+int Action_char1_throw_tech_char1::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
     return false;
 }
 
 void Action_char1_throw_tech_char1::switchTo(Char1 &character_) const
 {
-    Action_throw_tech<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    Action_throw_tech<CHAR1_STATE, Char1>::switchTo(character_);
     character_.m_inertia.x += -character_.getOwnHorDir().x * 20.0f;
 }
 
 // Air throw tech
 Action_char1_air_throw_tech::Action_char1_air_throw_tech() :
-    Action_throw_tech<CHAR1_STATE, Char1Data, Char1>(CHAR1_STATE::AIR_THROW_TECH_OWN,
+    Action_throw_tech<CHAR1_STATE, Char1>(CHAR1_STATE::AIR_THROW_TECH_OWN,
     std::make_unique<InputComparatorBCPress>(), ANIMATIONS::CHAR1_THROW_TECH, TimelineProperty(true), TimelineProperty(true), 15,
     {
         {
@@ -2385,24 +2383,23 @@ Action_char1_air_throw_tech::Action_char1_air_throw_tech() :
 {
 }
 
-int Action_char1_air_throw_tech::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
+int Action_char1_air_throw_tech::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
-    if (charData_.inHitstop)
+    if (char_->isInHitstop())
         return 0;
 
-    if (charData_.cancelOptions)
+    auto *chr1 = dynamic_cast<Char1*>(char_);
+
+    if (chr1->m_currentCancelWindow.second.contains((int)actionState))
     {
-        if (charData_.cancelOptions->contains((int)actionState))
-        {
-            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
-        }
+        return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
     }
 
-    switch (charData_.state)
+    switch (chr1->m_currentState)
     {
 
         case (CHAR1_STATE::THROWN_CHAR1_NORMAL_AIR_HOLD):
-            return (isInputPossible(inputQueue_, charData_.ownDirection, extendBuffer_) ? 1 : 0);
+            return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
             break;
 
         default:
@@ -2416,13 +2413,13 @@ int Action_char1_air_throw_tech::isPossible(const InputQueue &inputQueue_, Char1
 
 void Action_char1_air_throw_tech::switchTo(Char1 &character_) const
 {
-    Action_throw_tech<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    Action_throw_tech<CHAR1_STATE, Char1>::switchTo(character_);
     character_.m_inertia.x += -character_.getOwnHorDir().x * 3.0f;
 }
 
 // Throw tech state when Char1 breaks air throw
 Action_char1_air_throw_tech_char1::Action_char1_air_throw_tech_char1() :
-    Action_throw_tech<CHAR1_STATE, Char1Data, Char1>(CHAR1_STATE::AIR_THROW_TECH_CHAR1,
+    Action_throw_tech<CHAR1_STATE, Char1>(CHAR1_STATE::AIR_THROW_TECH_CHAR1,
     std::make_unique<InputComparatorBCPress>(), ANIMATIONS::CHAR1_THROW_TECH, TimelineProperty(true), TimelineProperty(true), 200,
     {
         {
@@ -2433,26 +2430,26 @@ Action_char1_air_throw_tech_char1::Action_char1_air_throw_tech_char1() :
 {
 }
 
-int Action_char1_air_throw_tech_char1::isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const
+int Action_char1_air_throw_tech_char1::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
     return false;
 }
 
 void Action_char1_air_throw_tech_char1::switchTo(Char1 &character_) const
 {
-    Action_throw_tech<CHAR1_STATE, Char1Data, Char1>::switchTo(character_);
+    Action_throw_tech<CHAR1_STATE, Char1>::switchTo(character_);
     character_.m_inertia.x += -character_.getOwnHorDir().x * 10.0f;
 }
 
 // Thrown by char1 normal throw - hold
 Action_char1_thrown_char1_normal_hold::Action_char1_thrown_char1_normal_hold() :
-    Action_thrown_hold<CHAR1_STATE, Char1Data, Char1>(CHAR1_STATE::THROWN_CHAR1_NORMAL_HOLD, CHAR1_STATE::THROWN_CHAR1_NORMAL_ANIM, ANIMATIONS::CHAR1_THROWN_CHAR1_NORMAL_HOLD, 10)
+    Action_thrown_hold<CHAR1_STATE, Char1>(CHAR1_STATE::THROWN_CHAR1_NORMAL_HOLD, CHAR1_STATE::THROWN_CHAR1_NORMAL_ANIM, ANIMATIONS::CHAR1_THROWN_CHAR1_NORMAL_HOLD, 10)
 {
 }
 
 // Thrown by char1 normal throw - animation
 Action_char1_thrown_char1_normal::Action_char1_thrown_char1_normal() :
-    Action_locked_animation<CHAR1_STATE, Char1Data, Char1>(CHAR1_STATE::THROWN_CHAR1_NORMAL_ANIM, CHAR1_STATE::HITSTUN_AIR, {
+    Action_locked_animation<CHAR1_STATE, Char1>(CHAR1_STATE::THROWN_CHAR1_NORMAL_ANIM, CHAR1_STATE::HITSTUN_AIR, {
         {
             TimelineProperty(true),
             gamedata::characters::char1::standingHurtbox
@@ -2482,13 +2479,13 @@ void Action_char1_thrown_char1_normal::outdated(Char1 &character_) const
 
 // Thrown by char1 normal air throw - hold
 Action_char1_thrown_char1_normal_air_hold::Action_char1_thrown_char1_normal_air_hold() :
-    Action_thrown_hold<CHAR1_STATE, Char1Data, Char1>(CHAR1_STATE::THROWN_CHAR1_NORMAL_AIR_HOLD, CHAR1_STATE::THROWN_CHAR1_NORMAL_AIR_ANIM, ANIMATIONS::CHAR1_THROWN_CHAR1_NORMAL_HOLD, 10)
+    Action_thrown_hold<CHAR1_STATE, Char1>(CHAR1_STATE::THROWN_CHAR1_NORMAL_AIR_HOLD, CHAR1_STATE::THROWN_CHAR1_NORMAL_AIR_ANIM, ANIMATIONS::CHAR1_THROWN_CHAR1_NORMAL_HOLD, 10)
 {
 }
 
 // Thrown by char1 normal air throw - animation
 Action_char1_thrown_char1_normal_air::Action_char1_thrown_char1_normal_air() :
-    Action_locked_animation<CHAR1_STATE, Char1Data, Char1>(CHAR1_STATE::THROWN_CHAR1_NORMAL_AIR_ANIM, CHAR1_STATE::HITSTUN_AIR, {
+    Action_locked_animation<CHAR1_STATE, Char1>(CHAR1_STATE::THROWN_CHAR1_NORMAL_AIR_ANIM, CHAR1_STATE::HITSTUN_AIR, {
         {
             TimelineProperty<bool>({{1, true}, {51, false}}),
             {-70, -375, 140, 375}
@@ -2517,6 +2514,6 @@ void Action_char1_thrown_char1_normal_air::outdated(Char1 &character_) const
 }
 
 
-template Action<CHAR1_STATE, Char1Data, Char1>;
-template Action_jump<CHAR1_STATE, Char1Data, Char1>;
-template Action_prolonged<CHAR1_STATE, Char1Data, Char1>;
+template Action<CHAR1_STATE, Char1>;
+template Action_jump<CHAR1_STATE, Char1>;
+template Action_prolonged<CHAR1_STATE, Char1>;

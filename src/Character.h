@@ -131,21 +131,6 @@ struct CharacterUpdateRes
     Collider pushbox;
 };
 
-template <typename CharState_t>
-struct CharData
-{
-    Vector2<float> pos;
-    Vector2<float> velocity;
-    Vector2<float> inertia;
-    bool airborne = false;
-    ORIENTATION dirToEnemy;
-    ORIENTATION ownDirection;
-    ORIENTATION inputDir;
-    Vector2<float> dirToEnemyVec;
-    Vector2<float> ownDirectionVec;
-    CharState_t state;
-};
-
 // TODO: messy interface, should move something to protected or private
 class Character
 {
@@ -168,6 +153,8 @@ public:
 
     Vector2<float> getHorDirToEnemy() const;
     Vector2<float> getOwnHorDir() const;
+    ORIENTATION getOwnOrientation() const;
+    ORIENTATION getOrientationToEnemy() const;
 
     virtual ~Character() {};
 
@@ -180,7 +167,9 @@ public:
     virtual HurtboxVec getHurtboxes() = 0;
     virtual void updateBlockState() = 0;
     virtual bool isInHitstun() const = 0;
+    virtual bool isInHitstop() const;
     virtual bool isInBlockstun() const = 0;
+    virtual bool isInInstantBlockstun() const = 0;
     virtual bool isKnockedDown() const = 0;
     virtual bool isInAttackState() const = 0;
     virtual bool isAirborne();
@@ -197,6 +186,7 @@ public:
     virtual void updateOwnOrientation();
     virtual void updateDirToEnemy();
     virtual void updatePosition();
+    virtual ORIENTATION getInputDir() const = 0;
 
     virtual HIT_RESULT applyHit(HitEvent &hitEvent_) = 0;
     virtual void applyHitstop(int hitstopLength);
@@ -279,12 +269,12 @@ protected:
 
     bool m_throwPossible = false;
 
-    friend Action_throw_startup<CHAR1_STATE, Char1Data, Char1>;
-    friend Action_throw_tech<CHAR1_STATE, Char1Data, Char1>;
-    friend Action_throw_hold<CHAR1_STATE, Char1Data, Char1>;
-    friend Action_thrown_hold<CHAR1_STATE, Char1Data, Char1>;
-    friend Action_throw_whiff<CHAR1_STATE, Char1Data, Char1>;
-    friend Action_locked_animation<CHAR1_STATE, Char1Data, Char1>;
+    friend Action_throw_startup<CHAR1_STATE, Char1>;
+    friend Action_throw_tech<CHAR1_STATE, Char1>;
+    friend Action_throw_hold<CHAR1_STATE, Char1>;
+    friend Action_thrown_hold<CHAR1_STATE, Char1>;
+    friend Action_throw_whiff<CHAR1_STATE, Char1>;
+    friend Action_locked_animation<CHAR1_STATE, Char1>;
 };
 
 #endif

@@ -7,7 +7,6 @@
 #include "TimelineProperty.h"
 
 enum class CHAR1_STATE;
-class Char1Data;
 class Character;
 class Char1;
 
@@ -30,7 +29,7 @@ enum class THROW_TECHS_LIST {
  *  be handled by the character.
  *
  *========================== */
-template <typename CharState_t, typename CharData, typename Char_t>
+template <typename CharState_t, typename Char_t>
 class Action
 {
 public:
@@ -48,7 +47,7 @@ public:
     // 0 if not possible
     // 1 if possible
     // -1 if already active and is still possible
-    virtual int isPossible(const InputQueue &inputQueue_, CharData charData_, int extendBuffer_) const = 0;
+    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const = 0;
     virtual ~Action() {};
 
     const CharState_t actionState;
@@ -80,8 +79,8 @@ protected:
  *   hold X to continue), etc
  *
  *========================== */
-template <typename CharState_t, typename CharData, typename Char_t>
-class Action_prolonged : public Action<CharState_t, CharData, Char_t>
+template <typename CharState_t, typename Char_t>
+class Action_prolonged : public Action<CharState_t, Char_t>
 {
 public:
     Action_prolonged(CharState_t actionState_, InputComparator_ptr incmp_, InputComparator_ptr incmp_prolonged_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_);
@@ -97,8 +96,8 @@ protected:
  *       ABSTRACT GROUND JUMP
  *
  *========================== */
-template <typename CharState_t, typename CharData, typename Char_t>
-class Action_jump : public Action<CharState_t, CharData, Char_t>
+template <typename CharState_t, typename Char_t>
+class Action_jump : public Action<CharState_t, Char_t>
 {
 public:
     Action_jump(CharState_t actionState_, const Vector2<float> &impulse_, float prejumpLen_, float maxHorInertia_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&blockWindow_);
@@ -113,8 +112,8 @@ public:
  *       ABSTRACT ATTACK
  *
  *========================== */
-template <typename CharState_t, typename CharData, typename Char_t>
-class Action_attack : public Action<CharState_t, CharData, Char_t>
+template <typename CharState_t, typename Char_t>
+class Action_attack : public Action<CharState_t, Char_t>
 {
 public:
     Action_attack(CharState_t actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, TimelineProperty<Vector2<float>> &&velocity_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, bool noLandTransition_ = false, bool isCrouchState_ = false, bool stepOnly_ = false);
@@ -134,8 +133,8 @@ protected:
  *       ABSTRACT THROW STARTUP
  *
  *========================== */
-template <typename CharState_t, typename CharData, typename Char_t>
-class Action_throw_startup : public Action<CharState_t, CharData, Char_t>
+template <typename CharState_t, typename Char_t>
+class Action_throw_startup : public Action<CharState_t, Char_t>
 {
 public:
     Action_throw_startup(CharState_t actionState_, CharState_t whiffState_, CharState_t holdState_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, float range_, FrameWindow activeWindow_, bool requiredAirborne_, THROW_LIST throw_);
@@ -158,15 +157,15 @@ protected:
  *       ABSTRACT THROW HOLD
  *
  *========================== */
-template <typename CharState_t, typename CharData, typename Char_t>
-class Action_throw_hold : public Action<CharState_t, CharData, Char_t>
+template <typename CharState_t, typename Char_t>
+class Action_throw_hold : public Action<CharState_t, Char_t>
 {
 public:
     Action_throw_hold(CharState_t actionState_, CharState_t throwState_, float setRange_, float duration_, bool sideSwitch_);
     virtual void switchTo(Char_t &character_) const override;
     virtual void update(Char_t &character_) const override;
     void outdated(Char_t &character_) const override;
-    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const override;
+    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
 
 protected:
     const float m_setRange;
@@ -180,14 +179,14 @@ protected:
  *       ABSTRACT THROWN HOLD
  *
  *========================== */
-template <typename CharState_t, typename CharData, typename Char_t>
-class Action_thrown_hold : public Action<CharState_t, CharData, Char_t>
+template <typename CharState_t, typename Char_t>
+class Action_thrown_hold : public Action<CharState_t, Char_t>
 {
 public:
     Action_thrown_hold(CharState_t actionState_, CharState_t thrownState_, ANIMATIONS anim_, float duration_);
     virtual void switchTo(Char_t &character_) const override;
     void outdated(Char_t &character_) const override;
-    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const override;
+    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
 
 protected:
     const float m_duration;
@@ -200,14 +199,14 @@ protected:
  *       ABSTRACT THROW WHIFF
  *
  *========================== */
-template <typename CharState_t, typename CharData, typename Char_t>
-class Action_throw_whiff : public Action<CharState_t, CharData, Char_t>
+template <typename CharState_t, typename Char_t>
+class Action_throw_whiff : public Action<CharState_t, Char_t>
 {
 public:
     Action_throw_whiff(CharState_t actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, float duration_, HurtboxFramesVec &&hurtboxes_);
     virtual void switchTo(Char_t &character_) const override;
     void outdated(Char_t &character_) const override;
-    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const override;
+    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
 
 protected:
     const float m_duration;
@@ -218,8 +217,8 @@ protected:
  *       ABSTRACT THROW TECH
  *
  *========================== */
-template <typename CharState_t, typename CharData, typename Char_t>
-class Action_throw_tech : public Action<CharState_t, CharData, Char_t>
+template <typename CharState_t, typename Char_t>
+class Action_throw_tech : public Action<CharState_t, Char_t>
 {
 public:
     Action_throw_tech(CharState_t actionState_, InputComparator_ptr incmp_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, float duration_, HurtboxFramesVec &&hurtboxes_, THROW_TECHS_LIST throwTech_);
@@ -239,15 +238,15 @@ protected:
  *      from hits and does not change animation
  *
  *========================== */
-template <typename CharState_t, typename CharData, typename Char_t>
-class Action_locked_animation : public Action<CharState_t, CharData, Char_t>
+template <typename CharState_t, typename Char_t>
+class Action_locked_animation : public Action<CharState_t, Char_t>
 {
 public:
     Action_locked_animation(CharState_t actionState_, CharState_t quitState_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, float duration_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&blockWindow_);
     virtual void switchTo(Char_t &character_) const override;
     //virtual void update(Char_t &character_) const override;
     void outdated(Char_t &character_) const override;
-    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const override;
+    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
 
 protected:
     const float m_duration;
@@ -261,47 +260,47 @@ protected:
  *
  *========================== */
 
-class Action_char1_idle : public Action<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_idle : public Action<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_idle();
-    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const override;
+    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
     virtual void switchTo(Char1 &character_) const override;
     virtual void update(Char1 &character_) const override;
 };
 
-class Action_char1_crouch : public Action<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_crouch : public Action<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_crouch();
-    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const override;
+    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
     virtual void switchTo(Char1 &character_) const override;
     virtual void update(Char1 &character_) const override;
 };
 
-class Action_char1_walk_fwd : public Action<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_walk_fwd : public Action<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_walk_fwd();
-    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const override;
+    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
     virtual void switchTo(Char1 &character_) const override;
     virtual void update(Char1 &character_) const override;
 };
 
-class Action_char1_walk_bwd : public Action<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_walk_bwd : public Action<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_walk_bwd();
-    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const override;
+    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
     virtual void switchTo(Char1 &character_) const override;
     virtual void update(Char1 &character_) const override;
 };
 
-class Action_char1_jump : public Action_jump<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_jump : public Action_jump<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_jump(CHAR1_STATE actionState_, const Vector2<float> &impulse_, float prejumpLen_, float maxHorInertia_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_);
-    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const override;
+    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
     virtual void switchTo(Char1 &character_) const override;
     const Vector2<float> m_impulse;
     const float m_prejumpLen;
@@ -326,19 +325,19 @@ public:
     Action_char1_backward_jump();
 };
 
-class Action_char1_float : public Action<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_float : public Action<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_float();
-    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const override;
+    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
     virtual void switchTo(Char1 &character_) const override;
 };
 
-class Action_char1_air_dash_extention : public Action<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_air_dash_extention : public Action<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_air_dash_extention();
-    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const override;
+    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
     virtual void outdated(Char1 &character_) const override;
     virtual void switchTo(Char1 &character_) const override;
     virtual void setVelocity(Char1 &character_) const;
@@ -348,11 +347,11 @@ public:
     const float m_spdMultiplier;
 };
 
-class Action_char1_airjump : public Action<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_airjump : public Action<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_airjump(const Vector2<float> &impulse_, InputComparator_ptr incmp_);
-    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const override;
+    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
     virtual void switchTo(Char1 &character_) const override;
     const Vector2<float> m_impulse;
 };
@@ -375,158 +374,158 @@ public:
     Action_char1_backward_doublejump();
 };
 
-class Action_char1_ground_dash : public Action_prolonged<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_ground_dash : public Action_prolonged<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_ground_dash();
-    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const override;
+    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
     virtual void update(Char1 &character_) const override;
     const float m_accel;
     const float m_maxspd;
 };
 
-class Action_char1_step: public Action<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_step: public Action<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_step();
-    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const override;
+    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
     virtual void outdated(Char1 &character_) const override;
     virtual void switchTo(Char1 &character_) const override;
     const int m_duration;
 };
 
-class Action_char1_step_recovery : public Action<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_step_recovery : public Action<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_step_recovery();
-    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const override;
+    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
     virtual void outdated(Char1 &character_) const override;
     virtual void switchTo(Char1 &character_) const override;
     virtual void update(Char1 &character_) const override;
     const int m_recoveryLen;
 };
 
-class Action_char1_ground_backdash: public Action<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_ground_backdash: public Action<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_ground_backdash();
-    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const override;
+    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
     virtual void outdated(Char1 &character_) const override;
     virtual void switchTo(Char1 &character_) const override;
     const int m_totalDuration;
 };
 
-class Action_char1_ground_dash_recovery : public Action<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_ground_dash_recovery : public Action<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_ground_dash_recovery();
-    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const override;
+    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
     virtual void outdated(Char1 &character_) const override;
     virtual void switchTo(Char1 &character_) const override;
     const int m_recoveryLen;
 };
 
-class Action_char1_air_dash : public Action<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_air_dash : public Action<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_air_dash();
-    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const override;
+    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
     virtual void outdated(Char1 &character_) const override;
     virtual void switchTo(Char1 &character_) const override;
     const int m_duration;
 };
 
-class Action_char1_air_backdash : public Action<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_air_backdash : public Action<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_air_backdash();
-    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const override;
+    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
     virtual void outdated(Char1 &character_) const override;
     virtual void switchTo(Char1 &character_) const override;
     const int m_duration;
 };
 
-class Action_char1_soft_landing_recovery : public Action<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_soft_landing_recovery : public Action<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_soft_landing_recovery();
-    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const override;
+    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
     virtual void outdated(Char1 &character_) const override;
     virtual void switchTo(Char1 &character_) const override;
     const int m_recoveryLen;
 };
 
-class Action_char1_hard_landing_recovery : public Action<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_hard_landing_recovery : public Action<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_hard_landing_recovery();
-    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const override;
+    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
     virtual void outdated(Char1 &character_) const override;
     virtual void switchTo(Char1 &character_) const override;
     const int m_recoveryLen;
 };
 
-class Action_char1_vulnerable_landing_recovery : public Action<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_vulnerable_landing_recovery : public Action<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_vulnerable_landing_recovery();
-    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const override;
+    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
     virtual void outdated(Char1 &character_) const override;
     virtual void switchTo(Char1 &character_) const override;
     const int m_recoveryLen;
 };
 
-class Action_char1_jc_landing_recovery : public Action<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_jc_landing_recovery : public Action<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_jc_landing_recovery();
-    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const override;
+    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
     virtual void outdated(Char1 &character_) const override;
     virtual void switchTo(Char1 &character_) const override;
     const int m_recoveryLen;
 };
 
-class Action_char1_soft_knockdown : public Action<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_soft_knockdown : public Action<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_soft_knockdown();
-    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const override;
+    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
     virtual void outdated(Char1 &character_) const override;
     virtual void switchTo(Char1 &character_) const override;
 };
 
-class Action_char1_hard_knockdown : public Action<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_hard_knockdown : public Action<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_hard_knockdown();
-    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const override;
+    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
     virtual void outdated(Char1 &character_) const override;
     virtual void switchTo(Char1 &character_) const override;
 };
 
-class Action_char1_knockdown_recovery : public Action<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_knockdown_recovery : public Action<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_knockdown_recovery();
-    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const override;
+    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
     virtual void outdated(Char1 &character_) const override;
     virtual void switchTo(Char1 &character_) const override;
 };
 
-class Action_char1_ground_attack : public Action_attack<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_ground_attack : public Action_attack<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_ground_attack(CHAR1_STATE actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, TimelineProperty<Vector2<float>> &&velocity_, bool noLandTransition_ = false, bool isCrouchState_ = false, bool stepOnly_ = false);
-    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const override;
+    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
     virtual void outdated(Char1 &character_) const override;
     virtual void switchTo(Char1 &character_) const override;
 };
 
-class Action_char1_air_attack : public Action_attack<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_air_attack : public Action_attack<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_air_attack(CHAR1_STATE actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_);
-    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const override;
+    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
     virtual void outdated(Char1 &character_) const override;
     virtual void switchTo(Char1 &character_) const override;
 };
@@ -605,39 +604,39 @@ public:
 // THROW ACTIONS
 
 // NORMAL THROW
-class Action_char1_normal_throw_startup : public Action_throw_startup<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_normal_throw_startup : public Action_throw_startup<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_normal_throw_startup();
-    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const override;
+    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
 };
 
-class Action_char1_normal_throw_hold : public Action_throw_hold<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_normal_throw_hold : public Action_throw_hold<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_normal_throw_hold();
 };
 
-class Action_char1_back_throw_startup : public Action_throw_startup<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_back_throw_startup : public Action_throw_startup<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_back_throw_startup();
-    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const override;
+    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
 };
 
-class Action_char1_back_throw_hold : public Action_throw_hold<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_back_throw_hold : public Action_throw_hold<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_back_throw_hold();
 };
 
-class Action_char1_normal_throw_whiff : public Action_throw_whiff<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_normal_throw_whiff : public Action_throw_whiff<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_normal_throw_whiff();
 };
 
-class Action_char1_normal_throw : public Action_locked_animation<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_normal_throw : public Action_locked_animation<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_normal_throw();
@@ -646,39 +645,39 @@ public:
 
 // AIR THROW
 
-class Action_char1_normal_air_throw_startup : public Action_throw_startup<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_normal_air_throw_startup : public Action_throw_startup<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_normal_air_throw_startup();
-    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const override;
+    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
 };
 
-class Action_char1_normal_air_throw_hold : public Action_throw_hold<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_normal_air_throw_hold : public Action_throw_hold<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_normal_air_throw_hold();
 };
 
-class Action_char1_back_air_throw_startup : public Action_throw_startup<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_back_air_throw_startup : public Action_throw_startup<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_back_air_throw_startup();
-    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const override;
+    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
 };
 
-class Action_char1_back_air_throw_hold : public Action_throw_hold<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_back_air_throw_hold : public Action_throw_hold<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_back_air_throw_hold();
 };
 
-class Action_char1_normal_air_throw_whiff : public Action_throw_whiff<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_normal_air_throw_whiff : public Action_throw_whiff<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_normal_air_throw_whiff();
 };
 
-class Action_char1_normal_air_throw : public Action_locked_animation<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_normal_air_throw : public Action_locked_animation<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_normal_air_throw();
@@ -687,48 +686,48 @@ public:
 
 
 // THROW TECHS
-class Action_char1_throw_tech : public Action_throw_tech<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_throw_tech : public Action_throw_tech<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_throw_tech();
-    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const override;
+    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
     virtual void switchTo(Char1 &character_) const override;
 };
 
-class Action_char1_throw_tech_char1 : public Action_throw_tech<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_throw_tech_char1 : public Action_throw_tech<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_throw_tech_char1();
-    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const override;
+    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
     virtual void switchTo(Char1 &character_) const override;
 };
 
-class Action_char1_air_throw_tech : public Action_throw_tech<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_air_throw_tech : public Action_throw_tech<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_air_throw_tech();
-    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const override;
+    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
     virtual void switchTo(Char1 &character_) const override;
 };
 
-class Action_char1_air_throw_tech_char1 : public Action_throw_tech<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_air_throw_tech_char1 : public Action_throw_tech<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_air_throw_tech_char1();
-    virtual int isPossible(const InputQueue &inputQueue_, Char1Data charData_, int extendBuffer_) const override;
+    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
     virtual void switchTo(Char1 &character_) const override;
 };
 
 
 // GETTING THROWN ACTIONS
 
-class Action_char1_thrown_char1_normal_hold : public Action_thrown_hold<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_thrown_char1_normal_hold : public Action_thrown_hold<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_thrown_char1_normal_hold();
 };
 
-class Action_char1_thrown_char1_normal : public Action_locked_animation<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_thrown_char1_normal : public Action_locked_animation<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_thrown_char1_normal();
@@ -736,13 +735,13 @@ public:
     virtual void outdated(Char1 &character_) const override;
 };
 
-class Action_char1_thrown_char1_normal_air_hold : public Action_thrown_hold<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_thrown_char1_normal_air_hold : public Action_thrown_hold<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_thrown_char1_normal_air_hold();
 };
 
-class Action_char1_thrown_char1_normal_air : public Action_locked_animation<CHAR1_STATE, Char1Data, Char1>
+class Action_char1_thrown_char1_normal_air : public Action_locked_animation<CHAR1_STATE, Char1>
 {
 public:
     Action_char1_thrown_char1_normal_air();

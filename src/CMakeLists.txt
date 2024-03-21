@@ -28,6 +28,7 @@ NotifyWidget.cpp
 HealthHandler.cpp
 ComboPhysicsHandler.cpp
 PriorityHandler.cpp
+StateMachineEntity.cpp
 )
 
 set(INCLUDE_DIRS
