@@ -2,13 +2,18 @@
 #include "Application.h"
 #include "ActionResolver.h"
 
-Character::Character(Application &application_, Vector2<float> pos_, float maxHealth_, float baseGravity_, Camera *cam_, ParticleManager *particleManager_) :
+Character::Character(Application &application_, Vector2<float> pos_, float maxHealth_, float baseGravity_, Camera *cam_, ParticleManager *particleManager_, int maxAirdashes_, int maxDJumps_,
+    int framesBeforeAirdash_, int framesBeforeAirjump_) :
     m_playerId(0),
     m_currentAnimation(nullptr),
     m_healthHandler(maxHealth_),
     m_cam(cam_),
     m_comboPhysHandler(baseGravity_),
-    m_particleManager(particleManager_)
+    m_particleManager(particleManager_),
+    m_jumpsAvailable(maxDJumps_),
+    m_airdashesAvailable(maxAirdashes_),
+    m_framesBeforeAirdash(framesBeforeAirdash_),
+    m_framesBeforeAirjump(framesBeforeAirjump_)
 {
     setPos(pos_);
 }
@@ -68,6 +73,12 @@ CharacterUpdateRes Character::update()
     }
 
     m_throwInvulTimer.update();
+
+    if (m_airborne)
+    {
+        m_airdashTimer.update();
+        m_airjumpTimer.update();
+    }
 
     proceedCurrentState();
 

@@ -124,15 +124,10 @@ protected:
     ActionResolver<Char1> m_actionResolver;
 
     FrameTimer m_timer;
-    bool m_usedDoubleJump = false;
-    bool m_usedAirDash = false;
     bool m_usedAirAttack = false;
 
     int framesInState = 1;
     CHAR1_STATE lastState = CHAR1_STATE::IDLE;
-
-    int m_jumpFramesCounter = 0;
-    int m_airadashFramesCounter = 0;
     
 
     friend Action<Char1>;

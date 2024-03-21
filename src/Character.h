@@ -14,6 +14,7 @@
 #include "HealthHandler.h"
 #include "ComboPhysicsHandler.h"
 #include "PriorityHandler.h"
+#include "ResourceCounter.h"
 
 /*
  * TODO: LIST
@@ -135,7 +136,7 @@ struct CharacterUpdateRes
 class Character
 {
 public:
-    Character(Application &application_, Vector2<float> pos_, float maxHealth_, float baseGravity_, Camera *cam_, ParticleManager *particleManager_);
+    Character(Application &application_, Vector2<float> pos_, float maxHealth_, float baseGravity_, Camera *cam_, ParticleManager *particleManager_, int maxAirdashes_, int maxDJumps_, int framesBeforeAirdash_, int framesBeforeAirjump_);
 
     void setOnStage(Application &application_, int playerId_, Character *otherCharacter_, PriorityHandler *priorityHandler_);
 
@@ -277,6 +278,13 @@ protected:
     CancelWindow m_currentCancelWindow;
     FrameTimer m_cancelTimer;
     bool m_cancelAvailable = false;
+
+    ResourceCounter<int> m_jumpsAvailable;
+    ResourceCounter<int> m_airdashesAvailable;
+    FrameTimer m_airdashTimer;
+    FrameTimer m_airjumpTimer;
+    const int m_framesBeforeAirdash;
+    const int m_framesBeforeAirjump;
 
     friend Action_throw_startup<Char1>;
     friend Action_throw_tech<Char1>;

@@ -696,8 +696,8 @@ void Action_char1_jump::switchTo(Char1 &character_) const
     character_.turnVelocityToInertia();
     Action<Char1>::switchTo(character_);
     character_.m_timer.begin(m_prejumpLen);
-    character_.m_jumpFramesCounter = 5;
-    character_.m_airadashFramesCounter = 6;
+    character_.m_airjumpTimer.begin(5);
+    character_.m_airdashTimer.begin(6);
 }
 
 // NEUTRAL JUMP ACTION
@@ -801,7 +801,7 @@ int Action_char1_airjump::isPossible(const InputQueue &inputQueue_, Character *c
 {
     auto *chr1 = dynamic_cast<Char1*>(char_);
 
-    if (char_->isInHitstop() || chr1->m_usedDoubleJump || !(chr1->m_jumpFramesCounter == 0) || !char_->isAirborne())
+    if (char_->isInHitstop() || !char_->m_jumpsAvailable.canConsume() || !char_->m_airjumpTimer.isOver() || !char_->isAirborne())
         return 0;
 
     if (char_->isInInstantBlockstun())
@@ -847,7 +847,7 @@ void Action_char1_airjump::switchTo(Char1 &character_) const
 
     character_.m_inertia.y = 0;
 
-    character_.m_usedDoubleJump = true;
+    character_.m_jumpsAvailable.consume();
 }
 
 // NEUTRAL DOUBLEJUMP ACTION
@@ -1099,9 +1099,7 @@ Action_char1_air_dash::Action_char1_air_dash() :
 
 int Action_char1_air_dash::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
-    auto *chr1 = dynamic_cast<Char1*>(char_);
-
-    if (char_->isInHitstop() || chr1->m_usedAirDash || !(chr1->m_airadashFramesCounter == 0))
+    if (char_->isInHitstop() || !char_->m_airdashesAvailable.canConsume() || !(char_->m_airdashTimer.isOver()))
         return 0;
 
     if (char_->isInInstantBlockstun())
@@ -1119,7 +1117,7 @@ int Action_char1_air_dash::isPossible(const InputQueue &inputQueue_, Character *
             break;
 
         case ((int)CHAR1_STATE::JUMP):
-            return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) && !chr1->m_usedAirDash ? 1 : 0);
+            return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
             break;
 
         default:
@@ -1144,7 +1142,7 @@ void Action_char1_air_dash::switchTo(Char1 &character_) const
     character_.m_velocity = character_.getOwnHorDir().mulComponents(Vector2{gamedata::characters::char1::airdashSpeed, 0.0f});
     Action<Char1>::switchTo(character_);
     character_.m_timer.begin(m_duration);
-    character_.m_usedAirDash = true;
+    character_.m_airdashesAvailable.consume();
 }
 
 // AIR BACKDASH ACTION
@@ -1161,9 +1159,8 @@ Action_char1_air_backdash::Action_char1_air_backdash() :
 
 int Action_char1_air_backdash::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
-    auto *chr1 = dynamic_cast<Char1*>(char_);
 
-    if (char_->isInHitstop() || chr1->m_usedAirDash || !(chr1->m_airadashFramesCounter == 0) || !char_->isAirborne())
+    if (char_->isInHitstop() || !char_->m_airdashesAvailable.canConsume() || !char_->m_airdashTimer.isOver() || !char_->isAirborne())
         return 0;
 
     if (char_->isCancelAllowed(actionState))
@@ -1203,7 +1200,7 @@ void Action_char1_air_backdash::switchTo(Char1 &character_) const
     character_.m_velocity = character_.getOwnHorDir().mulComponents(Vector2{-gamedata::characters::char1::airBackdashSpeed, 0.0f});
     Action<Char1>::switchTo(character_);
     character_.m_timer.begin(m_duration);
-    character_.m_usedAirDash = true;
+    character_.m_airdashesAvailable.consume();
 }
 
 // AIR DASH EXTENTION ACTION

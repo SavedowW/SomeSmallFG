@@ -224,7 +224,7 @@ void Char1::provideActions()
 }
 
 Char1::Char1(Application &application_, Vector2<float> pos_, Camera *cam_, ParticleManager *particleManager_) :
-    Character(application_, pos_, 400.0f, gamedata::characters::char1::gravity, cam_, particleManager_),
+    Character(application_, pos_, 400.0f, gamedata::characters::char1::gravity, cam_, particleManager_, 1, 1, 6, 5),
     m_actionResolver(application_.getInputSystem()),
     m_currentAction(nullptr)
 {
@@ -309,12 +309,6 @@ void Char1::initiate()
 
 void Char1::proceedCurrentState()
 {
-    if (m_jumpFramesCounter && m_airborne)
-        m_jumpFramesCounter--;
-
-    if (m_airadashFramesCounter && m_airborne)
-        m_airadashFramesCounter--;
-
     if (!m_inHitstop)
     {
         auto timerRes = m_timer.update();
@@ -428,8 +422,10 @@ void Char1::land()
 {
     m_blockstunType = BLOCK_FRAME::NONE;
     bool vulnerable = m_usedAirAttack;
-    m_usedDoubleJump = false;
-    m_usedAirDash = false;
+    m_jumpsAvailable.free();
+    m_airdashesAvailable.free();
+    m_airjumpTimer.begin(0);
+    m_airdashTimer.begin(0);
     m_usedAirAttack = false;
 
     if (m_currentAction && m_currentAction->m_noLandTransition || m_lockedInAnimation)
@@ -662,7 +658,7 @@ HIT_RESULT Char1::applyHit(HitEvent &hitEvent)
 
 
             enterHitstunAnimation(m_hitProps);
-            
+
             applyCancelWindow({{0, 0}, {}});
             applyHitstop(m_hitProps.hitstop);
 

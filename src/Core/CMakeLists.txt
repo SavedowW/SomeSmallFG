@@ -18,6 +18,7 @@ HUD.cpp
 TextManager.cpp
 ParticleManager.cpp
 TimelineProperty.cpp
+ResourceCounter.cpp
 )
 
 add_library (Core ${CORE_SRC_FILES})
