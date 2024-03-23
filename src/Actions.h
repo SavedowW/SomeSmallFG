@@ -5,6 +5,7 @@
 #include "Hit.h"
 #include "AnimationManager.h"
 #include "TimelineProperty.h"
+#include "StateMarker.h"
 
 class Character;
 class Char1;
@@ -61,6 +62,7 @@ protected:
     TimelineProperty<bool> m_counterWindow;
     TimelineProperty<bool> m_gravityWindow;
     TimelineProperty<bool> m_blockWindow;
+    StateMarker transitionableFrom;
 };
 
 

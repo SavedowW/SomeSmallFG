@@ -449,9 +449,7 @@ int Action_char1_idle::isPossible(const InputQueue &inputQueue_, Character *char
     if (char_->isInHitstop())
         return 0;
 
-    auto *chr1 = dynamic_cast<Char1*>(char_);
-
-    switch (chr1->m_currentState)
+    switch (char_->m_currentState)
     {
         case ((int)CHAR1_STATE::CROUCH):
             [[fallthrough]];
@@ -496,9 +494,7 @@ int Action_char1_crouch::isPossible(const InputQueue &inputQueue_, Character *ch
     if (char_->isInHitstop())
         return 0;
 
-    auto *chr1 = dynamic_cast<Char1*>(char_);
-
-    switch (chr1->m_currentState)
+    switch (char_->m_currentState)
     {
         case ((int)CHAR1_STATE::CROUCH):
             return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? -1 : 0);
@@ -550,9 +546,7 @@ int Action_char1_walk_fwd::isPossible(const InputQueue &inputQueue_, Character *
     if (char_->isInHitstop())
         return 0;
 
-    auto *chr1 = dynamic_cast<Char1*>(char_);
-
-    switch (chr1->m_currentState)
+    switch (char_->m_currentState)
     {
         case ((int)CHAR1_STATE::WALK_FWD):
             return (isInputPossible(inputQueue_, chr1->getInputDir(), extendBuffer_) ? -1 : 0);
@@ -600,9 +594,7 @@ int Action_char1_walk_bwd::isPossible(const InputQueue &inputQueue_, Character *
     if (char_->isInHitstop())
         return 0;
 
-    auto *chr1 = dynamic_cast<Char1*>(char_);
-
-    switch (chr1->m_currentState)
+    switch (char_->m_currentState)
     {
         case ((int)CHAR1_STATE::WALK_BWD):
             return (isInputPossible(inputQueue_, chr1->getInputDir(), extendBuffer_) ? -1 : 0);
@@ -790,8 +782,6 @@ Action_char1_airjump::Action_char1_airjump(const Vector2<float> &impulse_, Input
 
 int Action_char1_airjump::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
-    auto *chr1 = dynamic_cast<Char1*>(char_);
-
     if (char_->isInHitstop() || !char_->m_jumpsAvailable.canConsume() || !char_->m_airjumpTimer.isOver() || !char_->isAirborne())
         return 0;
 
@@ -881,14 +871,12 @@ int Action_char1_ground_dash::isPossible(const InputQueue &inputQueue_, Characte
     if (char_->isInHitstop())
         return 0;
 
-    auto *chr1 = dynamic_cast<Char1*>(char_);
-
     if (char_->isCancelAllowed(actionState))
     {
         return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
     }
 
-    switch (chr1->m_currentState)
+    switch (char_->m_currentState)
     {
         case ((int)CHAR1_STATE::GROUND_DASH):
             return (isPossibleToProlong(inputQueue_, char_->getInputDir()) ? -1 : 0);
@@ -974,14 +962,7 @@ Action_char1_step_recovery::Action_char1_step_recovery() :
 
 int Action_char1_step_recovery::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
-    auto *chr1 = dynamic_cast<Char1*>(char_);
-
-    switch (chr1->m_currentState)
-    {
-        default:
-            return 0;
-            break;
-    }
+    return 0;
 }
 
 void Action_char1_step_recovery::outdated(Char1 &character_) const
@@ -1240,9 +1221,7 @@ int Action_char1_ground_dash_recovery::isPossible(const InputQueue &inputQueue_,
     if (char_->isInHitstop())
         return 0;
 
-    auto *chr1 = dynamic_cast<Char1*>(char_);
-
-    switch (chr1->m_currentState)
+    switch (char_->m_currentState)
     {
         case ((int)CHAR1_STATE::GROUND_DASH):
             return 1;
@@ -1935,8 +1914,6 @@ int Action_char1_back_air_throw_startup::isPossible(const InputQueue &inputQueue
 {
     if (char_->isInHitstop() || !char_->isAirborne())
         return 0;
-
-    auto *chr1 = dynamic_cast<Char1*>(char_);
 
     if (char_->isCancelAllowed(actionState))
     {
