@@ -19,6 +19,7 @@ TextManager.cpp
 ParticleManager.cpp
 TimelineProperty.cpp
 ResourceCounter.cpp
+StateMarker.cpp
 )
 
 add_library (Core ${CORE_SRC_FILES})
