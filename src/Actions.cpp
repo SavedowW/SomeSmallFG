@@ -97,8 +97,8 @@ bool Action<Char_t>::canBlock(uint32_t currentFrame_) const
 
 // ABSTRACT PROLONGED ACTION
 template <typename Char_t>
-Action_prolonged<Char_t>::Action_prolonged(int actionState_, InputComparator_ptr incmp_, InputComparator_ptr incmp_prolonged_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_) :
-    Action<Char_t>(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, std::move(counterWindow_), std::move(gravityWindow_), std::move(blockWindow_), false, false, false)
+Action_prolonged<Char_t>::Action_prolonged(int actionState_, InputComparator_ptr incmp_, InputComparator_ptr incmp_prolonged_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, bool isCrouchState_) :
+    Action<Char_t>(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, std::move(counterWindow_), std::move(gravityWindow_), std::move(blockWindow_), false, isCrouchState_, false)
 {
     incmp_prolonged = std::move(incmp_prolonged_);
 }
@@ -485,7 +485,7 @@ void Action_char1_idle::update(Char1 &character_) const
 
 // CROUCH ACTION
 Action_char1_crouch::Action_char1_crouch() :
-    Action((int)CHAR1_STATE::CROUCH, std::make_unique<InputComparatorDownHold>(), {{TimelineProperty(true), gamedata::characters::char1::crouchingHurtbox}}, ANIMATIONS::CHAR1_CROUCH_IDLE, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true),  false, false, false)
+    Action_prolonged((int)CHAR1_STATE::CROUCH, std::make_unique<InputComparatorDownHold>(), std::make_unique<InputComparatorDownHold>(), {{TimelineProperty(true), gamedata::characters::char1::crouchingHurtbox}}, ANIMATIONS::CHAR1_CROUCH_IDLE, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true),  true)
 {
 }
 
@@ -531,13 +531,13 @@ void Action_char1_crouch::update(Char1 &character_) const
 
 // WALK FORWARD ACTION
 Action_char1_walk_fwd::Action_char1_walk_fwd() :
-    Action((int)CHAR1_STATE::WALK_FWD, std::make_unique<InputComparatorForward>(),
+    Action_prolonged((int)CHAR1_STATE::WALK_FWD, std::make_unique<InputComparatorForward>(), std::make_unique<InputComparatorForward>(),
     {
         {
             TimelineProperty(true),
             gamedata::characters::char1::standingHurtbox
         }
-    }, ANIMATIONS::CHAR1_WALK_FWD, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true), false, false, false)
+    }, ANIMATIONS::CHAR1_WALK_FWD, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true), false)
 {
 }
 
@@ -549,13 +549,13 @@ int Action_char1_walk_fwd::isPossible(const InputQueue &inputQueue_, Character *
     switch (char_->m_currentState)
     {
         case ((int)CHAR1_STATE::WALK_FWD):
-            return (isInputPossible(inputQueue_, chr1->getInputDir(), extendBuffer_) ? -1 : 0);
+            return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? -1 : 0);
             break;
 
         case ((int)CHAR1_STATE::WALK_BWD):
             [[fallthrough]];
         case ((int)CHAR1_STATE::IDLE):
-            return (isInputPossible(inputQueue_, chr1->getInputDir(), extendBuffer_) ? 1 : 0);
+            return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
             break;
 
         default:
@@ -580,12 +580,12 @@ void Action_char1_walk_fwd::update(Char1 &character_) const
 
 // WALK BACKWARD ACTION
 Action_char1_walk_bwd::Action_char1_walk_bwd() :
-    Action((int)CHAR1_STATE::WALK_BWD, std::make_unique<InputComparatorBackward>(), {
+    Action_prolonged((int)CHAR1_STATE::WALK_BWD, std::make_unique<InputComparatorBackward>(), std::make_unique<InputComparatorBackward>(), {
         {
             TimelineProperty(true),
             gamedata::characters::char1::standingHurtbox
         }
-    }, ANIMATIONS::CHAR1_WALK_BWD, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true), false, false, false)
+    }, ANIMATIONS::CHAR1_WALK_BWD, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true), true)
 {
 }
 
@@ -597,13 +597,13 @@ int Action_char1_walk_bwd::isPossible(const InputQueue &inputQueue_, Character *
     switch (char_->m_currentState)
     {
         case ((int)CHAR1_STATE::WALK_BWD):
-            return (isInputPossible(inputQueue_, chr1->getInputDir(), extendBuffer_) ? -1 : 0);
+            return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? -1 : 0);
             break;
 
         case ((int)CHAR1_STATE::WALK_FWD):
             [[fallthrough]];
         case ((int)CHAR1_STATE::IDLE):
-            return (isInputPossible(inputQueue_, chr1->getInputDir(), extendBuffer_) ? 1 : 0);
+            return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
             break;
 
         default:
@@ -860,7 +860,7 @@ Action_char1_ground_dash::Action_char1_ground_dash() :
             TimelineProperty(true),
             {-100, -300, 200, 300}
         }
-    }, ANIMATIONS::CHAR1_GROUND_DASH, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true)),
+    }, ANIMATIONS::CHAR1_GROUND_DASH, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true), false),
     m_accel(gamedata::characters::char1::dashAccel),
     m_maxspd(gamedata::characters::char1::dashMaxSpeed)
 {

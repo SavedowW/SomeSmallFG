@@ -62,7 +62,6 @@ protected:
     TimelineProperty<bool> m_counterWindow;
     TimelineProperty<bool> m_gravityWindow;
     TimelineProperty<bool> m_blockWindow;
-    StateMarker transitionableFrom;
 };
 
 
@@ -83,7 +82,7 @@ template <typename Char_t>
 class Action_prolonged : public Action<Char_t>
 {
 public:
-    Action_prolonged(int actionState_, InputComparator_ptr incmp_, InputComparator_ptr incmp_prolonged_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_);
+    Action_prolonged(int actionState_, InputComparator_ptr incmp_, InputComparator_ptr incmp_prolonged_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, bool isCrouchState_);
     virtual int isPossibleToProlong(const InputQueue &inputQueue_, ORIENTATION ownDirection_) const;
 
 protected:
@@ -269,7 +268,7 @@ public:
     virtual void update(Char1 &character_) const override;
 };
 
-class Action_char1_crouch : public Action<Char1>
+class Action_char1_crouch : public Action_prolonged<Char1>
 {
 public:
     Action_char1_crouch();
@@ -278,7 +277,7 @@ public:
     virtual void update(Char1 &character_) const override;
 };
 
-class Action_char1_walk_fwd : public Action<Char1>
+class Action_char1_walk_fwd : public Action_prolonged<Char1>
 {
 public:
     Action_char1_walk_fwd();
@@ -287,7 +286,7 @@ public:
     virtual void update(Char1 &character_) const override;
 };
 
-class Action_char1_walk_bwd : public Action<Char1>
+class Action_char1_walk_bwd : public Action_prolonged<Char1>
 {
 public:
     Action_char1_walk_bwd();
