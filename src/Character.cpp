@@ -13,7 +13,9 @@ Character::Character(Application &application_, Vector2<float> pos_, float maxHe
     m_jumpsAvailable(maxDJumps_),
     m_airdashesAvailable(maxAirdashes_),
     m_framesBeforeAirdash(framesBeforeAirdash_),
-    m_framesBeforeAirjump(framesBeforeAirjump_)
+    m_framesBeforeAirjump(framesBeforeAirjump_),
+    m_actionResolver(application_.getInputSystem()),
+    m_currentAction(nullptr)
 {
     setPos(pos_);
 }

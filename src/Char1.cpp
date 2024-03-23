@@ -34,7 +34,8 @@ void Char1::provideActions()
             TimelineProperty<bool>({{5, true}, {12, false}}),
             {40.0f, -290.0f, 100.0f, 100.0f}
         }
-    })));
+    },
+    StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::AIR_DASH_EXTENTION, (int)CHAR1_STATE::JUMP}))));
 
     m_actionResolver.addAction(std::make_unique<Action_char1_move_214C>());
     m_actionResolver.addAction(std::make_unique<Action_char1_move_projectile>());
@@ -54,7 +55,9 @@ void Char1::provideActions()
             {60.0f, -420.0f, 60.0f, 150.0f}
         }
     },
-    {}, false, false)));
+    {},
+    StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
+    (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}), false, false)));
 
     // 2B
     m_actionResolver.addAction(std::unique_ptr<Action_char1_ground_attack>(new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_2B, ANIMATIONS::CHAR1_MOVE_2B, TimelineProperty(true), std::make_unique<InputComparator2BPress>(), 29,
@@ -78,7 +81,9 @@ void Char1::provideActions()
             {22, {-7.0f, 0.0f}},
             {26, {-23.0f, 0.0f}}
         }),
-        true, false)));
+    StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
+    (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}),
+    true, false)));
 
     // 236C
     m_actionResolver.addAction(std::unique_ptr<Action_char1_ground_attack>(new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_236C, ANIMATIONS::CHAR1_MOVE_236C, TimelineProperty(true), std::make_unique<InputComparator236CPress>(), 40,
@@ -110,7 +115,10 @@ void Char1::provideActions()
             {12, {6.0f, 0.0f}},
             {13, {0, 0}},
             {30, {-1.5f, 0.0f}},
-        }), false, false)));
+        }),
+        StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
+    (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}),
+    false, false)));
 
     // s.5C
     m_actionResolver.addAction(std::unique_ptr<Action_char1_ground_attack>(new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_STEP_C, ANIMATIONS::CHAR1_MOVE_STEP_C, TimelineProperty(true), std::make_unique<InputComparatorCPress>(), 53,
@@ -127,6 +135,8 @@ void Char1::provideActions()
             {60.0f, -450.0f, 200.0f, 400.0f}
         }
     }, TimelineProperty<Vector2<float>>({{1, {30.0f, 0.0f}}, {4, {0, 0}}}),
+    StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
+    (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}),
     false, true)));
 
     // 5C
@@ -143,7 +153,10 @@ void Char1::provideActions()
             TimelineProperty<bool>({{11, true}, {23, false}}),
             {60.0f, -220.0f, 60.0f, 100.0f}
         }
-    }, TimelineProperty<Vector2<float>>({{3, {20.0f, 0.0f}}, {6, {0, 0}}, {22, {20.0f, 0.0f}}, {27, {0, 0}}}), false, false)));
+    }, TimelineProperty<Vector2<float>>({{3, {20.0f, 0.0f}}, {6, {0, 0}}, {22, {20.0f, 0.0f}}, {27, {0, 0}}}),
+    StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
+    (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}),
+    false, false)));
 
     // 5B
     m_actionResolver.addAction(std::unique_ptr<Action_char1_ground_attack>(new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_B, ANIMATIONS::CHAR1_MOVE_B, TimelineProperty(true), std::make_unique<InputComparatorBPress>(), 22,
@@ -159,7 +172,10 @@ void Char1::provideActions()
             TimelineProperty<bool>({{7, true}, {20, false}}),
             {50.0f, -275.0f, 175.0f, 80.0f}
         }
-    }, TimelineProperty<Vector2<float>>({{1, {3.5f, 0.0f}}, {7, {0, 0}}, {20, {-2.0f, 0.0f}}, {23, {0, 0}}}), false, false)));
+    }, TimelineProperty<Vector2<float>>({{1, {3.5f, 0.0f}}, {7, {0, 0}}, {20, {-2.0f, 0.0f}}, {23, {0, 0}}}),
+    StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
+    (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}),
+    false, false)));
 
     // 5A
     m_actionResolver.addAction(std::unique_ptr<Action_char1_ground_attack>(new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_A, ANIMATIONS::CHAR1_MOVE_A, TimelineProperty(true), std::make_unique<InputComparatorAPress>(), 16,
@@ -176,7 +192,10 @@ void Char1::provideActions()
             {40.0f, -310.0f, 140.0f, 50.0f}
         }
     },
-    {}, false, false)));
+    {},
+    StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
+    (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}),
+    false, false)));
 
     m_actionResolver.addAction(std::make_unique<Action_char1_ground_backdash>());
     m_actionResolver.addAction(std::make_unique<Action_char1_ground_dash>());
@@ -224,9 +243,7 @@ void Char1::provideActions()
 }
 
 Char1::Char1(Application &application_, Vector2<float> pos_, Camera *cam_, ParticleManager *particleManager_) :
-    Character(application_, pos_, 400.0f, gamedata::characters::char1::gravity, cam_, particleManager_, 1, 1, 6, 5),
-    m_actionResolver(application_.getInputSystem()),
-    m_currentAction(nullptr)
+    Character(application_, pos_, 400.0f, gamedata::characters::char1::gravity, cam_, particleManager_, 1, 1, 6, 5)
 {
     provideActions();
 }
@@ -391,7 +408,7 @@ void Char1::jumpUsingAction()
 
     auto ownOrientationVector = getOwnHorDir();
     ownOrientationVector.y = 1;
-    auto jumpAction = dynamic_cast<const Action_jump<Char1>*>(m_currentAction);
+    auto jumpAction = dynamic_cast<const Action_jump*>(m_currentAction);
     m_velocity = (jumpAction)->m_impulse.mulComponents(ownOrientationVector);
     if (m_inertia.y > 0)
         m_inertia.y = 0;
@@ -501,7 +518,7 @@ HitsVec Char1::getHits(bool allHits_)
 {
     if (m_currentAction && m_currentAction->m_isAttack)
     {
-        auto hits = dynamic_cast<const Action_attack<Char1>*>(m_currentAction)->getCurrentHits(m_timer.getCurrentFrame() + 1, m_pos, m_ownOrientation);
+        auto hits = dynamic_cast<const Action_attack*>(m_currentAction)->getCurrentHits(m_timer.getCurrentFrame() + 1, m_pos, m_ownOrientation);
         int i = 0;
         while (i < hits.size())
         {
@@ -1002,7 +1019,7 @@ bool Char1::isInActiveFrames() const
 {
     if (m_currentAction && m_currentAction->m_isAttack)
     {
-        auto atkAction = dynamic_cast<const Action_attack<Char1>*>(m_currentAction);
+        auto atkAction = dynamic_cast<const Action_attack*>(m_currentAction);
         return atkAction->getCurrentHits(m_timer.getCurrentFrame() + 1, m_pos, m_ownOrientation).size();
     }
 
@@ -1180,7 +1197,7 @@ void Char1::attemptThrow()
 {
     if (m_currentAction && m_currentAction->m_isThrowStartup)
     {
-        auto action = dynamic_cast<const Action_throw_startup<Char1>*>(m_currentAction);
+        auto action = dynamic_cast<const Action_throw_startup*>(m_currentAction);
         action->attemptThrow(*this);
     }
 }

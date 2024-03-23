@@ -211,6 +211,11 @@ protected:
     virtual void enterHitstunAnimation(const PostHitProperties &props_) = 0;
     void startShine(const SDL_Color &col_, int lockedDuration_, int alphaDuration_);
 
+    virtual void switchToIdle() = 0;
+    virtual void switchToFloat() = 0;
+    virtual void jumpUsingAction() = 0;
+    virtual void enterKndRecovery() = 0;
+
     void lockInAnimation();
     void releaseFromAnimation();
     void tieAnimWithOpponent();
@@ -286,19 +291,28 @@ protected:
     const int m_framesBeforeAirdash;
     const int m_framesBeforeAirjump;
 
-    friend Action_throw_startup<Char1>;
-    friend Action_throw_tech<Char1>;
-    friend Action_throw_hold<Char1>;
-    friend Action_thrown_hold<Char1>;
-    friend Action_throw_whiff<Char1>;
-    friend Action_locked_animation<Char1>;
-    friend Action<Char1>;
-    friend Action_throw_startup<Char1>;
-    friend Action_throw_hold<Char1>;
-    friend Action_thrown_hold<Char1>;
-    friend Action_throw_whiff<Char1>;
-    friend Action_throw_tech<Char1>;
-    friend Action_locked_animation<Char1>;
+    FrameTimer m_timer;
+    int framesInState = 1;
+
+    std::set<int> m_appliedHits;
+    bool m_usedAirAttack = false;
+
+    const Action *m_currentAction;
+    ActionResolver m_actionResolver;
+
+    friend Action_throw_startup;
+    friend Action_throw_tech;
+    friend Action_throw_hold;
+    friend Action_thrown_hold;
+    friend Action_throw_whiff;
+    friend Action_locked_animation;
+    friend Action;
+    friend Action_throw_startup;
+    friend Action_throw_hold;
+    friend Action_thrown_hold;
+    friend Action_throw_whiff;
+    friend Action_throw_tech;
+    friend Action_locked_animation;
     friend Action_char1_normal_throw;
     friend Action_char1_normal_throw_startup;
     friend Action_char1_normal_air_throw_startup;
@@ -311,9 +325,9 @@ protected:
     friend Action_char1_throw_tech_char1;
     friend Action_char1_air_throw_tech;
     friend Action_char1_air_throw_tech_char1;
-    friend Action_jump<Char1>;
-    friend Action_prolonged<Char1>;
-    friend Action_attack<Char1>;
+    friend Action_jump;
+    friend Action_prolonged;
+    friend Action_attack;
     friend Action_char1_ground_attack;
     friend Action_char1_crouch;
     friend Action_char1_idle;
@@ -340,6 +354,7 @@ protected:
     friend Action_char1_vulnerable_landing_recovery;
     friend Action_char1_hard_landing_recovery;
     friend Action_char1_move_214C;
+    friend Action_airjump;
 };
 
 #endif

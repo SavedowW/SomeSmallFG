@@ -65,6 +65,7 @@ namespace gamedata
         inline constexpr float airbornePushbackMultiplier = 10.0f;
         inline constexpr float pushblockInertiaCarry = 0.2f;
         inline constexpr float takenHitInertiaCarry = 0.3f;
+        inline constexpr float totalStateCount = 100;
 
 
         namespace char1

@@ -104,11 +104,11 @@ public:
     std::string CharStateData() const final;
 
 protected:
-    void switchToIdle();
-    void jumpUsingAction();
+    virtual void switchToIdle() override;
+    virtual void jumpUsingAction() override;
     void switchToSoftLandingRecovery();
-    void enterKndRecovery();
-    void switchToFloat();
+    virtual void enterKndRecovery() override;
+    virtual void switchToFloat() override;
     bool isInActiveFrames() const;
     void enterHitstunAnimation(const PostHitProperties &props_) final;
 
@@ -117,25 +117,16 @@ protected:
     Collider getUntiedPushbox() const final;
     void enterThrown(THROW_LIST throw_);
 
-    std::set<int> m_appliedHits;
-
-    const Action<Char1> *m_currentAction;
-    ActionResolver<Char1> m_actionResolver;
-
-    FrameTimer m_timer;
-    bool m_usedAirAttack = false;
-
-    int framesInState = 1;
     CHAR1_STATE lastState = CHAR1_STATE::IDLE;
     
 
-    friend Action<Char1>;
-    friend Action_throw_startup<Char1>;
-    friend Action_throw_hold<Char1>;
-    friend Action_thrown_hold<Char1>;
-    friend Action_throw_whiff<Char1>;
-    friend Action_throw_tech<Char1>;
-    friend Action_locked_animation<Char1>;
+    friend Action;
+    friend Action_throw_startup;
+    friend Action_throw_hold;
+    friend Action_thrown_hold;
+    friend Action_throw_whiff;
+    friend Action_throw_tech;
+    friend Action_locked_animation;
     friend Action_char1_normal_throw;
     friend Action_char1_normal_throw_startup;
     friend Action_char1_normal_air_throw_startup;
@@ -148,9 +139,10 @@ protected:
     friend Action_char1_throw_tech_char1;
     friend Action_char1_air_throw_tech;
     friend Action_char1_air_throw_tech_char1;
-    friend Action_jump<Char1>;
-    friend Action_prolonged<Char1>;
-    friend Action_attack<Char1>;
+    friend Action_jump;
+    friend Action_airjump;
+    friend Action_prolonged;
+    friend Action_attack;
     friend Action_char1_ground_attack;
     friend Action_char1_crouch;
     friend Action_char1_idle;
