@@ -32,7 +32,7 @@ template <typename Char_t>
 class Action
 {
 public:
-    Action(int actionState_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, bool isAttack_, bool isCrouchState_, bool isThrowStartup_); // all false
+    Action(int actionState_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, bool isAttack_, bool isCrouchState_, bool isThrowStartup_);
     virtual bool isInputPossible(const InputQueue &inputQueue_, ORIENTATION ownDirection_, int extendBuffer_) const;
     virtual const HurtboxVec getCurrentHurtboxes(uint32_t currentFrame_, const Vector2<float>& offset_, ORIENTATION ownOrientation_) const;
     virtual void outdated(Char_t &character_) const {};

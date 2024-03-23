@@ -453,10 +453,6 @@ int Action_char1_idle::isPossible(const InputQueue &inputQueue_, Character *char
 
     switch (chr1->m_currentState)
     {
-        case ((int)CHAR1_STATE::IDLE):
-            return -1;
-            break;
-
         case ((int)CHAR1_STATE::CROUCH):
             [[fallthrough]];
         case ((int)CHAR1_STATE::WALK_FWD):
@@ -665,10 +661,6 @@ int Action_char1_jump::isPossible(const InputQueue &inputQueue_, Character *char
 
     switch (char_->m_currentState)
     {
-        case ((int)CHAR1_STATE::PREJUMP):
-            return -1;
-            break;
-
         case ((int)CHAR1_STATE::GROUND_DASH):
             [[fallthrough]];
         case ((int)CHAR1_STATE::GROUND_DASH_RECOVERY):
@@ -986,10 +978,6 @@ int Action_char1_step_recovery::isPossible(const InputQueue &inputQueue_, Charac
 
     switch (chr1->m_currentState)
     {
-        case ((int)CHAR1_STATE::STEP_RECOVERY):
-            return -1;
-            break;
-
         default:
             return 0;
             break;
@@ -1037,10 +1025,6 @@ int Action_char1_ground_backdash::isPossible(const InputQueue &inputQueue_, Char
 
     switch (char_->m_currentState)
     {
-        case ((int)CHAR1_STATE::GROUND_BACKDASH):
-            return -1;
-            break;
-
         case ((int)CHAR1_STATE::WALK_BWD):
             [[fallthrough]];
         case ((int)CHAR1_STATE::WALK_FWD):
@@ -1111,10 +1095,6 @@ int Action_char1_air_dash::isPossible(const InputQueue &inputQueue_, Character *
 
     switch (char_->m_currentState)
     {
-        case ((int)CHAR1_STATE::AIR_DASH):
-            return -1;
-            break;
-
         case ((int)CHAR1_STATE::JUMP):
             return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
             break;
@@ -1169,10 +1149,6 @@ int Action_char1_air_backdash::isPossible(const InputQueue &inputQueue_, Charact
 
     switch (char_->m_currentState)
     {
-        case ((int)CHAR1_STATE::AIR_BACKDASH):
-            return -1;
-            break;
-
         case ((int)CHAR1_STATE::JUMP):
             return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
             break;
@@ -1268,10 +1244,6 @@ int Action_char1_ground_dash_recovery::isPossible(const InputQueue &inputQueue_,
 
     switch (chr1->m_currentState)
     {
-        case ((int)CHAR1_STATE::GROUND_DASH_RECOVERY):
-            return -1;
-            break;
-
         case ((int)CHAR1_STATE::GROUND_DASH):
             return 1;
             break;
