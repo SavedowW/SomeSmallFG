@@ -117,7 +117,7 @@ private:
 		"Resources/Sprites/Char1/Idle/",
 		"Resources/Sprites/Char1/CrouchIdle/",
 		"Resources/Sprites/Char1/WalkForward/",
-		"Resources/Sprites/Char1/WalkForward/",
+		"Resources/Sprites/Char1/WalkBackward/",
 		"Resources/Sprites/Char1/Prejump/",
 		"Resources/Sprites/Char1/Jump/",
 		"Resources/Sprites/Char1/LandingRecovery/",

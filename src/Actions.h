@@ -123,6 +123,7 @@ class Action_airjump : public Action
 public:
     Action_airjump(int actionState_, const Vector2<float> &impulse_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, StateMarker transitionableFrom_);
     virtual int responseOnOwnState(const InputQueue &inputQueue_, ORIENTATION ownDirection_, int extendBuffer_) const override;
+    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const;
     const Vector2<float> m_impulse;
 };
 

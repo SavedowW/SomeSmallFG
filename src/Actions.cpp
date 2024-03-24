@@ -175,6 +175,31 @@ int Action_airjump::responseOnOwnState(const InputQueue &inputQueue_, ORIENTATIO
     return (isInputPossible(inputQueue_, ownDirection_, extendBuffer_) ? 1 : 0);
 }
 
+int Action_airjump::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
+{
+    if (char_->isInHitstop() || char_->isAirborne() != m_isAirborne)
+        return 0;
+
+    if (!char_->m_airjumpTimer.isOver())
+        return 0;
+
+    if (!char_->m_jumpsAvailable.canConsume(m_consumeAirjump))
+        return 0;
+
+    if (char_->isCancelAllowed(actionState))
+    {
+        return (isInputPossible(inputQueue_, char_->getOrientationToEnemy(), extendBuffer_) ? 1 : 0);
+    }
+
+    if (actionState == char_->m_currentState)
+        return responseOnOwnState(inputQueue_, char_->getOrientationToEnemy(), extendBuffer_);
+
+    if (m_transitionableFrom.getMark(char_->m_currentState))
+        return (isInputPossible(inputQueue_, char_->getOrientationToEnemy(), extendBuffer_) ? 1 : 0);
+
+    return 0;
+}
+
 // ABSTRACT ATTACK ACTION
 Action_attack::Action_attack(int actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, TimelineProperty<Vector2<float>> &&velocity_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, StateMarker transitionableFrom_, bool isCrouchState_, bool isAirborne_) :
     Action(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, hitutils::getRegularCounterTimeline(hits_), std::move(gravityWindow_), TimelineProperty(false), std::move(transitionableFrom_), true, isCrouchState_, false,
@@ -510,7 +535,7 @@ Action_char1_walk_fwd::Action_char1_walk_fwd() :
 void Action_char1_walk_fwd::switchTo(Character &character_) const
 {
     Action::switchTo(character_);
-    character_.m_velocity = character_.getHorDirToEnemy().mulComponents(Vector2{6.0f, 0.0f});
+    character_.m_velocity = character_.getOwnHorDir().mulComponents(Vector2{6.0f, 0.0f});
 }
 
 void Action_char1_walk_fwd::update(Character &character_) const
@@ -535,8 +560,7 @@ Action_char1_walk_bwd::Action_char1_walk_bwd() :
 void Action_char1_walk_bwd::switchTo(Character &character_) const
 {
     Action::switchTo(character_);
-    character_.m_currentAnimation->reset(65, -1);
-    character_.m_velocity = character_.getHorDirToEnemy().mulComponents(Vector2{-6.0f, 0.0f});
+    character_.m_velocity = character_.getOwnHorDir().mulComponents(Vector2{-6.0f, 0.0f});
 }
 
 void Action_char1_walk_bwd::update(Character &character_) const
@@ -637,8 +661,6 @@ void Action_char1_float::switchTo(Character &character_) const
 {
     Action::switchTo(character_);
     character_.m_currentAnimation->reset(20);
-
-    //character_.turnVelocityToInertia();
     character_.m_currentState = (int)CHAR1_STATE::JUMP;
 }
 
@@ -659,12 +681,6 @@ Action_char1_airjump::Action_char1_airjump(const Vector2<float> &impulse_, Input
 void Action_char1_airjump::switchTo(Character &character_) const
 {
     character_.updateOwnOrientation();
-
-    if (character_.m_currentState == (int)CHAR1_STATE::AIR_DASH_EXTENTION || (character_.m_currentAction && character_.m_currentAction->m_isAttack))
-    {
-        character_.turnVelocityToInertia();
-        character_.m_inertia.x /= gamedata::characters::char1::doubleJumpInertiaDivider;
-    }
 
     Action::switchTo(character_);
 
@@ -805,10 +821,7 @@ void Action_char1_ground_backdash::outdated(Character &character_) const
 
 void Action_char1_ground_backdash::switchTo(Character &character_) const
 {
-    if (character_.m_currentState == (int)CHAR1_STATE::SOFT_LANDING_RECOVERY)
-    {
-        character_.updateOwnOrientation();
-    }
+    character_.updateOwnOrientation();
 
     Action::switchTo(character_);
 
