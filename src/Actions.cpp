@@ -91,6 +91,22 @@ bool Action::canBlock(uint32_t currentFrame_) const
 
 int Action::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
+    // TODO:
+    // Airdash resource check
+    // Airjump resource check
+    // Airdash timer check
+    // Airjump timer check
+    // IB cancel check
+    // Airborne check is probably not necessary since there is no overlap between cancellable grounded actions and cancellable airborne actions
+
+    if (char_->isInHitstop())
+        return 0;
+
+    if (char_->isCancelAllowed(actionState))
+    {
+        return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
+    }
+
     if (actionState == char_->m_currentState)
         return responseOnOwnState(inputQueue_, char_->getInputDir(), extendBuffer_);
 
@@ -141,20 +157,13 @@ Action_airjump::Action_airjump(int actionState_, const Vector2<float> &impulse_,
 
 int Action_airjump::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
-    if (char_->isInHitstop() || !char_->m_jumpsAvailable.canConsume() || !char_->m_airjumpTimer.isOver() || !char_->isAirborne())
+    if (!char_->m_jumpsAvailable.canConsume() || !char_->m_airjumpTimer.isOver() || !char_->isAirborne())
         return 0;
 
     if (char_->isInInstantBlockstun())
         return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
 
-    if (char_->isCancelAllowed(actionState))
-    {
-        return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
-    }
-
     return Action::isPossible(inputQueue_, char_, extendBuffer_);
-
-    return 0;
 }
 
 int Action_airjump::responseOnOwnState(const InputQueue &inputQueue_, ORIENTATION ownDirection_, int extendBuffer_) const
@@ -406,11 +415,6 @@ Action_locked_animation::Action_locked_animation(int actionState_, int quitState
 {
 }
 
-int Action_locked_animation::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
-{
-    return false;
-}
-
 void Action_locked_animation::switchTo(Character &character_) const
 {
     character_.m_velocity = {0, 0};
@@ -441,14 +445,6 @@ Action_char1_idle::Action_char1_idle() :
 {
 }
 
-int Action_char1_idle::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
-{
-    if (char_->isInHitstop())
-        return 0;
-
-    return Action::isPossible(inputQueue_, char_, extendBuffer_);
-}
-
 void Action_char1_idle::switchTo(Character &character_) const
 {
     character_.turnVelocityToInertia();
@@ -470,14 +466,6 @@ Action_char1_crouch::Action_char1_crouch() :
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::IDLE, (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::WALK_BWD}),
     true)
 {
-}
-
-int Action_char1_crouch::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
-{
-    if (char_->isInHitstop())
-        return 0;
-
-    return Action::isPossible(inputQueue_, char_, extendBuffer_);
 }
 
 void Action_char1_crouch::switchTo(Character &character_) const
@@ -506,14 +494,6 @@ Action_char1_walk_fwd::Action_char1_walk_fwd() :
 {
 }
 
-int Action_char1_walk_fwd::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
-{
-    if (char_->isInHitstop())
-        return 0;
-
-    return Action::isPossible(inputQueue_, char_, extendBuffer_);
-}
-
 void Action_char1_walk_fwd::switchTo(Character &character_) const
 {
     Action::switchTo(character_);
@@ -536,14 +516,6 @@ Action_char1_walk_bwd::Action_char1_walk_bwd() :
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::IDLE, (int)CHAR1_STATE::WALK_FWD}),
     true)
 {
-}
-
-int Action_char1_walk_bwd::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
-{
-    if (char_->isInHitstop())
-        return 0;
-
-    return Action::isPossible(inputQueue_, char_, extendBuffer_);
 }
 
 void Action_char1_walk_bwd::switchTo(Character &character_) const
@@ -570,17 +542,8 @@ Action_char1_jump::Action_char1_jump(int actionState_, const Vector2<float> &imp
 
 int Action_char1_jump::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
-    if (char_->isInHitstop() || char_->isAirborne())
-        return 0;
-
-
     if (char_->isInInstantBlockstun())
         return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
-
-    if (char_->isCancelAllowed(actionState))
-    {
-        return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
-    }
 
     return Action::isPossible(inputQueue_, char_, extendBuffer_);
 }
@@ -744,19 +707,6 @@ Action_char1_ground_dash::Action_char1_ground_dash() :
 {
 }
 
-int Action_char1_ground_dash::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
-{
-    if (char_->isInHitstop())
-        return 0;
-
-    if (char_->isCancelAllowed(actionState))
-    {
-        return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
-    }
-
-    return Action::isPossible(inputQueue_, char_, extendBuffer_);
-}
-
 void Action_char1_ground_dash::update(Character &character_) const
 {
     auto newXVelocity = (abs(character_.m_velocity.x) + m_accel);
@@ -778,17 +728,9 @@ Action_char1_step::Action_char1_step() :
 }
 
 int Action_char1_step::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
-{
-    if (char_->isInHitstop() || char_->isAirborne())
-        return 0;
-    
+{  
     if (char_->isInInstantBlockstun())
         return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
-
-    if (char_->isCancelAllowed(actionState))
-    {
-        return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
-    }
 
     return Action::isPossible(inputQueue_, char_, extendBuffer_);
 }
@@ -853,19 +795,6 @@ Action_char1_ground_backdash::Action_char1_ground_backdash() :
 {
 }
 
-int Action_char1_ground_backdash::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
-{
-    if (char_->isInHitstop() || char_->isAirborne())
-        return 0;
-
-    if (char_->isCancelAllowed(actionState))
-    {
-        return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
-    }
-
-    return Action::isPossible(inputQueue_, char_, extendBuffer_);
-}
-
 void Action_char1_ground_backdash::outdated(Character &character_) const
 {
     character_.switchToIdle();
@@ -904,16 +833,11 @@ Action_char1_air_dash::Action_char1_air_dash() :
 
 int Action_char1_air_dash::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
-    if (char_->isInHitstop() || !char_->m_airdashesAvailable.canConsume() || !(char_->m_airdashTimer.isOver()))
+    if (!char_->m_airdashesAvailable.canConsume() || !(char_->m_airdashTimer.isOver()))
         return 0;
 
     if (char_->isInInstantBlockstun())
         return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
-
-    if (char_->isCancelAllowed(actionState))
-    {
-        return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
-    }
 
     return Action::isPossible(inputQueue_, char_, extendBuffer_);
 }
@@ -951,13 +875,8 @@ Action_char1_air_backdash::Action_char1_air_backdash() :
 int Action_char1_air_backdash::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
 
-    if (char_->isInHitstop() || !char_->m_airdashesAvailable.canConsume() || !char_->m_airdashTimer.isOver() || !char_->isAirborne())
+    if (!char_->m_airdashesAvailable.canConsume() || !char_->m_airdashTimer.isOver())
         return 0;
-
-    if (char_->isCancelAllowed(actionState))
-    {
-        return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
-    }
 
     return Action::isPossible(inputQueue_, char_, extendBuffer_);
 }
@@ -1032,14 +951,6 @@ Action_char1_ground_dash_recovery::Action_char1_ground_dash_recovery() :
     false, false, false),
     m_recoveryLen(gamedata::characters::char1::dashRecovery)
 {
-}
-
-int Action_char1_ground_dash_recovery::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
-{
-    if (char_->isInHitstop())
-        return 0;
-
-    return Action::isPossible(inputQueue_, char_, extendBuffer_);
 }
 
 void Action_char1_ground_dash_recovery::outdated(Character &character_) const
@@ -1234,26 +1145,6 @@ Action_char1_ground_attack::Action_char1_ground_attack(int actionState_, ANIMATI
 {
 }
 
-int Action_char1_ground_attack::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
-{
-    if (char_->isInHitstop() || char_->isAirborne())
-        return 0;
-
-    if (char_->isCancelAllowed(actionState))
-    {
-        return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
-    }
-
-    if (m_stepOnly)
-    {
-        if (char_->m_currentState == (int)CHAR1_STATE::STEP_RECOVERY)
-            return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
-        else
-            return 0;
-    }
-
-    return Action::isPossible(inputQueue_, char_, extendBuffer_);
-}
 
 void Action_char1_ground_attack::outdated(Character &character_) const
 {
@@ -1273,19 +1164,6 @@ void Action_char1_ground_attack::switchTo(Character &character_) const
 Action_char1_air_attack::Action_char1_air_attack(int actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, StateMarker transitionableFrom_) :
     Action_attack(actionState_, std::move(incmp_), fullDuration_, hits_, std::move(hurtboxes_), TimelineProperty<Vector2<float>>{}, anim_, std::move(gravityWindow_), std::move(transitionableFrom_), false, false)
 {
-}
-
-int Action_char1_air_attack::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
-{
-    if (char_->isInHitstop() || !char_->isAirborne())
-        return 0;
-
-    if (char_->isCancelAllowed(actionState))
-    {
-        return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
-    }
-
-    return Action::isPossible(inputQueue_, char_, extendBuffer_);
 }
 
 void Action_char1_air_attack::outdated(Character &character_) const
@@ -1442,19 +1320,6 @@ Action_char1_normal_throw_startup::Action_char1_normal_throw_startup() :
 {
 }
 
-int Action_char1_normal_throw_startup::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
-{
-    if (char_->isInHitstop() || char_->isAirborne())
-        return 0;
-
-    if (char_->isCancelAllowed(actionState))
-    {
-        return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
-    }
-
-    return Action::isPossible(inputQueue_, char_, extendBuffer_);
-}
-
 // Normal throw hold
 Action_char1_normal_throw_hold::Action_char1_normal_throw_hold() :
     Action_throw_hold((int)CHAR1_STATE::THROW_NORMAL_HOLD, (int)CHAR1_STATE::THROW_NORMAL_ANIM, 90, 10, false)
@@ -1475,19 +1340,6 @@ Action_char1_back_throw_startup::Action_char1_back_throw_startup() :
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
     (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}))
 {
-}
-
-int Action_char1_back_throw_startup::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
-{
-    if (char_->isInHitstop() || char_->isAirborne())
-        return 0;
-
-    if (char_->isCancelAllowed(actionState))
-    {
-        return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
-    }
-
-    return Action::isPossible(inputQueue_, char_, extendBuffer_);
 }
 
 // Back throw hold
@@ -1549,19 +1401,6 @@ Action_char1_normal_air_throw_startup::Action_char1_normal_air_throw_startup() :
 {
 }
 
-int Action_char1_normal_air_throw_startup::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
-{
-    if (char_->isInHitstop() || !char_->isAirborne())
-        return 0;
-
-    if (char_->isCancelAllowed(actionState))
-    {
-        return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
-    }
-
-    return Action::isPossible(inputQueue_, char_, extendBuffer_);
-}
-
 // Air throw hold
 Action_char1_normal_air_throw_hold::Action_char1_normal_air_throw_hold() :
     Action_throw_hold((int)CHAR1_STATE::THROW_NORMAL_AIR_HOLD, (int)CHAR1_STATE::THROW_NORMAL_AIR_ANIM, 90, 10, false)
@@ -1581,19 +1420,6 @@ Action_char1_back_air_throw_startup::Action_char1_back_air_throw_startup() :
     ANIMATIONS::CHAR1_NORMAL_THROW_STARTUP, TimelineProperty(true), 200.0f, {2, 5}, true, THROW_LIST::CHAR1_AIR_THROW,
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::AIR_DASH_EXTENTION, (int)CHAR1_STATE::JUMP}))
 {
-}
-
-int Action_char1_back_air_throw_startup::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
-{
-    if (char_->isInHitstop() || !char_->isAirborne())
-        return 0;
-
-    if (char_->isCancelAllowed(actionState))
-    {
-        return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
-    }
-
-    return Action::isPossible(inputQueue_, char_, extendBuffer_);
 }
 
 // Air back throw hold
