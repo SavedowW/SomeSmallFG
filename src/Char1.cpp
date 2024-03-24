@@ -57,7 +57,7 @@ void Char1::provideActions()
     },
     {},
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
-    (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}), false, false)));
+    (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}), false)));
 
     // 2B
     m_actionResolver.addAction(std::unique_ptr<Action_char1_ground_attack>(new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_2B, ANIMATIONS::CHAR1_MOVE_2B, TimelineProperty(true), std::make_unique<InputComparator2BPress>(), 29,
@@ -83,7 +83,7 @@ void Char1::provideActions()
         }),
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
     (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}),
-    true, false)));
+    true)));
 
     // 236C
     m_actionResolver.addAction(std::unique_ptr<Action_char1_ground_attack>(new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_236C, ANIMATIONS::CHAR1_MOVE_236C, TimelineProperty(true), std::make_unique<InputComparator236CPress>(), 40,
@@ -118,7 +118,7 @@ void Char1::provideActions()
         }),
         StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
     (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}),
-    false, false)));
+    false)));
 
     // s.5C
     m_actionResolver.addAction(std::unique_ptr<Action_char1_ground_attack>(new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_STEP_C, ANIMATIONS::CHAR1_MOVE_STEP_C, TimelineProperty(true), std::make_unique<InputComparatorCPress>(), 53,
@@ -136,7 +136,7 @@ void Char1::provideActions()
         }
     }, TimelineProperty<Vector2<float>>({{1, {30.0f, 0.0f}}, {4, {0, 0}}}),
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::STEP_RECOVERY}),
-    false, false)));
+    false)));
 
     // 5C
     m_actionResolver.addAction(std::unique_ptr<Action_char1_ground_attack>(new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_C, ANIMATIONS::CHAR1_MOVE_C, TimelineProperty(true), std::make_unique<InputComparatorCPress>(), 26,
@@ -155,7 +155,7 @@ void Char1::provideActions()
     }, TimelineProperty<Vector2<float>>({{3, {20.0f, 0.0f}}, {6, {0, 0}}, {22, {20.0f, 0.0f}}, {27, {0, 0}}}),
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
     (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}),
-    false, false)));
+    false)));
 
     // 5B
     m_actionResolver.addAction(std::unique_ptr<Action_char1_ground_attack>(new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_B, ANIMATIONS::CHAR1_MOVE_B, TimelineProperty(true), std::make_unique<InputComparatorBPress>(), 22,
@@ -174,7 +174,7 @@ void Char1::provideActions()
     }, TimelineProperty<Vector2<float>>({{1, {3.5f, 0.0f}}, {7, {0, 0}}, {20, {-2.0f, 0.0f}}, {23, {0, 0}}}),
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
     (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}),
-    false, false)));
+    false)));
 
     // 5A
     m_actionResolver.addAction(std::unique_ptr<Action_char1_ground_attack>(new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_A, ANIMATIONS::CHAR1_MOVE_A, TimelineProperty(true), std::make_unique<InputComparatorAPress>(), 16,
@@ -194,7 +194,7 @@ void Char1::provideActions()
     {},
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
     (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}),
-    false, false)));
+    false)));
 
     m_actionResolver.addAction(std::make_unique<Action_char1_ground_backdash>());
     m_actionResolver.addAction(std::make_unique<Action_char1_ground_dash>());
@@ -745,6 +745,18 @@ HIT_RESULT Char1::applyHit(HitEvent &hitEvent)
             if (!isInstant)
             {
                 hitEvent.realDamage = m_healthHandler.takeDamage(hitEvent);
+            }
+            else
+            {
+                CancelWindow tempwindow;
+                tempwindow.first = {1, 20};
+                tempwindow.second = {
+                    (int)CHAR1_STATE::STEP,
+                    (int)CHAR1_STATE::AIR_DASH,
+                    (int)CHAR1_STATE::PREJUMP,
+                };
+
+                applyCancelWindow(tempwindow);
             }
 
             return res;

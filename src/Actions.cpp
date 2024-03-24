@@ -8,7 +8,8 @@
  *
  *========================== */
 
-Action::Action(int actionState_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, StateMarker transitionableFrom_, bool isAttack_, bool isCrouchState_, bool isThrowStartup_) :
+Action::Action(int actionState_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, StateMarker transitionableFrom_, bool isAttack_, bool isCrouchState_, bool isThrowStartup_,
+        int consumeAirdash_, int consumeAirjump_, bool waitAirdashTimer_, bool waitAirjumpTimer_, bool isAirborne_) :
     actionState(actionState_),
     m_hurtboxes(std::move(hurtboxes_)),
     m_anim(anim_),
@@ -18,7 +19,12 @@ Action::Action(int actionState_, InputComparator_ptr incmp_, HurtboxFramesVec &&
     m_counterWindow(std::move(counterWindow_)),
     m_gravityWindow(std::move(gravityWindow_)),
     m_blockWindow(std::move(blockWindow_)),
-    m_transitionableFrom(std::move(transitionableFrom_))
+    m_transitionableFrom(std::move(transitionableFrom_)),
+    m_consumeAirdash(consumeAirdash_),
+    m_consumeAirjump(consumeAirjump_),
+    m_waitAirdashTimer(waitAirdashTimer_),
+    m_waitAirjumpTimer(waitAirjumpTimer_),
+    m_isAirborne(isAirborne_)
 {
     incmp = std::move(incmp_);
 }
@@ -91,16 +97,24 @@ bool Action::canBlock(uint32_t currentFrame_) const
 
 int Action::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
 {
-    // TODO:
-    // Airdash resource check
-    // Airjump resource check
-    // Airdash timer check
-    // Airjump timer check
-    // IB cancel check
-    // Airborne check is probably not necessary since there is no overlap between cancellable grounded actions and cancellable airborne actions
-
-    if (char_->isInHitstop())
+    if (char_->isInHitstop() || char_->isAirborne() != m_isAirborne)
         return 0;
+
+    if (m_waitAirdashTimer)
+        if (!char_->m_airdashTimer.isOver())
+            return 0;
+
+    if (m_waitAirjumpTimer)
+        if (!char_->m_airjumpTimer.isOver())
+            return 0;
+
+    if (m_consumeAirdash)
+        if (!char_->m_airdashesAvailable.canConsume(m_consumeAirdash))
+            return 0;
+
+    if (m_consumeAirjump)
+        if (!char_->m_jumpsAvailable.canConsume(m_consumeAirjump))
+            return 0;
 
     if (char_->isCancelAllowed(actionState))
     {
@@ -122,8 +136,8 @@ int Action::responseOnOwnState(const InputQueue &inputQueue_, ORIENTATION ownDir
 }
 
 // ABSTRACT PROLONGED ACTION
-Action_prolonged::Action_prolonged(int actionState_, InputComparator_ptr incmp_, InputComparator_ptr incmp_prolonged_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, StateMarker transitionableFrom_, bool isCrouchState_) :
-    Action(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, std::move(counterWindow_), std::move(gravityWindow_), std::move(blockWindow_), std::move(transitionableFrom_), false, isCrouchState_, false)
+Action_prolonged::Action_prolonged(int actionState_, InputComparator_ptr incmp_, InputComparator_ptr incmp_prolonged_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, StateMarker transitionableFrom_, bool isCrouchState_, int consumeAirdash_, int consumeAirjump_, bool waitAirdashTimer_, bool waitAirjumpTimer_, bool isAirborne_) :
+    Action(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, std::move(counterWindow_), std::move(gravityWindow_), std::move(blockWindow_), std::move(transitionableFrom_), false, isCrouchState_, false, consumeAirdash_, consumeAirjump_, waitAirdashTimer_, waitAirjumpTimer_, isAirborne_)
 {
     incmp_prolonged = std::move(incmp_prolonged_);
 }
@@ -140,7 +154,7 @@ int Action_prolonged::responseOnOwnState(const InputQueue &inputQueue_, ORIENTAT
 
 // ABSTRACT JUMP ACTION
 Action_jump::Action_jump(int actionState_, const Vector2<float> &impulse_, float prejumpLen_, float maxHorInertia_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&blockWindow_, StateMarker transitionableFrom_) :
-    Action(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, std::move(counterWindow_), TimelineProperty(true), std::move(blockWindow_), std::move(transitionableFrom_), false, false, false),
+    Action(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, std::move(counterWindow_), TimelineProperty(true), std::move(blockWindow_), std::move(transitionableFrom_), false, false, false, 0, 0, false, false, false),
     m_impulse(impulse_),
     m_prejumpLen(prejumpLen_),
     m_maxHorInertia(maxHorInertia_)
@@ -150,20 +164,10 @@ Action_jump::Action_jump(int actionState_, const Vector2<float> &impulse_, float
 
 // ABSTRACT AIR JUMP ACTION
 Action_airjump::Action_airjump(int actionState_, const Vector2<float> &impulse_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, StateMarker transitionableFrom_) :
-    Action(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, TimelineProperty(false), TimelineProperty(true), std::move(true), std::move(transitionableFrom_), false, false, false),
+    Action(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, TimelineProperty(false), TimelineProperty(true), std::move(true), std::move(transitionableFrom_), false, false, false,
+    0, 1, false, true, true),
     m_impulse(impulse_)
 {
-}
-
-int Action_airjump::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
-{
-    if (!char_->m_jumpsAvailable.canConsume() || !char_->m_airjumpTimer.isOver() || !char_->isAirborne())
-        return 0;
-
-    if (char_->isInInstantBlockstun())
-        return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
-
-    return Action::isPossible(inputQueue_, char_, extendBuffer_);
 }
 
 int Action_airjump::responseOnOwnState(const InputQueue &inputQueue_, ORIENTATION ownDirection_, int extendBuffer_) const
@@ -172,12 +176,12 @@ int Action_airjump::responseOnOwnState(const InputQueue &inputQueue_, ORIENTATIO
 }
 
 // ABSTRACT ATTACK ACTION
-Action_attack::Action_attack(int actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, TimelineProperty<Vector2<float>> &&velocity_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, StateMarker transitionableFrom_, bool isCrouchState_, bool stepOnly_) :
-    Action(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, hitutils::getRegularCounterTimeline(hits_), std::move(gravityWindow_), TimelineProperty(false), std::move(transitionableFrom_), true, isCrouchState_, false),
+Action_attack::Action_attack(int actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, TimelineProperty<Vector2<float>> &&velocity_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, StateMarker transitionableFrom_, bool isCrouchState_, bool isAirborne_) :
+    Action(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, hitutils::getRegularCounterTimeline(hits_), std::move(gravityWindow_), TimelineProperty(false), std::move(transitionableFrom_), true, isCrouchState_, false,
+    0, 0, false, false, isAirborne_),
     m_fullDuration(fullDuration_),
     m_hits(hits_),
-    m_velocity(std::move(velocity_)),
-    m_stepOnly(stepOnly_)
+    m_velocity(std::move(velocity_))
 {
 }
 
@@ -228,8 +232,9 @@ void Action_attack::update(Character &character_) const
 
 
 // ABSTRACT THROW STARTUP
-Action_throw_startup::Action_throw_startup(int actionState_, int whiffState_, int holdState_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, float range_, FrameWindow activeWindow_, bool requiredAirborne_, THROW_LIST throw_, StateMarker transitionableFrom_) :
-    Action(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, TimelineProperty(true), std::move(gravityWindow_), TimelineProperty(false), std::move(transitionableFrom_), false, false, true),
+Action_throw_startup::Action_throw_startup(int actionState_, int whiffState_, int holdState_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, float range_, FrameWindow activeWindow_, bool requiredAirborne_, THROW_LIST throw_, StateMarker transitionableFrom_, bool isAirborne_) :
+    Action(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, TimelineProperty(true), std::move(gravityWindow_), TimelineProperty(false), std::move(transitionableFrom_), false, false, true,
+    0, 0, false, false, isAirborne_),
     m_whiffState(whiffState_),
     m_holdState(holdState_),
     m_range(range_),
@@ -273,7 +278,8 @@ void Action_throw_startup::outdated(Character &character_) const
 
 // ABSTRACT THROW HOLD
 Action_throw_hold::Action_throw_hold(int actionState_, int throwState_, float setRange_, float duration_, bool sideSwitch_) :
-    Action(actionState_, nullptr, {}, ANIMATIONS::NONE, TimelineProperty(false), TimelineProperty(false), TimelineProperty(false), StateMarker(gamedata::characters::totalStateCount, {}), false, false, false),
+    Action(actionState_, nullptr, {}, ANIMATIONS::NONE, TimelineProperty(false), TimelineProperty(false), TimelineProperty(false), StateMarker(gamedata::characters::totalStateCount, {}), false, false, false,
+    0, 0, false, false, false),
     m_setRange(setRange_),
     m_duration(duration_),
     m_throwState(throwState_),
@@ -332,7 +338,8 @@ void Action_throw_hold::outdated(Character &character_) const
 
 // ABSTRACT THROW WHIFF
 Action_throw_whiff::Action_throw_whiff(int actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, float duration_, HurtboxFramesVec &&hurtboxes_) :
-    Action(actionState_, nullptr, std::move(hurtboxes_), anim_, TimelineProperty(false), std::move(gravityWindow_), TimelineProperty(false), StateMarker(gamedata::characters::totalStateCount, {}), false, false, false),
+    Action(actionState_, nullptr, std::move(hurtboxes_), anim_, TimelineProperty(false), std::move(gravityWindow_), TimelineProperty(false), StateMarker(gamedata::characters::totalStateCount, {}), false, false, false,
+    0, 0, false, false, false),
     m_duration(duration_)
 {
 }
@@ -353,7 +360,8 @@ void Action_throw_whiff::outdated(Character &character_) const
 
 // ABSTRACT THROWN HOLD
 Action_thrown_hold::Action_thrown_hold(int actionState_, int thrownState_, ANIMATIONS anim_, float duration_) :
-    Action(actionState_, nullptr, {}, anim_, TimelineProperty(false), TimelineProperty(false), TimelineProperty(false), StateMarker(gamedata::characters::totalStateCount, {}), false, false, false),
+    Action(actionState_, nullptr, {}, anim_, TimelineProperty(false), TimelineProperty(false), TimelineProperty(false), StateMarker(gamedata::characters::totalStateCount, {}), false, false, false,
+    0, 0, false, false, false),
     m_duration(duration_),
     m_thrownState(thrownState_)
 {
@@ -377,8 +385,9 @@ void Action_thrown_hold::outdated(Character &character_) const
 }
 
 // ABSTRACT THROW TECH
-Action_throw_tech::Action_throw_tech(int actionState_, InputComparator_ptr incmp_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, float duration_, HurtboxFramesVec &&hurtboxes_, THROW_TECHS_LIST throwTech_, StateMarker transitionableFrom_) :
-    Action(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, TimelineProperty(false), std::move(gravityWindow_), std::move(blockWindow_), std::move(transitionableFrom_), false, false, false),
+Action_throw_tech::Action_throw_tech(int actionState_, InputComparator_ptr incmp_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, float duration_, HurtboxFramesVec &&hurtboxes_, THROW_TECHS_LIST throwTech_, StateMarker transitionableFrom_, bool isAirborne_) :
+    Action(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, TimelineProperty(false), std::move(gravityWindow_), std::move(blockWindow_), std::move(transitionableFrom_), false, false, false,
+    0, 0, false, false, isAirborne_),
     m_duration(duration_),
     m_throwTech(throwTech_)
 {
@@ -409,7 +418,8 @@ void Action_throw_tech::outdated(Character &character_) const
 
 // ABSTRACT LOCKED ANIMATION
 Action_locked_animation::Action_locked_animation(int actionState_, int quitState_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, float duration_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&blockWindow_) :
-    Action(actionState_, nullptr, std::move(hurtboxes_), anim_, std::move(counterWindow_), TimelineProperty(false), std::move(blockWindow_), StateMarker(gamedata::characters::totalStateCount, {}), false, false, false),
+    Action(actionState_, nullptr, std::move(hurtboxes_), anim_, std::move(counterWindow_), TimelineProperty(false), std::move(blockWindow_), StateMarker(gamedata::characters::totalStateCount, {}), false, false, false,
+    0, 0, false, false, false),
     m_duration(duration_),
     m_quitState(quitState_)
 {
@@ -441,7 +451,8 @@ void Action_locked_animation::outdated(Character &character_) const
 Action_char1_idle::Action_char1_idle() :
     Action((int)CHAR1_STATE::IDLE, std::make_unique<InputComparatorIdle>(), {{TimelineProperty(true), gamedata::characters::char1::standingHurtbox}}, ANIMATIONS::CHAR1_IDLE, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true),
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::WALK_BWD}),
-    false, false, false)
+    false, false, false,
+    0, 0, false, false, false)
 {
 }
 
@@ -464,7 +475,8 @@ void Action_char1_idle::update(Character &character_) const
 Action_char1_crouch::Action_char1_crouch() :
     Action_prolonged((int)CHAR1_STATE::CROUCH, std::make_unique<InputComparatorDownHold>(), std::make_unique<InputComparatorDownHold>(), {{TimelineProperty(true), gamedata::characters::char1::crouchingHurtbox}}, ANIMATIONS::CHAR1_CROUCH_IDLE, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true),
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::IDLE, (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::WALK_BWD}),
-    true)
+    true,
+    0, 0, false, false, false)
 {
 }
 
@@ -490,7 +502,8 @@ Action_char1_walk_fwd::Action_char1_walk_fwd() :
         }
     }, ANIMATIONS::CHAR1_WALK_FWD, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true),
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::IDLE, (int)CHAR1_STATE::WALK_BWD}),
-    false)
+    false,
+    0, 0, false, false, false)
 {
 }
 
@@ -514,7 +527,8 @@ Action_char1_walk_bwd::Action_char1_walk_bwd() :
         }
     }, ANIMATIONS::CHAR1_WALK_BWD, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true),
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::IDLE, (int)CHAR1_STATE::WALK_FWD}),
-    true)
+    false,
+    0, 0, false, false, false)
 {
 }
 
@@ -538,14 +552,6 @@ Action_char1_jump::Action_char1_jump(int actionState_, const Vector2<float> &imp
     m_prejumpLen(prejumpLen_),
     m_maxHorInertia(maxHorInertia_)
 {
-}
-
-int Action_char1_jump::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
-{
-    if (char_->isInInstantBlockstun())
-        return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
-
-    return Action::isPossible(inputQueue_, char_, extendBuffer_);
 }
 
 void Action_char1_jump::switchTo(Character &character_) const
@@ -622,7 +628,8 @@ Action_char1_float::Action_char1_float() :
             TimelineProperty(true),
             {-70, -350, 140, 300}
         }
-    }, ANIMATIONS::CHAR1_JUMP, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true), StateMarker(gamedata::characters::totalStateCount, {}), false, false, false)
+    }, ANIMATIONS::CHAR1_JUMP, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true), StateMarker(gamedata::characters::totalStateCount, {}), false, false, false,
+    0, 0, false, false, true)
 {
 }
 
@@ -701,7 +708,8 @@ Action_char1_ground_dash::Action_char1_ground_dash() :
         }
     }, ANIMATIONS::CHAR1_GROUND_DASH, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true),
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::IDLE, (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::WALK_BWD}),
-    false),
+    false,
+    0, 0, false, false, false),
     m_accel(gamedata::characters::char1::dashAccel),
     m_maxspd(gamedata::characters::char1::dashMaxSpeed)
 {
@@ -722,17 +730,10 @@ Action_char1_step::Action_char1_step() :
         }
     }, ANIMATIONS::CHAR1_STEP, TimelineProperty(true), TimelineProperty(true), TimelineProperty(false),
     StateMarker(gamedata::characters::totalStateCount, {}),
-    false, false, false),
+    false, false, false,
+    0, 0, false, false, false),
     m_duration(gamedata::characters::char1::stepDuration)
 {
-}
-
-int Action_char1_step::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
-{  
-    if (char_->isInInstantBlockstun())
-        return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
-
-    return Action::isPossible(inputQueue_, char_, extendBuffer_);
 }
 
 void Action_char1_step::outdated(Character &character_) const
@@ -759,7 +760,8 @@ Action_char1_step_recovery::Action_char1_step_recovery() :
         }
     }, ANIMATIONS::CHAR1_STEP_RECOVERY, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false),
     StateMarker(gamedata::characters::totalStateCount, {}),
-    false, false, false),
+    false, false, false,
+    0, 0, false, false, false),
     m_recoveryLen(gamedata::characters::char1::stepRecoveryDuration)
 {
 }
@@ -790,7 +792,8 @@ Action_char1_ground_backdash::Action_char1_ground_backdash() :
         }
     }, ANIMATIONS::CHAR1_BACKDASH, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false),
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::WALK_BWD, (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::IDLE}),
-    false, false, false),
+    false, false, false,
+    0, 0, false, false, false),
     m_totalDuration(gamedata::characters::char1::backdashDuration)
 {
 }
@@ -826,20 +829,10 @@ Action_char1_air_dash::Action_char1_air_dash() :
         }
     }, ANIMATIONS::CHAR1_AIRDASH, TimelineProperty(false), TimelineProperty(false), TimelineProperty(false),
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::JUMP}),
-    false, false, false),
+    false, false, false,
+    1, 0, true, false, true),
     m_duration(gamedata::characters::char1::airdashDuration)
 {
-}
-
-int Action_char1_air_dash::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
-{
-    if (!char_->m_airdashesAvailable.canConsume() || !(char_->m_airdashTimer.isOver()))
-        return 0;
-
-    if (char_->isInInstantBlockstun())
-        return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
-
-    return Action::isPossible(inputQueue_, char_, extendBuffer_);
 }
 
 void Action_char1_air_dash::outdated(Character &character_) const
@@ -867,18 +860,10 @@ Action_char1_air_backdash::Action_char1_air_backdash() :
         }
     }, ANIMATIONS::CHAR1_AIR_BACKDASH, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false),
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::JUMP}),
-    false, false, false),
+    false, false, false,
+    1, 0, true, false, true),
     m_duration(gamedata::characters::char1::airBackdashDuration)
 {
-}
-
-int Action_char1_air_backdash::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
-{
-
-    if (!char_->m_airdashesAvailable.canConsume() || !char_->m_airdashTimer.isOver())
-        return 0;
-
-    return Action::isPossible(inputQueue_, char_, extendBuffer_);
 }
 
 void Action_char1_air_backdash::outdated(Character &character_) const
@@ -906,7 +891,8 @@ Action_char1_air_dash_extention::Action_char1_air_dash_extention() :
         }
     }, ANIMATIONS::CHAR1_AIRDASH, TimelineProperty(false), TimelineProperty(false), TimelineProperty(true),
     StateMarker(gamedata::characters::totalStateCount, {}),
-    false, false, false),
+    false, false, false,
+    0, 0, false, false, true),
     m_duration(gamedata::characters::char1::airdashExtentionDuration),
     m_baseSpd(gamedata::characters::char1::airdashExtentionMaxSpeed),
     m_spdMultiplier((gamedata::characters::char1::airdashExtentionMaxSpeed - gamedata::characters::char1::airdashExtentionMinSpeed) / gamedata::characters::char1::airdashExtentionDuration)
@@ -948,7 +934,8 @@ Action_char1_ground_dash_recovery::Action_char1_ground_dash_recovery() :
         }
     }, ANIMATIONS::CHAR1_GROUND_DASH_RECOVERY, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true),
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::GROUND_DASH}),
-    false, false, false),
+    false, false, false,
+    0, 0, false, false, false),
     m_recoveryLen(gamedata::characters::char1::dashRecovery)
 {
 }
@@ -974,7 +961,8 @@ Action_char1_soft_landing_recovery::Action_char1_soft_landing_recovery() :
         }
     }, ANIMATIONS::CHAR1_LANDING_RECOVERY, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true),
     StateMarker(gamedata::characters::totalStateCount, {}),
-    false, false, false),
+    false, false, false,
+    0, 0, false, false, false),
     m_recoveryLen(gamedata::characters::char1::softLandingRecovery)
 {
 }
@@ -1001,7 +989,8 @@ Action_char1_hard_landing_recovery::Action_char1_hard_landing_recovery() :
         }
     }, ANIMATIONS::CHAR1_LANDING_RECOVERY, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true),
     StateMarker(gamedata::characters::totalStateCount, {}),
-    false, false, false),
+    false, false, false,
+    0, 0, false, false, false),
     m_recoveryLen(gamedata::characters::char1::hardLandingRecovery)
 {
 }
@@ -1028,7 +1017,8 @@ Action_char1_vulnerable_landing_recovery::Action_char1_vulnerable_landing_recove
         }
     }, ANIMATIONS::CHAR1_LANDING_RECOVERY, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false),
     StateMarker(gamedata::characters::totalStateCount, {}),
-    false, false, false),
+    false, false, false,
+    0, 0, false, false, false),
     m_recoveryLen(gamedata::characters::char1::vulnerableLandingRecovery)
 {
 }
@@ -1055,7 +1045,8 @@ Action_char1_jc_landing_recovery::Action_char1_jc_landing_recovery() :
         }
     }, ANIMATIONS::CHAR1_JC_LANDING_RECOVERY, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false),
     StateMarker(gamedata::characters::totalStateCount, {}),
-    false, false, false),
+    false, false, false,
+    0, 0, false, false, false),
     m_recoveryLen(gamedata::characters::char1::jcLandingRecovery)
 {
 }
@@ -1077,7 +1068,8 @@ void Action_char1_jc_landing_recovery::switchTo(Character &character_) const
 Action_char1_soft_knockdown::Action_char1_soft_knockdown() :
     Action((int)CHAR1_STATE::SOFT_KNOCKDOWN, nullptr, {}, ANIMATIONS::CHAR1_SOFT_KNOCKDOWN, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false),
     StateMarker(gamedata::characters::totalStateCount, {}),
-    false, false, false)
+    false, false, false,
+    0, 0, false, false, false)
 {
 }
 
@@ -1098,7 +1090,8 @@ void Action_char1_soft_knockdown::switchTo(Character &character_) const
 Action_char1_hard_knockdown::Action_char1_hard_knockdown() :
     Action((int)CHAR1_STATE::HARD_KNOCKDOWN, nullptr, {}, ANIMATIONS::CHAR1_KNOCKDOWN, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false),
     StateMarker(gamedata::characters::totalStateCount, {}),
-    false, false, false)
+    false, false, false,
+    0, 0, false, false, false)
 {
 }
 
@@ -1119,7 +1112,8 @@ void Action_char1_hard_knockdown::switchTo(Character &character_) const
 Action_char1_knockdown_recovery::Action_char1_knockdown_recovery() :
     Action((int)CHAR1_STATE::KNOCKDOWN_RECOVERY, nullptr, {}, ANIMATIONS::CHAR1_KNOCKDOWN_RECOVERY, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false),
     StateMarker(gamedata::characters::totalStateCount, {}),
-    false, false, false)
+    false, false, false,
+    0, 0, false, false, false)
 {
 }
 
@@ -1140,8 +1134,8 @@ void Action_char1_knockdown_recovery::switchTo(Character &character_) const
 }
 
 // ABSTRACT CHAR1 GROUND ATTACK ACTION
-Action_char1_ground_attack::Action_char1_ground_attack(int actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, TimelineProperty<Vector2<float>> &&velocity_, StateMarker transitionableFrom_, bool isCrouchState_, bool stepOnly_) :
-    Action_attack(actionState_, std::move(incmp_), fullDuration_, hits_, std::move(hurtboxes_), std::move(velocity_), anim_, std::move(gravityWindow_), std::move(transitionableFrom_), isCrouchState_, stepOnly_)
+Action_char1_ground_attack::Action_char1_ground_attack(int actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, TimelineProperty<Vector2<float>> &&velocity_, StateMarker transitionableFrom_, bool isCrouchState_) :
+    Action_attack(actionState_, std::move(incmp_), fullDuration_, hits_, std::move(hurtboxes_), std::move(velocity_), anim_, std::move(gravityWindow_), std::move(transitionableFrom_), isCrouchState_, false)
 {
 }
 
@@ -1162,7 +1156,7 @@ void Action_char1_ground_attack::switchTo(Character &character_) const
 
 // ABSTRACT CHAR1 AIR ATTACK ACTION
 Action_char1_air_attack::Action_char1_air_attack(int actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, StateMarker transitionableFrom_) :
-    Action_attack(actionState_, std::move(incmp_), fullDuration_, hits_, std::move(hurtboxes_), TimelineProperty<Vector2<float>>{}, anim_, std::move(gravityWindow_), std::move(transitionableFrom_), false, false)
+    Action_attack(actionState_, std::move(incmp_), fullDuration_, hits_, std::move(hurtboxes_), TimelineProperty<Vector2<float>>{}, anim_, std::move(gravityWindow_), std::move(transitionableFrom_), false, true)
 {
 }
 
@@ -1258,7 +1252,7 @@ Action_char1_move_214C::Action_char1_move_214C() :
         }),
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
     (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}),
-    false, false)
+    false)
 {
 }
 
@@ -1300,7 +1294,7 @@ Action_char1_move_projectile::Action_char1_move_projectile() :
             {25, {0.0f, 0.0f}},
         }), StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
     (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}),
-    false, false)
+    false)
 {
 }
 
@@ -1316,7 +1310,8 @@ Action_char1_normal_throw_startup::Action_char1_normal_throw_startup() :
     },
     ANIMATIONS::CHAR1_NORMAL_THROW_STARTUP, TimelineProperty(true), 200.0f, {2, 5}, false, THROW_LIST::CHAR1_NORMAL_THROW,
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
-    (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}))
+    (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}),
+    false)
 {
 }
 
@@ -1338,7 +1333,8 @@ Action_char1_back_throw_startup::Action_char1_back_throw_startup() :
     },
     ANIMATIONS::CHAR1_NORMAL_THROW_STARTUP, TimelineProperty(true), 200.0f, {2, 5}, false, THROW_LIST::CHAR1_NORMAL_THROW,
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
-    (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}))
+    (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}),
+    false)
 {
 }
 
@@ -1397,7 +1393,8 @@ Action_char1_normal_air_throw_startup::Action_char1_normal_air_throw_startup() :
         }
     },
     ANIMATIONS::CHAR1_NORMAL_THROW_STARTUP, TimelineProperty(true), 200.0f, {2, 5}, true, THROW_LIST::CHAR1_AIR_THROW,
-    StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::AIR_DASH_EXTENTION, (int)CHAR1_STATE::JUMP}))
+    StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::AIR_DASH_EXTENTION, (int)CHAR1_STATE::JUMP}),
+    true)
 {
 }
 
@@ -1418,7 +1415,8 @@ Action_char1_back_air_throw_startup::Action_char1_back_air_throw_startup() :
         }
     },
     ANIMATIONS::CHAR1_NORMAL_THROW_STARTUP, TimelineProperty(true), 200.0f, {2, 5}, true, THROW_LIST::CHAR1_AIR_THROW,
-    StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::AIR_DASH_EXTENTION, (int)CHAR1_STATE::JUMP}))
+    StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::AIR_DASH_EXTENTION, (int)CHAR1_STATE::JUMP}),
+    true)
 {
 }
 
@@ -1474,7 +1472,8 @@ Action_char1_throw_tech::Action_char1_throw_tech() :
             TimelineProperty(true),
             gamedata::characters::char1::standingHurtbox
         }
-    }, THROW_TECHS_LIST::CHAR1_GROUND, StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::THROWN_CHAR1_NORMAL_HOLD}))
+    }, THROW_TECHS_LIST::CHAR1_GROUND, StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::THROWN_CHAR1_NORMAL_HOLD}),
+    false)
 {
 }
 
@@ -1494,7 +1493,8 @@ Action_char1_throw_tech_char1::Action_char1_throw_tech_char1() :
             TimelineProperty(true),
             gamedata::characters::char1::standingHurtbox
         }
-    }, THROW_TECHS_LIST::NONE, StateMarker(gamedata::characters::totalStateCount, {}))
+    }, THROW_TECHS_LIST::NONE, StateMarker(gamedata::characters::totalStateCount, {}),
+    false)
 {
 }
 
@@ -1513,7 +1513,8 @@ Action_char1_air_throw_tech::Action_char1_air_throw_tech() :
             TimelineProperty<bool>({{1, true}, {16, false}}),
             {-70, -350, 140, 300}
         }
-    }, THROW_TECHS_LIST::CHAR1_AIR, StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::THROWN_CHAR1_NORMAL_AIR_HOLD}))
+    }, THROW_TECHS_LIST::CHAR1_AIR, StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::THROWN_CHAR1_NORMAL_AIR_HOLD}),
+    true)
 {
 }
 
@@ -1532,7 +1533,8 @@ Action_char1_air_throw_tech_char1::Action_char1_air_throw_tech_char1() :
             TimelineProperty<bool>({{1, true}, {200, false}}),
             {-70, -350, 140, 300}
         }
-    }, THROW_TECHS_LIST::NONE, StateMarker(gamedata::characters::totalStateCount, {}))
+    }, THROW_TECHS_LIST::NONE, StateMarker(gamedata::characters::totalStateCount, {}),
+    true)
 {
 }
 

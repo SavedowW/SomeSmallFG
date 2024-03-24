@@ -32,7 +32,8 @@ enum class THROW_TECHS_LIST {
 class Action
 {
 public:
-    Action(int actionState_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, StateMarker transitionableFrom_, bool isAttack_, bool isCrouchState_, bool isThrowStartup_);
+    Action(int actionState_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, StateMarker transitionableFrom_, bool isAttack_, bool isCrouchState_, bool isThrowStartup_,
+    int consumeAirdash_, int consumeAirjump_, bool waitAirdashTimer_, bool waitAirjumpTimer_, bool isAirborne_);
     virtual bool isInputPossible(const InputQueue &inputQueue_, ORIENTATION ownDirection_, int extendBuffer_) const;
     virtual const HurtboxVec getCurrentHurtboxes(uint32_t currentFrame_, const Vector2<float>& offset_, ORIENTATION ownOrientation_) const;
     virtual void outdated(Character &character_) const {};
@@ -63,6 +64,12 @@ protected:
     TimelineProperty<bool> m_gravityWindow;
     TimelineProperty<bool> m_blockWindow;
     StateMarker m_transitionableFrom;
+
+    int m_consumeAirdash;
+    int m_consumeAirjump;
+    bool m_waitAirdashTimer;
+    bool m_waitAirjumpTimer;
+    bool m_isAirborne;
 };
 
 
@@ -82,7 +89,8 @@ protected:
 class Action_prolonged : public Action
 {
 public:
-    Action_prolonged(int actionState_, InputComparator_ptr incmp_, InputComparator_ptr incmp_prolonged_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, StateMarker transitionableFrom_, bool isCrouchState_);
+    Action_prolonged(int actionState_, InputComparator_ptr incmp_, InputComparator_ptr incmp_prolonged_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, StateMarker transitionableFrom_, bool isCrouchState_,
+    int consumeAirdash_, int consumeAirjump_, bool waitAirdashTimer_, bool waitAirjumpTimer_, bool isAirborne_);
     virtual int isPossibleToProlong(const InputQueue &inputQueue_, ORIENTATION ownDirection_) const;
     virtual int responseOnOwnState(const InputQueue &inputQueue_, ORIENTATION ownDirection_, int extendBuffer_) const override;
 
@@ -114,7 +122,6 @@ class Action_airjump : public Action
 {
 public:
     Action_airjump(int actionState_, const Vector2<float> &impulse_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, StateMarker transitionableFrom_);
-    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
     virtual int responseOnOwnState(const InputQueue &inputQueue_, ORIENTATION ownDirection_, int extendBuffer_) const override;
     const Vector2<float> m_impulse;
 };
@@ -129,7 +136,7 @@ public:
 class Action_attack : public Action
 {
 public:
-    Action_attack(int actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, TimelineProperty<Vector2<float>> &&velocity_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, StateMarker transitionableFrom_, bool isCrouchState_, bool stepOnly_);
+    Action_attack(int actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, TimelineProperty<Vector2<float>> &&velocity_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, StateMarker transitionableFrom_, bool isCrouchState_, bool isAirborne_);
     virtual const HitsVec getCurrentHits(uint32_t currentFrame_, const Vector2<float>& offset_, ORIENTATION ownOrientation_) const;
     virtual void switchTo(Character &character_) const override;
     virtual void update(Character &character_) const override;
@@ -138,7 +145,6 @@ public:
 
 protected:
     const ActiveFramesVec m_hits;
-    bool m_stepOnly;
 };
 
 /* ============================
@@ -149,7 +155,7 @@ protected:
 class Action_throw_startup : public Action
 {
 public:
-    Action_throw_startup(int actionState_, int whiffState_, int holdState_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, float range_, FrameWindow activeWindow_, bool requiredAirborne_, THROW_LIST throw_, StateMarker transitionableFrom_);
+    Action_throw_startup(int actionState_, int whiffState_, int holdState_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, float range_, FrameWindow activeWindow_, bool requiredAirborne_, THROW_LIST throw_, StateMarker transitionableFrom_, bool isAirborne_);
     virtual void switchTo(Character &character_) const override;
     virtual void attemptThrow(Character &character_) const;
 
@@ -226,7 +232,7 @@ protected:
 class Action_throw_tech : public Action
 {
 public:
-    Action_throw_tech(int actionState_, InputComparator_ptr incmp_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, float duration_, HurtboxFramesVec &&hurtboxes_, THROW_TECHS_LIST throwTech_, StateMarker transitionableFrom_);
+    Action_throw_tech(int actionState_, InputComparator_ptr incmp_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, float duration_, HurtboxFramesVec &&hurtboxes_, THROW_TECHS_LIST throwTech_, StateMarker transitionableFrom_, bool isAirborne_);
     virtual void switchTo(Character &character_) const override;
     void outdated(Character &character_) const override;
 
@@ -299,7 +305,6 @@ class Action_char1_jump : public Action_jump
 {
 public:
     Action_char1_jump(int actionState_, const Vector2<float> &impulse_, float prejumpLen_, float maxHorInertia_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_);
-    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
     virtual void switchTo(Character &character_) const override;
     const Vector2<float> m_impulse;
     const float m_prejumpLen;
@@ -382,7 +387,6 @@ class Action_char1_step: public Action
 {
 public:
     Action_char1_step();
-    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
     virtual void outdated(Character &character_) const override;
     virtual void switchTo(Character &character_) const override;
     const int m_duration;
@@ -420,7 +424,6 @@ class Action_char1_air_dash : public Action
 {
 public:
     Action_char1_air_dash();
-    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
     virtual void outdated(Character &character_) const override;
     virtual void switchTo(Character &character_) const override;
     const int m_duration;
@@ -430,7 +433,6 @@ class Action_char1_air_backdash : public Action
 {
 public:
     Action_char1_air_backdash();
-    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
     virtual void outdated(Character &character_) const override;
     virtual void switchTo(Character &character_) const override;
     const int m_duration;
@@ -499,7 +501,7 @@ public:
 class Action_char1_ground_attack : public Action_attack
 {
 public:
-    Action_char1_ground_attack(int actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, TimelineProperty<Vector2<float>> &&velocity_, StateMarker transitionableFrom_, bool isCrouchState_, bool stepOnly_);
+    Action_char1_ground_attack(int actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, TimelineProperty<Vector2<float>> &&velocity_, StateMarker transitionableFrom_, bool isCrouchState_);
     virtual void outdated(Character &character_) const override;
     virtual void switchTo(Character &character_) const override;
 };
