@@ -226,7 +226,7 @@ protected:
 class Action_throw_tech : public Action
 {
 public:
-    Action_throw_tech(int actionState_, InputComparator_ptr incmp_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, float duration_, HurtboxFramesVec &&hurtboxes_, THROW_TECHS_LIST throwTech_);
+    Action_throw_tech(int actionState_, InputComparator_ptr incmp_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, float duration_, HurtboxFramesVec &&hurtboxes_, THROW_TECHS_LIST throwTech_, StateMarker transitionableFrom_);
     virtual void switchTo(Character &character_) const override;
     void outdated(Character &character_) const override;
 
@@ -619,7 +619,6 @@ class Action_char1_throw_tech : public Action_throw_tech
 {
 public:
     Action_char1_throw_tech();
-    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
     virtual void switchTo(Character &character_) const override;
 };
 
@@ -627,7 +626,6 @@ class Action_char1_throw_tech_char1 : public Action_throw_tech
 {
 public:
     Action_char1_throw_tech_char1();
-    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
     virtual void switchTo(Character &character_) const override;
 };
 
@@ -635,7 +633,6 @@ class Action_char1_air_throw_tech : public Action_throw_tech
 {
 public:
     Action_char1_air_throw_tech();
-    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
     virtual void switchTo(Character &character_) const override;
 };
 
@@ -643,7 +640,6 @@ class Action_char1_air_throw_tech_char1 : public Action_throw_tech
 {
 public:
     Action_char1_air_throw_tech_char1();
-    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const override;
     virtual void switchTo(Character &character_) const override;
 };
 

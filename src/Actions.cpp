@@ -377,8 +377,8 @@ void Action_thrown_hold::outdated(Character &character_) const
 }
 
 // ABSTRACT THROW TECH
-Action_throw_tech::Action_throw_tech(int actionState_, InputComparator_ptr incmp_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, float duration_, HurtboxFramesVec &&hurtboxes_, THROW_TECHS_LIST throwTech_) :
-    Action(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, TimelineProperty(false), std::move(gravityWindow_), std::move(blockWindow_), StateMarker(gamedata::characters::totalStateCount, {}), false, false, false),
+Action_throw_tech::Action_throw_tech(int actionState_, InputComparator_ptr incmp_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, float duration_, HurtboxFramesVec &&hurtboxes_, THROW_TECHS_LIST throwTech_, StateMarker transitionableFrom_) :
+    Action(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, TimelineProperty(false), std::move(gravityWindow_), std::move(blockWindow_), std::move(transitionableFrom_), false, false, false),
     m_duration(duration_),
     m_throwTech(throwTech_)
 {
@@ -1474,34 +1474,8 @@ Action_char1_throw_tech::Action_char1_throw_tech() :
             TimelineProperty(true),
             gamedata::characters::char1::standingHurtbox
         }
-    }, THROW_TECHS_LIST::CHAR1_GROUND)
+    }, THROW_TECHS_LIST::CHAR1_GROUND, StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::THROWN_CHAR1_NORMAL_HOLD}))
 {
-}
-
-int Action_char1_throw_tech::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
-{
-    if (char_->isInHitstop())
-        return 0;
-
-    if (char_->isCancelAllowed(actionState))
-    {
-        return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
-    }
-
-    switch (char_->m_currentState)
-    {
-
-        case ((int)CHAR1_STATE::THROWN_CHAR1_NORMAL_HOLD):
-            return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
-            break;
-
-        default:
-            return 0;
-            break;
-    }
-
-    throw std::runtime_error("Undefined state transition");
-    return false;
 }
 
 void Action_char1_throw_tech::switchTo(Character &character_) const
@@ -1520,13 +1494,8 @@ Action_char1_throw_tech_char1::Action_char1_throw_tech_char1() :
             TimelineProperty(true),
             gamedata::characters::char1::standingHurtbox
         }
-    }, THROW_TECHS_LIST::NONE)
+    }, THROW_TECHS_LIST::NONE, StateMarker(gamedata::characters::totalStateCount, {}))
 {
-}
-
-int Action_char1_throw_tech_char1::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
-{
-    return false;
 }
 
 void Action_char1_throw_tech_char1::switchTo(Character &character_) const
@@ -1544,34 +1513,8 @@ Action_char1_air_throw_tech::Action_char1_air_throw_tech() :
             TimelineProperty<bool>({{1, true}, {16, false}}),
             {-70, -350, 140, 300}
         }
-    }, THROW_TECHS_LIST::CHAR1_AIR)
+    }, THROW_TECHS_LIST::CHAR1_AIR, StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::THROWN_CHAR1_NORMAL_AIR_HOLD}))
 {
-}
-
-int Action_char1_air_throw_tech::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
-{
-    if (char_->isInHitstop())
-        return 0;
-
-    if (char_->isCancelAllowed(actionState))
-    {
-        return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
-    }
-
-    switch (char_->m_currentState)
-    {
-
-        case ((int)CHAR1_STATE::THROWN_CHAR1_NORMAL_AIR_HOLD):
-            return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
-            break;
-
-        default:
-            return 0;
-            break;
-    }
-
-    throw std::runtime_error("Undefined state transition");
-    return false;
 }
 
 void Action_char1_air_throw_tech::switchTo(Character &character_) const
@@ -1589,13 +1532,8 @@ Action_char1_air_throw_tech_char1::Action_char1_air_throw_tech_char1() :
             TimelineProperty<bool>({{1, true}, {200, false}}),
             {-70, -350, 140, 300}
         }
-    }, THROW_TECHS_LIST::NONE)
+    }, THROW_TECHS_LIST::NONE, StateMarker(gamedata::characters::totalStateCount, {}))
 {
-}
-
-int Action_char1_air_throw_tech_char1::isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const
-{
-    return false;
 }
 
 void Action_char1_air_throw_tech_char1::switchTo(Character &character_) const
