@@ -3,7 +3,7 @@
 #include "ActionResolver.h"
 
 Character::Character(Application &application_, Vector2<float> pos_, float maxHealth_, float baseGravity_, Camera *cam_, ParticleManager *particleManager_, int maxAirdashes_, int maxDJumps_,
-    int framesBeforeAirdash_, int framesBeforeAirjump_) :
+    int framesBeforeAirdash_, int framesBeforeAirjump_, StateMarker autoRealignAfter_) :
     m_playerId(0),
     m_currentAnimation(nullptr),
     m_healthHandler(maxHealth_),
@@ -15,7 +15,8 @@ Character::Character(Application &application_, Vector2<float> pos_, float maxHe
     m_framesBeforeAirdash(framesBeforeAirdash_),
     m_framesBeforeAirjump(framesBeforeAirjump_),
     m_actionResolver(application_.getInputSystem()),
-    m_currentAction(nullptr)
+    m_currentAction(nullptr),
+    m_autoRealignAfter(std::move(autoRealignAfter_))
 {
     setPos(pos_);
 }

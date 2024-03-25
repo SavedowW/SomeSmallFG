@@ -242,7 +242,7 @@ void Char1::provideActions()
 }
 
 Char1::Char1(Application &application_, Vector2<float> pos_, Camera *cam_, ParticleManager *particleManager_) :
-    Character(application_, pos_, 400.0f, gamedata::characters::char1::gravity, cam_, particleManager_, 1, 1, 6, 5)
+    Character(application_, pos_, 400.0f, gamedata::characters::char1::gravity, cam_, particleManager_, 1, 1, 6, 5, StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY}))
 {
     provideActions();
 }
@@ -320,6 +320,7 @@ void Char1::initiate()
 
     m_inertiaDrag = gamedata::characters::char1::inertiaDrag;
 
+    m_currentState = (int)CHAR1_STATE::IDLE;
     switchToIdle();
 }
 

@@ -64,20 +64,53 @@ const HurtboxVec Action::getCurrentHurtboxes(uint32_t currentFrame_, const Vecto
 
 void Action::switchTo(Character &character_) const
 {
-    character_.m_timer.begin(0);
-    character_.m_currentState = actionState;
+    auto oldState = character_.m_currentState;
 
-    if (m_anim != ANIMATIONS::NONE)
-    {
-        character_.m_currentAnimation = character_.m_animations[m_anim].get();
-        character_.m_currentAnimation->reset();
-    }
+    if (m_velToInertia)
+        character_.turnVelocityToInertia();
 
     character_.m_currentAction = this;
     character_.applyCancelWindow({{0, 0}, {}});
     character_.framesInState = 0;
     character_.m_appliedHits.clear();
     character_.m_hitstunAnimation = HITSTUN_ANIMATION::NONE;
+    character_.m_blockstunType = BLOCK_FRAME::NONE;
+    character_.m_currentState = actionState;
+
+    if (m_anim != ANIMATIONS::NONE)
+    {
+        character_.m_currentAnimation = character_.m_animations[m_anim].get();
+        character_.m_currentAnimation->reset(m_animResetFrame, m_animResetDirection);
+    }
+
+    character_.m_timer.begin(m_timerValue);
+
+    if (m_realign || character_.m_autoRealignAfter.getMark(oldState))
+        character_.updateOwnOrientation();
+
+    if (m_setAirAttackFlag && character_.isAirborne())
+        character_.m_usedAirAttack = true;
+
+    if (m_resetDefenseState)
+    {
+        character_.m_healthHandler.resetScaling();
+        character_.m_comboPhysHandler.reset();
+    }
+
+    if (m_consumeAirdash)
+        character_.m_airdashesAvailable.consume(m_consumeAirdash);
+
+    if (m_consumeAirjump)
+        character_.m_jumpsAvailable.consume(m_consumeAirjump);
+
+    if (m_resetPushback)
+        character_.takePushback({0.0f, 0.0f});
+
+    if (m_callForPriority)
+        character_.callForPriority();
+
+    character_.m_velocity = character_.m_velocity.mulComponents(m_mulOwnVel) + character_.getOwnHorDir().mulComponents(m_mulOwnDirVel) + m_rawAddVel;
+    character_.m_inertia = character_.m_inertia.mulComponents(m_mulOwnInr) + character_.getOwnHorDir().mulComponents(m_mulOwnDirInr) + m_rawAddInr;
 }
 
 bool Action::isInCounterState(uint32_t currentFrame_) const
@@ -135,6 +168,33 @@ int Action::responseOnOwnState(const InputQueue &inputQueue_, ORIENTATION ownDir
     return 0;
 }
 
+Action *Action::setSwitchData(bool realign_, int timerValue_, bool velToInertia_, bool resetDefenseState_, bool setAirAttackFlag_, bool resetPushback_, bool callForPriority_, Vector2<float> mulOwnVel_, Vector2<float> mulOwnInr_, Vector2<float> mulOwnDirVel_, Vector2<float> mulOwnDirInr_, Vector2<float> rawAddVel_, Vector2<float> rawAddInr_)
+{
+    m_realign = realign_;
+    m_timerValue = timerValue_;
+    m_velToInertia = velToInertia_;
+    m_resetDefenseState = resetDefenseState_;
+    m_setAirAttackFlag = setAirAttackFlag_;
+    m_mulOwnVel = mulOwnVel_;
+    m_mulOwnInr = mulOwnInr_;
+    m_mulOwnDirVel = mulOwnDirVel_;
+    m_mulOwnDirInr = mulOwnDirInr_;
+    m_rawAddVel = rawAddVel_;
+    m_rawAddInr = rawAddInr_;
+    m_resetPushback = resetPushback_;
+    m_callForPriority = callForPriority_;
+
+    return this;
+}
+
+Action *Action::setAnimResetData(int animResetFrame_, int animResetDirection_)
+{
+    m_animResetFrame = animResetFrame_;
+    m_animResetDirection = animResetDirection_;
+
+    return this;
+}
+
 // ABSTRACT PROLONGED ACTION
 Action_prolonged::Action_prolonged(int actionState_, InputComparator_ptr incmp_, InputComparator_ptr incmp_prolonged_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, StateMarker transitionableFrom_, bool isCrouchState_, int consumeAirdash_, int consumeAirjump_, bool waitAirdashTimer_, bool waitAirjumpTimer_, bool isAirborne_) :
     Action(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, std::move(counterWindow_), std::move(gravityWindow_), std::move(blockWindow_), std::move(transitionableFrom_), false, isCrouchState_, false, consumeAirdash_, consumeAirjump_, waitAirdashTimer_, waitAirjumpTimer_, isAirborne_)
@@ -159,6 +219,22 @@ Action_jump::Action_jump(int actionState_, const Vector2<float> &impulse_, float
     m_prejumpLen(prejumpLen_),
     m_maxHorInertia(maxHorInertia_)
 {
+    setSwitchData(false, prejumpLen_, true, false, false, false, false, {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
+}
+
+Action_jump *Action_jump::setAirActionTimers(int airjumpTimerValue_, int airdashTimerValue_)
+{
+    m_airjumpTimerValue = airjumpTimerValue_;
+    m_airdashTimerValue = airdashTimerValue_;
+    return this;
+}
+
+void Action_jump::switchTo(Character &character_) const
+{
+    Action::switchTo(character_);
+
+    character_.m_airjumpTimer.begin(m_airjumpTimerValue);
+    character_.m_airdashTimer.begin(m_airdashTimerValue);
 }
 
 
@@ -208,6 +284,7 @@ Action_attack::Action_attack(int actionState_, InputComparator_ptr incmp_, int f
     m_hits(hits_),
     m_velocity(std::move(velocity_))
 {
+    setSwitchData(false, m_fullDuration, true, true, true, false, false, {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
 }
 
 const HitsVec Action_attack::getCurrentHits(uint32_t currentFrame_, const Vector2<float>& offset_, ORIENTATION ownOrientation_) const
@@ -240,13 +317,6 @@ const HitsVec Action_attack::getCurrentHits(uint32_t currentFrame_, const Vector
     return vec;
 }
 
-void Action_attack::switchTo(Character &character_) const
-{
-    character_.turnVelocityToInertia();
-    Action::switchTo(character_);
-    character_.m_timer.begin(m_fullDuration);
-}
-
 void Action_attack::update(Character &character_) const
 {
     if (!m_velocity.isEmpty())
@@ -267,15 +337,7 @@ Action_throw_startup::Action_throw_startup(int actionState_, int whiffState_, in
     m_requiredAirborne(requiredAirborne_),
     m_throw(throw_)
 {
-}
-
-void Action_throw_startup::switchTo(Character &character_) const
-{
-    character_.turnVelocityToInertia();
-    Action::switchTo(character_);
-    character_.m_timer.begin(m_activeWindow.second);
-    if (character_.m_airborne)
-        character_.m_usedAirAttack = true;
+    setSwitchData(false, activeWindow_.second, true, true, true, false, false, {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
 }
 
 void Action_throw_startup::attemptThrow(Character &character_) const
@@ -310,14 +372,12 @@ Action_throw_hold::Action_throw_hold(int actionState_, int throwState_, float se
     m_throwState(throwState_),
     m_sideSwitch(sideSwitch_)
 {
+    setSwitchData(false, duration_, true, true, true, false, false, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
 }
 
 void Action_throw_hold::switchTo(Character &character_) const
 {
-    character_.m_velocity = {0, 0};
-    character_.m_inertia = {0, 0};
     Action::switchTo(character_);
-    character_.m_timer.begin(m_duration);
 
     Character &otherChar = *character_.m_otherCharacter;
     if (character_.m_ownOrientation == ORIENTATION::RIGHT)
@@ -367,12 +427,7 @@ Action_throw_whiff::Action_throw_whiff(int actionState_, ANIMATIONS anim_, Timel
     0, 0, false, false, false),
     m_duration(duration_)
 {
-}
-
-void Action_throw_whiff::switchTo(Character &character_) const
-{
-    Action::switchTo(character_);
-    character_.m_timer.begin(m_duration);
+    setSwitchData(false, duration_, false, true, false, false, false, {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
 }
 
 void Action_throw_whiff::outdated(Character &character_) const
@@ -390,14 +445,12 @@ Action_thrown_hold::Action_thrown_hold(int actionState_, int thrownState_, ANIMA
     m_duration(duration_),
     m_thrownState(thrownState_)
 {
+    setSwitchData(false, duration_, true, true, true, false, false, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
 }
 
 void Action_thrown_hold::switchTo(Character &character_) const
 {
-    character_.m_velocity = {0, 0};
-    character_.m_inertia = {0, 0};
     Action::switchTo(character_);
-    character_.m_timer.begin(m_duration);
 
     character_.lockInAnimation();
     character_.tieAnimWithOpponent();
@@ -420,10 +473,7 @@ Action_throw_tech::Action_throw_tech(int actionState_, InputComparator_ptr incmp
 
 void Action_throw_tech::switchTo(Character &character_) const
 {
-    character_.m_velocity = {0, 0};
-    character_.m_inertia = {0, 0};
     Action::switchTo(character_);
-    character_.m_timer.begin(m_duration);
     
     character_.releaseFromAnimation();
     if (character_.m_tiedAnimWithOpponent)
@@ -448,14 +498,12 @@ Action_locked_animation::Action_locked_animation(int actionState_, int quitState
     m_duration(duration_),
     m_quitState(quitState_)
 {
+    setSwitchData(false, duration_, true, true, true, false, false, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
 }
 
 void Action_locked_animation::switchTo(Character &character_) const
 {
-    character_.m_velocity = {0, 0};
-    character_.m_inertia = {0, 0};
     Action::switchTo(character_);
-    character_.m_timer.begin(m_duration);
     character_.lockInAnimation();
 }
 
@@ -479,16 +527,7 @@ Action_char1_idle::Action_char1_idle() :
     false, false, false,
     0, 0, false, false, false)
 {
-}
-
-void Action_char1_idle::switchTo(Character &character_) const
-{
-    character_.turnVelocityToInertia();
-    Action::switchTo(character_);
-    character_.updateOwnOrientation();
-    character_.m_healthHandler.resetScaling();
-    character_.m_comboPhysHandler.reset();
-    character_.m_blockstunType = BLOCK_FRAME::NONE;
+    setSwitchData(true, 0, true, true, false, false, false, {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
 }
 
 void Action_char1_idle::update(Character &character_) const
@@ -503,12 +542,7 @@ Action_char1_crouch::Action_char1_crouch() :
     true,
     0, 0, false, false, false)
 {
-}
-
-void Action_char1_crouch::switchTo(Character &character_) const
-{
-    Action::switchTo(character_);
-    character_.m_velocity = {0.0f, 0.0f};
+    setSwitchData(true, 0, true, true, false, false, false, {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
 }
 
 void Action_char1_crouch::update(Character &character_) const
@@ -530,12 +564,7 @@ Action_char1_walk_fwd::Action_char1_walk_fwd() :
     false,
     0, 0, false, false, false)
 {
-}
-
-void Action_char1_walk_fwd::switchTo(Character &character_) const
-{
-    Action::switchTo(character_);
-    character_.m_velocity = character_.getOwnHorDir().mulComponents(Vector2{6.0f, 0.0f});
+    setSwitchData(false, 0, true, true, false, false, false, {0.0f, 0.0f}, {1.0f, 1.0f}, {6.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
 }
 
 void Action_char1_walk_fwd::update(Character &character_) const
@@ -555,12 +584,7 @@ Action_char1_walk_bwd::Action_char1_walk_bwd() :
     false,
     0, 0, false, false, false)
 {
-}
-
-void Action_char1_walk_bwd::switchTo(Character &character_) const
-{
-    Action::switchTo(character_);
-    character_.m_velocity = character_.getOwnHorDir().mulComponents(Vector2{-6.0f, 0.0f});
+    setSwitchData(false, 0, true, true, false, false, false, {0.0f, 0.0f}, {1.0f, 1.0f}, {-6.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
 }
 
 void Action_char1_walk_bwd::update(Character &character_) const
@@ -576,15 +600,7 @@ Action_char1_jump::Action_char1_jump(int actionState_, const Vector2<float> &imp
     m_prejumpLen(prejumpLen_),
     m_maxHorInertia(maxHorInertia_)
 {
-}
-
-void Action_char1_jump::switchTo(Character &character_) const
-{
-    character_.turnVelocityToInertia();
-    Action::switchTo(character_);
-    character_.m_timer.begin(m_prejumpLen);
-    character_.m_airjumpTimer.begin(5);
-    character_.m_airdashTimer.begin(6);
+    setAirActionTimers(5, 6);
 }
 
 // NEUTRAL JUMP ACTION
@@ -655,12 +671,12 @@ Action_char1_float::Action_char1_float() :
     }, ANIMATIONS::CHAR1_JUMP, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true), StateMarker(gamedata::characters::totalStateCount, {}), false, false, false,
     0, 0, false, false, true)
 {
+    setAnimResetData(20, 1);
 }
 
 void Action_char1_float::switchTo(Character &character_) const
 {
     Action::switchTo(character_);
-    character_.m_currentAnimation->reset(20);
     character_.m_currentState = (int)CHAR1_STATE::JUMP;
 }
 
@@ -676,21 +692,7 @@ Action_char1_airjump::Action_char1_airjump(const Vector2<float> &impulse_, Input
     }, ANIMATIONS::CHAR1_JUMP,
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::AIR_DASH_EXTENTION, (int)CHAR1_STATE::JUMP}))
 {
-}
-
-void Action_char1_airjump::switchTo(Character &character_) const
-{
-    character_.updateOwnOrientation();
-
-    Action::switchTo(character_);
-
-    auto ownOrientationVector = character_.getOwnHorDir();
-    ownOrientationVector.y = 1;
-    character_.m_velocity = m_impulse.mulComponents(ownOrientationVector);
-
-    character_.m_inertia.y = 0;
-
-    character_.m_jumpsAvailable.consume();
+    setSwitchData(true, 0, false, true, false, false, false, {0.0f, 0.0f}, {1.0f, 0.0f}, {impulse_.x, 0.0f}, {0.0f, 0.0f}, {0.0f, impulse_.y}, {0.0f, 0.0f});
 }
 
 // NEUTRAL DOUBLEJUMP ACTION
@@ -750,21 +752,12 @@ Action_char1_step::Action_char1_step() :
     0, 0, false, false, false),
     m_duration(gamedata::characters::char1::stepDuration)
 {
+    setSwitchData(true, m_duration, false, true, false, false, false, {0.0f, 0.0f}, {0.0f, 0.0f}, Vector2{gamedata::characters::char1::stepSpeed, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
 }
 
 void Action_char1_step::outdated(Character &character_) const
 {
-    //character_.m_velocity.x = 0;
     character_.m_actionResolver.getAction((int)CHAR1_STATE::STEP_RECOVERY)->switchTo(character_);
-}
-
-void Action_char1_step::switchTo(Character &character_) const
-{
-    character_.m_velocity = {0, 0};
-    character_.m_inertia = {0, 0};
-    character_.m_velocity = character_.getOwnHorDir().mulComponents(Vector2{gamedata::characters::char1::stepSpeed, 0.0f});
-    Action::switchTo(character_);
-    character_.m_timer.begin(m_duration);
 }
 
 // STEP RECOVERY ACTION
@@ -780,23 +773,12 @@ Action_char1_step_recovery::Action_char1_step_recovery() :
     0, 0, false, false, false),
     m_recoveryLen(gamedata::characters::char1::stepRecoveryDuration)
 {
+    setSwitchData(false, m_recoveryLen, true, false, false, false, false, {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
 }
 
 void Action_char1_step_recovery::outdated(Character &character_) const
 {
     character_.switchToIdle();
-}
-
-void Action_char1_step_recovery::switchTo(Character &character_) const
-{
-    character_.turnVelocityToInertia();
-    Action::switchTo(character_);
-    character_.m_timer.begin(m_recoveryLen);
-}
-
-void Action_char1_step_recovery::update(Character &character_) const
-{
-    //character_.m_inertia.x /= 4.0f;
 }
 
 // GROUND BACKDASH ACTION
@@ -812,24 +794,12 @@ Action_char1_ground_backdash::Action_char1_ground_backdash() :
     0, 0, false, false, false),
     m_totalDuration(gamedata::characters::char1::backdashDuration)
 {
+    setSwitchData(false, m_totalDuration, true, false, false, false, false, {1.0f, 1.0f}, {0.0f, 0.0f}, {-gamedata::characters::char1::backdashSpd, 0.0f}, {0.0f, 0.0f}, {0.0f, -14.0f}, {0.0f, 0.0f});
 }
 
 void Action_char1_ground_backdash::outdated(Character &character_) const
 {
     character_.switchToIdle();
-}
-
-void Action_char1_ground_backdash::switchTo(Character &character_) const
-{
-    character_.updateOwnOrientation();
-
-    Action::switchTo(character_);
-
-    character_.m_timer.begin(m_totalDuration);
-    auto dir = character_.getOwnHorDir();
-    dir.y = 1;
-    character_.m_velocity = dir.mulComponents(Vector2{-gamedata::characters::char1::backdashSpd, -14.0f});
-    character_.m_inertia = {0.0f, 0.0f};
 }
 
 
@@ -846,22 +816,13 @@ Action_char1_air_dash::Action_char1_air_dash() :
     1, 0, true, false, true),
     m_duration(gamedata::characters::char1::airdashDuration)
 {
+    setSwitchData(false, m_duration, false, false, false, false, false, {0.0f, 0.0f}, {0.0f, 0.0f}, {gamedata::characters::char1::airdashSpeed, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
 }
 
 void Action_char1_air_dash::outdated(Character &character_) const
 {
     character_.m_actionResolver.getAction((int)CHAR1_STATE::AIR_DASH_EXTENTION)->switchTo(character_);
     character_.m_currentAnimation = character_.m_animations[m_anim].get();
-}
-
-void Action_char1_air_dash::switchTo(Character &character_) const
-{
-    character_.m_velocity = {0, 0};
-    character_.m_inertia = {0, 0};
-    character_.m_velocity = character_.getOwnHorDir().mulComponents(Vector2{gamedata::characters::char1::airdashSpeed, 0.0f});
-    Action::switchTo(character_);
-    character_.m_timer.begin(m_duration);
-    character_.m_airdashesAvailable.consume();
 }
 
 // AIR BACKDASH ACTION
@@ -877,6 +838,7 @@ Action_char1_air_backdash::Action_char1_air_backdash() :
     1, 0, true, false, true),
     m_duration(gamedata::characters::char1::airBackdashDuration)
 {
+    setSwitchData(false, m_duration, false, false, false, false, false, {0.0f, 0.0f}, {0.0f, 0.0f}, {-gamedata::characters::char1::airBackdashSpeed, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, -10.0f});
 }
 
 void Action_char1_air_backdash::outdated(Character &character_) const
@@ -885,15 +847,6 @@ void Action_char1_air_backdash::outdated(Character &character_) const
     character_.switchToFloat();
 }
 
-void Action_char1_air_backdash::switchTo(Character &character_) const
-{
-    character_.m_velocity = {0, 0};
-    character_.m_inertia = {0, -10.0f};
-    character_.m_velocity = character_.getOwnHorDir().mulComponents(Vector2{-gamedata::characters::char1::airBackdashSpeed, 0.0f});
-    Action::switchTo(character_);
-    character_.m_timer.begin(m_duration);
-    character_.m_airdashesAvailable.consume();
-}
 
 // AIR DASH EXTENTION ACTION
 Action_char1_air_dash_extention::Action_char1_air_dash_extention() :
@@ -910,21 +863,13 @@ Action_char1_air_dash_extention::Action_char1_air_dash_extention() :
     m_baseSpd(gamedata::characters::char1::airdashExtentionMaxSpeed),
     m_spdMultiplier((gamedata::characters::char1::airdashExtentionMaxSpeed - gamedata::characters::char1::airdashExtentionMinSpeed) / gamedata::characters::char1::airdashExtentionDuration)
 {
+    setSwitchData(false, m_duration, false, false, false, false, false, {0.0f, 0.0f}, {0.0f, 0.0f}, {(float)m_baseSpd, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
 }
 
 void Action_char1_air_dash_extention::outdated(Character &character_) const
 {
     character_.switchToFloat();
     character_.updateOwnOrientation();
-}
-
-void Action_char1_air_dash_extention::switchTo(Character &character_) const
-{
-    character_.m_velocity = {0, 0};
-    character_.m_inertia = {0, 0};
-    character_.m_velocity = character_.getOwnHorDir().mulComponents(Vector2{(float)m_baseSpd, 0.0f});
-    Action::switchTo(character_);
-    character_.m_timer.begin(m_duration);
 }
 
 void Action_char1_air_dash_extention::setVelocity(Character &character_) const
@@ -951,18 +896,12 @@ Action_char1_ground_dash_recovery::Action_char1_ground_dash_recovery() :
     0, 0, false, false, false),
     m_recoveryLen(gamedata::characters::char1::dashRecovery)
 {
+    setSwitchData(false, m_recoveryLen, true, false, false, false, false, {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
 }
 
 void Action_char1_ground_dash_recovery::outdated(Character &character_) const
 {
     character_.switchToIdle();
-}
-
-void Action_char1_ground_dash_recovery::switchTo(Character &character_) const
-{
-    character_.turnVelocityToInertia();
-    Action::switchTo(character_);
-    character_.m_timer.begin(m_recoveryLen);
 }
 
 // SOFT LANDING RECOVERY
@@ -978,19 +917,12 @@ Action_char1_soft_landing_recovery::Action_char1_soft_landing_recovery() :
     0, 0, false, false, false),
     m_recoveryLen(gamedata::characters::char1::softLandingRecovery)
 {
+    setSwitchData(false, m_recoveryLen, false, false, false, false, false, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
 }
 
 void Action_char1_soft_landing_recovery::outdated(Character &character_) const
 {
     character_.switchToIdle();
-}
-
-void Action_char1_soft_landing_recovery::switchTo(Character &character_) const
-{
-    Action::switchTo(character_);
-    character_.m_velocity = {0.0f, 0.0f};
-    character_.m_inertia = {0.0f, 0.0f};
-    character_.m_timer.begin(m_recoveryLen);
 }
 
 // HARD LANDING RECOVERY
@@ -1006,19 +938,12 @@ Action_char1_hard_landing_recovery::Action_char1_hard_landing_recovery() :
     0, 0, false, false, false),
     m_recoveryLen(gamedata::characters::char1::hardLandingRecovery)
 {
+    setSwitchData(false, m_recoveryLen, false, false, false, false, false, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
 }
 
 void Action_char1_hard_landing_recovery::outdated(Character &character_) const
 {
     character_.switchToIdle();
-}
-
-void Action_char1_hard_landing_recovery::switchTo(Character &character_) const
-{
-    Action::switchTo(character_);
-    character_.m_velocity = {0.0f, 0.0f};
-    character_.m_inertia = {0.0f, 0.0f};
-    character_.m_timer.begin(m_recoveryLen);
 }
 
 // VULNERABLE LANDING RECOVERY
@@ -1034,6 +959,7 @@ Action_char1_vulnerable_landing_recovery::Action_char1_vulnerable_landing_recove
     0, 0, false, false, false),
     m_recoveryLen(gamedata::characters::char1::vulnerableLandingRecovery)
 {
+    setSwitchData(false, m_recoveryLen, false, false, false, false, false, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
 }
 
 void Action_char1_vulnerable_landing_recovery::outdated(Character &character_) const
@@ -1041,13 +967,6 @@ void Action_char1_vulnerable_landing_recovery::outdated(Character &character_) c
     character_.switchToIdle();
 }
 
-void Action_char1_vulnerable_landing_recovery::switchTo(Character &character_) const
-{
-    Action::switchTo(character_);
-    character_.m_velocity = {0.0f, 0.0f};
-    character_.m_inertia = {0.0f, 0.0f};
-    character_.m_timer.begin(m_recoveryLen);
-}
 
 // JC LANDING RECOVERY
 Action_char1_jc_landing_recovery::Action_char1_jc_landing_recovery() :
@@ -1062,6 +981,7 @@ Action_char1_jc_landing_recovery::Action_char1_jc_landing_recovery() :
     0, 0, false, false, false),
     m_recoveryLen(gamedata::characters::char1::jcLandingRecovery)
 {
+    setSwitchData(false, m_recoveryLen, false, false, false, false, false, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
 }
 
 void Action_char1_jc_landing_recovery::outdated(Character &character_) const
@@ -1069,13 +989,6 @@ void Action_char1_jc_landing_recovery::outdated(Character &character_) const
     character_.switchToIdle();
 }
 
-void Action_char1_jc_landing_recovery::switchTo(Character &character_) const
-{
-    Action::switchTo(character_);
-    character_.m_velocity = {0.0f, 0.0f};
-    character_.m_inertia = {0.0f, 0.0f};
-    character_.m_timer.begin(m_recoveryLen);
-}
 
 // SOFT KNOCKDOWN ACTION
 Action_char1_soft_knockdown::Action_char1_soft_knockdown() :
@@ -1084,19 +997,12 @@ Action_char1_soft_knockdown::Action_char1_soft_knockdown() :
     false, false, false,
     0, 0, false, false, false)
 {
+    setSwitchData(false, 8, true, false, false, true, false, {1.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
 }
 
 void Action_char1_soft_knockdown::outdated(Character &character_) const
 {
     character_.enterKndRecovery();
-}
-
-void Action_char1_soft_knockdown::switchTo(Character &character_) const
-{
-    character_.takePushback({0, 0});
-    character_.turnVelocityToInertia();
-    Action::switchTo(character_);
-    character_.m_timer.begin(8);
 }
 
 // HARD KNOCKDOWN ACTION
@@ -1106,19 +1012,12 @@ Action_char1_hard_knockdown::Action_char1_hard_knockdown() :
     false, false, false,
     0, 0, false, false, false)
 {
+    setSwitchData(false, 30, true, false, false, true, false, {1.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
 }
 
 void Action_char1_hard_knockdown::outdated(Character &character_) const
 {
     character_.enterKndRecovery();
-}
-
-void Action_char1_hard_knockdown::switchTo(Character &character_) const
-{
-    character_.takePushback({0, 0});
-    Action::switchTo(character_);
-    character_.m_timer.begin(30);
-    character_.m_velocity = {0.0f, 0.0f};
 }
 
 // KNOCKDOWN RECOVERY ACTION
@@ -1128,6 +1027,7 @@ Action_char1_knockdown_recovery::Action_char1_knockdown_recovery() :
     false, false, false,
     0, 0, false, false, false)
 {
+    setSwitchData(false, 21, true, true, false, true, false, {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
 }
 
 void Action_char1_knockdown_recovery::outdated(Character &character_) const
@@ -1136,15 +1036,6 @@ void Action_char1_knockdown_recovery::outdated(Character &character_) const
     character_.setThrowInvul();
 }
 
-void Action_char1_knockdown_recovery::switchTo(Character &character_) const
-{
-    character_.turnVelocityToInertia();
-    character_.takePushback({0, 0});
-    Action::switchTo(character_);
-    character_.m_timer.begin(21);
-    character_.m_healthHandler.resetScaling();
-    character_.m_comboPhysHandler.reset();
-}
 
 // ABSTRACT CHAR1 GROUND ATTACK ACTION
 Action_char1_ground_attack::Action_char1_ground_attack(int actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, TimelineProperty<Vector2<float>> &&velocity_, StateMarker transitionableFrom_, bool isCrouchState_) :
@@ -1159,18 +1050,12 @@ void Action_char1_ground_attack::outdated(Character &character_) const
     character_.switchToIdle();
 }
 
-void Action_char1_ground_attack::switchTo(Character &character_) const
-{
-    if (character_.m_currentState == (int)CHAR1_STATE::SOFT_LANDING_RECOVERY)
-                    character_.updateOwnOrientation();
-
-    Action_attack::switchTo(character_);
-}
 
 // ABSTRACT CHAR1 AIR ATTACK ACTION
 Action_char1_air_attack::Action_char1_air_attack(int actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, StateMarker transitionableFrom_) :
     Action_attack(actionState_, std::move(incmp_), fullDuration_, hits_, std::move(hurtboxes_), TimelineProperty<Vector2<float>>{}, anim_, std::move(gravityWindow_), std::move(transitionableFrom_), false, true)
 {
+    setSwitchData(false, fullDuration_, false, true, true, false, false, {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
 }
 
 void Action_char1_air_attack::outdated(Character &character_) const
@@ -1178,17 +1063,6 @@ void Action_char1_air_attack::outdated(Character &character_) const
     character_.switchToFloat();
 }
 
-void Action_char1_air_attack::switchTo(Character &character_) const
-{
-    character_.m_usedAirAttack = true;
-    if (character_.m_currentState == (int)CHAR1_STATE::AIR_DASH_EXTENTION)
-    {
-        character_.turnVelocityToInertia();
-    }
-
-    Action::switchTo(character_);
-    character_.m_timer.begin(m_fullDuration);
-}
 
 // j.C ACTION
 Action_char1_move_JC::Action_char1_move_JC() :
@@ -1488,13 +1362,7 @@ Action_char1_throw_tech::Action_char1_throw_tech() :
     }, THROW_TECHS_LIST::CHAR1_GROUND, StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::THROWN_CHAR1_NORMAL_HOLD}),
     false)
 {
-}
-
-void Action_char1_throw_tech::switchTo(Character &character_) const
-{
-    Action_throw_tech::switchTo(character_);
-    character_.m_inertia.x += -character_.getOwnHorDir().x * 5.0f;
-    character_.callForPriority();
+    setSwitchData(false, m_duration, true, true, true, false, true, {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {-5.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
 }
 
 // Throw tech state when Char1 breaks throw
@@ -1509,12 +1377,7 @@ Action_char1_throw_tech_char1::Action_char1_throw_tech_char1() :
     }, THROW_TECHS_LIST::NONE, StateMarker(gamedata::characters::totalStateCount, {}),
     false)
 {
-}
-
-void Action_char1_throw_tech_char1::switchTo(Character &character_) const
-{
-    Action_throw_tech::switchTo(character_);
-    character_.m_inertia.x += -character_.getOwnHorDir().x * 20.0f;
+    setSwitchData(false, m_duration, true, true, true, false, false, {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {-20.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
 }
 
 // Air throw tech
@@ -1529,12 +1392,7 @@ Action_char1_air_throw_tech::Action_char1_air_throw_tech() :
     }, THROW_TECHS_LIST::CHAR1_AIR, StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::THROWN_CHAR1_NORMAL_AIR_HOLD}),
     true)
 {
-}
-
-void Action_char1_air_throw_tech::switchTo(Character &character_) const
-{
-    Action_throw_tech::switchTo(character_);
-    character_.m_inertia.x += -character_.getOwnHorDir().x * 3.0f;
+    setSwitchData(false, m_duration, true, true, true, false, true, {1.0f, 1.0f}, {1.0f, 1.0f}, {-3.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
 }
 
 // Throw tech state when Char1 breaks air throw
@@ -1549,13 +1407,9 @@ Action_char1_air_throw_tech_char1::Action_char1_air_throw_tech_char1() :
     }, THROW_TECHS_LIST::NONE, StateMarker(gamedata::characters::totalStateCount, {}),
     true)
 {
+    setSwitchData(false, m_duration, true, true, true, false, false, {1.0f, 1.0f}, {1.0f, 1.0f}, {-10.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
 }
 
-void Action_char1_air_throw_tech_char1::switchTo(Character &character_) const
-{
-    Action_throw_tech::switchTo(character_);
-    character_.m_inertia.x += -character_.getOwnHorDir().x * 10.0f;
-}
 
 // Thrown by char1 normal throw - hold
 Action_char1_thrown_char1_normal_hold::Action_char1_thrown_char1_normal_hold() :

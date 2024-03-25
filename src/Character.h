@@ -136,7 +136,8 @@ struct CharacterUpdateRes
 class Character
 {
 public:
-    Character(Application &application_, Vector2<float> pos_, float maxHealth_, float baseGravity_, Camera *cam_, ParticleManager *particleManager_, int maxAirdashes_, int maxDJumps_, int framesBeforeAirdash_, int framesBeforeAirjump_);
+    Character(Application &application_, Vector2<float> pos_, float maxHealth_, float baseGravity_, Camera *cam_, ParticleManager *particleManager_, int maxAirdashes_, int maxDJumps_, int framesBeforeAirdash_, int framesBeforeAirjump_,
+    StateMarker autoRealignAfter_);
 
     void setOnStage(Application &application_, int playerId_, Character *otherCharacter_, PriorityHandler *priorityHandler_);
 
@@ -299,6 +300,7 @@ protected:
 
     const Action *m_currentAction;
     ActionResolver m_actionResolver;
+    StateMarker m_autoRealignAfter;
 
     friend Action_throw_startup;
     friend Action_throw_tech;
