@@ -56,6 +56,8 @@ public:
     Action *setUpdateMovementData(TimelineProperty<Vector2<float>> &&mulOwnVelUpd_, TimelineProperty<Vector2<float>> &&mulOwnInrUpd_, TimelineProperty<Vector2<float>> &&mulOwnDirVelUpd_,
     TimelineProperty<Vector2<float>> &&mulOwnDirInrUpd_, TimelineProperty<Vector2<float>> &&rawAddVelUpd_, TimelineProperty<Vector2<float>> &&rawAddInrUpd_);
     Action *setUpdateSpeedLimitData(TimelineProperty<float> &&ownVelLimitUpd_, TimelineProperty<float> &&ownInrLimitUpd_);
+    Action *setUpdateCamShakeData(TimelineProperty<Vector2<int>> &&camShakeUpd_);
+    Action *setUpdateRealignData(TimelineProperty<bool> &&updRealign_);
 
     const int actionState;
     const HurtboxFramesVec m_hurtboxes;
@@ -104,6 +106,10 @@ protected:
 
     TimelineProperty<float> m_ownVelLimitUpd;
     TimelineProperty<float> m_ownInrLimitUpd;
+
+    TimelineProperty<Vector2<int>> m_camShakeUpd;
+
+    TimelineProperty<bool> m_updRealign;
 };
 
 
@@ -289,7 +295,7 @@ class Action_locked_animation : public Action
 public:
     Action_locked_animation(int actionState_, int quitState_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, float duration_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&blockWindow_);
     virtual void switchTo(Character &character_) const override;
-    //virtual void update(Character &character_) const override;
+    virtual void update(Character &character_) const override;
     void outdated(Character &character_) const override;
 
 protected:
@@ -308,28 +314,24 @@ class Action_char1_idle : public Action
 {
 public:
     Action_char1_idle();
-    virtual void update(Character &character_) const override;
 };
 
 class Action_char1_crouch : public Action_prolonged
 {
 public:
     Action_char1_crouch();
-    virtual void update(Character &character_) const override;
 };
 
 class Action_char1_walk_fwd : public Action_prolonged
 {
 public:
     Action_char1_walk_fwd();
-    virtual void update(Character &character_) const override;
 };
 
 class Action_char1_walk_bwd : public Action_prolonged
 {
 public:
     Action_char1_walk_bwd();
-    virtual void update(Character &character_) const override;
 };
 
 class Action_char1_jump : public Action_jump
@@ -533,7 +535,6 @@ class Action_char1_move_214C : public Action_char1_ground_attack
 {
 public:
     Action_char1_move_214C();
-    virtual void update(Character &character_) const override;
 };
 
 class Action_char1_move_projectile : public Action_char1_ground_attack

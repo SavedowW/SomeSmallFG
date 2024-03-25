@@ -116,6 +116,10 @@ void Action::switchTo(Character &character_) const
 void Action::update(Character &character_) const
 {
     auto frame = character_.m_timer.getCurrentFrame() + 1;
+
+    if (m_updRealign[frame])
+        character_.updateOwnOrientation();
+
     if (m_usingUpdateMovement)
     {
         character_.m_velocity = character_.m_velocity.mulComponents(m_mulOwnVelUpd[frame]) + character_.getOwnHorDir().mulComponents(m_mulOwnDirVelUpd[frame]) + m_rawAddVelUpd[frame];
@@ -127,6 +131,10 @@ void Action::update(Character &character_) const
 
     if (!m_ownInrLimitUpd.isEmpty())
         character_.m_inertia = utils::limitVectorLength(character_.m_inertia, m_ownInrLimitUpd[frame]);
+
+    auto camShakeData = m_camShakeUpd[frame];
+    if (camShakeData.y != 0)
+        character_.m_cam->startShake(camShakeData.x, camShakeData.y);
 }
 
 bool Action::isInCounterState(uint32_t currentFrame_) const
@@ -231,6 +239,20 @@ Action *Action::setUpdateSpeedLimitData(TimelineProperty<float> &&ownVelLimitUpd
 {
     m_ownVelLimitUpd = std::move(ownVelLimitUpd_);
     m_ownInrLimitUpd = std::move(ownInrLimitUpd_);
+
+    return this;
+}
+
+Action *Action::setUpdateCamShakeData(TimelineProperty<Vector2<int>> &&camShakeUpd_)
+{
+    m_camShakeUpd = std::move(camShakeUpd_);
+
+    return this;
+}
+
+Action *Action::setUpdateRealignData(TimelineProperty<bool> &&updRealign_)
+{
+    m_updRealign = std::move(updRealign_);
 
     return this;
 }
@@ -534,6 +556,12 @@ void Action_locked_animation::switchTo(Character &character_) const
     character_.lockInAnimation();
 }
 
+void Action_locked_animation::update(Character &character_) const
+{
+    Action::update(character_);
+}
+
+
 void Action_locked_animation::outdated(Character &character_) const
 {
     character_.releaseFromAnimation();
@@ -555,11 +583,9 @@ Action_char1_idle::Action_char1_idle() :
     0, 0, false, false, false)
 {
     setSwitchData(true, 0, true, true, false, false, false, {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
-}
-
-void Action_char1_idle::update(Character &character_) const
-{
-    character_.updateOwnOrientation();
+    setUpdateRealignData(
+        TimelineProperty(true)
+    );
 }
 
 // CROUCH ACTION
@@ -570,11 +596,9 @@ Action_char1_crouch::Action_char1_crouch() :
     0, 0, false, false, false)
 {
     setSwitchData(true, 0, true, true, false, false, false, {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
-}
-
-void Action_char1_crouch::update(Character &character_) const
-{
-    character_.updateOwnOrientation();
+    setUpdateRealignData(
+        TimelineProperty(true)
+    );
 }
 
 
@@ -592,11 +616,9 @@ Action_char1_walk_fwd::Action_char1_walk_fwd() :
     0, 0, false, false, false)
 {
     setSwitchData(false, 0, true, true, false, false, false, {0.0f, 0.0f}, {1.0f, 1.0f}, {6.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
-}
-
-void Action_char1_walk_fwd::update(Character &character_) const
-{
-    character_.updateOwnOrientation();
+    setUpdateRealignData(
+        TimelineProperty(true)
+    );
 }
 
 // WALK BACKWARD ACTION
@@ -612,13 +634,10 @@ Action_char1_walk_bwd::Action_char1_walk_bwd() :
     0, 0, false, false, false)
 {
     setSwitchData(false, 0, true, true, false, false, false, {0.0f, 0.0f}, {1.0f, 1.0f}, {-6.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
+    setUpdateRealignData(
+        TimelineProperty(true)
+    );
 }
-
-void Action_char1_walk_bwd::update(Character &character_) const
-{
-    character_.updateOwnOrientation();
-}
-
 
 // ABSTRACT CHAR1 JUMP ACTION
 Action_char1_jump::Action_char1_jump(int actionState_, const Vector2<float> &impulse_, float prejumpLen_, float maxHorInertia_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_) :
@@ -1150,29 +1169,6 @@ Action_char1_move_JC::Action_char1_move_JC() :
     );
 }
 
-/*void Action_char1_move_JC::update(Character &character_) const
-{
-    auto frame = character_.m_timer.getCurrentFrame() + 1;
-    if (frame <= 9)
-    {
-        character_.m_inertia.x /= 1.1f;
-        character_.m_inertia.y /= 3.0f;
-
-        character_.m_velocity.x /= 1.1f;
-        character_.m_velocity.y /= 8.0f;
-    }
-    else if (frame >= 10 && frame <= 11)
-    {
-        character_.m_inertia.y = 0;
-    }
-    else if (frame == 12)
-    {
-        character_.m_velocity.y = -20.0f;
-        character_.m_velocity.x = character_.getOwnHorDir().x * 3.0f;
-    }
-
-    std::cout << "(" << character_.m_velocity << ") : (" << character_.m_inertia << ")\n";
-}*/
 
 // MOVE 214C ACTION
 Action_char1_move_214C::Action_char1_move_214C() :
@@ -1214,17 +1210,14 @@ Action_char1_move_214C::Action_char1_move_214C() :
         TimelineProperty<Vector2<float>>({0.0f, 0.0f}), // Raw vel
         TimelineProperty<Vector2<float>>({0.0f, 0.0f}) // Raw inr
     );
-}
 
-void Action_char1_move_214C::update(Character &character_) const
-{
-    Action_attack::update(character_);
-
-    auto frame = character_.m_timer.getCurrentFrame() + 1;
-    if (frame == 18)
-    {
-        character_.m_cam->startShake(35, 10);
-    }
+    setUpdateCamShakeData(
+        TimelineProperty<Vector2<int>>(
+            {
+                {18, {35, 10}},
+                {19, {0, 0}}
+            }
+    ));
 }
 
 // MOVE PROJECTILE ACTION
