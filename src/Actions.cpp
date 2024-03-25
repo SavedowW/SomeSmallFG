@@ -317,12 +317,11 @@ int Action_airjump::isPossible(const InputQueue &inputQueue_, Character *char_, 
 }
 
 // ABSTRACT ATTACK ACTION
-Action_attack::Action_attack(int actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, TimelineProperty<Vector2<float>> &&velocity_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, StateMarker transitionableFrom_, bool isCrouchState_, bool isAirborne_) :
+Action_attack::Action_attack(int actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, StateMarker transitionableFrom_, bool isCrouchState_, bool isAirborne_) :
     Action(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, hitutils::getRegularCounterTimeline(hits_), std::move(gravityWindow_), TimelineProperty(false), std::move(transitionableFrom_), true, isCrouchState_, false,
     0, 0, false, false, isAirborne_),
     m_fullDuration(fullDuration_),
-    m_hits(hits_),
-    m_velocity(std::move(velocity_))
+    m_hits(hits_)
 {
     setSwitchData(false, m_fullDuration, true, true, true, false, false, {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
 }
@@ -355,14 +354,6 @@ const HitsVec Action_attack::getCurrentHits(uint32_t currentFrame_, const Vector
     }
 
     return vec;
-}
-
-void Action_attack::update(Character &character_) const
-{
-    if (!m_velocity.isEmpty())
-    {
-        character_.m_velocity = m_velocity[character_.m_timer.getCurrentFrame() + 1].mulComponents(Vector2{character_.getOwnHorDir().x, 1.0f});
-    }
 }
 
 
@@ -1086,8 +1077,8 @@ void Action_char1_knockdown_recovery::outdated(Character &character_) const
 
 
 // ABSTRACT CHAR1 GROUND ATTACK ACTION
-Action_char1_ground_attack::Action_char1_ground_attack(int actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, TimelineProperty<Vector2<float>> &&velocity_, StateMarker transitionableFrom_, bool isCrouchState_) :
-    Action_attack(actionState_, std::move(incmp_), fullDuration_, hits_, std::move(hurtboxes_), std::move(velocity_), anim_, std::move(gravityWindow_), std::move(transitionableFrom_), isCrouchState_, false)
+Action_char1_ground_attack::Action_char1_ground_attack(int actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, StateMarker transitionableFrom_, bool isCrouchState_) :
+    Action_attack(actionState_, std::move(incmp_), fullDuration_, hits_, std::move(hurtboxes_), anim_, std::move(gravityWindow_), std::move(transitionableFrom_), isCrouchState_, false)
 {
 }
 
@@ -1101,7 +1092,7 @@ void Action_char1_ground_attack::outdated(Character &character_) const
 
 // ABSTRACT CHAR1 AIR ATTACK ACTION
 Action_char1_air_attack::Action_char1_air_attack(int actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, StateMarker transitionableFrom_) :
-    Action_attack(actionState_, std::move(incmp_), fullDuration_, hits_, std::move(hurtboxes_), TimelineProperty<Vector2<float>>{}, anim_, std::move(gravityWindow_), std::move(transitionableFrom_), false, true)
+    Action_attack(actionState_, std::move(incmp_), fullDuration_, hits_, std::move(hurtboxes_), anim_, std::move(gravityWindow_), std::move(transitionableFrom_), false, true)
 {
     setSwitchData(false, fullDuration_, false, true, true, false, false, {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
 }
@@ -1130,19 +1121,45 @@ Action_char1_move_JC::Action_char1_move_JC() :
     },
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::AIR_DASH_EXTENTION, (int)CHAR1_STATE::JUMP}))
 {
+    setUpdateMovementData(
+        TimelineProperty<Vector2<float>>(
+            {
+                {1, Vector2{0.9f, 0.125f}},
+                {10, Vector2{1.0f, 1.0f}},
+                {12, Vector2{1.0f, 0.0f}},
+                {13, Vector2{1.0f, 1.0f}}
+            }), // Vel mul
+        TimelineProperty<Vector2<float>>(
+            {
+                {1, Vector2{0.9f, 0.33f}},
+                {10, Vector2{1.0f, 0.0f}},
+                {11, Vector2{1.0f, 1.0f}}
+            }), // Inr mul
+        TimelineProperty<Vector2<float>>(
+            {
+                {12, Vector2{3.0f, 0.0f}},
+                {13, Vector2{0.0f, 0.0f}}
+            }),  // Dir vel mul
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}),  // Dir inr mul
+        TimelineProperty<Vector2<float>>(
+            {
+                {12, Vector2{0.0f, -20.0f}},
+                {13, Vector2{0.0f, 0.0f}}
+            }), // Raw vel
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}) // Raw inr
+    );
 }
 
-void Action_char1_move_JC::update(Character &character_) const
+/*void Action_char1_move_JC::update(Character &character_) const
 {
     auto frame = character_.m_timer.getCurrentFrame() + 1;
     if (frame <= 9)
     {
-        //character_.m_inertia.y /= 10.0f - character_.m_gravity / 2.0f;
+        character_.m_inertia.x /= 1.1f;
         character_.m_inertia.y /= 3.0f;
-        character_.m_velocity.y /= 8.0f;
 
         character_.m_velocity.x /= 1.1f;
-        character_.m_inertia.x /= 1.1f;
+        character_.m_velocity.y /= 8.0f;
     }
     else if (frame >= 10 && frame <= 11)
     {
@@ -1155,7 +1172,7 @@ void Action_char1_move_JC::update(Character &character_) const
     }
 
     std::cout << "(" << character_.m_velocity << ") : (" << character_.m_inertia << ")\n";
-}
+}*/
 
 // MOVE 214C ACTION
 Action_char1_move_214C::Action_char1_move_214C() :
@@ -1176,19 +1193,27 @@ Action_char1_move_214C::Action_char1_move_214C() :
             TimelineProperty<bool>({{18, true}, {36, false}}),
             {50.0f, -120.0f, 30.0f, 120.0f}
         }
-    }, TimelineProperty<Vector2<float>>(
-        {
-            {1, {6.0f, 0.0f}},
-            {5, {0.0f, 0.0f}},
-            {10, {2.0f, 0.0f}},
-            {16, {0.0f, 0.0f}},
-            {18, {80.0f, 0.0f}},
-            {19, {0.0f, 0.0f}}
-        }),
+    },
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
     (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}),
     false)
 {
+    setUpdateMovementData(
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}), // Vel mul
+        TimelineProperty<Vector2<float>>({1.0f, 1.0f}), // Inr mul
+        TimelineProperty<Vector2<float>>(
+            {
+                {1, {6.0f, 0.0f}},
+                {5, {0.0f, 0.0f}},
+                {10, {2.0f, 0.0f}},
+                {16, {0.0f, 0.0f}},
+                {18, {80.0f, 0.0f}},
+                {19, {0.0f, 0.0f}}
+            }),  // Dir vel mul
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}),  // Dir inr mul
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}), // Raw vel
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}) // Raw inr
+    );
 }
 
 void Action_char1_move_214C::update(Character &character_) const
@@ -1220,17 +1245,24 @@ Action_char1_move_projectile::Action_char1_move_projectile() :
             TimelineProperty<bool>({{31, true}, {35, false}}),
             {120.0f, -370.0f, 60.0f, 250.0f}
         }
-    },
-    TimelineProperty<Vector2<float>>(
-        {
-            {1, {-4.0f, 0.0f}},
-            {4, {-7.0f, 0.0f}},
-            {15, {-3.0f, 0.0f}},
-            {25, {0.0f, 0.0f}},
-        }), StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
+    }, StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
     (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}),
     false)
 {
+    setUpdateMovementData(
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}), // Vel mul
+        TimelineProperty<Vector2<float>>({1.0f, 1.0f}), // Inr mul
+        TimelineProperty<Vector2<float>>(
+            {
+                {1, {-4.0f, 0.0f}},
+            {4, {-7.0f, 0.0f}},
+            {15, {-3.0f, 0.0f}},
+            {25, {0.0f, 0.0f}}
+            }),  // Dir vel mul
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}),  // Dir inr mul
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}), // Raw vel
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}) // Raw inr
+    );
 }
 
 // Normal throw startup

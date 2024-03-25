@@ -55,12 +55,11 @@ void Char1::provideActions()
             {60.0f, -420.0f, 60.0f, 150.0f}
         }
     },
-    {},
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
     (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}), false)));
 
     // 2B
-    m_actionResolver.addAction(std::unique_ptr<Action_char1_ground_attack>(new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_2B, ANIMATIONS::CHAR1_MOVE_2B, TimelineProperty(true), std::make_unique<InputComparator2BPress>(), 29,
+    m_actionResolver.addAction(std::unique_ptr<Action>((new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_2B, ANIMATIONS::CHAR1_MOVE_2B, TimelineProperty(true), std::make_unique<InputComparator2BPress>(), 29,
     {
         hitgeneration::generate_char1_move2B()
     },
@@ -73,20 +72,27 @@ void Char1::provideActions()
             TimelineProperty<bool>({{9, true}, {22, false}}),
             {10.0f, -110.0f, 200.0f, 110.0f}
         }
-    }, TimelineProperty<Vector2<float>>(
-        {
-            {1, {23.0f, 0.0f}},
-            {5, {7.0f, 0.0f}},
-            {9, {0.0f, 0.0f}},
-            {22, {-7.0f, 0.0f}},
-            {26, {-23.0f, 0.0f}}
-        }),
+    },
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
     (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}),
-    true)));
+    true))->setUpdateMovementData(
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}), // Vel mul
+        TimelineProperty<Vector2<float>>({1.0f, 1.0f}), // Inr mul
+        TimelineProperty<Vector2<float>>(
+            {
+                {1, {23.0f, 0.0f}},
+                {5, {7.0f, 0.0f}},
+                {9, {0.0f, 0.0f}},
+                {22, {-7.0f, 0.0f}},
+                {26, {-23.0f, 0.0f}}
+            }),  // Dir vel mul
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}),  // Dir inr mul
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}), // Raw vel
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}) // Raw inr
+    )));
 
     // 236C
-    m_actionResolver.addAction(std::unique_ptr<Action_char1_ground_attack>(new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_236C, ANIMATIONS::CHAR1_MOVE_236C, TimelineProperty(true), std::make_unique<InputComparator236CPress>(), 40,
+    m_actionResolver.addAction(std::unique_ptr<Action>((new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_236C, ANIMATIONS::CHAR1_MOVE_236C, TimelineProperty(true), std::make_unique<InputComparator236CPress>(), 40,
     {
         hitgeneration::generate_char1_236C()
     },
@@ -107,21 +113,28 @@ void Char1::provideActions()
             TimelineProperty<bool>({{17, true}, {34, false}}),
             {60.0f, -350.0f, 40.0f, 150.0f}
         },
-    }, TimelineProperty<Vector2<float>>(
-        {
-            {1, {20.0f, 0.0f}},
-            {6, {15.0f, 0.0f}},
-            {9, {10.0f, 0.0f}},
-            {12, {6.0f, 0.0f}},
-            {13, {0, 0}},
-            {30, {-1.5f, 0.0f}},
-        }),
+    },
         StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
     (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}),
-    false)));
+    false))->setUpdateMovementData(
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}), // Vel mul
+        TimelineProperty<Vector2<float>>({1.0f, 1.0f}), // Inr mul
+        TimelineProperty<Vector2<float>>(
+            {
+                {1, {20.0f, 0.0f}},
+                {6, {15.0f, 0.0f}},
+                {9, {10.0f, 0.0f}},
+                {12, {6.0f, 0.0f}},
+                {13, {0, 0}},
+                {30, {-1.5f, 0.0f}}
+            }),  // Dir vel mul
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}),  // Dir inr mul
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}), // Raw vel
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}) // Raw inr
+    )));
 
     // s.5C
-    m_actionResolver.addAction(std::unique_ptr<Action_char1_ground_attack>(new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_STEP_C, ANIMATIONS::CHAR1_MOVE_STEP_C, TimelineProperty(true), std::make_unique<InputComparatorCPress>(), 53,
+    m_actionResolver.addAction(std::unique_ptr<Action>((new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_STEP_C, ANIMATIONS::CHAR1_MOVE_STEP_C, TimelineProperty(true), std::make_unique<InputComparatorCPress>(), 53,
     {
         hitgeneration::generate_char1_moveStepC()
     },
@@ -134,12 +147,23 @@ void Char1::provideActions()
             TimelineProperty<bool>({{6, true}, {32, false}}),
             {60.0f, -450.0f, 200.0f, 400.0f}
         }
-    }, TimelineProperty<Vector2<float>>({{1, {30.0f, 0.0f}}, {4, {0, 0}}}),
+    },
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::STEP_RECOVERY}),
-    false)));
+    false))->setUpdateMovementData(
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}), // Vel mul
+        TimelineProperty<Vector2<float>>({1.0f, 1.0f}), // Inr mul
+        TimelineProperty<Vector2<float>>(
+            {
+                {1, {30.0f, 0.0f}},
+                {4, {0, 0}}
+            }),  // Dir vel mul
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}),  // Dir inr mul
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}), // Raw vel
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}) // Raw inr
+    )));
 
     // 5C
-    m_actionResolver.addAction(std::unique_ptr<Action_char1_ground_attack>(new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_C, ANIMATIONS::CHAR1_MOVE_C, TimelineProperty(true), std::make_unique<InputComparatorCPress>(), 26,
+    m_actionResolver.addAction(std::unique_ptr<Action>((new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_C, ANIMATIONS::CHAR1_MOVE_C, TimelineProperty(true), std::make_unique<InputComparatorCPress>(), 26,
     {
         hitgeneration::generate_char1_moveC()
     },
@@ -152,13 +176,26 @@ void Char1::provideActions()
             TimelineProperty<bool>({{11, true}, {23, false}}),
             {60.0f, -220.0f, 60.0f, 100.0f}
         }
-    }, TimelineProperty<Vector2<float>>({{3, {20.0f, 0.0f}}, {6, {0, 0}}, {22, {20.0f, 0.0f}}, {27, {0, 0}}}),
+    },
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
     (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}),
-    false)));
+    false))->setUpdateMovementData(
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}), // Vel mul
+        TimelineProperty<Vector2<float>>({1.0f, 1.0f}), // Inr mul
+        TimelineProperty<Vector2<float>>(
+            {
+                {3, {20.0f, 0.0f}},
+                {6, {0, 0}},
+                {22, {20.0f, 0.0f}},
+                {27, {0, 0}}
+            }),  // Dir vel mul
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}),  // Dir inr mul
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}), // Raw vel
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}) // Raw inr
+    )));
 
     // 5B
-    m_actionResolver.addAction(std::unique_ptr<Action_char1_ground_attack>(new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_B, ANIMATIONS::CHAR1_MOVE_B, TimelineProperty(true), std::make_unique<InputComparatorBPress>(), 22,
+    m_actionResolver.addAction(std::unique_ptr<Action>((new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_B, ANIMATIONS::CHAR1_MOVE_B, TimelineProperty(true), std::make_unique<InputComparatorBPress>(), 22,
     {
         hitgeneration::generate_char1_moveB()
     },
@@ -171,10 +208,23 @@ void Char1::provideActions()
             TimelineProperty<bool>({{7, true}, {20, false}}),
             {50.0f, -275.0f, 175.0f, 80.0f}
         }
-    }, TimelineProperty<Vector2<float>>({{1, {3.5f, 0.0f}}, {7, {0, 0}}, {20, {-2.0f, 0.0f}}, {23, {0, 0}}}),
+    },
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
     (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}),
-    false)));
+    false))->setUpdateMovementData(
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}), // Vel mul
+        TimelineProperty<Vector2<float>>({1.0f, 1.0f}), // Inr mul
+        TimelineProperty<Vector2<float>>(
+            {
+                {1, {3.5f, 0.0f}},
+                {7, {0, 0}},
+                {20, {-2.0f, 0.0f}},
+                {23, {0, 0}}
+            }),  // Dir vel mul
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}),  // Dir inr mul
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}), // Raw vel
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}) // Raw inr
+    )));
 
     // 5A
     m_actionResolver.addAction(std::unique_ptr<Action_char1_ground_attack>(new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_A, ANIMATIONS::CHAR1_MOVE_A, TimelineProperty(true), std::make_unique<InputComparatorAPress>(), 16,
@@ -191,7 +241,6 @@ void Char1::provideActions()
             {40.0f, -310.0f, 140.0f, 50.0f}
         }
     },
-    {},
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
     (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}),
     false)));

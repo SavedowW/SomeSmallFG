@@ -177,11 +177,9 @@ public:
 class Action_attack : public Action
 {
 public:
-    Action_attack(int actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, TimelineProperty<Vector2<float>> &&velocity_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, StateMarker transitionableFrom_, bool isCrouchState_, bool isAirborne_);
+    Action_attack(int actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, StateMarker transitionableFrom_, bool isCrouchState_, bool isAirborne_);
     virtual const HitsVec getCurrentHits(uint32_t currentFrame_, const Vector2<float>& offset_, ORIENTATION ownOrientation_) const;
-    virtual void update(Character &character_) const override;
     const int m_fullDuration;
-    const TimelineProperty<Vector2<float>> m_velocity;
 
 protected:
     const ActiveFramesVec m_hits;
@@ -514,7 +512,7 @@ public:
 class Action_char1_ground_attack : public Action_attack
 {
 public:
-    Action_char1_ground_attack(int actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, TimelineProperty<Vector2<float>> &&velocity_, StateMarker transitionableFrom_, bool isCrouchState_);
+    Action_char1_ground_attack(int actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, StateMarker transitionableFrom_, bool isCrouchState_);
     virtual void outdated(Character &character_) const override;
 };
 
@@ -529,7 +527,6 @@ class Action_char1_move_JC : public Action_char1_air_attack
 {
 public:
     Action_char1_move_JC();
-    virtual void update(Character &character_) const override;
 };
 
 class Action_char1_move_214C : public Action_char1_ground_attack
