@@ -113,6 +113,22 @@ void Action::switchTo(Character &character_) const
     character_.m_inertia = character_.m_inertia.mulComponents(m_mulOwnInr) + character_.getOwnHorDir().mulComponents(m_mulOwnDirInr) + m_rawAddInr;
 }
 
+void Action::update(Character &character_) const
+{
+    auto frame = character_.m_timer.getCurrentFrame() + 1;
+    if (m_usingUpdateMovement)
+    {
+        character_.m_velocity = character_.m_velocity.mulComponents(m_mulOwnVelUpd[frame]) + character_.getOwnHorDir().mulComponents(m_mulOwnDirVelUpd[frame]) + m_rawAddVelUpd[frame];
+        character_.m_inertia = character_.m_inertia.mulComponents(m_mulOwnInrUpd[frame]) + character_.getOwnHorDir().mulComponents(m_mulOwnDirInrUpd[frame]) + m_rawAddInrUpd[frame];
+    }
+    
+    if (!m_ownVelLimitUpd.isEmpty())
+        character_.m_velocity = utils::limitVectorLength(character_.m_velocity, m_ownVelLimitUpd[frame]);
+
+    if (!m_ownInrLimitUpd.isEmpty())
+        character_.m_inertia = utils::limitVectorLength(character_.m_inertia, m_ownInrLimitUpd[frame]);
+}
+
 bool Action::isInCounterState(uint32_t currentFrame_) const
 {
     return m_counterWindow[currentFrame_];
@@ -191,6 +207,30 @@ Action *Action::setAnimResetData(int animResetFrame_, int animResetDirection_)
 {
     m_animResetFrame = animResetFrame_;
     m_animResetDirection = animResetDirection_;
+
+    return this;
+}
+
+Action *Action::setUpdateMovementData(TimelineProperty<Vector2<float>> &&mulOwnVelUpd_, TimelineProperty<Vector2<float>> &&mulOwnInrUpd_, TimelineProperty<Vector2<float>> &&mulOwnDirVelUpd_,
+TimelineProperty<Vector2<float>> &&mulOwnDirInrUpd_, TimelineProperty<Vector2<float>> &&rawAddVelUpd_, TimelineProperty<Vector2<float>> &&rawAddInrUpd_)
+{
+    m_mulOwnVelUpd = std::move(mulOwnVelUpd_);
+    m_mulOwnInrUpd = std::move(mulOwnInrUpd_);
+    m_mulOwnDirVelUpd = std::move(mulOwnDirVelUpd_);
+    m_mulOwnDirInrUpd = std::move(mulOwnDirInrUpd_);
+    m_rawAddVelUpd = std::move(rawAddVelUpd_);
+    m_rawAddInrUpd = std::move(rawAddInrUpd_);
+
+    m_usingUpdateMovement = !m_mulOwnVelUpd.isEmpty() || !m_mulOwnInrUpd.isEmpty() || !m_mulOwnDirVelUpd.isEmpty() ||
+    !m_mulOwnDirInrUpd.isEmpty() || !m_rawAddVelUpd.isEmpty() || !m_rawAddInrUpd.isEmpty();
+
+    return this;
+}
+
+Action *Action::setUpdateSpeedLimitData(TimelineProperty<float> &&ownVelLimitUpd_, TimelineProperty<float> &&ownInrLimitUpd_)
+{
+    m_ownVelLimitUpd = std::move(ownVelLimitUpd_);
+    m_ownInrLimitUpd = std::move(ownInrLimitUpd_);
 
     return this;
 }
@@ -395,10 +435,6 @@ void Action_throw_hold::switchTo(Character &character_) const
     character_.updateOwnOrientation();
     otherChar.updateDirToEnemy();
     otherChar.updateOwnOrientation();
-}
-
-void Action_throw_hold::update(Character &character_) const
-{
 }
 
 void Action_throw_hold::outdated(Character &character_) const
@@ -731,12 +767,22 @@ Action_char1_ground_dash::Action_char1_ground_dash() :
     m_accel(gamedata::characters::char1::dashAccel),
     m_maxspd(gamedata::characters::char1::dashMaxSpeed)
 {
-}
+    setUpdateMovementData(
+        TimelineProperty<Vector2<float>>({1.0f, 1.0f}), // Vel mul
+        TimelineProperty<Vector2<float>>({1.0f, 1.0f}), // Inr mul
+        TimelineProperty<Vector2<float>>(
+            {
+                {1, Vector2{m_accel, 0.0f}}
+        }),  // Dir vel mul
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}),  // Dir inr mul
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}), // Raw vel
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}) // Raw inr
+    );
 
-void Action_char1_ground_dash::update(Character &character_) const
-{
-    auto newXVelocity = (abs(character_.m_velocity.x) + m_accel);
-    character_.m_velocity.x = character_.getOwnHorDir().x * std::min(abs(newXVelocity), abs(m_maxspd));
+    setUpdateSpeedLimitData(
+        TimelineProperty<float>(m_maxspd),
+        TimelineProperty<float>()
+    );
 }
 
 // STEP ACTION
@@ -861,25 +907,27 @@ Action_char1_air_dash_extention::Action_char1_air_dash_extention() :
     0, 0, false, false, true),
     m_duration(gamedata::characters::char1::airdashExtentionDuration),
     m_baseSpd(gamedata::characters::char1::airdashExtentionMaxSpeed),
-    m_spdMultiplier((gamedata::characters::char1::airdashExtentionMaxSpeed - gamedata::characters::char1::airdashExtentionMinSpeed) / gamedata::characters::char1::airdashExtentionDuration)
+    m_spdMultiplier(0.66f)
 {
     setSwitchData(false, m_duration, false, false, false, false, false, {0.0f, 0.0f}, {0.0f, 0.0f}, {(float)m_baseSpd, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
+
+    setUpdateMovementData(
+        TimelineProperty<Vector2<float>>({1.0f, 1.0f}), // Vel mul
+        TimelineProperty<Vector2<float>>({1.0f, 1.0f}), // Inr mul
+        TimelineProperty<Vector2<float>>(
+            {
+                {1, Vector2{-m_spdMultiplier, 0.0f}}
+            }),  // Dir vel mul
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}),  // Dir inr mul
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}), // Raw vel
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}) // Raw inr
+    );
 }
 
 void Action_char1_air_dash_extention::outdated(Character &character_) const
 {
     character_.switchToFloat();
     character_.updateOwnOrientation();
-}
-
-void Action_char1_air_dash_extention::setVelocity(Character &character_) const
-{
-    character_.m_velocity.x = character_.getOwnHorDir().x * (m_baseSpd - m_spdMultiplier * (character_.m_timer.getCurrentFrame() + 1));
-}
-
-void Action_char1_air_dash_extention::update(Character &character_) const
-{
-    setVelocity(character_);
 }
 
 
@@ -1265,7 +1313,7 @@ void Action_char1_normal_throw::update(Character &character_) const
         ev.m_hittingPlayerId = character_.m_playerId;
         character_.applyHit(ev);
         character_.m_otherCharacter->applyHit(ev);
-        character_.m_cam->startShake(35, 10);
+        character_.m_cam->startShake(ev.m_hitData.hitBlockShakeAmp, ev.m_hitData.hitProps.hitstop + 1);
     }
 }
 

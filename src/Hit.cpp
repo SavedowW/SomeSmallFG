@@ -50,7 +50,7 @@ HitData hitgeneration::generate_char1_normal_throw()
 
     hdata.chProps = hdata.hitProps;
 
-    hdata.hitBlockShakeAmp = 0;
+    hdata.hitBlockShakeAmp = 35;
 
     hdata.damage = 50.0f / hdata.hitProps.proratio;
 

@@ -37,7 +37,7 @@ public:
     virtual const HurtboxVec getCurrentHurtboxes(uint32_t currentFrame_, const Vector2<float>& offset_, ORIENTATION ownOrientation_) const;
     virtual void outdated(Character &character_) const {};
     virtual void switchTo(Character &character_) const;
-    virtual void update(Character &character_) const {};
+    virtual void update(Character &character_) const;
     virtual bool isInCounterState(uint32_t currentFrame_) const;
     virtual bool applyGravity(uint32_t currentFrame_) const;
     virtual bool canBlock(uint32_t currentFrame_) const;
@@ -53,6 +53,9 @@ public:
     Action *setSwitchData(bool realign_, int timerValue_, bool velToInertia_, bool resetDefenseState_, bool setAirAttackFlag_, bool resetPushback_, bool callForPriority_,
     Vector2<float> mulOwnVel_, Vector2<float> mulOwnInr_, Vector2<float> mulOwnDirVel_, Vector2<float> mulOwnDirInr_, Vector2<float> rawAddVel_, Vector2<float> rawAddInr_);
     Action *setAnimResetData(int animResetFrame_, int animResetDirection_);
+    Action *setUpdateMovementData(TimelineProperty<Vector2<float>> &&mulOwnVelUpd_, TimelineProperty<Vector2<float>> &&mulOwnInrUpd_, TimelineProperty<Vector2<float>> &&mulOwnDirVelUpd_,
+    TimelineProperty<Vector2<float>> &&mulOwnDirInrUpd_, TimelineProperty<Vector2<float>> &&rawAddVelUpd_, TimelineProperty<Vector2<float>> &&rawAddInrUpd_);
+    Action *setUpdateSpeedLimitData(TimelineProperty<float> &&ownVelLimitUpd_, TimelineProperty<float> &&ownInrLimitUpd_);
 
     const int actionState;
     const HurtboxFramesVec m_hurtboxes;
@@ -90,6 +93,17 @@ protected:
 
     int m_animResetFrame = -1;
     int m_animResetDirection = 1;
+
+    bool m_usingUpdateMovement = false;
+    TimelineProperty<Vector2<float>> m_mulOwnVelUpd;
+    TimelineProperty<Vector2<float>> m_mulOwnInrUpd;
+    TimelineProperty<Vector2<float>> m_mulOwnDirVelUpd;
+    TimelineProperty<Vector2<float>> m_mulOwnDirInrUpd;
+    TimelineProperty<Vector2<float>> m_rawAddVelUpd;
+    TimelineProperty<Vector2<float>> m_rawAddInrUpd;
+
+    TimelineProperty<float> m_ownVelLimitUpd;
+    TimelineProperty<float> m_ownInrLimitUpd;
 };
 
 
@@ -205,7 +219,6 @@ class Action_throw_hold : public Action
 public:
     Action_throw_hold(int actionState_, int throwState_, float setRange_, float duration_, bool sideSwitch_);
     virtual void switchTo(Character &character_) const override;
-    virtual void update(Character &character_) const override;
     void outdated(Character &character_) const override;
 
 protected:
@@ -360,8 +373,6 @@ class Action_char1_air_dash_extention : public Action
 public:
     Action_char1_air_dash_extention();
     virtual void outdated(Character &character_) const override;
-    virtual void setVelocity(Character &character_) const;
-    virtual void update(Character &character_) const override;
     const int m_duration;
     const float m_baseSpd;
     const float m_spdMultiplier;
@@ -395,7 +406,6 @@ class Action_char1_ground_dash : public Action_prolonged
 {
 public:
     Action_char1_ground_dash();
-    virtual void update(Character &character_) const override;
     const float m_accel;
     const float m_maxspd;
 };

@@ -105,4 +105,5 @@ bool TimelineProperty<T>::isEmpty() const
 }
 
 template TimelineProperty<bool>;
+template TimelineProperty<float>;
 template TimelineProperty<Vector2<float>>;

@@ -136,8 +136,11 @@ namespace utils
 	template <typename T>
 	inline Vector2<T> limitVectorLength(const Vector2<T>& val, const T &limit)
 	{
-		if (val.getLen() > limit)
-			return val.normalised() * limit;
+		auto curlen = val.getLen();
+		if (curlen > limit)
+		{
+			return val / (curlen / limit);
+		}
 
 		return val;
 	}
