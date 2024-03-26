@@ -26,7 +26,7 @@ public:
 
     virtual void addAction(std::unique_ptr<Action> &&action_);
 
-    const Action *update(Character *char_, int extendBuffer_ = 0);
+    Action *update(Character *char_, int extendBuffer_ = 0);
 
 protected:
     std::vector<std::unique_ptr<Action>> m_actions;

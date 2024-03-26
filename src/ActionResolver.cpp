@@ -97,14 +97,14 @@ void ActionResolver::receiveInput(EVENTS event_, const float scale_)
     }
 }
 
-const Action *ActionResolver::update(Character *char_, int extendBuffer_)
+Action *ActionResolver::update(Character *char_, int extendBuffer_)
 {
    //std::cout << "=== UPDATE RESOLVER ===\n";
 
     m_currentInput.setDirFromButtons();
 
     m_inputQueue.push(m_currentInput);
-    const Action *availableAction = nullptr;
+    Action *availableAction = nullptr;
     for (auto &el : m_actions)
     {
         auto res = el->isPossible(m_inputQueue, char_, extendBuffer_);

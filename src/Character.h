@@ -298,7 +298,7 @@ protected:
     std::set<int> m_appliedHits;
     bool m_usedAirAttack = false;
 
-    const Action *m_currentAction;
+    Action *m_currentAction;
     ActionResolver m_actionResolver;
     StateMarker m_autoRealignAfter;
 
@@ -351,7 +351,7 @@ protected:
     friend Action_char1_air_dash;
     friend Action_char1_air_dash_extention;
     friend Action_char1_air_backdash;
-    friend Action_char1_float;
+    friend Action_float;
     friend Action_char1_move_JC;
     friend Action_char1_vulnerable_landing_recovery;
     friend Action_char1_hard_landing_recovery;

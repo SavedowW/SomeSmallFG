@@ -1,5 +1,6 @@
 #include "TimelineProperty.h"
 #include "Vector2.h"
+#include "Hit.h"
 
 template<typename T>
 TimelineProperty<T>::TimelineProperty(std::vector<std::pair<uint32_t, T>> &&values_) :
@@ -108,3 +109,4 @@ template TimelineProperty<bool>;
 template TimelineProperty<float>;
 template TimelineProperty<Vector2<float>>;
 template TimelineProperty<Vector2<int>>;
+template TimelineProperty<HitData*>;

@@ -119,56 +119,6 @@ protected:
 
     CHAR1_STATE lastState = CHAR1_STATE::IDLE;
     
-
-    friend Action;
-    friend Action_throw_startup;
-    friend Action_throw_hold;
-    friend Action_thrown_hold;
-    friend Action_throw_whiff;
-    friend Action_throw_tech;
-    friend Action_locked_animation;
-    friend Action_char1_normal_throw;
-    friend Action_char1_normal_throw_startup;
-    friend Action_char1_normal_air_throw_startup;
-    friend Action_char1_back_air_throw_startup;
-    friend Action_char1_back_throw_startup;
-    friend Action_char1_normal_air_throw;
-    friend Action_char1_thrown_char1_normal;
-    friend Action_char1_thrown_char1_normal_air;
-    friend Action_char1_throw_tech;
-    friend Action_char1_throw_tech_char1;
-    friend Action_char1_air_throw_tech;
-    friend Action_char1_air_throw_tech_char1;
-    friend Action_jump;
-    friend Action_airjump;
-    friend Action_prolonged;
-    friend Action_attack;
-    friend Action_char1_ground_attack;
-    friend Action_char1_crouch;
-    friend Action_char1_idle;
-    friend Action_char1_walk_fwd;
-    friend Action_char1_walk_bwd;
-    friend Action_char1_airjump;
-    friend Action_char1_jump;
-    friend Action_char1_ground_backdash;
-    friend Action_char1_ground_dash;
-    friend Action_char1_ground_dash_recovery;
-    friend Action_char1_step;
-    friend Action_char1_step_recovery;
-    friend Action_char1_soft_landing_recovery;
-    friend Action_char1_jc_landing_recovery;
-    friend Action_char1_soft_knockdown;
-    friend Action_char1_hard_knockdown;
-    friend Action_char1_knockdown_recovery;
-    friend Action_char1_air_attack;
-    friend Action_char1_air_dash;
-    friend Action_char1_air_dash_extention;
-    friend Action_char1_air_backdash;
-    friend Action_char1_float;
-    friend Action_char1_move_JC;
-    friend Action_char1_vulnerable_landing_recovery;
-    friend Action_char1_hard_landing_recovery;
-    friend Action_char1_move_214C;
 };
 
 #endif

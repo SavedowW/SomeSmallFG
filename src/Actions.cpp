@@ -62,7 +62,7 @@ const HurtboxVec Action::getCurrentHurtboxes(uint32_t currentFrame_, const Vecto
     return vec;
 }
 
-void Action::switchTo(Character &character_) const
+void Action::switchTo(Character &character_)
 {
     auto oldState = character_.m_currentState;
 
@@ -113,7 +113,8 @@ void Action::switchTo(Character &character_) const
     character_.m_inertia = character_.m_inertia.mulComponents(m_mulOwnInr) + character_.getOwnHorDir().mulComponents(m_mulOwnDirInr) + m_rawAddInr;
 }
 
-void Action::update(Character &character_) const
+// TODO: Add particle generation
+void Action::update(Character &character_)
 {
     auto frame = character_.m_timer.getCurrentFrame() + 1;
 
@@ -291,7 +292,7 @@ Action_jump *Action_jump::setAirActionTimers(int airjumpTimerValue_, int airdash
     return this;
 }
 
-void Action_jump::switchTo(Character &character_) const
+void Action_jump::switchTo(Character &character_)
 {
     Action::switchTo(character_);
 
@@ -428,7 +429,7 @@ Action_throw_hold::Action_throw_hold(int actionState_, int throwState_, float se
     setSwitchData(false, duration_, true, true, true, false, false, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
 }
 
-void Action_throw_hold::switchTo(Character &character_) const
+void Action_throw_hold::switchTo(Character &character_)
 {
     Action::switchTo(character_);
 
@@ -497,7 +498,7 @@ Action_thrown_hold::Action_thrown_hold(int actionState_, int thrownState_, ANIMA
     setSwitchData(false, duration_, true, true, true, false, false, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
 }
 
-void Action_thrown_hold::switchTo(Character &character_) const
+void Action_thrown_hold::switchTo(Character &character_)
 {
     Action::switchTo(character_);
 
@@ -520,7 +521,7 @@ Action_throw_tech::Action_throw_tech(int actionState_, InputComparator_ptr incmp
 {
 }
 
-void Action_throw_tech::switchTo(Character &character_) const
+void Action_throw_tech::switchTo(Character &character_)
 {
     Action::switchTo(character_);
     
@@ -550,15 +551,37 @@ Action_locked_animation::Action_locked_animation(int actionState_, int quitState
     setSwitchData(false, duration_, true, true, true, false, false, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
 }
 
-void Action_locked_animation::switchTo(Character &character_) const
+Action_locked_animation *Action_locked_animation::setUpdateHitsToOpponent(TimelineProperty<HitData*> &&hitsToOpponent_)
+{
+    m_hitsToOpponent = std::move(hitsToOpponent_);
+
+    return this;
+}
+
+void Action_locked_animation::switchTo(Character &character_)
 {
     Action::switchTo(character_);
     character_.lockInAnimation();
 }
 
-void Action_locked_animation::update(Character &character_) const
+void Action_locked_animation::update(Character &character_)
 {
     Action::update(character_);
+
+    auto frame = character_.m_timer.getCurrentFrame() + 1;
+
+    auto curHit = m_hitsToOpponent[frame];
+
+    if (curHit && !character_.m_inHitstop)
+    {
+        HitEvent ev;
+        ev.m_hitData = *curHit;
+        ev.m_hitRes = HIT_RESULT::THROWN;
+        ev.m_hittingPlayerId = character_.m_playerId;
+        character_.applyHit(ev);
+        character_.m_otherCharacter->applyHit(ev);
+        character_.m_cam->startShake(ev.m_hitData.hitBlockShakeAmp, ev.m_hitData.hitProps.hitstop + 1);
+    }
 }
 
 
@@ -568,6 +591,24 @@ void Action_locked_animation::outdated(Character &character_) const
     character_.untieAnimWithOpponent();
     character_.m_actionResolver.getAction(m_quitState)->switchTo(character_);
 }
+
+
+// FLOAT ACTION
+Action_float::Action_float(int actionState_, int realState_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_) :
+    Action(actionState_, std::move(std::make_unique<InputComparatorUpHold>()), std::move(hurtboxes_), anim_, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true), StateMarker(gamedata::characters::totalStateCount, {}), false, false, false,
+    0, 0, false, false, true),
+    m_realState(realState_)
+{
+    setAnimResetData(20, 1);
+}
+
+void Action_float::switchTo(Character &character_)
+{
+    Action::switchTo(character_);
+    character_.m_currentState = m_realState;
+}
+
+
 
 /* ============================
  *
@@ -705,27 +746,6 @@ Action_char1_backward_jump::Action_char1_backward_jump() :
     })
 {
 }
-
-
-// FLOAT ACTION
-Action_char1_float::Action_char1_float() :
-    Action((int)CHAR1_STATE::FLOAT, std::move(std::make_unique<InputComparatorUpHold>()), {
-        {
-            TimelineProperty(true),
-            {-70, -350, 140, 300}
-        }
-    }, ANIMATIONS::CHAR1_JUMP, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true), StateMarker(gamedata::characters::totalStateCount, {}), false, false, false,
-    0, 0, false, false, true)
-{
-    setAnimResetData(20, 1);
-}
-
-void Action_char1_float::switchTo(Character &character_) const
-{
-    Action::switchTo(character_);
-    character_.m_currentState = (int)CHAR1_STATE::JUMP;
-}
-
 
 
 // ABSTRACT CHAR1 AIR JUMP ACTION
@@ -1324,22 +1344,12 @@ Action_char1_normal_throw::Action_char1_normal_throw() :
         }
     }, ANIMATIONS::CHAR1_NORMAL_THROW, 50, TimelineProperty(false), TimelineProperty(false))
 {
-}
-
-// TODO: turn attacks during animation into timeline property
-void Action_char1_normal_throw::update(Character &character_) const
-{
-    //character_.updateOwnOrientation();
-    if (character_.m_timer.getCurrentFrame() == 12 && !character_.m_inHitstop)
-    {
-        HitEvent ev;
-        ev.m_hitData = hitgeneration::generate_char1_normal_throw();
-        ev.m_hitRes = HIT_RESULT::THROWN;
-        ev.m_hittingPlayerId = character_.m_playerId;
-        character_.applyHit(ev);
-        character_.m_otherCharacter->applyHit(ev);
-        character_.m_cam->startShake(ev.m_hitData.hitBlockShakeAmp, ev.m_hitData.hitProps.hitstop + 1);
-    }
+    setUpdateHitsToOpponent(TimelineProperty<HitData*>(
+            {
+                {13, new HitData(hitgeneration::generate_char1_normal_throw())},
+                {14, nullptr}
+            })
+    );
 }
 
 // Air throw startup
@@ -1406,21 +1416,12 @@ Action_char1_normal_air_throw::Action_char1_normal_air_throw() :
         }
     }, ANIMATIONS::CHAR1_NORMAL_THROW, 20, TimelineProperty(false), TimelineProperty(false))
 {
-}
-
-void Action_char1_normal_air_throw::update(Character &character_) const
-{
-    //character_.updateOwnOrientation();
-    if (character_.m_timer.getCurrentFrame() == 12 && !character_.m_inHitstop)
-    {
-        HitEvent ev;
-        ev.m_hitData = hitgeneration::generate_char1_normal_throw();
-        ev.m_hitRes = HIT_RESULT::THROWN;
-        ev.m_hittingPlayerId = character_.m_playerId;
-        character_.applyHit(ev);
-        character_.m_otherCharacter->applyHit(ev);
-        character_.m_cam->startShake(35, 10);
-    }
+    setUpdateHitsToOpponent(TimelineProperty<HitData*>(
+            {
+                {13, new HitData(hitgeneration::generate_char1_normal_throw())},
+                {14, nullptr}
+            })
+    );
 }
 
 // Throw tech
@@ -1499,15 +1500,26 @@ Action_char1_thrown_char1_normal::Action_char1_thrown_char1_normal() :
         }
     }, ANIMATIONS::CHAR1_THROWN_CHAR1_NORMAL, 14, TimelineProperty(false), TimelineProperty(false))
 {
-}
-
-void Action_char1_thrown_char1_normal::update(Character &character_) const
-{
-    auto curFrame = character_.m_timer.getCurrentFrame();
-    if (curFrame == 1)
-        character_.m_velocity = {character_.getOwnHorDir().x * 0.8f, 5.0f};
-    else if (curFrame == 10)
-        character_.m_velocity = {0, 0};
+    setUpdateMovementData(
+        TimelineProperty<Vector2<float>>(
+            {
+                {1, Vector2{1.0f, 1.0f}},
+                {10, Vector2{0.0f, 0.0f}},
+        }), // Vel mul
+        TimelineProperty<Vector2<float>>({1.0f, 1.0f}), // Inr mul
+        TimelineProperty<Vector2<float>>(
+            {
+                {1, Vector2{0.8f, 0.0f}},
+                {2, Vector2{0.0f, 0.0f}},
+        }),  // Dir vel mul
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}),  // Dir inr mul
+        TimelineProperty<Vector2<float>>(
+            {
+                {1, Vector2{0.0f, 5.0f}},
+                {2, Vector2{0.0f, 0.0f}}
+        }), // Raw vel
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}) // Raw inr
+    );
 }
 
 void Action_char1_thrown_char1_normal::outdated(Character &character_) const
@@ -1535,16 +1547,26 @@ Action_char1_thrown_char1_normal_air::Action_char1_thrown_char1_normal_air() :
         }
     }, ANIMATIONS::CHAR1_THROWN_CHAR1_NORMAL, 14, TimelineProperty(false), TimelineProperty(false))
 {
-}
-
-void Action_char1_thrown_char1_normal_air::update(Character &character_) const
-{
-    //8-16
-    auto curFrame = character_.m_timer.getCurrentFrame();
-    if (curFrame == 1)
-        character_.m_velocity = {character_.getOwnHorDir().x * 0.8f, 5.0f};
-    else if (curFrame == 10)
-        character_.m_velocity = {0, 0};
+    setUpdateMovementData(
+        TimelineProperty<Vector2<float>>(
+            {
+                {1, Vector2{1.0f, 1.0f}},
+                {10, Vector2{0.0f, 0.0f}},
+        }), // Vel mul
+        TimelineProperty<Vector2<float>>({1.0f, 1.0f}), // Inr mul
+        TimelineProperty<Vector2<float>>(
+            {
+                {1, Vector2{0.8f, 0.0f}},
+                {2, Vector2{0.0f, 0.0f}},
+        }),  // Dir vel mul
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}),  // Dir inr mul
+        TimelineProperty<Vector2<float>>(
+            {
+                {1, Vector2{0.0f, 5.0f}},
+                {2, Vector2{0.0f, 0.0f}}
+        }), // Raw vel
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}) // Raw inr
+    );
 }
 
 void Action_char1_thrown_char1_normal_air::outdated(Character &character_) const

@@ -262,7 +262,15 @@ void Char1::provideActions()
     m_actionResolver.addAction(std::make_unique<Action_char1_hard_knockdown>());
     m_actionResolver.addAction(std::make_unique<Action_char1_soft_knockdown>());
     m_actionResolver.addAction(std::make_unique<Action_char1_knockdown_recovery>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_float>());
+    
+    // Float state
+    m_actionResolver.addAction(std::unique_ptr<Action_float>(new Action_float((int)CHAR1_STATE::FLOAT, (int)CHAR1_STATE::JUMP, {
+        {
+            TimelineProperty(true),
+            {-70, -350, 140, 300}
+        }
+    }, ANIMATIONS::CHAR1_JUMP)));
+
     m_actionResolver.addAction(std::make_unique<Action_char1_air_dash_extention>());
     m_actionResolver.addAction(std::make_unique<Action_char1_step_recovery>());
 
@@ -947,6 +955,10 @@ std::string Char1::CharStateData() const
 
         case ((int)CHAR1_STATE::AIR_BACKDASH):
             stateName = "AIR_BACKDASH";
+            break;
+
+        case ((int)CHAR1_STATE::MOVE_JA):
+            stateName = "MOVE_JA";
             break;
         
         case ((int)CHAR1_STATE::MOVE_JC):
