@@ -599,7 +599,6 @@ Action_float::Action_float(int actionState_, int realState_, HurtboxFramesVec &&
     0, 0, false, false, true),
     m_realState(realState_)
 {
-    setAnimResetData(20, 1);
 }
 
 void Action_float::switchTo(Character &character_)
