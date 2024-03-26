@@ -62,6 +62,30 @@ const HurtboxVec Action::getCurrentHurtboxes(uint32_t currentFrame_, const Vecto
     return vec;
 }
 
+void Action::outdated(Character &character_)
+{
+    if (m_setRealignOtd)
+        character_.updateOwnOrientation();
+
+    if (m_setThrowInvulOtd)
+        character_.setThrowInvul();
+
+    if (m_setAirborneOtd)
+        character_.m_airborne = true;
+
+    if (m_enterHitstunOtd)
+        character_.enterHitstunAnimation(character_.m_hitProps);
+
+    if (m_setAboveGroundOtd)
+        character_.m_pos.y = gamedata::stages::levelOfGround - 1;
+
+    character_.m_velocity = character_.m_velocity.mulComponents(m_mulOwnVelOtd) + character_.getOwnHorDir().mulComponents(m_mulOwnDirVelOtd) + m_rawAddVelOtd;
+    character_.m_inertia = character_.m_inertia.mulComponents(m_mulOwnInrOtd) + character_.getOwnHorDir().mulComponents(m_mulOwnDirInrOtd) + m_rawAddInrOtd;
+
+    if (m_targetStateOutdated != -1)
+        character_.m_actionResolver.getAction(m_targetStateOutdated)->switchTo(character_);
+}
+
 void Action::switchTo(Character &character_)
 {
     auto oldState = character_.m_currentState;
@@ -258,6 +282,36 @@ Action *Action::setUpdateRealignData(TimelineProperty<bool> &&updRealign_)
     return this;
 }
 
+Action *Action::setOutdatedFlags(bool setRealign_, bool setThrowInvul_, bool setAirborne_, bool enterHitstun_, bool setAboveGroundOtd_)
+{
+    m_setRealignOtd = setRealign_;
+    m_setThrowInvulOtd = setThrowInvul_;
+    m_setAirborneOtd = setAirborne_;
+    m_enterHitstunOtd = enterHitstun_;
+    m_setAboveGroundOtd = setAboveGroundOtd_;
+
+    return this;
+}
+
+Action *Action::setOutdatedTransition(int targetState_)
+{
+    m_targetStateOutdated = targetState_;
+
+    return this;
+}
+
+Action *Action::setOutdatedMovementData(Vector2<float> mulOwnVel_, Vector2<float> mulOwnInr_, Vector2<float> mulOwnDirVel_, Vector2<float> mulOwnDirInr_, Vector2<float> rawAddVel_, Vector2<float> rawAddInr_)
+{
+    m_mulOwnVelOtd = mulOwnVel_;
+    m_mulOwnInrOtd = mulOwnInr_;
+    m_mulOwnDirVelOtd = mulOwnDirVel_;
+    m_mulOwnDirInrOtd = mulOwnDirInr_;
+    m_rawAddVelOtd = rawAddVel_;
+    m_rawAddInrOtd = rawAddInr_;
+
+    return this;
+}
+
 // ABSTRACT PROLONGED ACTION
 Action_prolonged::Action_prolonged(int actionState_, InputComparator_ptr incmp_, InputComparator_ptr incmp_prolonged_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, StateMarker transitionableFrom_, bool isCrouchState_, int consumeAirdash_, int consumeAirjump_, bool waitAirdashTimer_, bool waitAirjumpTimer_, bool isAirborne_) :
     Action(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, std::move(counterWindow_), std::move(gravityWindow_), std::move(blockWindow_), std::move(transitionableFrom_), false, isCrouchState_, false, consumeAirdash_, consumeAirjump_, waitAirdashTimer_, waitAirjumpTimer_, isAirborne_)
@@ -384,7 +438,6 @@ const HitsVec Action_attack::getCurrentHits(uint32_t currentFrame_, const Vector
 Action_throw_startup::Action_throw_startup(int actionState_, int whiffState_, int holdState_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, float range_, FrameWindow activeWindow_, bool requiredAirborne_, THROW_LIST throw_, StateMarker transitionableFrom_, bool isAirborne_) :
     Action(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, TimelineProperty(true), std::move(gravityWindow_), TimelineProperty(false), std::move(transitionableFrom_), false, false, true,
     0, 0, false, false, isAirborne_),
-    m_whiffState(whiffState_),
     m_holdState(holdState_),
     m_range(range_),
     m_activeWindow(activeWindow_),
@@ -392,6 +445,7 @@ Action_throw_startup::Action_throw_startup(int actionState_, int whiffState_, in
     m_throw(throw_)
 {
     setSwitchData(false, activeWindow_.second, true, true, true, false, false, {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
+    setOutdatedTransition(whiffState_);
 }
 
 void Action_throw_startup::attemptThrow(Character &character_) const
@@ -412,21 +466,16 @@ void Action_throw_startup::attemptThrow(Character &character_) const
     }
 }
 
-void Action_throw_startup::outdated(Character &character_) const
-{
-    character_.m_actionResolver.getAction(m_whiffState)->switchTo(character_);
-}
-
 // ABSTRACT THROW HOLD
 Action_throw_hold::Action_throw_hold(int actionState_, int throwState_, float setRange_, float duration_, bool sideSwitch_) :
     Action(actionState_, nullptr, {}, ANIMATIONS::NONE, TimelineProperty(false), TimelineProperty(false), TimelineProperty(false), StateMarker(gamedata::characters::totalStateCount, {}), false, false, false,
     0, 0, false, false, false),
     m_setRange(setRange_),
     m_duration(duration_),
-    m_throwState(throwState_),
     m_sideSwitch(sideSwitch_)
 {
     setSwitchData(false, duration_, true, true, true, false, false, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
+    setOutdatedTransition(throwState_);
 }
 
 void Action_throw_hold::switchTo(Character &character_)
@@ -451,7 +500,7 @@ void Action_throw_hold::switchTo(Character &character_)
     otherChar.updateOwnOrientation();
 }
 
-void Action_throw_hold::outdated(Character &character_) const
+void Action_throw_hold::outdated(Character &character_)
 {
     //character_.switchToIdle();
     if (m_sideSwitch)
@@ -468,34 +517,38 @@ void Action_throw_hold::outdated(Character &character_) const
         otherChar.updateOwnOrientation();
     }
 
-    character_.m_actionResolver.getAction(m_throwState)->switchTo(character_);
+    Action::outdated(character_);
 }
 
 // ABSTRACT THROW WHIFF
-Action_throw_whiff::Action_throw_whiff(int actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, float duration_, HurtboxFramesVec &&hurtboxes_) :
+Action_throw_whiff::Action_throw_whiff(int actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, float duration_, HurtboxFramesVec &&hurtboxes_, int idleState_, int floatState_) :
     Action(actionState_, nullptr, std::move(hurtboxes_), anim_, TimelineProperty(false), std::move(gravityWindow_), TimelineProperty(false), StateMarker(gamedata::characters::totalStateCount, {}), false, false, false,
     0, 0, false, false, false),
-    m_duration(duration_)
+    m_duration(duration_),
+    m_idleState(idleState_),
+    m_floatState(floatState_)
 {
     setSwitchData(false, duration_, false, true, false, false, false, {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
 }
 
-void Action_throw_whiff::outdated(Character &character_) const
+void Action_throw_whiff::outdated(Character &character_)
 {
     if (!character_.m_airborne)
-        character_.switchToIdle();
+        character_.m_actionResolver.getAction(m_idleState)->switchTo(character_);
     else
-        character_.switchToFloat();
+        character_.m_actionResolver.getAction(m_floatState)->switchTo(character_);
+
+    Action::outdated(character_);
 }
 
 // ABSTRACT THROWN HOLD
 Action_thrown_hold::Action_thrown_hold(int actionState_, int thrownState_, ANIMATIONS anim_, float duration_) :
     Action(actionState_, nullptr, {}, anim_, TimelineProperty(false), TimelineProperty(false), TimelineProperty(false), StateMarker(gamedata::characters::totalStateCount, {}), false, false, false,
     0, 0, false, false, false),
-    m_duration(duration_),
-    m_thrownState(thrownState_)
+    m_duration(duration_)
 {
     setSwitchData(false, duration_, true, true, true, false, false, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
+    setOutdatedTransition(thrownState_);
 }
 
 void Action_thrown_hold::switchTo(Character &character_)
@@ -506,18 +559,13 @@ void Action_thrown_hold::switchTo(Character &character_)
     character_.tieAnimWithOpponent();
 }
 
-void Action_thrown_hold::outdated(Character &character_) const
-{
-    //character_.switchToIdle();
-    character_.m_actionResolver.getAction(m_thrownState)->switchTo(character_);
-}
-
 // ABSTRACT THROW TECH
-Action_throw_tech::Action_throw_tech(int actionState_, InputComparator_ptr incmp_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, float duration_, HurtboxFramesVec &&hurtboxes_, THROW_TECHS_LIST throwTech_, StateMarker transitionableFrom_, bool isAirborne_) :
-    Action(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, TimelineProperty(false), std::move(gravityWindow_), std::move(blockWindow_), std::move(transitionableFrom_), false, false, false,
+Action_throw_tech::Action_throw_tech(int actionState_, InputComparator_ptr incmp_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, float duration_, HurtboxFramesVec &&hurtboxes_, THROW_TECHS_LIST throwTech_, StateMarker transitionableFrom_, bool isAirborne_, int idleState_, int floatState_) :    Action(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, TimelineProperty(false), std::move(gravityWindow_), std::move(blockWindow_), std::move(transitionableFrom_), false, false, false,
     0, 0, false, false, isAirborne_),
     m_duration(duration_),
-    m_throwTech(throwTech_)
+    m_throwTech(throwTech_),
+    m_idleState(idleState_),
+    m_floatState(floatState_)
 {
 }
 
@@ -533,22 +581,24 @@ void Action_throw_tech::switchTo(Character &character_)
     }
 }
 
-void Action_throw_tech::outdated(Character &character_) const
+void Action_throw_tech::outdated(Character &character_)
 {
     if (!character_.m_airborne)
-        character_.switchToIdle();
+        character_.m_actionResolver.getAction(m_idleState)->switchTo(character_);
     else
-        character_.switchToFloat();
+        character_.m_actionResolver.getAction(m_floatState)->switchTo(character_);
+
+    Action::outdated(character_);
 }
 
 // ABSTRACT LOCKED ANIMATION
 Action_locked_animation::Action_locked_animation(int actionState_, int quitState_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, float duration_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&blockWindow_) :
     Action(actionState_, nullptr, std::move(hurtboxes_), anim_, std::move(counterWindow_), TimelineProperty(false), std::move(blockWindow_), StateMarker(gamedata::characters::totalStateCount, {}), false, false, false,
     0, 0, false, false, false),
-    m_duration(duration_),
-    m_quitState(quitState_)
+    m_duration(duration_)
 {
     setSwitchData(false, duration_, true, true, true, false, false, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
+    setOutdatedTransition(quitState_);
 }
 
 Action_locked_animation *Action_locked_animation::setUpdateHitsToOpponent(TimelineProperty<HitData*> &&hitsToOpponent_)
@@ -585,11 +635,11 @@ void Action_locked_animation::update(Character &character_)
 }
 
 
-void Action_locked_animation::outdated(Character &character_) const
+void Action_locked_animation::outdated(Character &character_)
 {
     character_.releaseFromAnimation();
     character_.untieAnimWithOpponent();
-    character_.m_actionResolver.getAction(m_quitState)->switchTo(character_);
+    Action::outdated(character_);
 }
 
 
@@ -828,12 +878,9 @@ Action_char1_step::Action_char1_step() :
     m_duration(gamedata::characters::char1::stepDuration)
 {
     setSwitchData(true, m_duration, false, true, false, false, false, {0.0f, 0.0f}, {0.0f, 0.0f}, Vector2{gamedata::characters::char1::stepSpeed, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
+    setOutdatedTransition((int)CHAR1_STATE::STEP_RECOVERY);
 }
 
-void Action_char1_step::outdated(Character &character_) const
-{
-    character_.m_actionResolver.getAction((int)CHAR1_STATE::STEP_RECOVERY)->switchTo(character_);
-}
 
 // STEP RECOVERY ACTION
 Action_char1_step_recovery::Action_char1_step_recovery() :
@@ -849,12 +896,9 @@ Action_char1_step_recovery::Action_char1_step_recovery() :
     m_recoveryLen(gamedata::characters::char1::stepRecoveryDuration)
 {
     setSwitchData(false, m_recoveryLen, true, false, false, false, false, {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
+    setOutdatedTransition((int)CHAR1_STATE::IDLE);
 }
 
-void Action_char1_step_recovery::outdated(Character &character_) const
-{
-    character_.switchToIdle();
-}
 
 // GROUND BACKDASH ACTION
 Action_char1_ground_backdash::Action_char1_ground_backdash() :
@@ -870,11 +914,7 @@ Action_char1_ground_backdash::Action_char1_ground_backdash() :
     m_totalDuration(gamedata::characters::char1::backdashDuration)
 {
     setSwitchData(false, m_totalDuration, true, false, false, false, false, {1.0f, 1.0f}, {0.0f, 0.0f}, {-gamedata::characters::char1::backdashSpd, 0.0f}, {0.0f, 0.0f}, {0.0f, -14.0f}, {0.0f, 0.0f});
-}
-
-void Action_char1_ground_backdash::outdated(Character &character_) const
-{
-    character_.switchToIdle();
+    setOutdatedTransition((int)CHAR1_STATE::IDLE);
 }
 
 
@@ -892,13 +932,9 @@ Action_char1_air_dash::Action_char1_air_dash() :
     m_duration(gamedata::characters::char1::airdashDuration)
 {
     setSwitchData(false, m_duration, false, false, false, false, false, {0.0f, 0.0f}, {0.0f, 0.0f}, {gamedata::characters::char1::airdashSpeed, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
+    setOutdatedTransition((int)CHAR1_STATE::AIR_DASH_EXTENTION);
 }
 
-void Action_char1_air_dash::outdated(Character &character_) const
-{
-    character_.m_actionResolver.getAction((int)CHAR1_STATE::AIR_DASH_EXTENTION)->switchTo(character_);
-    character_.m_currentAnimation = character_.m_animations[m_anim].get();
-}
 
 // AIR BACKDASH ACTION
 Action_char1_air_backdash::Action_char1_air_backdash() :
@@ -914,12 +950,8 @@ Action_char1_air_backdash::Action_char1_air_backdash() :
     m_duration(gamedata::characters::char1::airBackdashDuration)
 {
     setSwitchData(false, m_duration, false, false, false, false, false, {0.0f, 0.0f}, {0.0f, 0.0f}, {-gamedata::characters::char1::airBackdashSpeed, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, -10.0f});
-}
-
-void Action_char1_air_backdash::outdated(Character &character_) const
-{
-    character_.m_velocity.x /= 5.0f;
-    character_.switchToFloat();
+    setOutdatedTransition((int)CHAR1_STATE::FLOAT);
+    setOutdatedMovementData({0.2f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
 }
 
 
@@ -951,14 +983,10 @@ Action_char1_air_dash_extention::Action_char1_air_dash_extention() :
         TimelineProperty<Vector2<float>>({0.0f, 0.0f}), // Raw vel
         TimelineProperty<Vector2<float>>({0.0f, 0.0f}) // Raw inr
     );
-}
 
-void Action_char1_air_dash_extention::outdated(Character &character_) const
-{
-    character_.switchToFloat();
-    character_.updateOwnOrientation();
+    setOutdatedTransition((int)CHAR1_STATE::FLOAT);
+    setOutdatedFlags(true, false, false, false, false);
 }
-
 
 // GROUND DASH RECOVERY ACTION
 Action_char1_ground_dash_recovery::Action_char1_ground_dash_recovery() :
@@ -974,12 +1002,9 @@ Action_char1_ground_dash_recovery::Action_char1_ground_dash_recovery() :
     m_recoveryLen(gamedata::characters::char1::dashRecovery)
 {
     setSwitchData(false, m_recoveryLen, true, false, false, false, false, {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
+    setOutdatedTransition((int)CHAR1_STATE::IDLE);
 }
 
-void Action_char1_ground_dash_recovery::outdated(Character &character_) const
-{
-    character_.switchToIdle();
-}
 
 // SOFT LANDING RECOVERY
 Action_char1_soft_landing_recovery::Action_char1_soft_landing_recovery() :
@@ -995,12 +1020,9 @@ Action_char1_soft_landing_recovery::Action_char1_soft_landing_recovery() :
     m_recoveryLen(gamedata::characters::char1::softLandingRecovery)
 {
     setSwitchData(false, m_recoveryLen, false, false, false, false, false, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
+    setOutdatedTransition((int)CHAR1_STATE::IDLE);
 }
 
-void Action_char1_soft_landing_recovery::outdated(Character &character_) const
-{
-    character_.switchToIdle();
-}
 
 // HARD LANDING RECOVERY
 Action_char1_hard_landing_recovery::Action_char1_hard_landing_recovery() :
@@ -1016,12 +1038,9 @@ Action_char1_hard_landing_recovery::Action_char1_hard_landing_recovery() :
     m_recoveryLen(gamedata::characters::char1::hardLandingRecovery)
 {
     setSwitchData(false, m_recoveryLen, false, false, false, false, false, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
+    setOutdatedTransition((int)CHAR1_STATE::IDLE);
 }
 
-void Action_char1_hard_landing_recovery::outdated(Character &character_) const
-{
-    character_.switchToIdle();
-}
 
 // VULNERABLE LANDING RECOVERY
 Action_char1_vulnerable_landing_recovery::Action_char1_vulnerable_landing_recovery() :
@@ -1037,11 +1056,7 @@ Action_char1_vulnerable_landing_recovery::Action_char1_vulnerable_landing_recove
     m_recoveryLen(gamedata::characters::char1::vulnerableLandingRecovery)
 {
     setSwitchData(false, m_recoveryLen, false, false, false, false, false, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
-}
-
-void Action_char1_vulnerable_landing_recovery::outdated(Character &character_) const
-{
-    character_.switchToIdle();
+    setOutdatedTransition((int)CHAR1_STATE::IDLE);
 }
 
 
@@ -1059,11 +1074,7 @@ Action_char1_jc_landing_recovery::Action_char1_jc_landing_recovery() :
     m_recoveryLen(gamedata::characters::char1::jcLandingRecovery)
 {
     setSwitchData(false, m_recoveryLen, false, false, false, false, false, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
-}
-
-void Action_char1_jc_landing_recovery::outdated(Character &character_) const
-{
-    character_.switchToIdle();
+    setOutdatedTransition((int)CHAR1_STATE::IDLE);
 }
 
 
@@ -1075,12 +1086,9 @@ Action_char1_soft_knockdown::Action_char1_soft_knockdown() :
     0, 0, false, false, false)
 {
     setSwitchData(false, 8, true, false, false, true, false, {1.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
+    setOutdatedTransition((int)CHAR1_STATE::KNOCKDOWN_RECOVERY);
 }
 
-void Action_char1_soft_knockdown::outdated(Character &character_) const
-{
-    character_.enterKndRecovery();
-}
 
 // HARD KNOCKDOWN ACTION
 Action_char1_hard_knockdown::Action_char1_hard_knockdown() :
@@ -1090,12 +1098,9 @@ Action_char1_hard_knockdown::Action_char1_hard_knockdown() :
     0, 0, false, false, false)
 {
     setSwitchData(false, 30, true, false, false, true, false, {1.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
+    setOutdatedTransition((int)CHAR1_STATE::KNOCKDOWN_RECOVERY);
 }
 
-void Action_char1_hard_knockdown::outdated(Character &character_) const
-{
-    character_.enterKndRecovery();
-}
 
 // KNOCKDOWN RECOVERY ACTION
 Action_char1_knockdown_recovery::Action_char1_knockdown_recovery() :
@@ -1105,12 +1110,8 @@ Action_char1_knockdown_recovery::Action_char1_knockdown_recovery() :
     0, 0, false, false, false)
 {
     setSwitchData(false, 21, true, true, false, true, false, {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
-}
-
-void Action_char1_knockdown_recovery::outdated(Character &character_) const
-{
-    character_.switchToIdle();
-    character_.setThrowInvul();
+    setOutdatedTransition((int)CHAR1_STATE::IDLE);
+    setOutdatedFlags(false, true, false, false, false);
 }
 
 
@@ -1118,13 +1119,8 @@ void Action_char1_knockdown_recovery::outdated(Character &character_) const
 Action_char1_ground_attack::Action_char1_ground_attack(int actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, StateMarker transitionableFrom_, bool isCrouchState_) :
     Action_attack(actionState_, std::move(incmp_), fullDuration_, hits_, std::move(hurtboxes_), anim_, std::move(gravityWindow_), std::move(transitionableFrom_), isCrouchState_, false)
 {
-}
-
-
-void Action_char1_ground_attack::outdated(Character &character_) const
-{
-    character_.m_velocity = {0.0f, 0.0f};
-    character_.switchToIdle();
+    setOutdatedTransition((int)CHAR1_STATE::IDLE);
+    setOutdatedMovementData({0.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
 }
 
 
@@ -1133,11 +1129,7 @@ Action_char1_air_attack::Action_char1_air_attack(int actionState_, ANIMATIONS an
     Action_attack(actionState_, std::move(incmp_), fullDuration_, hits_, std::move(hurtboxes_), anim_, std::move(gravityWindow_), std::move(transitionableFrom_), false, true)
 {
     setSwitchData(false, fullDuration_, false, true, true, false, false, {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
-}
-
-void Action_char1_air_attack::outdated(Character &character_) const
-{
-    character_.switchToFloat();
+    setOutdatedTransition((int)CHAR1_STATE::FLOAT);
 }
 
 
@@ -1330,7 +1322,7 @@ Action_char1_normal_throw_whiff::Action_char1_normal_throw_whiff() :
             TimelineProperty(true),
             gamedata::characters::char1::standingHurtbox
         }
-    })
+    }, (int)CHAR1_STATE::IDLE, (int)CHAR1_STATE::FLOAT)
 {
 }
 
@@ -1402,7 +1394,7 @@ Action_char1_normal_air_throw_whiff::Action_char1_normal_air_throw_whiff() :
             TimelineProperty(true),
             gamedata::characters::char1::floatingHurtbox
         }
-    })
+    }, (int)CHAR1_STATE::IDLE, (int)CHAR1_STATE::FLOAT)
 {
 }
 
@@ -1433,7 +1425,7 @@ Action_char1_throw_tech::Action_char1_throw_tech() :
             gamedata::characters::char1::standingHurtbox
         }
     }, THROW_TECHS_LIST::CHAR1_GROUND, StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::THROWN_CHAR1_NORMAL_HOLD}),
-    false)
+    false, (int)CHAR1_STATE::IDLE, (int)CHAR1_STATE::FLOAT)
 {
     setSwitchData(false, m_duration, true, true, true, false, true, {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {-5.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
 }
@@ -1448,7 +1440,7 @@ Action_char1_throw_tech_char1::Action_char1_throw_tech_char1() :
             gamedata::characters::char1::standingHurtbox
         }
     }, THROW_TECHS_LIST::NONE, StateMarker(gamedata::characters::totalStateCount, {}),
-    false)
+    false, (int)CHAR1_STATE::IDLE, (int)CHAR1_STATE::FLOAT)
 {
     setSwitchData(false, m_duration, true, true, true, false, false, {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {-20.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
 }
@@ -1463,7 +1455,7 @@ Action_char1_air_throw_tech::Action_char1_air_throw_tech() :
             {-70, -350, 140, 300}
         }
     }, THROW_TECHS_LIST::CHAR1_AIR, StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::THROWN_CHAR1_NORMAL_AIR_HOLD}),
-    true)
+    true, (int)CHAR1_STATE::IDLE, (int)CHAR1_STATE::FLOAT)
 {
     setSwitchData(false, m_duration, true, true, true, false, true, {1.0f, 1.0f}, {1.0f, 1.0f}, {-3.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
 }
@@ -1478,7 +1470,7 @@ Action_char1_air_throw_tech_char1::Action_char1_air_throw_tech_char1() :
             {-70, -350, 140, 300}
         }
     }, THROW_TECHS_LIST::NONE, StateMarker(gamedata::characters::totalStateCount, {}),
-    true)
+    true, (int)CHAR1_STATE::IDLE, (int)CHAR1_STATE::FLOAT)
 {
     setSwitchData(false, m_duration, true, true, true, false, false, {1.0f, 1.0f}, {1.0f, 1.0f}, {-10.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
 }
@@ -1492,7 +1484,7 @@ Action_char1_thrown_char1_normal_hold::Action_char1_thrown_char1_normal_hold() :
 
 // Thrown by char1 normal throw - animation
 Action_char1_thrown_char1_normal::Action_char1_thrown_char1_normal() :
-    Action_locked_animation((int)CHAR1_STATE::THROWN_CHAR1_NORMAL_ANIM, (int)CHAR1_STATE::HITSTUN_AIR, {
+    Action_locked_animation((int)CHAR1_STATE::THROWN_CHAR1_NORMAL_ANIM, -1, {
         {
             TimelineProperty(true),
             gamedata::characters::char1::standingHurtbox
@@ -1519,17 +1511,11 @@ Action_char1_thrown_char1_normal::Action_char1_thrown_char1_normal() :
         }), // Raw vel
         TimelineProperty<Vector2<float>>({0.0f, 0.0f}) // Raw inr
     );
+
+    setOutdatedFlags(false, false, true, true, true);
+    setOutdatedMovementData({0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {-5.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, -20.0f});
 }
 
-void Action_char1_thrown_char1_normal::outdated(Character &character_) const
-{
-    character_.releaseFromAnimation();
-    character_.untieAnimWithOpponent();
-    character_.m_inertia = {-character_.getOwnHorDir().x * 5.0f, -20.0f};
-    character_.m_pos.y = gamedata::stages::levelOfGround - 1;
-    character_.m_airborne = true;
-    character_.enterHitstunAnimation(character_.m_hitProps);
-}
 
 // Thrown by char1 normal air throw - hold
 Action_char1_thrown_char1_normal_air_hold::Action_char1_thrown_char1_normal_air_hold() :
@@ -1539,7 +1525,7 @@ Action_char1_thrown_char1_normal_air_hold::Action_char1_thrown_char1_normal_air_
 
 // Thrown by char1 normal air throw - animation
 Action_char1_thrown_char1_normal_air::Action_char1_thrown_char1_normal_air() :
-    Action_locked_animation((int)CHAR1_STATE::THROWN_CHAR1_NORMAL_AIR_ANIM, (int)CHAR1_STATE::HITSTUN_AIR, {
+    Action_locked_animation((int)CHAR1_STATE::THROWN_CHAR1_NORMAL_AIR_ANIM, -1, {
         {
             TimelineProperty<bool>({{1, true}, {51, false}}),
             {-70, -375, 140, 375}
@@ -1566,13 +1552,6 @@ Action_char1_thrown_char1_normal_air::Action_char1_thrown_char1_normal_air() :
         }), // Raw vel
         TimelineProperty<Vector2<float>>({0.0f, 0.0f}) // Raw inr
     );
-}
-
-void Action_char1_thrown_char1_normal_air::outdated(Character &character_) const
-{
-    character_.releaseFromAnimation();
-    character_.untieAnimWithOpponent();
-    character_.m_inertia = {-character_.getOwnHorDir().x * 5.0f, -10.0f};
-    character_.m_airborne = true;
-    character_.enterHitstunAnimation(character_.m_hitProps);
+    setOutdatedFlags(false, false, true, true, false);
+    setOutdatedMovementData({0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {-5.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, -10.0f});
 }

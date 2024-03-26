@@ -35,7 +35,7 @@ public:
     int consumeAirdash_, int consumeAirjump_, bool waitAirdashTimer_, bool waitAirjumpTimer_, bool isAirborne_);
     virtual bool isInputPossible(const InputQueue &inputQueue_, ORIENTATION ownDirection_, int extendBuffer_) const;
     virtual const HurtboxVec getCurrentHurtboxes(uint32_t currentFrame_, const Vector2<float>& offset_, ORIENTATION ownOrientation_) const;
-    virtual void outdated(Character &character_) const {};
+    virtual void outdated(Character &character_);
     virtual void switchTo(Character &character_);
     virtual void update(Character &character_);
     virtual bool isInCounterState(uint32_t currentFrame_) const;
@@ -58,6 +58,10 @@ public:
     Action *setUpdateSpeedLimitData(TimelineProperty<float> &&ownVelLimitUpd_, TimelineProperty<float> &&ownInrLimitUpd_);
     Action *setUpdateCamShakeData(TimelineProperty<Vector2<int>> &&camShakeUpd_);
     Action *setUpdateRealignData(TimelineProperty<bool> &&updRealign_);
+
+    Action *setOutdatedFlags(bool setRealign_, bool setThrowInvul_, bool setAirborne_, bool enterHitstun_, bool setAboveGroundOtd_);
+    Action *setOutdatedTransition(int targetState_);
+    Action *setOutdatedMovementData(Vector2<float> mulOwnVel_, Vector2<float> mulOwnInr_, Vector2<float> mulOwnDirVel_, Vector2<float> mulOwnDirInr_, Vector2<float> rawAddVel_, Vector2<float> rawAddInr_);
 
     const int actionState;
     const HurtboxFramesVec m_hurtboxes;
@@ -110,6 +114,21 @@ protected:
     TimelineProperty<Vector2<int>> m_camShakeUpd;
 
     TimelineProperty<bool> m_updRealign;
+
+    bool m_setRealignOtd = false;
+    bool m_setThrowInvulOtd = false;
+    bool m_setAirborneOtd = false;
+    bool m_enterHitstunOtd = false;
+    bool m_setAboveGroundOtd = false;
+
+    Vector2<float> m_mulOwnVelOtd{1.0f, 1.0f};
+    Vector2<float> m_mulOwnInrOtd{1.0f, 1.0f};
+    Vector2<float> m_mulOwnDirVelOtd;
+    Vector2<float> m_mulOwnDirInrOtd;
+    Vector2<float> m_rawAddVelOtd;
+    Vector2<float> m_rawAddInrOtd;
+
+    int m_targetStateOutdated = -1;
 };
 
 
@@ -202,12 +221,10 @@ public:
     Action_throw_startup(int actionState_, int whiffState_, int holdState_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, float range_, FrameWindow activeWindow_, bool requiredAirborne_, THROW_LIST throw_, StateMarker transitionableFrom_, bool isAirborne_);
     virtual void attemptThrow(Character &character_) const;
 
-    void outdated(Character &character_) const override;
     const FrameWindow m_activeWindow;
 
 protected:
     const float m_range;
-    const int m_whiffState;
     const int m_holdState;
     const THROW_LIST m_throw;
     const bool m_requiredAirborne;
@@ -223,13 +240,12 @@ class Action_throw_hold : public Action
 public:
     Action_throw_hold(int actionState_, int throwState_, float setRange_, float duration_, bool sideSwitch_);
     virtual void switchTo(Character &character_) override;
-    void outdated(Character &character_) const override;
+    void outdated(Character &character_) override;
 
 protected:
     const float m_setRange;
     const float m_duration;
     bool m_sideSwitch;
-    const int m_throwState;
 };
 
 /* ============================
@@ -242,11 +258,9 @@ class Action_thrown_hold : public Action
 public:
     Action_thrown_hold(int actionState_, int thrownState_, ANIMATIONS anim_, float duration_);
     virtual void switchTo(Character &character_) override;
-    void outdated(Character &character_) const override;
 
 protected:
     const float m_duration;
-    const int m_thrownState;
 
 };
 
@@ -258,11 +272,13 @@ protected:
 class Action_throw_whiff : public Action
 {
 public:
-    Action_throw_whiff(int actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, float duration_, HurtboxFramesVec &&hurtboxes_);
-    void outdated(Character &character_) const override;
+    Action_throw_whiff(int actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, float duration_, HurtboxFramesVec &&hurtboxes_, int idleState_, int floatState_);
+    void outdated(Character &character_) override;
 
 protected:
     const float m_duration;
+    int m_idleState;
+    int m_floatState;
 };
 
 /* ============================
@@ -273,13 +289,15 @@ protected:
 class Action_throw_tech : public Action
 {
 public:
-    Action_throw_tech(int actionState_, InputComparator_ptr incmp_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, float duration_, HurtboxFramesVec &&hurtboxes_, THROW_TECHS_LIST throwTech_, StateMarker transitionableFrom_, bool isAirborne_);
+    Action_throw_tech(int actionState_, InputComparator_ptr incmp_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, float duration_, HurtboxFramesVec &&hurtboxes_, THROW_TECHS_LIST throwTech_, StateMarker transitionableFrom_, bool isAirborne_, int idleState_, int floatState_);
     virtual void switchTo(Character &character_) override;
-    void outdated(Character &character_) const override;
+    void outdated(Character &character_) override;
 
 protected:
     const float m_duration;
     const THROW_TECHS_LIST m_throwTech;
+    int m_idleState;
+    int m_floatState;
 };
 
 /* ============================
@@ -296,7 +314,7 @@ public:
     Action_locked_animation(int actionState_, int quitState_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, float duration_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&blockWindow_);
     virtual void switchTo(Character &character_) override;
     virtual void update(Character &character_) override;
-    void outdated(Character &character_) const override;
+    void outdated(Character &character_) override;
 
     Action_locked_animation *setUpdateHitsToOpponent(TimelineProperty<HitData*> &&hitsToOpponent_);
 
@@ -304,7 +322,6 @@ protected:
     TimelineProperty<HitData*> m_hitsToOpponent;
 
     const float m_duration;
-    int m_quitState;
 };
 
 
@@ -387,7 +404,6 @@ class Action_char1_air_dash_extention : public Action
 {
 public:
     Action_char1_air_dash_extention();
-    virtual void outdated(Character &character_) const override;
     const int m_duration;
     const float m_baseSpd;
     const float m_spdMultiplier;
@@ -429,7 +445,6 @@ class Action_char1_step: public Action
 {
 public:
     Action_char1_step();
-    virtual void outdated(Character &character_) const override;
     const int m_duration;
 };
 
@@ -437,7 +452,6 @@ class Action_char1_step_recovery : public Action
 {
 public:
     Action_char1_step_recovery();
-    virtual void outdated(Character &character_) const override;
     const int m_recoveryLen;
 };
 
@@ -445,7 +459,6 @@ class Action_char1_ground_backdash: public Action
 {
 public:
     Action_char1_ground_backdash();
-    virtual void outdated(Character &character_) const override;
     const int m_totalDuration;
 };
 
@@ -453,7 +466,6 @@ class Action_char1_ground_dash_recovery : public Action
 {
 public:
     Action_char1_ground_dash_recovery();
-    virtual void outdated(Character &character_) const override;
     const int m_recoveryLen;
 };
 
@@ -461,7 +473,6 @@ class Action_char1_air_dash : public Action
 {
 public:
     Action_char1_air_dash();
-    virtual void outdated(Character &character_) const override;
     const int m_duration;
 };
 
@@ -469,7 +480,6 @@ class Action_char1_air_backdash : public Action
 {
 public:
     Action_char1_air_backdash();
-    virtual void outdated(Character &character_) const override;
     const int m_duration;
 };
 
@@ -477,7 +487,6 @@ class Action_char1_soft_landing_recovery : public Action
 {
 public:
     Action_char1_soft_landing_recovery();
-    virtual void outdated(Character &character_) const override;
     const int m_recoveryLen;
 };
 
@@ -485,7 +494,6 @@ class Action_char1_hard_landing_recovery : public Action
 {
 public:
     Action_char1_hard_landing_recovery();
-    virtual void outdated(Character &character_) const override;
     const int m_recoveryLen;
 };
 
@@ -493,7 +501,6 @@ class Action_char1_vulnerable_landing_recovery : public Action
 {
 public:
     Action_char1_vulnerable_landing_recovery();
-    virtual void outdated(Character &character_) const override;
     const int m_recoveryLen;
 };
 
@@ -501,7 +508,6 @@ class Action_char1_jc_landing_recovery : public Action
 {
 public:
     Action_char1_jc_landing_recovery();
-    virtual void outdated(Character &character_) const override;
     const int m_recoveryLen;
 };
 
@@ -509,35 +515,30 @@ class Action_char1_soft_knockdown : public Action
 {
 public:
     Action_char1_soft_knockdown();
-    virtual void outdated(Character &character_) const override;
 };
 
 class Action_char1_hard_knockdown : public Action
 {
 public:
     Action_char1_hard_knockdown();
-    virtual void outdated(Character &character_) const override;
 };
 
 class Action_char1_knockdown_recovery : public Action
 {
 public:
     Action_char1_knockdown_recovery();
-    virtual void outdated(Character &character_) const override;
 };
 
 class Action_char1_ground_attack : public Action_attack
 {
 public:
     Action_char1_ground_attack(int actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, StateMarker transitionableFrom_, bool isCrouchState_);
-    virtual void outdated(Character &character_) const override;
 };
 
 class Action_char1_air_attack : public Action_attack
 {
 public:
     Action_char1_air_attack(int actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, StateMarker transitionableFrom_);
-    virtual void outdated(Character &character_) const override;
 };
 
 class Action_char1_move_JC : public Action_char1_air_attack
@@ -676,7 +677,6 @@ class Action_char1_thrown_char1_normal : public Action_locked_animation
 {
 public:
     Action_char1_thrown_char1_normal();
-    virtual void outdated(Character &character_) const override;
 };
 
 class Action_char1_thrown_char1_normal_air_hold : public Action_thrown_hold
@@ -689,7 +689,6 @@ class Action_char1_thrown_char1_normal_air : public Action_locked_animation
 {
 public:
     Action_char1_thrown_char1_normal_air();
-    virtual void outdated(Character &character_) const override;
 };
 
 
