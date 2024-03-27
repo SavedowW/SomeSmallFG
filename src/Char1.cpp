@@ -299,11 +299,24 @@ void Char1::provideActions()
 }
 
 Char1::Char1(Application &application_, Vector2<float> pos_, Camera *cam_, ParticleManager *particleManager_) :
-    Character(application_, pos_, 400.0f, gamedata::characters::char1::gravity, cam_, particleManager_, 1, 1, 6, 5, StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY}))
+    Character(application_, pos_, 400.0f, gamedata::characters::char1::gravity, cam_, particleManager_, 1, 1, 6, 5, StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY}), 1000)
 {
+
     provideActions();
-    m_genericStates.m_idle = (int)CHAR1_STATE::IDLE;
-    m_genericStates.m_float = (int)CHAR1_STATE::FLOAT;
+    m_genericCharacterData.m_idle = (int)CHAR1_STATE::IDLE;
+    m_genericCharacterData.m_float = (int)CHAR1_STATE::FLOAT;
+
+    m_genericCharacterData.m_dontConvertVelocityToInertia.toggleMark((int)CHAR1_STATE::WALK_FWD);
+    m_genericCharacterData.m_dontConvertVelocityToInertia.toggleMark((int)CHAR1_STATE::WALK_BWD);
+
+    m_genericCharacterData.m_prejums.toggleMark((int)CHAR1_STATE::PREJUMP);
+
+    m_genericCharacterData.m_noAction.toggleMark((int)CHAR1_STATE::HITSTUN);
+    m_genericCharacterData.m_noAction.toggleMark((int)CHAR1_STATE::BLOCKSTUN_CROUCHING);
+    m_genericCharacterData.m_noAction.toggleMark((int)CHAR1_STATE::BLOCKSTUN_STANDING);
+
+    m_genericCharacterData.m_noDrag.toggleMark((int)CHAR1_STATE::PREJUMP);
+    m_genericCharacterData.m_noInertia.toggleMark((int)CHAR1_STATE::PREJUMP);
 }
 
 void Char1::loadAnimations(Application &application_)
@@ -380,44 +393,7 @@ void Char1::initiate()
     m_inertiaDrag = gamedata::characters::char1::inertiaDrag;
 
     m_currentState = (int)CHAR1_STATE::IDLE;
-    switchTo(m_genericStates.m_idle);
-}
-
-void Char1::proceedCurrentState()
-{
-    if (!m_inHitstop)
-    {
-        auto timerRes = m_timer.update();
-
-
-        if (timerRes)
-        {
-            if (isInHitstun() || isInBlockstun())
-            {
-                setThrowInvul();
-            }
-
-            switch (m_currentState)
-            {
-                case ((int)CHAR1_STATE::PREJUMP):
-                    jumpUsingAction();
-                    break;
-                
-                case ((int)CHAR1_STATE::HITSTUN):
-                    [[fallthrough]];
-                case ((int)CHAR1_STATE::BLOCKSTUN_CROUCHING):
-                    [[fallthrough]];
-                case ((int)CHAR1_STATE::BLOCKSTUN_STANDING):                
-                    switchTo(m_genericStates.m_idle);
-                    m_currentTakenHit.m_hitId = -1;
-                    break;
-
-                default:
-                    if (m_currentAction)
-                        m_currentAction->outdated(*this);
-            }
-        }
-    }
+    switchTo(m_genericCharacterData.m_idle);
 }
 
 
@@ -509,30 +485,6 @@ void Char1::land()
     }
 }
 
-bool Char1::canApplyDrag() const
-{
-    switch (m_currentState)
-    {
-        case ((int)CHAR1_STATE::PREJUMP):
-            return false;
-
-        default:
-            return true;
-    }
-}
-
-bool Char1::canBeDraggedByInertia() const
-{
-    switch (m_currentState)
-    {
-        case ((int)CHAR1_STATE::PREJUMP):
-            return false;
-
-        default:
-            return true;
-    }
-}
-
 HurtboxVec Char1::getHurtboxes()
 {
     if (m_currentAction)
@@ -546,19 +498,22 @@ HurtboxVec Char1::getHurtboxes()
     m_currentState == (int)CHAR1_STATE::BLOCKSTUN_STANDING ||
     m_currentState == (int)CHAR1_STATE::BLOCKSTUN_AIR)
     {
-        auto currentHBox = gamedata::characters::char1::standingHurtbox;
+        HurtboxVec currentHBoxes = {gamedata::characters::char1::standingHurtbox};
         if (m_hitstunAnimation == HITSTUN_ANIMATION::FLOAT)
-            currentHBox = gamedata::characters::char1::airHitstunHurtbox;
-        else if (m_currentState == (int)CHAR1_STATE::CROUCH || m_currentState == (int)CHAR1_STATE::BLOCKSTUN_CROUCHING || m_hitstunAnimation == HITSTUN_ANIMATION::CROUCH)
-            currentHBox = gamedata::characters::char1::crouchingHurtbox;
+            currentHBoxes = {gamedata::characters::char1::airHitstunHurtbox};
+        else if (m_currentState == (int)CHAR1_STATE::BLOCKSTUN_CROUCHING || m_hitstunAnimation == HITSTUN_ANIMATION::CROUCH)
+            currentHBoxes = {gamedata::characters::char1::crouchingHurtbox};
 
-        currentHBox.y += m_pos.y;
-        if (m_ownOrientation == ORIENTATION::RIGHT)
-            currentHBox.x += m_pos.x;
-        else
-            currentHBox.x = m_pos.x - currentHBox.x - currentHBox.w;
+        for (auto &currentHBox : currentHBoxes)
+        {
+            currentHBox.y += m_pos.y;
+            if (m_ownOrientation == ORIENTATION::RIGHT)
+                currentHBox.x += m_pos.x;
+            else
+                currentHBox.x = m_pos.x - currentHBox.x - currentHBox.w;
+        }
 
-        return {currentHBox};
+        return currentHBoxes;
     }
 
     return {};
@@ -1203,15 +1158,6 @@ void Char1::throwTeched(THROW_TECHS_LIST tech_)
         m_actionResolver.getAction((int)CHAR1_STATE::AIR_THROW_TECH_CHAR1)->switchTo(*this);
 }
 
-void Char1::attemptThrow()
-{
-    if (m_currentAction && m_currentAction->m_isThrowStartup)
-    {
-        auto action = dynamic_cast<const Action_throw_startup*>(m_currentAction);
-        action->attemptThrow(*this);
-    }
-}
-
 void Char1::applyClash(const Hit &clashedHit_)
 {
     Character::applyClash(clashedHit_);
@@ -1245,14 +1191,6 @@ void Char1::applyClash(const Hit &clashedHit_)
 
     applyCancelWindow(tempwindow);
     
-}
-
-void Char1::turnVelocityToInertia(float horMultiplier_)
-{
-    if (m_currentState == (int)CHAR1_STATE::WALK_BWD || m_currentState == (int)CHAR1_STATE::WALK_FWD)
-        m_velocity = {0, 0};
-
-    Character::turnVelocityToInertia(horMultiplier_);
 }
 
 ORIENTATION Char1::getInputDir() const

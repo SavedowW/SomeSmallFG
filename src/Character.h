@@ -132,10 +132,16 @@ struct CharacterUpdateRes
     Collider pushbox;
 };
 
-struct GenericStates
+struct GenericCharacterData
 {
+    GenericCharacterData(int statecnt_);
     int m_idle;
     int m_float;
+    StateMarker m_dontConvertVelocityToInertia;
+    StateMarker m_noAction;
+    StateMarker m_prejums;
+    StateMarker m_noDrag;
+    StateMarker m_noInertia;
 };
 
 // TODO: messy interface, should move something to protected or private
@@ -143,7 +149,7 @@ class Character
 {
 public:
     Character(Application &application_, Vector2<float> pos_, float maxHealth_, float baseGravity_, Camera *cam_, ParticleManager *particleManager_, int maxAirdashes_, int maxDJumps_, int framesBeforeAirdash_, int framesBeforeAirjump_,
-    StateMarker autoRealignAfter_);
+    StateMarker autoRealignAfter_, int stateCnt_);
 
     void setOnStage(Application &application_, int playerId_, Character *otherCharacter_, PriorityHandler *priorityHandler_);
 
@@ -167,7 +173,7 @@ public:
     virtual ~Character() {};
 
     virtual void loadAnimations(Application &application_) = 0;
-    virtual void proceedCurrentState() = 0;
+    virtual void proceedCurrentState();
     virtual void updateState();
     virtual void initiate() = 0;
     virtual void land() = 0;
@@ -188,7 +194,7 @@ public:
 
     virtual bool canBeThrown(THROW_LIST throw_) const;
     void setThrowInvul();
-    virtual void attemptThrow() = 0;
+    virtual void attemptThrow();
 
     virtual float touchedWall(int sideDir_) = 0;
 
@@ -307,7 +313,7 @@ protected:
     ActionResolver m_actionResolver;
     StateMarker m_autoRealignAfter;
 
-    GenericStates m_genericStates;
+    GenericCharacterData m_genericCharacterData;
 
     friend Action_throw_startup;
     friend Action_throw_tech;

@@ -78,10 +78,7 @@ public:
 
     void loadAnimations(Application &application_) final;
     void initiate() final;
-    void proceedCurrentState() final;
     void land() final;
-    bool canApplyDrag() const final;
-    bool canBeDraggedByInertia() const final;
     HurtboxVec getHurtboxes() final;
     HIT_RESULT applyHit(HitEvent &hitEvent) final;
     void applyClash(const Hit &clashedHit_) final;
@@ -93,11 +90,9 @@ public:
     bool isKnockedDown() const final;
     bool canApplyGravity() const final;
     float touchedWall(int sideDir_) final;
-    void turnVelocityToInertia(float horMultiplier_ = 0.9f) final;
 
     virtual ORIENTATION getInputDir() const final;
 
-    void attemptThrow() final;
 
     std::string CharStateData() const final;
 

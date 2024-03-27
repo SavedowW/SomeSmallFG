@@ -3,7 +3,7 @@
 #include "ActionResolver.h"
 
 Character::Character(Application &application_, Vector2<float> pos_, float maxHealth_, float baseGravity_, Camera *cam_, ParticleManager *particleManager_, int maxAirdashes_, int maxDJumps_,
-    int framesBeforeAirdash_, int framesBeforeAirjump_, StateMarker autoRealignAfter_) :
+    int framesBeforeAirdash_, int framesBeforeAirjump_, StateMarker autoRealignAfter_, int stateCnt_) :
     m_playerId(0),
     m_currentAnimation(nullptr),
     m_healthHandler(maxHealth_),
@@ -16,7 +16,8 @@ Character::Character(Application &application_, Vector2<float> pos_, float maxHe
     m_framesBeforeAirjump(framesBeforeAirjump_),
     m_actionResolver(application_.getInputSystem()),
     m_currentAction(nullptr),
-    m_autoRealignAfter(std::move(autoRealignAfter_))
+    m_autoRealignAfter(std::move(autoRealignAfter_)),
+    m_genericCharacterData(stateCnt_)
 {
     setPos(pos_);
 }
@@ -343,7 +344,7 @@ void Character::updateDirToEnemy()
 
 bool Character::canApplyDrag() const
 {
-    return true;
+    return !m_genericCharacterData.m_noDrag.getMark(m_currentState);
 }
 
 bool Character::canApplyGravity() const
@@ -356,11 +357,14 @@ bool Character::canApplyGravity() const
 
 bool Character::canBeDraggedByInertia() const
 {
-    return true;
+    return !m_genericCharacterData.m_noInertia.getMark(m_currentState);
 }
 
 void Character::turnVelocityToInertia(float horMultiplier_)
 {
+    if (m_genericCharacterData.m_dontConvertVelocityToInertia.getMark(m_currentState))
+        m_velocity = {0, 0};
+
     m_inertia.x += m_velocity.x * horMultiplier_;
     m_inertia.y += m_velocity.y;
     m_velocity = {0.0f, 0.0f};
@@ -524,6 +528,15 @@ void Character::setThrowInvul()
     m_throwInvulTimer.begin(5);
 }
 
+void Character::attemptThrow()
+{
+    if (m_currentAction && m_currentAction->m_isThrowStartup)
+    {
+        auto action = dynamic_cast<const Action_throw_startup*>(m_currentAction);
+        action->attemptThrow(*this);
+    }
+}
+
 void Character::callForPriority()
 {
     m_priorityHandler->callForPriority(m_playerId);
@@ -580,6 +593,39 @@ bool Character::isInHitstop() const
     return m_inHitstop;
 }
 
+void Character::proceedCurrentState()
+{
+    if (!m_inHitstop)
+    {
+        auto timerRes = m_timer.update();
+
+
+        if (timerRes)
+        {
+            if (isInHitstun() || isInBlockstun())
+            {
+                setThrowInvul();
+            }
+
+            if (m_genericCharacterData.m_prejums.getMark(m_currentState))
+            {
+                jumpUsingAction();
+            }
+            else if (m_genericCharacterData.m_noAction.getMark(m_currentState))
+            {
+                switchTo(m_genericCharacterData.m_idle);
+                m_currentTakenHit.m_hitId = -1;
+            }
+            else
+            {
+                if (m_currentAction)
+                        m_currentAction->outdated(*this);
+            }
+
+        }
+    }
+}
+
 void Character::updateState()
 {
     framesInState++;
@@ -634,4 +680,13 @@ HitsVec Character::getHits(bool allHits_)
         return hits;
     }
     return {};
+}
+
+GenericCharacterData::GenericCharacterData(int statecnt_) :
+    m_dontConvertVelocityToInertia(statecnt_),
+    m_noAction(statecnt_),
+    m_prejums(statecnt_),
+    m_noDrag(statecnt_),
+    m_noInertia(statecnt_)
+{
 }
