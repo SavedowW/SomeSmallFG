@@ -302,6 +302,8 @@ Char1::Char1(Application &application_, Vector2<float> pos_, Camera *cam_, Parti
     Character(application_, pos_, 400.0f, gamedata::characters::char1::gravity, cam_, particleManager_, 1, 1, 6, 5, StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY}))
 {
     provideActions();
+    m_genericStates.m_idle = (int)CHAR1_STATE::IDLE;
+    m_genericStates.m_float = (int)CHAR1_STATE::FLOAT;
 }
 
 void Char1::loadAnimations(Application &application_)
@@ -378,7 +380,7 @@ void Char1::initiate()
     m_inertiaDrag = gamedata::characters::char1::inertiaDrag;
 
     m_currentState = (int)CHAR1_STATE::IDLE;
-    switchToIdle();
+    switchTo(m_genericStates.m_idle);
 }
 
 void Char1::proceedCurrentState()
@@ -406,7 +408,7 @@ void Char1::proceedCurrentState()
                 case ((int)CHAR1_STATE::BLOCKSTUN_CROUCHING):
                     [[fallthrough]];
                 case ((int)CHAR1_STATE::BLOCKSTUN_STANDING):                
-                    switchToIdle();
+                    switchTo(m_genericStates.m_idle);
                     m_currentTakenHit.m_hitId = -1;
                     break;
 
@@ -418,46 +420,6 @@ void Char1::proceedCurrentState()
     }
 }
 
-void Char1::updateState()
-{
-    framesInState++;
-
-    // Update cancel window
-    if (!m_inHitstop)
-    {
-        auto timerres = m_cancelTimer.update();
-        if (timerres)
-        {
-            if (!m_cancelAvailable)
-            {
-                m_cancelTimer.begin(m_currentCancelWindow.first.second - m_currentCancelWindow.first.first + 1);
-                std::cout << "Cancel window opened\n";
-                m_cancelAvailable = true;
-            }
-            else
-            {
-                std::cout << "Cancel window outdated\n";
-                m_cancelTimer.begin(0);
-                m_cancelAvailable = false;
-            }
-        }
-    }
-
-    auto resolverRes = m_actionResolver.update(this, m_extendedBuffer);
-
-    if (resolverRes)
-    {
-        resolverRes->switchTo(*this);
-    }
-
-    if (m_currentAction)
-        m_currentAction->update(*this);
-}
-
-void Char1::switchToIdle()
-{
-    m_actionResolver.getAction((int)CHAR1_STATE::IDLE)->switchTo(*this);
-}
 
 void Char1::jumpUsingAction()
 {
@@ -569,26 +531,6 @@ bool Char1::canBeDraggedByInertia() const
         default:
             return true;
     }
-}
-
-HitsVec Char1::getHits(bool allHits_)
-{
-    if (m_currentAction && m_currentAction->m_isAttack)
-    {
-        auto hits = dynamic_cast<const Action_attack*>(m_currentAction)->getCurrentHits(m_timer.getCurrentFrame() + 1, m_pos, m_ownOrientation);
-        int i = 0;
-        while (i < hits.size())
-        {
-            if (!allHits_ && m_appliedHits.contains(hits[i].m_hitId))
-            {
-                hits.erase(hits.begin() + i);
-            }
-            i++;
-        }
-
-        return hits;
-    }
-    return {};
 }
 
 HurtboxVec Char1::getHurtboxes()
@@ -1127,11 +1069,6 @@ bool Char1::isKnockedDown() const
 void Char1::enterKndRecovery()
 {
     m_actionResolver.getAction((int)CHAR1_STATE::KNOCKDOWN_RECOVERY)->switchTo(*this);
-}
-
-void Char1::switchToFloat()
-{
-    m_actionResolver.getAction((int)CHAR1_STATE::FLOAT)->switchTo(*this);
 }
 
 bool Char1::canApplyGravity() const

@@ -132,6 +132,12 @@ struct CharacterUpdateRes
     Collider pushbox;
 };
 
+struct GenericStates
+{
+    int m_idle;
+    int m_float;
+};
+
 // TODO: messy interface, should move something to protected or private
 class Character
 {
@@ -162,10 +168,10 @@ public:
 
     virtual void loadAnimations(Application &application_) = 0;
     virtual void proceedCurrentState() = 0;
-    virtual void updateState() = 0;
+    virtual void updateState();
     virtual void initiate() = 0;
     virtual void land() = 0;
-    virtual HitsVec getHits(bool allHits_ = false) = 0;
+    virtual HitsVec getHits(bool allHits_ = false);
     virtual HurtboxVec getHurtboxes() = 0;
     virtual void updateBlockState() = 0;
     virtual bool isInHitstun() const = 0;
@@ -212,8 +218,7 @@ protected:
     virtual void enterHitstunAnimation(const PostHitProperties &props_) = 0;
     void startShine(const SDL_Color &col_, int lockedDuration_, int alphaDuration_);
 
-    virtual void switchToIdle() = 0;
-    virtual void switchToFloat() = 0;
+    void switchTo(int state_);
     virtual void jumpUsingAction() = 0;
     virtual void enterKndRecovery() = 0;
 
@@ -301,6 +306,8 @@ protected:
     Action *m_currentAction;
     ActionResolver m_actionResolver;
     StateMarker m_autoRealignAfter;
+
+    GenericStates m_genericStates;
 
     friend Action_throw_startup;
     friend Action_throw_tech;

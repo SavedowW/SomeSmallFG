@@ -79,11 +79,9 @@ public:
     void loadAnimations(Application &application_) final;
     void initiate() final;
     void proceedCurrentState() final;
-    void updateState() final;
     void land() final;
     bool canApplyDrag() const final;
     bool canBeDraggedByInertia() const final;
-    HitsVec getHits(bool allHits_ = false) final;
     HurtboxVec getHurtboxes() final;
     HIT_RESULT applyHit(HitEvent &hitEvent) final;
     void applyClash(const Hit &clashedHit_) final;
@@ -104,11 +102,9 @@ public:
     std::string CharStateData() const final;
 
 protected:
-    virtual void switchToIdle() override;
     virtual void jumpUsingAction() override;
     void switchToSoftLandingRecovery();
     virtual void enterKndRecovery() override;
-    virtual void switchToFloat() override;
     bool isInActiveFrames() const;
     void enterHitstunAnimation(const PostHitProperties &props_) final;
 

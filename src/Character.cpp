@@ -448,6 +448,11 @@ void Character::startShine(const SDL_Color &col_, int lockedDuration_, int alpha
     m_shineLockedTimer.begin(lockedDuration_);
 }
 
+void Character::switchTo(int state_)
+{
+    m_actionResolver.getAction(state_)->switchTo(*this);
+}
+
 void Character::lockInAnimation()
 {
     m_lockedInAnimation = true;
@@ -573,4 +578,60 @@ void Character::generateHitParticles(HitEvent &ev_, const Vector2<float> hitpos_
 bool Character::isInHitstop() const
 {
     return m_inHitstop;
+}
+
+void Character::updateState()
+{
+    framesInState++;
+
+    // Update cancel window
+    if (!m_inHitstop)
+    {
+        auto timerres = m_cancelTimer.update();
+        if (timerres)
+        {
+            if (!m_cancelAvailable)
+            {
+                m_cancelTimer.begin(m_currentCancelWindow.first.second - m_currentCancelWindow.first.first + 1);
+                std::cout << "Cancel window opened\n";
+                m_cancelAvailable = true;
+            }
+            else
+            {
+                std::cout << "Cancel window outdated\n";
+                m_cancelTimer.begin(0);
+                m_cancelAvailable = false;
+            }
+        }
+    }
+
+    auto resolverRes = m_actionResolver.update(this, m_extendedBuffer);
+
+    if (resolverRes)
+    {
+        resolverRes->switchTo(*this);
+    }
+
+    if (m_currentAction)
+        m_currentAction->update(*this);
+}
+
+HitsVec Character::getHits(bool allHits_)
+{
+    if (m_currentAction && m_currentAction->m_isAttack)
+    {
+        auto hits = dynamic_cast<const Action_attack*>(m_currentAction)->getCurrentHits(m_timer.getCurrentFrame() + 1, m_pos, m_ownOrientation);
+        int i = 0;
+        while (i < hits.size())
+        {
+            if (!allHits_ && m_appliedHits.contains(hits[i].m_hitId))
+            {
+                hits.erase(hits.begin() + i);
+            }
+            i++;
+        }
+
+        return hits;
+    }
+    return {};
 }
