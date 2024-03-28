@@ -142,6 +142,10 @@ struct GenericCharacterData
     StateMarker m_prejums;
     StateMarker m_noDrag;
     StateMarker m_noInertia;
+
+    std::map<int, int> m_hitstunAnimToStates;
+    int m_crouchHitstunAnim = (int)HITSTUN_ANIMATION::CROUCH;
+    int m_groundBounceHitstun;
 };
 
 // TODO: messy interface, should move something to protected or private
@@ -221,7 +225,7 @@ public:
     virtual void generateHitParticles(HitEvent &ev_, const Vector2<float> hitpos_);
 
 protected:
-    virtual void enterHitstunAnimation(const PostHitProperties &props_) = 0;
+    void enterHitstunAnimation(const PostHitProperties &props_);
     void startShine(const SDL_Color &col_, int lockedDuration_, int alphaDuration_);
 
     void switchTo(int state_);

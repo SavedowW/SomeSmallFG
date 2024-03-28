@@ -10,8 +10,12 @@ class Char1;
 enum class CHAR1_STATE {
     IDLE = 0,
     CROUCH,
-    HITSTUN,
-    HITSTUN_AIR,
+    HITSTUN_HIGH,
+    HITSTUN_MID,
+    HITSTUN_LOW,
+    HITSTUN_CROUCH,
+    HITSTUN_FLOAT,
+    HITSTUN_GROUND_BOUNCE,
     WALK_FWD,
     WALK_BWD,
     PREJUMP,
@@ -101,7 +105,6 @@ protected:
     void switchToSoftLandingRecovery();
     virtual void enterKndRecovery() override;
     bool isInActiveFrames() const;
-    void enterHitstunAnimation(const PostHitProperties &props_) final;
 
     void throwTeched(THROW_TECHS_LIST tech_) final;
 

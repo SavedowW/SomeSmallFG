@@ -52,6 +52,7 @@ public:
 
     Action *setSwitchData(bool realign_, int timerValue_, bool velToInertia_, bool resetDefenseState_, bool setAirAttackFlag_, bool resetPushback_, bool callForPriority_,
     Vector2<float> mulOwnVel_, Vector2<float> mulOwnInr_, Vector2<float> mulOwnDirVel_, Vector2<float> mulOwnDirInr_, Vector2<float> rawAddVel_, Vector2<float> rawAddInr_);
+    Action *setHitstunAnimation(int hitstunAnim_);
     Action *setAnimResetData(int animResetFrame_, int animResetDirection_);
     Action *setUpdateMovementData(TimelineProperty<Vector2<float>> &&mulOwnVelUpd_, TimelineProperty<Vector2<float>> &&mulOwnInrUpd_, TimelineProperty<Vector2<float>> &&mulOwnDirVelUpd_,
     TimelineProperty<Vector2<float>> &&mulOwnDirInrUpd_, TimelineProperty<Vector2<float>> &&rawAddVelUpd_, TimelineProperty<Vector2<float>> &&rawAddInrUpd_);
@@ -129,6 +130,8 @@ protected:
     Vector2<float> m_rawAddInrOtd;
 
     int m_targetStateOutdated = -1;
+
+    int m_hitstunAnimation = (int)HITSTUN_ANIMATION::NONE;
 };
 
 

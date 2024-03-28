@@ -445,6 +445,35 @@ void Character::generateWidgets(Application &application_, HUD &hud_)
     hud_.addWidget(std::move(nptr));
 }
 
+void Character::enterHitstunAnimation(const PostHitProperties &props_)
+{
+    m_blockstunType = BLOCK_FRAME::NONE;
+    if (m_lockedInAnimation)
+        return;
+
+    if (m_airborne)
+    {
+        switchTo(m_genericCharacterData.m_hitstunAnimToStates[(int)props_.airHitstunAnimation]);
+    }
+    else
+    {
+        int targetAnim_;
+        if (m_currentAction && m_currentAction->m_isCrouchState || (int)m_hitstunAnimation == m_genericCharacterData.m_crouchHitstunAnim || props_.forceCrouch)
+        {
+            targetAnim_ = m_genericCharacterData.m_crouchHitstunAnim;
+        }
+        else
+        {
+            targetAnim_ = (int)props_.groundHitstunAnimation;
+        }
+
+        switchTo(m_genericCharacterData.m_hitstunAnimToStates[(int)targetAnim_]);
+        m_hitstunAnimation = (HITSTUN_ANIMATION)targetAnim_;
+
+        m_timer.begin(m_hitProps.hitstun);
+    }
+}
+
 void Character::startShine(const SDL_Color &col_, int lockedDuration_, int alphaDuration_)
 {
     m_colorShine = col_;

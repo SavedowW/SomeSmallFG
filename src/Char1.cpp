@@ -271,6 +271,56 @@ void Char1::provideActions()
         }
     }, ANIMATIONS::CHAR1_JUMP))->setAnimResetData(20, 1)));
 
+
+    m_actionResolver.addAction(std::unique_ptr<Action>((new Action( (int)CHAR1_STATE::HITSTUN_HIGH, std::make_unique<InputComparatorIdle>(), {
+        {
+            TimelineProperty(true),
+            gamedata::characters::char1::standingHurtbox
+        }
+    }, ANIMATIONS::CHAR1_HITSTUN_HIGH, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false), StateMarker(gamedata::characters::totalStateCount, {}),
+    false, false, false, 0, 0, false, false, false ))->setOutdatedTransition((int)CHAR1_STATE::IDLE)->setHitstunAnimation((int)HITSTUN_ANIMATION::HIGH)));
+
+    m_actionResolver.addAction(std::unique_ptr<Action>((new Action( (int)CHAR1_STATE::HITSTUN_MID, std::make_unique<InputComparatorIdle>(), {
+        {
+            TimelineProperty(true),
+            gamedata::characters::char1::standingHurtbox
+        }
+    }, ANIMATIONS::CHAR1_HITSTUN_MID, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false), StateMarker(gamedata::characters::totalStateCount, {}),
+    false, false, false, 0, 0, false, false, false ))->setOutdatedTransition((int)CHAR1_STATE::IDLE)->setHitstunAnimation((int)HITSTUN_ANIMATION::MID)));
+
+    m_actionResolver.addAction(std::unique_ptr<Action>((new Action( (int)CHAR1_STATE::HITSTUN_LOW, std::make_unique<InputComparatorIdle>(), {
+        {
+            TimelineProperty(true),
+            gamedata::characters::char1::standingHurtbox
+        }
+    }, ANIMATIONS::CHAR1_HITSTUN_LOW, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false), StateMarker(gamedata::characters::totalStateCount, {}),
+    false, false, false, 0, 0, false, false, false ))->setOutdatedTransition((int)CHAR1_STATE::IDLE)->setHitstunAnimation((int)HITSTUN_ANIMATION::LOW)));
+
+    m_actionResolver.addAction(std::unique_ptr<Action>((new Action( (int)CHAR1_STATE::HITSTUN_CROUCH, std::make_unique<InputComparatorIdle>(), {
+        {
+            TimelineProperty(true),
+            gamedata::characters::char1::crouchingHurtbox
+        }
+    }, ANIMATIONS::CHAR1_HITSTUN_CROUCH, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false), StateMarker(gamedata::characters::totalStateCount, {}),
+    false, true, false, 0, 0, false, false, false ))->setOutdatedTransition((int)CHAR1_STATE::IDLE)->setHitstunAnimation((int)HITSTUN_ANIMATION::CROUCH)));
+
+    m_actionResolver.addAction(std::unique_ptr<Action>((new Action( (int)CHAR1_STATE::HITSTUN_FLOAT, std::make_unique<InputComparatorIdle>(), {
+        {
+            TimelineProperty(true),
+            gamedata::characters::char1::airHitstunHurtbox
+        }
+    }, ANIMATIONS::CHAR1_HITSTUN_AIR, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false), StateMarker(gamedata::characters::totalStateCount, {}),
+    false, false, false, 0, 0, false, false, true ))->setHitstunAnimation((int)HITSTUN_ANIMATION::FLOAT)));
+
+    m_actionResolver.addAction(std::unique_ptr<Action>((new Action( (int)CHAR1_STATE::HITSTUN_GROUND_BOUNCE, std::make_unique<InputComparatorIdle>(), {
+        {
+            TimelineProperty(true),
+            gamedata::characters::char1::airHitstunHurtbox
+        }
+    }, ANIMATIONS::CHAR1_HITSTUN_AIR, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false), StateMarker(gamedata::characters::totalStateCount, {}),
+    false, false, false, 0, 0, false, false, true ))->setHitstunAnimation((int)HITSTUN_ANIMATION::FLOAT)));
+
+
     m_actionResolver.addAction(std::make_unique<Action_char1_air_dash_extention>());
     m_actionResolver.addAction(std::make_unique<Action_char1_step_recovery>());
 
@@ -311,12 +361,19 @@ Char1::Char1(Application &application_, Vector2<float> pos_, Camera *cam_, Parti
 
     m_genericCharacterData.m_prejums.toggleMark((int)CHAR1_STATE::PREJUMP);
 
-    m_genericCharacterData.m_noAction.toggleMark((int)CHAR1_STATE::HITSTUN);
     m_genericCharacterData.m_noAction.toggleMark((int)CHAR1_STATE::BLOCKSTUN_CROUCHING);
     m_genericCharacterData.m_noAction.toggleMark((int)CHAR1_STATE::BLOCKSTUN_STANDING);
 
     m_genericCharacterData.m_noDrag.toggleMark((int)CHAR1_STATE::PREJUMP);
     m_genericCharacterData.m_noInertia.toggleMark((int)CHAR1_STATE::PREJUMP);
+
+    m_genericCharacterData.m_hitstunAnimToStates[(int)HITSTUN_ANIMATION::CROUCH] = (int)CHAR1_STATE::HITSTUN_CROUCH;
+    m_genericCharacterData.m_hitstunAnimToStates[(int)HITSTUN_ANIMATION::HIGH] = (int)CHAR1_STATE::HITSTUN_HIGH;
+    m_genericCharacterData.m_hitstunAnimToStates[(int)HITSTUN_ANIMATION::MID] = (int)CHAR1_STATE::HITSTUN_MID;
+    m_genericCharacterData.m_hitstunAnimToStates[(int)HITSTUN_ANIMATION::LOW] = (int)CHAR1_STATE::HITSTUN_LOW;
+    m_genericCharacterData.m_hitstunAnimToStates[(int)HITSTUN_ANIMATION::FLOAT] = (int)CHAR1_STATE::HITSTUN_FLOAT;
+
+    m_genericCharacterData.m_groundBounceHitstun = (int)CHAR1_STATE::HITSTUN_GROUND_BOUNCE;
 }
 
 void Char1::loadAnimations(Application &application_)
@@ -441,6 +498,25 @@ void Char1::land()
     if (m_lockedInAnimation)
         return;
 
+    if (isInHitstun())
+    {
+        if (m_hitProps.groundBounce)
+        {
+            switchTo(m_genericCharacterData.m_groundBounceHitstun);
+            m_inertia.y = 0;
+            m_velocity.y = -m_comboPhysHandler.getGroundBounceForce(m_hitProps.groundBounceStrength);
+            m_hitProps.groundBounce = false;
+            m_hitstunAnimation = HITSTUN_ANIMATION::FLOAT;
+        }
+        else if (m_hitProps.hardKnd)
+            switchTo((int)CHAR1_STATE::HARD_KNOCKDOWN);
+        else
+            switchTo((int)CHAR1_STATE::SOFT_KNOCKDOWN);
+        m_currentTakenHit.m_hitId = -1;
+
+        return;
+    }
+
     switch (m_currentState)
     {
 
@@ -452,29 +528,11 @@ void Char1::land()
         case ((int)CHAR1_STATE::AIR_THROW_TECH_CHAR1):
             [[fallthrough]];
         case ((int)CHAR1_STATE::BLOCKSTUN_AIR):
-            m_actionResolver.getAction((int)CHAR1_STATE::HARD_LANDING_RECOVERY)->switchTo(*this);
+            switchTo((int)CHAR1_STATE::HARD_LANDING_RECOVERY);
             break;
             
         case ((int)CHAR1_STATE::MOVE_JC):
-            m_actionResolver.getAction((int)CHAR1_STATE::MOVE_JC_LANDING_RECOVERY)->switchTo(*this);
-            break;
-
-        case ((int)CHAR1_STATE::HITSTUN_AIR):
-            if (m_hitProps.groundBounce)
-            {
-                std::cout << "pos: " << m_pos << std::endl;
-                m_inertia.y = 0;
-                m_velocity.y = -m_comboPhysHandler.getGroundBounceForce(m_hitProps.groundBounceStrength);
-                m_hitProps.groundBounce = false;
-                m_hitstunAnimation = HITSTUN_ANIMATION::FLOAT;
-                m_currentAnimation = m_animations[ANIMATIONS::CHAR1_HITSTUN_AIR].get();
-                //m_pos.y = gamedata::stages::levelOfGround - 1;
-            }
-            else if (m_hitProps.hardKnd)
-                m_actionResolver.getAction((int)CHAR1_STATE::HARD_KNOCKDOWN)->switchTo(*this);
-            else
-                m_actionResolver.getAction((int)CHAR1_STATE::SOFT_KNOCKDOWN)->switchTo(*this);
-            m_currentTakenHit.m_hitId = -1;
+            switchTo((int)CHAR1_STATE::MOVE_JC_LANDING_RECOVERY);
             break;
 
         default:
@@ -492,8 +550,7 @@ HurtboxVec Char1::getHurtboxes()
         auto currentFrame = m_timer.getCurrentFrame() + 1;
         return m_currentAction->getCurrentHurtboxes(currentFrame, m_pos, m_ownOrientation);
     }
-    else if (m_currentState == (int)CHAR1_STATE::HITSTUN ||
-    m_currentState == (int)CHAR1_STATE::HITSTUN_AIR ||
+    else if (
     m_currentState == (int)CHAR1_STATE::BLOCKSTUN_CROUCHING ||
     m_currentState == (int)CHAR1_STATE::BLOCKSTUN_STANDING ||
     m_currentState == (int)CHAR1_STATE::BLOCKSTUN_AIR)
@@ -746,12 +803,28 @@ std::string Char1::CharStateData() const
             stateName = "CROUCH";
             break;
 
-        case ((int)CHAR1_STATE::HITSTUN):
-            stateName = "HITSTUN";
+        case ((int)CHAR1_STATE::HITSTUN_GROUND_BOUNCE):
+            stateName = "HITSTUN_GROUND_BOUNCE";
             break;
 
-        case ((int)CHAR1_STATE::HITSTUN_AIR):
-            stateName = "HITSTUN_AIR";
+        case ((int)CHAR1_STATE::HITSTUN_HIGH):
+            stateName = "HITSTUN_HIGH";
+            break;
+
+        case ((int)CHAR1_STATE::HITSTUN_MID):
+            stateName = "HITSTUN_MID";
+            break;
+
+        case ((int)CHAR1_STATE::HITSTUN_LOW):
+            stateName = "HITSTUN_LOW";
+            break;
+
+        case ((int)CHAR1_STATE::HITSTUN_CROUCH):
+            stateName = "HITSTUN_CROUCH";
+            break;
+
+        case ((int)CHAR1_STATE::HITSTUN_FLOAT):
+            stateName = "HITSTUN_FLOAT";
             break;
 
         case ((int)CHAR1_STATE::WALK_FWD):
@@ -998,7 +1071,8 @@ bool Char1::isInActiveFrames() const
 
 bool Char1::isInHitstun() const
 {
-    return (m_currentState == (int)CHAR1_STATE::HITSTUN || m_currentState == (int)CHAR1_STATE::HITSTUN_AIR);
+    return (m_currentState == (int)CHAR1_STATE::HITSTUN_CROUCH || m_currentState == (int)CHAR1_STATE::HITSTUN_FLOAT || m_currentState == (int)CHAR1_STATE::HITSTUN_GROUND_BOUNCE ||
+            m_currentState == (int)CHAR1_STATE::HITSTUN_HIGH || m_currentState == (int)CHAR1_STATE::HITSTUN_MID || m_currentState == (int)CHAR1_STATE::HITSTUN_LOW);
 }
 
 bool Char1::isInBlockstun() const
@@ -1032,50 +1106,6 @@ bool Char1::canApplyGravity() const
         return m_currentAction->applyGravity(m_timer.getCurrentFrame() + 1);
 
     return Character::canApplyGravity();
-}
-
-void Char1::enterHitstunAnimation(const PostHitProperties &props_)
-{
-    m_blockstunType = BLOCK_FRAME::NONE;
-    if (m_lockedInAnimation)
-        return;
-
-    if (m_airborne)
-    {
-        m_currentState = (int)CHAR1_STATE::HITSTUN_AIR;
-        m_hitstunAnimation = props_.airHitstunAnimation;
-
-        m_currentAnimation = m_animations[ANIMATIONS::CHAR1_HITSTUN_AIR].get();
-    }
-    else
-    {
-        m_currentState = (int)CHAR1_STATE::HITSTUN;
-        m_timer.begin(m_hitProps.hitstun);
-
-        if (m_currentAction && m_currentAction->m_isCrouchState || m_hitstunAnimation == HITSTUN_ANIMATION::CROUCH || props_.forceCrouch)
-        {
-            m_hitstunAnimation = HITSTUN_ANIMATION::CROUCH;
-            m_currentAnimation = m_animations[ANIMATIONS::CHAR1_HITSTUN_CROUCH].get();
-        }
-        else if (props_.groundHitstunAnimation == HITSTUN_ANIMATION::HIGH)
-        {
-            m_hitstunAnimation = props_.groundHitstunAnimation;
-            m_currentAnimation = m_animations[ANIMATIONS::CHAR1_HITSTUN_HIGH].get();
-        }
-        else if (props_.groundHitstunAnimation == HITSTUN_ANIMATION::MID)
-        {
-            m_hitstunAnimation = props_.groundHitstunAnimation;
-            m_currentAnimation = m_animations[ANIMATIONS::CHAR1_HITSTUN_MID].get();
-        }
-        else
-        {
-            m_hitstunAnimation = props_.groundHitstunAnimation;
-            m_currentAnimation = m_animations[ANIMATIONS::CHAR1_HITSTUN_LOW].get();
-        }
-    }
-
-    m_currentAnimation->reset(0);
-    m_currentAction = nullptr;
 }
 
 float Char1::touchedWall(int sideDir_)

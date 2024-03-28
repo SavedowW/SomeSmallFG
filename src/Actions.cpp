@@ -97,7 +97,8 @@ void Action::switchTo(Character &character_)
     character_.applyCancelWindow({{0, 0}, {}});
     character_.framesInState = 0;
     character_.m_appliedHits.clear();
-    character_.m_hitstunAnimation = HITSTUN_ANIMATION::NONE;
+    if (m_hitstunAnimation != -1)
+    character_.m_hitstunAnimation = (HITSTUN_ANIMATION)m_hitstunAnimation;
     character_.m_blockstunType = BLOCK_FRAME::NONE;
     character_.m_currentState = actionState;
 
@@ -140,6 +141,9 @@ void Action::switchTo(Character &character_)
 // TODO: Add particle generation
 void Action::update(Character &character_)
 {
+    if (character_.m_inHitstop)
+        return;
+        
     auto frame = character_.m_timer.getCurrentFrame() + 1;
 
     if (m_updRealign[frame])
@@ -232,6 +236,13 @@ Action *Action::setSwitchData(bool realign_, int timerValue_, bool velToInertia_
     m_rawAddInr = rawAddInr_;
     m_resetPushback = resetPushback_;
     m_callForPriority = callForPriority_;
+
+    return this;
+}
+
+Action *Action::setHitstunAnimation(int hitstunAnim_)
+{
+    m_hitstunAnimation = hitstunAnim_;
 
     return this;
 }
