@@ -81,12 +81,7 @@ public:
     void provideActions();
 
     void loadAnimations(Application &application_) final;
-    void initiate() final;
-    HIT_RESULT applyHit(HitEvent &hitEvent) final;
     void applyClash(const Hit &clashedHit_) final;
-    void updateBlockState() final;
-    bool canApplyGravity() const final;
-    float touchedWall(int sideDir_) final;
 
     virtual ORIENTATION getInputDir() const final;
 
@@ -95,13 +90,6 @@ public:
 
 protected:
     bool isInActiveFrames() const;
-
-    void throwTeched(THROW_TECHS_LIST tech_) final;
-
-    Collider getUntiedPushbox() const final;
-    void enterThrown(THROW_LIST throw_);
-
-    CHAR1_STATE lastState = CHAR1_STATE::IDLE;
     
 };
 

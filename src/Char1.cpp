@@ -407,6 +407,19 @@ Char1::Char1(Application &application_, Vector2<float> pos_, Camera *cam_, Parti
 
     m_genericCharacterData.m_step = (int)CHAR1_STATE::STEP;
     m_genericCharacterData.m_airdash = (int)CHAR1_STATE::AIR_DASH;
+
+    m_genericCharacterData.m_thrownStates[(int)THROW_LIST::CHAR1_NORMAL_THROW] = (int)CHAR1_STATE::THROWN_CHAR1_NORMAL_HOLD;
+    m_genericCharacterData.m_thrownStates[(int)THROW_LIST::CHAR1_AIR_THROW] = (int)CHAR1_STATE::THROWN_CHAR1_NORMAL_AIR_HOLD;
+
+    m_genericCharacterData.m_throwTechedStates[(int)THROW_TECHS_LIST::CHAR1_GROUND] = (int)CHAR1_STATE::THROW_TECH_CHAR1;
+    m_genericCharacterData.m_throwTechedStates[(int)THROW_TECHS_LIST::CHAR1_AIR] = (int)CHAR1_STATE::AIR_THROW_TECH_CHAR1;
+
+    m_genericCharacterData.m_standingPushbox = gamedata::characters::char1::standingPushbox;
+    m_genericCharacterData.m_crouchingPushbox = gamedata::characters::char1::crouchingPushbox;
+    m_genericCharacterData.m_airPushbox = gamedata::characters::char1::airbornePushbox;
+    m_genericCharacterData.m_airHitstunPushbox = gamedata::characters::char1::airborneHitstunPushbox;
+
+    m_inertiaDrag = gamedata::characters::char1::inertiaDrag;
 }
 
 void Char1::loadAnimations(Application &application_)
@@ -465,230 +478,6 @@ void Char1::loadAnimations(Application &application_)
 
     m_currentAnimation = m_animations[ANIMATIONS::CHAR1_IDLE].get();
     m_currentAnimation->reset();
-}
-
-void Char1::initiate()
-{
-    m_timer.begin(0);
-
-    if (m_playerId == 1)
-        m_actionResolver.subscribe_p1();
-    else if (m_playerId == 2)
-        m_actionResolver.subscribe_p2();
-    else
-        throw std::runtime_error("Trying to initiate character without player ID");
-
-    m_actionResolver.setInputEnabled(true);
-
-    m_inertiaDrag = gamedata::characters::char1::inertiaDrag;
-
-    m_currentState = (int)CHAR1_STATE::IDLE;
-    switchTo(m_genericCharacterData.m_idle);
-}
-
-HIT_RESULT Char1::applyHit(HitEvent &hitEvent)
-{
-    float range = (m_pos - m_otherCharacter->getPos()).getLen();
-
-    // Attacker's side
-    if (hitEvent.m_hittingPlayerId == m_playerId)
-    {
-        callForPriority();
-        if (hitEvent.m_hitRes == HIT_RESULT::COUNTER)
-        {
-            m_notifyWidget->addNotification("COUNTER!");
-        }
-        m_notifyWidget->addNotification(std::to_string(hitEvent.realDamage));
-
-        applyHitstop(hitEvent.m_hitData.hitProps.hitstop);
-
-        if (!isInHitstun())
-        {
-            m_appliedHits.insert(hitEvent.m_hitData.m_hitId);
-
-            if (hitEvent.m_hitRes == HIT_RESULT::HIT || hitEvent.m_hitRes == HIT_RESULT::COUNTER)
-                applyCancelWindow(hitEvent.m_hitData.cancelsOnHit);
-            else
-                applyCancelWindow(hitEvent.m_hitData.cancelsOnBlock);
-
-        }
-
-        return HIT_RESULT::NONE;
-    }
-    // Defender's side
-    else
-    {
-        auto blockState = m_blockHandler.getBlockState();
-        m_currentTakenHit = hitEvent.m_hitData;
-        bool blocked = hitEvent.m_hitData.canBeBlockedAs.contains(blockState);
-        // Took hit
-        if (!blocked)
-        {
-            turnVelocityToInertia();
-            m_inertia.x *= gamedata::characters::takenHitInertiaCarry;
-            std::cout << "Took hit!\n";
-
-            auto hitres = HIT_RESULT::HIT;
-            bool isCounter = false;
-
-            if (m_currentAction && m_currentAction->isInCounterState(m_timer.getCurrentFrame() + 1))
-            {
-                isCounter = true;
-            }
-
-            if (isCounter)
-            {
-                m_hitProps = hitEvent.m_hitData.chProps;
-                hitres = HIT_RESULT::COUNTER;
-                startShine({150, 0, 0, 225}, std::max(hitEvent.m_hitData.chProps.hitstop - 3, 5), 3);
-            }
-            else
-            {
-                m_hitProps = hitEvent.m_hitData.hitProps;
-            }
-
-            hitEvent.m_hitRes = hitres;
-            hitEvent.realDamage = m_healthHandler.takeDamage(hitEvent);
-            m_comboPhysHandler.takeHit(hitEvent);
-
-            if (!m_lockedInAnimation)
-            {
-                Vector2<float> newImpulse;
-                auto hordir = getHorDirToEnemy();
-                
-                if (m_airborne)
-                {
-                    newImpulse = m_hitProps.opponentImpulseOnAirHit.mulComponents(Vector2{hordir.x * -1.0f, 1.0f});
-                    newImpulse = m_comboPhysHandler.getImpulseScaling(newImpulse, hordir);
-                    newImpulse += m_inertia * gamedata::characters::airborneImpulseIntoPushbackCarry;
-                    m_inertia = newImpulse;
-
-                    newImpulse.x *= gamedata::characters::airbornePushbackMultiplier;
-                }
-                else
-                {
-                    if (m_hitProps.opponentImpulseOnHit.y == 0)
-                    {
-                    newImpulse = m_hitProps.opponentImpulseOnHit.mulComponents(Vector2{hordir.x * -1.0f, 1.0f});
-                    newImpulse = m_comboPhysHandler.getImpulseScaling(newImpulse, hordir);
-                    }
-                    else
-                    {
-                        m_airborne = true;
-    
-                        newImpulse = m_hitProps.opponentImpulseOnHit.mulComponents(Vector2{hordir.x * -1.0f, 1.0f});
-                        newImpulse = m_comboPhysHandler.getImpulseScaling(newImpulse, hordir);
-                        newImpulse += m_inertia * gamedata::characters::airborneImpulseIntoPushbackCarry;
-
-                        m_inertia += newImpulse;
-
-                        newImpulse.x *= gamedata::characters::airbornePushbackMultiplier;
-                        
-                    }
-                }
-
-                newImpulse.y = 0;
-                takePushback(newImpulse);
-            }
-
-
-            enterHitstunAnimation(m_hitProps);
-
-            applyCancelWindow({{0, 0}, {}});
-            applyHitstop(m_hitProps.hitstop);
-
-            return hitres;
-        }
-        // Blocked
-        else
-        {
-            bool inBlockstun = isInBlockstun();
-
-            bool isInstant = false;
-            if ((!inBlockstun || m_blockstunType == BLOCK_FRAME::INSTANT) && m_blockHandler.getBlockFrame() == BLOCK_FRAME::INSTANT)
-            {
-                isInstant = true;
-                m_blockstunType = BLOCK_FRAME::INSTANT;
-                startShine({255, 255, 255, 255}, 4, 8);
-                m_notifyWidget->addNotification("INSTANT");
-            }
-
-            applyHitstop(hitEvent.m_hitData.hitProps.hitstop);
-            if (!isInstant)
-            {
-                turnVelocityToInertia();
-                m_inertia.x *= gamedata::characters::pushblockInertiaCarry;
-                takePushback(getHorDirToEnemy() * -1.0f * hitEvent.m_hitData.opponentPushbackOnBlock);
-            }
-            else if (m_airborne)
-            {
-                turnVelocityToInertia();
-                if (!isInstant)
-                    takePushback(getHorDirToEnemy() * -1.0f * hitEvent.m_hitData.opponentPushbackOnBlock);
-            }
-            else
-            {
-                m_velocity = {0, 0};
-                m_inertia = {0, 0};
-            }
-            auto blockstunDuration = m_blockHandler.getBlockstunDuration(hitEvent.m_hitData.blockstun);
-            m_notifyWidget->addNotification(std::to_string(blockstunDuration));
-            HIT_RESULT res = HIT_RESULT::BLOCK_HIGH;
-
-            switch (blockState)
-            {
-                case (BLOCK_STATE::AUTO):
-                    [[fallthrough]];
-                case (BLOCK_STATE::HIGH):
-                    switchTo(m_genericCharacterData.m_blockstunStanding);
-                    res = HIT_RESULT::BLOCK_HIGH;
-
-                    break;
-
-                case (BLOCK_STATE::LOW):
-                    switchTo(m_genericCharacterData.m_blockstunCrouching);
-                    res = HIT_RESULT::BLOCK_LOW;
-                    break;
-
-                case (BLOCK_STATE::AIR):
-                    switchTo(m_genericCharacterData.m_blockstunAir);
-                    res = HIT_RESULT::BLOCK_AIR;
-                    break;
-            }
-
-            m_timer.begin(blockstunDuration);
-
-            hitEvent.m_hitRes = res;
-            if (!isInstant)
-            {
-                hitEvent.realDamage = m_healthHandler.takeDamage(hitEvent);
-            }
-            else
-            {
-                CancelWindow tempwindow;
-                tempwindow.first = {1, 20};
-                tempwindow.second = {
-                    m_genericCharacterData.m_step,
-                    m_genericCharacterData.m_airdash
-                };
-
-                applyCancelWindow(tempwindow);
-            }
-
-            return res;
-        }
-    }
-}
-
-void Char1::updateBlockState()
-{
-    bool inBlockstun = isInBlockstun();
-
-    bool canBlock = (inBlockstun || m_currentAction && m_currentAction->canBlock(m_timer.getCurrentFrame() + 1));
-
-    auto backButton = (m_dirToEnemy == ORIENTATION::RIGHT ? INPUT_BUTTON::LEFT : INPUT_BUTTON::RIGHT);
-
-    m_blockHandler.update(m_actionResolver.getCurrentInputDir(), m_actionResolver.getPostFrameButtonState(backButton), m_airborne, getHorDirToEnemy(), inBlockstun, canBlock, m_inHitstop);
 }
 
 std::string Char1::CharStateData() const
@@ -971,87 +760,6 @@ bool Char1::isInActiveFrames() const
     }
 
     return false;
-}
-
-bool Char1::canApplyGravity() const
-{
-    if (m_currentAction)
-        return m_currentAction->applyGravity(m_timer.getCurrentFrame() + 1);
-
-    return Character::canApplyGravity();
-}
-
-float Char1::touchedWall(int sideDir_)
-{
-    auto fw = getFullVelocity();
-
-    if (sideDir_ * fw.x > 0 && isInHitstun() && m_airborne && m_hitProps.wallBounce)
-    {
-        m_velocity.x *= -1 * m_hitProps.wallbounceInertiaMultiplierX;
-        m_inertia.x *= -1 * m_hitProps.wallbounceInertiaMultiplierX;
-        
-        if (m_inertia.y < 0)
-            m_inertia.y *= m_hitProps.wallbounceInertiaMultiplierY;
-
-        if (m_velocity.y < 0)
-            m_velocity.y *= m_hitProps.wallbounceInertiaMultiplierY;
-
-        m_hitProps.wallBounce = false;
-    }
-
-    if ((isInHitstun() || isInBlockstun()) && utils::sameSign<float>(m_pushback.x, sideDir_))
-    {
-        auto pbx = m_pushback.x;
-        m_pushback.x = 0;
-        return abs(pbx + fw.x * gamedata::characters::inertiaIntoCornerPushbackCarry);
-    }
-
-    return 0;
-}
-
-Collider Char1::getUntiedPushbox() const
-{
-    Collider pb;
-    if (m_airborne && m_hitstunAnimation != HITSTUN_ANIMATION::NONE)
-        pb = gamedata::characters::char1::airborneHitstunPushbox;
-    else if (m_currentAction && m_currentAction->m_isCrouchState || m_hitstunAnimation == HITSTUN_ANIMATION::CROUCH)
-        pb = gamedata::characters::char1::crouchingPushbox;
-    else if (m_airborne)
-        pb = gamedata::characters::char1::airbornePushbox;
-    else
-        pb = gamedata::characters::char1::standingPushbox;
-
-    pb.x += m_pos.x;
-    pb.y += m_pos.y;
-    return pb;
-}
-
-void Char1::enterThrown(THROW_LIST throw_)
-{
-    // Enter proper state depending on throw_
-    lockInAnimation();
-
-    switch (throw_)
-    {
-        case (THROW_LIST::CHAR1_NORMAL_THROW):
-            m_actionResolver.getAction((int)CHAR1_STATE::THROWN_CHAR1_NORMAL_HOLD)->switchTo(*this);
-            break;
-
-        case (THROW_LIST::CHAR1_AIR_THROW):
-            m_actionResolver.getAction((int)CHAR1_STATE::THROWN_CHAR1_NORMAL_AIR_HOLD)->switchTo(*this);
-            break;
-    }
-}
-
-void Char1::throwTeched(THROW_TECHS_LIST tech_)
-{
-    std::cout << "Called tech\n";
-
-    if (tech_ == THROW_TECHS_LIST::CHAR1_GROUND)
-        m_actionResolver.getAction((int)CHAR1_STATE::THROW_TECH_CHAR1)->switchTo(*this);
-
-    else if (tech_ == THROW_TECHS_LIST::CHAR1_AIR)
-        m_actionResolver.getAction((int)CHAR1_STATE::AIR_THROW_TECH_CHAR1)->switchTo(*this);
 }
 
 void Char1::applyClash(const Hit &clashedHit_)

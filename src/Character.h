@@ -156,6 +156,14 @@ struct GenericCharacterData
     int m_softLandingRecovery;
     int m_step;
     int m_airdash;
+
+    std::map<int, int> m_thrownStates;
+    std::map<int, int> m_throwTechedStates;
+
+    Collider m_standingPushbox;
+    Collider m_crouchingPushbox;
+    Collider m_airPushbox;
+    Collider m_airHitstunPushbox;
 };
 
 // TODO: messy interface, should move something to protected or private
@@ -189,11 +197,11 @@ public:
     virtual void loadAnimations(Application &application_) = 0;
     virtual void proceedCurrentState();
     virtual void updateState();
-    virtual void initiate() = 0;
+    virtual void initiate();
     virtual void land();
     virtual HitsVec getHits(bool allHits_ = false);
     virtual HurtboxVec getHurtboxes();
-    virtual void updateBlockState() = 0;
+    virtual void updateBlockState();
     virtual bool isInHitstun() const;
     virtual bool isInHitstop() const;
     virtual bool isInBlockstun() const;
@@ -210,7 +218,7 @@ public:
     void setThrowInvul();
     virtual void attemptThrow();
 
-    virtual float touchedWall(int sideDir_) = 0;
+    virtual float touchedWall(int sideDir_);
 
     virtual std::string CharStateData() const = 0;
 
@@ -219,7 +227,7 @@ public:
     virtual void updatePosition();
     virtual ORIENTATION getInputDir() const = 0;
 
-    virtual HIT_RESULT applyHit(HitEvent &hitEvent_) = 0;
+    virtual HIT_RESULT applyHit(HitEvent &hitEvent_);
     virtual void applyHitstop(int hitstopLength);
     HitData getCurrentTakenHit();
     void takePushback(const Vector2<float> pushback_);
@@ -245,9 +253,9 @@ protected:
     void releaseFromAnimation();
     void tieAnimWithOpponent();
     void untieAnimWithOpponent();
-    virtual Collider getUntiedPushbox() const = 0;
-    virtual void enterThrown(THROW_LIST throw_) = 0;
-    virtual void throwTeched(THROW_TECHS_LIST tech_) = 0;
+    virtual Collider getUntiedPushbox() const;
+    virtual void enterThrown(THROW_LIST throw_);
+    virtual void throwTeched(THROW_TECHS_LIST tech_);
 
     void callForPriority();
 
