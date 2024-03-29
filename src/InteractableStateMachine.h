@@ -97,6 +97,7 @@ protected:
     friend Action_attack;
     friend Action_float;
     friend Action_airjump;
+    friend Action;
 };
 
 #endif

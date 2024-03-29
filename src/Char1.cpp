@@ -264,7 +264,7 @@ void Char1::provideActions()
     m_actionResolver.addAction(std::make_unique<Action_char1_knockdown_recovery>());
     
     // Float state
-    m_actionResolver.addAction(std::unique_ptr<ActionCharacter>((new Action_float((int)CHAR1_STATE::FLOAT, (int)CHAR1_STATE::JUMP, {
+    m_actionResolver.addAction(std::unique_ptr<Action>((new Action_float((int)CHAR1_STATE::FLOAT, (int)CHAR1_STATE::JUMP, {
         {
             TimelineProperty(true),
             {-70, -350, 140, 300}

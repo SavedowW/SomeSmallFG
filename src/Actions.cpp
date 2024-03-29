@@ -60,33 +60,20 @@ void ActionCharacter::outdated(InteractableStateMachine &character_)
 
 void ActionCharacter::switchTo(InteractableStateMachine &character_)
 {
+    auto oldState = character_.m_currentState;
+
+    Action::switchTo(character_);
+
     auto *chr = dynamic_cast<Character*>(&character_);
 
     if (character_.m_currentAction && character_.m_currentAction->m_isAttack)
         dynamic_cast<Action_attack*>(character_.m_currentAction)->resetOpponentsHits(character_);
 
-    auto oldState = character_.m_currentState;
-
-    if (m_velToInertia)
-        character_.turnVelocityToInertia();
-
-    character_.m_currentAction = this;
-    chr->applyCancelWindow({{0, 0}, {}});
-    character_.framesInState = 0;
     if (m_hitstunAnimation != -1)
         chr->m_hitstunAnimation = (HITSTUN_ANIMATION)m_hitstunAnimation;
     chr->m_blockstunType = BLOCK_FRAME::NONE;
-    character_.m_currentState = actionState;
 
-    if (m_anim != ANIMATIONS::NONE)
-    {
-        character_.m_currentAnimation = character_.m_animations[m_anim].get();
-        character_.m_currentAnimation->reset(m_animResetFrame, m_animResetDirection);
-    }
-
-    character_.m_timer.begin(m_timerValue);
-
-    if (m_realign || chr->m_autoRealignAfter.getMark(oldState))
+    if (chr->m_autoRealignAfter.getMark(oldState))
         character_.updateOwnOrientation();
 
     if (m_setAirAttackFlag && character_.isAirborne())
@@ -106,12 +93,6 @@ void ActionCharacter::switchTo(InteractableStateMachine &character_)
 
     if (m_resetPushback)
         chr->takePushback({0.0f, 0.0f});
-
-    if (m_callForPriority)
-        character_.callForPriority();
-
-    character_.m_velocity = character_.m_velocity.mulComponents(m_mulOwnVel) + character_.getOwnHorDir().mulComponents(m_mulOwnDirVel) + m_rawAddVel;
-    character_.m_inertia = character_.m_inertia.mulComponents(m_mulOwnInr) + character_.getOwnHorDir().mulComponents(m_mulOwnDirInr) + m_rawAddInr;
 }
 
 // TODO: Add particle generation
@@ -214,19 +195,11 @@ int ActionCharacter::responseOnOwnState(const InputQueue &inputQueue_, ORIENTATI
 
 ActionCharacter *ActionCharacter::setSwitchData(bool realign_, int timerValue_, bool velToInertia_, bool resetDefenseState_, bool setAirAttackFlag_, bool resetPushback_, bool callForPriority_, Vector2<float> mulOwnVel_, Vector2<float> mulOwnInr_, Vector2<float> mulOwnDirVel_, Vector2<float> mulOwnDirInr_, Vector2<float> rawAddVel_, Vector2<float> rawAddInr_)
 {
-    m_realign = realign_;
-    m_timerValue = timerValue_;
-    m_velToInertia = velToInertia_;
     m_resetDefenseState = resetDefenseState_;
     m_setAirAttackFlag = setAirAttackFlag_;
-    m_mulOwnVel = mulOwnVel_;
-    m_mulOwnInr = mulOwnInr_;
-    m_mulOwnDirVel = mulOwnDirVel_;
-    m_mulOwnDirInr = mulOwnDirInr_;
-    m_rawAddVel = rawAddVel_;
-    m_rawAddInr = rawAddInr_;
     m_resetPushback = resetPushback_;
-    m_callForPriority = callForPriority_;
+
+    Action::setSwitchData(realign_, timerValue_, velToInertia_, callForPriority_, mulOwnVel_, mulOwnInr_, mulOwnDirVel_, mulOwnDirInr_, rawAddVel_, rawAddInr_);
 
     return this;
 }
@@ -234,14 +207,6 @@ ActionCharacter *ActionCharacter::setSwitchData(bool realign_, int timerValue_, 
 ActionCharacter *ActionCharacter::setHitstunAnimation(int hitstunAnim_)
 {
     m_hitstunAnimation = hitstunAnim_;
-
-    return this;
-}
-
-ActionCharacter *ActionCharacter::setAnimResetData(int animResetFrame_, int animResetDirection_)
-{
-    m_animResetFrame = animResetFrame_;
-    m_animResetDirection = animResetDirection_;
 
     return this;
 }
@@ -1650,6 +1615,34 @@ Action::Action(int actionState_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_
 {
 }
 
+void Action::switchTo(InteractableStateMachine &character_)
+{
+    if (m_velToInertia)
+        character_.turnVelocityToInertia();
+
+    character_.m_currentAction = this;
+    character_.applyCancelWindow({{0, 0}, {}});
+    character_.framesInState = 0;
+    character_.m_currentState = actionState;
+
+    if (m_anim != ANIMATIONS::NONE)
+    {
+        character_.m_currentAnimation = character_.m_animations[m_anim].get();
+        character_.m_currentAnimation->reset(m_animResetFrame, m_animResetDirection);
+    }
+
+    character_.m_timer.begin(m_timerValue);
+
+    if (m_realign)
+        character_.updateOwnOrientation();
+
+    if (m_callForPriority)
+        character_.callForPriority();
+
+    character_.m_velocity = character_.m_velocity.mulComponents(m_mulOwnVel) + character_.getOwnHorDir().mulComponents(m_mulOwnDirVel) + m_rawAddVel;
+    character_.m_inertia = character_.m_inertia.mulComponents(m_mulOwnInr) + character_.getOwnHorDir().mulComponents(m_mulOwnDirInr) + m_rawAddInr;
+}
+
 const HurtboxVec Action::getCurrentHurtboxes(uint32_t currentFrame_, const Vector2<float> &offset_, ORIENTATION ownOrientation_) const
 {
     HurtboxVec vec;
@@ -1673,4 +1666,28 @@ const HurtboxVec Action::getCurrentHurtboxes(uint32_t currentFrame_, const Vecto
     }
 
     return vec;
+}
+
+Action *Action::setSwitchData(bool realign_, int timerValue_, bool velToInertia_, bool callForPriority_, Vector2<float> mulOwnVel_, Vector2<float> mulOwnInr_, Vector2<float> mulOwnDirVel_, Vector2<float> mulOwnDirInr_, Vector2<float> rawAddVel_, Vector2<float> rawAddInr_)
+{
+    m_realign = realign_;
+    m_timerValue = timerValue_;
+    m_velToInertia = velToInertia_;
+    m_mulOwnVel = mulOwnVel_;
+    m_mulOwnInr = mulOwnInr_;
+    m_mulOwnDirVel = mulOwnDirVel_;
+    m_mulOwnDirInr = mulOwnDirInr_;
+    m_rawAddVel = rawAddVel_;
+    m_rawAddInr = rawAddInr_;
+    m_callForPriority = callForPriority_;
+
+    return this;
+}
+
+Action *Action::setAnimResetData(int animResetFrame_, int animResetDirection_)
+{
+    m_animResetFrame = animResetFrame_;
+    m_animResetDirection = animResetDirection_;
+
+    return this;
 }

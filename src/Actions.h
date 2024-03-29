@@ -34,13 +34,17 @@ public:
     Action(int actionState_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, StateMarker transitionableFrom_, bool isAttack_, bool isAirborne_);
     virtual ~Action() = default;
 
-    virtual void switchTo(InteractableStateMachine &character_) = 0;
+    virtual void switchTo(InteractableStateMachine &character_);
     virtual void outdated(InteractableStateMachine &character_) = 0;
     virtual void update(InteractableStateMachine &character_) = 0;
     virtual bool onLand(InteractableStateMachine &character_) = 0;
     virtual int isPossible(const InputQueue &inputQueue_, InteractableStateMachine *char_, int extendBuffer_) const = 0;
 
     virtual const HurtboxVec getCurrentHurtboxes(uint32_t currentFrame_, const Vector2<float>& offset_, ORIENTATION ownOrientation_) const;
+
+    Action *setSwitchData(bool realign_, int timerValue_, bool velToInertia_, bool callForPriority_,
+    Vector2<float> mulOwnVel_, Vector2<float> mulOwnInr_, Vector2<float> mulOwnDirVel_, Vector2<float> mulOwnDirInr_, Vector2<float> rawAddVel_, Vector2<float> rawAddInr_);
+    Action *setAnimResetData(int animResetFrame_, int animResetDirection_);
 
 
     const int actionState;
@@ -51,6 +55,23 @@ public:
 protected:
     StateMarker m_transitionableFrom;
     bool m_isAirborne;
+
+    bool m_realign = false;
+    int m_timerValue = 0;
+    bool m_velToInertia = false;
+    bool m_resetDefenseState = false;
+    bool m_setAirAttackFlag = false;
+    bool m_resetPushback = false;
+    bool m_callForPriority = false;
+    Vector2<float> m_mulOwnVel{1.0f, 1.0f};
+    Vector2<float> m_mulOwnInr{1.0f, 1.0f};
+    Vector2<float> m_mulOwnDirVel;
+    Vector2<float> m_mulOwnDirInr;
+    Vector2<float> m_rawAddVel;
+    Vector2<float> m_rawAddInr;
+
+    int m_animResetFrame = -1;
+    int m_animResetDirection = 1;
 };
 
 /* ============================
@@ -86,7 +107,6 @@ public:
     ActionCharacter *setSwitchData(bool realign_, int timerValue_, bool velToInertia_, bool resetDefenseState_, bool setAirAttackFlag_, bool resetPushback_, bool callForPriority_,
     Vector2<float> mulOwnVel_, Vector2<float> mulOwnInr_, Vector2<float> mulOwnDirVel_, Vector2<float> mulOwnDirInr_, Vector2<float> rawAddVel_, Vector2<float> rawAddInr_);
     ActionCharacter *setHitstunAnimation(int hitstunAnim_);
-    ActionCharacter *setAnimResetData(int animResetFrame_, int animResetDirection_);
     ActionCharacter *setUpdateMovementData(TimelineProperty<Vector2<float>> &&mulOwnVelUpd_, TimelineProperty<Vector2<float>> &&mulOwnInrUpd_, TimelineProperty<Vector2<float>> &&mulOwnDirVelUpd_,
     TimelineProperty<Vector2<float>> &&mulOwnDirInrUpd_, TimelineProperty<Vector2<float>> &&rawAddVelUpd_, TimelineProperty<Vector2<float>> &&rawAddInrUpd_);
     ActionCharacter *setUpdateSpeedLimitData(TimelineProperty<float> &&ownVelLimitUpd_, TimelineProperty<float> &&ownInrLimitUpd_);
@@ -120,19 +140,9 @@ protected:
     bool m_waitAirdashTimer;
     bool m_waitAirjumpTimer;
 
-    bool m_realign = false;
-    int m_timerValue = 0;
-    bool m_velToInertia = false;
     bool m_resetDefenseState = false;
     bool m_setAirAttackFlag = false;
     bool m_resetPushback = false;
-    bool m_callForPriority = false;
-    Vector2<float> m_mulOwnVel{1.0f, 1.0f};
-    Vector2<float> m_mulOwnInr{1.0f, 1.0f};
-    Vector2<float> m_mulOwnDirVel;
-    Vector2<float> m_mulOwnDirInr;
-    Vector2<float> m_rawAddVel;
-    Vector2<float> m_rawAddInr;
 
     int m_animResetFrame = -1;
     int m_animResetDirection = 1;
