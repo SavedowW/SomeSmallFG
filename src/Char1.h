@@ -81,9 +81,6 @@ public:
     void provideActions();
 
     void loadAnimations(Application &application_) final;
-    void applyClash(const Hit &clashedHit_) final;
-
-    virtual ORIENTATION getInputDir() const final;
 
 
     std::string CharStateData() const final;

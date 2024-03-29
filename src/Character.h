@@ -164,6 +164,10 @@ struct GenericCharacterData
     Collider m_crouchingPushbox;
     Collider m_airPushbox;
     Collider m_airHitstunPushbox;
+
+    std::set<int> m_clashCancelOptions;
+
+    StateMarker m_useDirToEnemyForInputs;
 };
 
 // TODO: messy interface, should move something to protected or private
@@ -225,7 +229,7 @@ public:
     virtual void updateOwnOrientation();
     virtual void updateDirToEnemy();
     virtual void updatePosition();
-    virtual ORIENTATION getInputDir() const = 0;
+    virtual ORIENTATION getInputDir() const;
 
     virtual HIT_RESULT applyHit(HitEvent &hitEvent_);
     virtual void applyHitstop(int hitstopLength);

@@ -158,6 +158,14 @@ void Character::updatePosition()
     m_currentAnimation->update();
 }
 
+ORIENTATION Character::getInputDir() const
+{
+    auto res = m_ownOrientation;
+    if (m_genericCharacterData.m_useDirToEnemyForInputs.getMark(m_currentState))
+        res = m_dirToEnemy;
+    return res;
+}
+
 void Character::drawGroundProjection(Renderer &renderer_, Camera &camera_, float angle_)
 {
     auto texSize = m_currentAnimation->getSize();
@@ -497,25 +505,25 @@ HIT_RESULT Character::applyHit(HitEvent &hitEvent_)
                 m_notifyWidget->addNotification("INSTANT");
             }
 
-            applyHitstop(hitEvent.m_hitData.hitProps.hitstop);
+            applyHitstop(hitEvent_.m_hitData.hitProps.hitstop);
             if (!isInstant)
             {
                 turnVelocityToInertia();
                 m_inertia.x *= gamedata::characters::pushblockInertiaCarry;
-                takePushback(getHorDirToEnemy() * -1.0f * hitEvent.m_hitData.opponentPushbackOnBlock);
+                takePushback(getHorDirToEnemy() * -1.0f * hitEvent_.m_hitData.opponentPushbackOnBlock);
             }
             else if (m_airborne)
             {
                 turnVelocityToInertia();
                 if (!isInstant)
-                    takePushback(getHorDirToEnemy() * -1.0f * hitEvent.m_hitData.opponentPushbackOnBlock);
+                    takePushback(getHorDirToEnemy() * -1.0f * hitEvent_.m_hitData.opponentPushbackOnBlock);
             }
             else
             {
                 m_velocity = {0, 0};
                 m_inertia = {0, 0};
             }
-            auto blockstunDuration = m_blockHandler.getBlockstunDuration(hitEvent.m_hitData.blockstun);
+            auto blockstunDuration = m_blockHandler.getBlockstunDuration(hitEvent_.m_hitData.blockstun);
             m_notifyWidget->addNotification(std::to_string(blockstunDuration));
             HIT_RESULT res = HIT_RESULT::BLOCK_HIGH;
 
@@ -542,10 +550,10 @@ HIT_RESULT Character::applyHit(HitEvent &hitEvent_)
 
             m_timer.begin(blockstunDuration);
 
-            hitEvent.m_hitRes = res;
+            hitEvent_.m_hitRes = res;
             if (!isInstant)
             {
-                hitEvent.realDamage = m_healthHandler.takeDamage(hitEvent);
+                hitEvent_.realDamage = m_healthHandler.takeDamage(hitEvent_);
             }
             else
             {
@@ -846,6 +854,15 @@ void Character::callForPriority()
 void Character::applyClash(const Hit &clashedHit_)
 {
     applyHitstop(20);
+
+    m_appliedHits.insert(clashedHit_.m_hitId);
+
+    CancelWindow tempwindow;
+
+    tempwindow.first = {1, 20};
+    tempwindow.second = m_genericCharacterData.m_clashCancelOptions;
+
+    applyCancelWindow(tempwindow);
 }
 
 void Character::generateHitParticles(HitEvent &ev_, const Vector2<float> hitpos_)
@@ -1086,6 +1103,7 @@ GenericCharacterData::GenericCharacterData(int statecnt_) :
     m_dontConvertVelocityToInertia(statecnt_),
     m_prejums(statecnt_),
     m_noDrag(statecnt_),
-    m_noInertia(statecnt_)
+    m_noInertia(statecnt_),
+    m_useDirToEnemyForInputs(statecnt_)
 {
 }

@@ -419,6 +419,31 @@ Char1::Char1(Application &application_, Vector2<float> pos_, Camera *cam_, Parti
     m_genericCharacterData.m_airPushbox = gamedata::characters::char1::airbornePushbox;
     m_genericCharacterData.m_airHitstunPushbox = gamedata::characters::char1::airborneHitstunPushbox;
 
+    m_genericCharacterData.m_clashCancelOptions = {
+        (int)CHAR1_STATE::PREJUMP,
+        (int)CHAR1_STATE::GROUND_BACKDASH,
+        (int)CHAR1_STATE::STEP,
+        (int)CHAR1_STATE::JUMP,
+        (int)CHAR1_STATE::AIR_DASH,
+        (int)CHAR1_STATE::AIR_BACKDASH,
+        (int)CHAR1_STATE::MOVE_A,
+        (int)CHAR1_STATE::MOVE_B,
+        (int)CHAR1_STATE::MOVE_C,
+        (int)CHAR1_STATE::MOVE_2B,
+        (int)CHAR1_STATE::MOVE_4A,
+        (int)CHAR1_STATE::MOVE_236C,
+        (int)CHAR1_STATE::MOVE_214C,
+        (int)CHAR1_STATE::MOVE_JA,
+        (int)CHAR1_STATE::MOVE_JC,
+        (int)CHAR1_STATE::THROW_NORMAL_STARTUP,
+        (int)CHAR1_STATE::THROW_BACK_STARTUP,
+        (int)CHAR1_STATE::THROW_NORMAL_AIR_STARTUP,
+        (int)CHAR1_STATE::THROW_BACK_AIR_STARTUP
+    };
+
+    m_genericCharacterData.m_useDirToEnemyForInputs.toggleMark((int)CHAR1_STATE::SOFT_LANDING_RECOVERY);
+    m_genericCharacterData.m_useDirToEnemyForInputs.toggleMark((int)CHAR1_STATE::GROUND_DASH_RECOVERY);
+    
     m_inertiaDrag = gamedata::characters::char1::inertiaDrag;
 }
 
@@ -760,47 +785,4 @@ bool Char1::isInActiveFrames() const
     }
 
     return false;
-}
-
-void Char1::applyClash(const Hit &clashedHit_)
-{
-    Character::applyClash(clashedHit_);
-    
-    m_appliedHits.insert(clashedHit_.m_hitId);
-
-    CancelWindow tempwindow;
-
-    tempwindow.first = {1, 20};
-    tempwindow.second = {
-        (int)CHAR1_STATE::PREJUMP,
-        (int)CHAR1_STATE::GROUND_BACKDASH,
-        (int)CHAR1_STATE::STEP,
-        (int)CHAR1_STATE::JUMP,
-        (int)CHAR1_STATE::AIR_DASH,
-        (int)CHAR1_STATE::AIR_BACKDASH,
-        (int)CHAR1_STATE::MOVE_A,
-        (int)CHAR1_STATE::MOVE_B,
-        (int)CHAR1_STATE::MOVE_C,
-        (int)CHAR1_STATE::MOVE_2B,
-        (int)CHAR1_STATE::MOVE_4A,
-        (int)CHAR1_STATE::MOVE_236C,
-        (int)CHAR1_STATE::MOVE_214C,
-        (int)CHAR1_STATE::MOVE_JA,
-        (int)CHAR1_STATE::MOVE_JC,
-        (int)CHAR1_STATE::THROW_NORMAL_STARTUP,
-        (int)CHAR1_STATE::THROW_BACK_STARTUP,
-        (int)CHAR1_STATE::THROW_NORMAL_AIR_STARTUP,
-        (int)CHAR1_STATE::THROW_BACK_AIR_STARTUP
-    };
-
-    applyCancelWindow(tempwindow);
-    
-}
-
-ORIENTATION Char1::getInputDir() const
-{
-    auto res = m_ownOrientation;
-    if (m_currentState == (int)CHAR1_STATE::SOFT_LANDING_RECOVERY || m_currentState == (int)CHAR1_STATE::GROUND_DASH_RECOVERY)
-        res = m_dirToEnemy;
-    return res;
 }
