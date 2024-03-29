@@ -1,6 +1,8 @@
 #include "Hit.h"
 #include "Char1.h"
 
+int HitData::nextHitID = 1;
+
 Hit::Hit(const HitData &hitData_, const std::vector<std::pair<FrameWindow, Collider>> &hitboxes_) :
     HitData(hitData_),
     m_hitboxes(hitboxes_)
@@ -30,7 +32,6 @@ HitData hitgeneration::generate_char1_normal_throw()
     hdata.particlesOnCH.push_back(pdatatemp);
 
     hdata.partOfThrow = true;
-    hdata.m_hitId = 1;
 
     //hdata.cornerPushbackMaxRange = 390.0f;
     //hdata.cornerPushbackMinImpulse = 8.0f;
@@ -71,9 +72,6 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_jab()
     pdatatemp.m_scale = 0.4f;
     hdata.particlesOnHit.push_back(pdatatemp);
     hdata.particlesOnCH.push_back(pdatatemp);
-
-
-    hdata.m_hitId = 1;
 
     hdata.opponentPushbackOnBlock = 110.0f;
 
@@ -125,8 +123,6 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveB()
     hdata.particlesOnHit.push_back(pdatatemp);
     hdata.particlesOnCH.push_back(pdatatemp);
 
-    hdata.m_hitId = 1;
-
     hdata.opponentPushbackOnBlock = 80.0f;
 
     hdata.hitProps.hitstop = 11;
@@ -175,8 +171,6 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveC()
     pdatatemp.m_partType = PARTICLE_TYPES::HIT_1;
     hdata.particlesOnHit.push_back(pdatatemp);
     hdata.particlesOnCH.push_back(pdatatemp);
-
-    hdata.m_hitId = 1;
 
     hdata.opponentPushbackOnBlock = 100.0f;
 
@@ -228,8 +222,6 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveStepC()
     hdata.particlesOnHit.push_back(pdatatemp);
     hdata.particlesOnCH.push_back(pdatatemp);
 
-    hdata.m_hitId = 1;
-
     hdata.opponentPushbackOnBlock = 150.0f;
 
     hdata.hitProps.hitstop = 13;
@@ -280,8 +272,6 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_move2B()
     hdata.particlesOnHit.push_back(pdatatemp);
     hdata.particlesOnCH.push_back(pdatatemp);
 
-    hdata.m_hitId = 1;
-
     hdata.opponentPushbackOnBlock = 60.0f;
 
     hdata.hitProps.hitstop = 11;
@@ -330,8 +320,6 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_move4A()
     pdatatemp.m_partType = PARTICLE_TYPES::HIT_1;
     hdata.particlesOnHit.push_back(pdatatemp);
     hdata.particlesOnCH.push_back(pdatatemp);
-
-    hdata.m_hitId = 1;
 
     hdata.opponentPushbackOnBlock = 120.0f;
     hdata.forcedClash = true;
@@ -385,10 +373,6 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_JA()
     hdata.particlesOnHit.push_back(pdatatemp);
     hdata.particlesOnCH.push_back(pdatatemp);
 
-    hdata.m_hitId = 1;
-
-    hdata.m_hitId = 1;
-
     hdata.opponentPushbackOnBlock = 110.0f;
 
     hdata.hitProps.hitstop = 10;
@@ -438,8 +422,6 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_JC()
     pdatatemp.m_angle = -60.0f;
     hdata.particlesOnHit.push_back(pdatatemp);
     hdata.particlesOnCH.push_back(pdatatemp);
-
-    hdata.m_hitId = 1;
 
     hdata.opponentPushbackOnBlock = 150.0f;
     
@@ -493,8 +475,6 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_214C()
     pdatatemp.m_angle = 90.0f;
     hdata.particlesOnHit.push_back(pdatatemp);
     hdata.particlesOnCH.push_back(pdatatemp);
-
-    hdata.m_hitId = 1;
 
     hdata.opponentPushbackOnBlock = 50.0f;
 
@@ -553,8 +533,6 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_236C()
     pdatatemp.m_angle = -90.0;
     hdata.particlesOnHit.push_back(pdatatemp);
     hdata.particlesOnCH.push_back(pdatatemp);
-
-    hdata.m_hitId = 1;
 
     hdata.opponentPushbackOnBlock = 50.0f;
 
@@ -646,4 +624,15 @@ Vector2<float> hitutils::getHitPosition(const std::vector<std::pair<FrameWindow,
     Collider hurtFullCollider = {hurtTL.x, hurtTL.y, hurtBR.x - hurtTL.x, hurtBR.y - hurtTL.y};
 
     return hitFullCollider.getOverlapArea(hurtFullCollider).getCenter();
+}
+
+void HitData::initializeHitID()
+{
+    setHitID(nextHitID++);
+}
+
+void HitData::setHitID(int id_)
+{
+    m_hitId = id_;
+    std::cout << "Initialized hit with ID " << id_ << std::endl;
 }

@@ -87,6 +87,11 @@ struct HitData
     std::vector<HitParticleData> particlesOnBlock;
     std::vector<HitParticleData> particlesOnHit;
     std::vector<HitParticleData> particlesOnCH;
+
+    static int nextHitID;
+
+    void initializeHitID();
+    void setHitID(int id_);
 };
 
 struct Hit : public HitData

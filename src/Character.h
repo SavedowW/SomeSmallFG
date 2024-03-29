@@ -232,10 +232,13 @@ public:
     virtual ORIENTATION getInputDir() const;
 
     virtual HIT_RESULT applyHit(HitEvent &hitEvent_);
+    void addTakenHit(int hitId_);
+    void removeTakenHit(int hitId_);
+    bool isHitTaken(int hitId_);
+
     virtual void applyHitstop(int hitstopLength);
-    HitData getCurrentTakenHit();
     void takePushback(const Vector2<float> pushback_);
-    virtual void applyClash(const Hit &clashedHit_);
+    virtual void applyClash(const Hit &clashedHit_, int opponentsHitId_);
 
     virtual bool canApplyDrag() const;
     virtual bool canApplyGravity() const;
@@ -331,7 +334,7 @@ protected:
     FrameTimer m_timer;
     int framesInState = 1;
 
-    std::set<int> m_appliedHits;
+    std::set<int> m_takenHits;
     bool m_usedAirAttack = false;
 
     Action *m_currentAction;

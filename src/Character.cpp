@@ -385,6 +385,9 @@ HIT_RESULT Character::applyHit(HitEvent &hitEvent_)
     // Attacker's side
     if (hitEvent_.m_hittingPlayerId == m_playerId)
     {
+        if (hitEvent_.m_hitRes == HIT_RESULT::NONE)
+            return HIT_RESULT::NONE;
+
         callForPriority();
         if (hitEvent_.m_hitRes == HIT_RESULT::COUNTER)
         {
@@ -396,8 +399,6 @@ HIT_RESULT Character::applyHit(HitEvent &hitEvent_)
 
         if (!isInHitstun())
         {
-            m_appliedHits.insert(hitEvent_.m_hitData.m_hitId);
-
             if (hitEvent_.m_hitRes == HIT_RESULT::HIT || hitEvent_.m_hitRes == HIT_RESULT::COUNTER)
                 applyCancelWindow(hitEvent_.m_hitData.cancelsOnHit);
             else
@@ -410,8 +411,13 @@ HIT_RESULT Character::applyHit(HitEvent &hitEvent_)
     // Defender's side
     else
     {
-        auto blockState = m_blockHandler.getBlockState();
+        if (isHitTaken(hitEvent_.m_hitData.m_hitId))
+            return HIT_RESULT::NONE;
+            
         m_currentTakenHit = hitEvent_.m_hitData;
+        m_takenHits.insert(hitEvent_.m_hitData.m_hitId);
+
+        auto blockState = m_blockHandler.getBlockState();
         bool blocked = hitEvent_.m_hitData.canBeBlockedAs.contains(blockState);
         // Took hit
         if (!blocked)
@@ -579,13 +585,6 @@ void Character::applyHitstop(int hitstopLength)
     m_extendedBuffer = hitstopLength - gamedata::global::inputBufferLength;
 }
 
-HitData Character::getCurrentTakenHit()
-{
-    auto temp = m_currentTakenHit;
-    m_currentTakenHit.m_hitId = -1;
-    return temp;
-}
-
 void Character::applyCancelWindow(CancelWindow cw_)
 {
     if (cw_.first.first == 0 && cw_.first.second == 0)
@@ -713,6 +712,21 @@ void Character::jumpUsingAction()
 void Character::lockInAnimation()
 {
     m_lockedInAnimation = true;
+}
+
+void Character::addTakenHit(int hitId_)
+{
+    m_takenHits.insert(hitId_);
+}
+
+void Character::removeTakenHit(int hitId_)
+{
+    m_takenHits.erase(hitId_);
+}
+
+bool Character::isHitTaken(int hitId_)
+{
+    return m_takenHits.contains(hitId_);
 }
 
 void Character::releaseFromAnimation()
@@ -851,11 +865,11 @@ void Character::callForPriority()
     m_priorityHandler->callForPriority(m_playerId);
 }
 
-void Character::applyClash(const Hit &clashedHit_)
+void Character::applyClash(const Hit &clashedHit_, int opponentsHitId_)
 {
     applyHitstop(20);
 
-    m_appliedHits.insert(clashedHit_.m_hitId);
+    m_takenHits.insert(opponentsHitId_);
 
     CancelWindow tempwindow;
 
@@ -1058,7 +1072,6 @@ void Character::land()
             switchTo(m_genericCharacterData.m_hardKD);
         else
             switchTo(m_genericCharacterData.m_softKD);
-        m_currentTakenHit.m_hitId = -1;
 
         return;
     }
@@ -1078,15 +1091,6 @@ HitsVec Character::getHits(bool allHits_)
     if (m_currentAction && m_currentAction->m_isAttack)
     {
         auto hits = dynamic_cast<const Action_attack*>(m_currentAction)->getCurrentHits(m_timer.getCurrentFrame() + 1, m_pos, m_ownOrientation);
-        int i = 0;
-        while (i < hits.size())
-        {
-            if (!allHits_ && m_appliedHits.contains(hits[i].m_hitId))
-            {
-                hits.erase(hits.begin() + i);
-            }
-            i++;
-        }
 
         return hits;
     }

@@ -88,6 +88,9 @@ void Action::outdated(Character &character_)
 
 void Action::switchTo(Character &character_)
 {
+    if (character_.m_currentAction && character_.m_currentAction->m_isAttack)
+        dynamic_cast<Action_attack*>(character_.m_currentAction)->resetOpponentsHits(character_);
+
     auto oldState = character_.m_currentState;
 
     if (m_velToInertia)
@@ -96,9 +99,8 @@ void Action::switchTo(Character &character_)
     character_.m_currentAction = this;
     character_.applyCancelWindow({{0, 0}, {}});
     character_.framesInState = 0;
-    character_.m_appliedHits.clear();
     if (m_hitstunAnimation != -1)
-    character_.m_hitstunAnimation = (HITSTUN_ANIMATION)m_hitstunAnimation;
+        character_.m_hitstunAnimation = (HITSTUN_ANIMATION)m_hitstunAnimation;
     character_.m_blockstunType = BLOCK_FRAME::NONE;
     character_.m_currentState = actionState;
 
@@ -484,6 +486,20 @@ const HitsVec Action_attack::getCurrentHits(uint32_t currentFrame_, const Vector
     return vec;
 }
 
+void Action_attack::resetOpponentsHits(Character &character_)
+{
+    for (auto &el : m_hits)
+        character_.m_otherCharacter->removeTakenHit(el.second.m_hitId);
+}
+
+void Action_attack::switchTo(Character &character_)
+{
+    Action::switchTo(character_);
+
+    for (auto &el : m_hits)
+        el.second.initializeHitID();
+}
+
 const bool Action_attack::isActive(uint32_t currentFrame_) const
 {
     for (const auto &el : m_hits)
@@ -692,12 +708,13 @@ void Action_locked_animation::update(Character &character_)
 
     if (curHit && !character_.m_inHitstop)
     {
+        curHit->initializeHitID();
         HitEvent ev;
         ev.m_hitData = *curHit;
         ev.m_hitRes = HIT_RESULT::THROWN;
         ev.m_hittingPlayerId = character_.m_playerId;
-        character_.applyHit(ev);
         character_.m_otherCharacter->applyHit(ev);
+        character_.applyHit(ev);
         character_.m_cam->startShake(ev.m_hitData.hitBlockShakeAmp, ev.m_hitData.hitProps.hitstop + 1);
     }
 }

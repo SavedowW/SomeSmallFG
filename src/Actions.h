@@ -227,10 +227,12 @@ public:
     Action_attack(int actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, StateMarker transitionableFrom_, bool isCrouchState_, bool isAirborne_);
     virtual const HitsVec getCurrentHits(uint32_t currentFrame_, const Vector2<float>& offset_, ORIENTATION ownOrientation_) const;
     virtual const bool isActive(uint32_t currentFrame_) const;
+    virtual void switchTo(Character &character_) override;
+    void resetOpponentsHits(Character &character_);
     const int m_fullDuration;
 
 protected:
-    const ActiveFramesVec m_hits;
+    ActiveFramesVec m_hits;
 };
 
 /* ============================

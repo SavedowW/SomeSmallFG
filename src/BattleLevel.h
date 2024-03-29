@@ -345,10 +345,10 @@ protected:
                         auto hboxes2 = hit2.getHitboxes();
                         for (auto &hbox2 : hboxes2)
                         {
-                            if (hbox1.second.isCollideWith(hbox2.second))
+                            if (hbox1.second.isCollideWith(hbox2.second) && !m_characters[0]->isHitTaken(hit2.m_hitId) && !m_characters[1]->isHitTaken(hit1.m_hitId))
                             {
-                                m_characters[0]->applyClash(hit1);
-                                m_characters[1]->applyClash(hit2);
+                                m_characters[0]->applyClash(hit1, hit2.m_hitId);
+                                m_characters[1]->applyClash(hit2, hit1.m_hitId);
                                 startFlash(10, 5);
 
                                 ParticleSpawnData spdata;
@@ -382,19 +382,23 @@ protected:
                         {
                             if (hboxes[ihitbox].second.isCollideWith(hurtboxes[p2id][ihurtbox]))
                             {
-                                hitFound = true;
                                 HitEvent ev;
                                 ev.m_hittingPlayerId = pid + 1;
                                 ev.m_hitData = hits[pid][ihit].getHitData();
                                 m_characters[p2id]->applyHit(ev);
                                 m_characters[pid]->applyHit(ev);
-                                m_camera.startShake(ev.m_hitData.hitBlockShakeAmp, ev.m_hitData.hitProps.hitstop + 1);
 
-                                auto hitpos = hitutils::getHitPosition(hboxes, hurtboxes[p2id]);
-                                m_hitpos = hitpos - m_hitsize / 2;
-                                m_characters[pid]->generateHitParticles(ev, hitpos);
-
-                                noHit = false;
+                                if (ev.m_hitRes != HIT_RESULT::NONE)
+                                {
+                                    m_camera.startShake(ev.m_hitData.hitBlockShakeAmp, ev.m_hitData.hitProps.hitstop + 1);
+    
+                                    auto hitpos = hitutils::getHitPosition(hboxes, hurtboxes[p2id]);
+                                    m_hitpos = hitpos - m_hitsize / 2;
+                                    m_characters[pid]->generateHitParticles(ev, hitpos);
+    
+                                    noHit = false;
+                                    hitFound = true;
+                                }
                             }
                         }
                     }
@@ -405,7 +409,6 @@ protected:
         // Check for possible throws
         for (const auto &i : priorityList)
         {
-            m_characters[i]->attemptThrow();
             m_characters[i]->attemptThrow();
         }
 
@@ -422,10 +425,10 @@ protected:
                         auto hboxes2 = hit2.getHitboxes();
                         for (auto &hbox2 : hboxes2)
                         {
-                            if (hbox1.second.isCollideWith(hbox2.second))
+                            if (hbox1.second.isCollideWith(hbox2.second) && !m_characters[0]->isHitTaken(hit2.m_hitId) && !m_characters[1]->isHitTaken(hit1.m_hitId))
                             {
-                                m_characters[0]->applyClash(hit1);
-                                m_characters[1]->applyClash(hit2);
+                                m_characters[0]->applyClash(hit1, hit2.m_hitId);
+                                m_characters[1]->applyClash(hit2, hit1.m_hitId);
                                 startFlash(10, 5);
 
                                 ParticleSpawnData spdata;
