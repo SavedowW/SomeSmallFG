@@ -87,11 +87,6 @@ public:
     HIT_RESULT applyHit(HitEvent &hitEvent) final;
     void applyClash(const Hit &clashedHit_) final;
     void updateBlockState() final;
-    bool isInHitstun() const final;
-    bool isInBlockstun() const final;
-    bool isInInstantBlockstun() const final;
-    bool isInAttackState() const final;
-    bool isKnockedDown() const final;
     bool canApplyGravity() const final;
     float touchedWall(int sideDir_) final;
 
@@ -103,7 +98,6 @@ public:
 protected:
     virtual void jumpUsingAction() override;
     void switchToSoftLandingRecovery();
-    virtual void enterKndRecovery() override;
     bool isInActiveFrames() const;
 
     void throwTeched(THROW_TECHS_LIST tech_) final;

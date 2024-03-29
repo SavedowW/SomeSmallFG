@@ -323,6 +323,15 @@ Action *Action::setOutdatedMovementData(Vector2<float> mulOwnVel_, Vector2<float
     return this;
 }
 
+Action *Action::setDisadvantageFlags(bool isBlockstun_, bool isHitstun_, bool isKnockdown_)
+{
+    m_isBlockstun = isBlockstun_;
+    m_isHitstun = isHitstun_;
+    m_isKnockdown = isKnockdown_;
+
+    return this;
+}
+
 // ABSTRACT PROLONGED ACTION
 Action_prolonged::Action_prolonged(int actionState_, InputComparator_ptr incmp_, InputComparator_ptr incmp_prolonged_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, StateMarker transitionableFrom_, bool isCrouchState_, int consumeAirdash_, int consumeAirjump_, bool waitAirdashTimer_, bool waitAirjumpTimer_, bool isAirborne_) :
     Action(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, std::move(counterWindow_), std::move(gravityWindow_), std::move(blockWindow_), std::move(transitionableFrom_), false, isCrouchState_, false, consumeAirdash_, consumeAirjump_, waitAirdashTimer_, waitAirjumpTimer_, isAirborne_)
@@ -1050,6 +1059,7 @@ Action_char1_hard_landing_recovery::Action_char1_hard_landing_recovery() :
 {
     setSwitchData(false, m_recoveryLen, false, false, false, false, false, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
     setOutdatedTransition((int)CHAR1_STATE::IDLE);
+    setDisadvantageFlags(true, false, false);
 }
 
 
@@ -1098,6 +1108,7 @@ Action_char1_soft_knockdown::Action_char1_soft_knockdown() :
 {
     setSwitchData(false, 8, true, false, false, true, false, {1.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
     setOutdatedTransition((int)CHAR1_STATE::KNOCKDOWN_RECOVERY);
+    setDisadvantageFlags(false, false, true);
 }
 
 
@@ -1110,6 +1121,7 @@ Action_char1_hard_knockdown::Action_char1_hard_knockdown() :
 {
     setSwitchData(false, 30, true, false, false, true, false, {1.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
     setOutdatedTransition((int)CHAR1_STATE::KNOCKDOWN_RECOVERY);
+    setDisadvantageFlags(false, false, true);
 }
 
 
@@ -1123,6 +1135,7 @@ Action_char1_knockdown_recovery::Action_char1_knockdown_recovery() :
     setSwitchData(false, 21, true, true, false, true, false, {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
     setOutdatedTransition((int)CHAR1_STATE::IDLE);
     setOutdatedFlags(false, true, false, false, false);
+    setDisadvantageFlags(false, false, true);
 }
 
 

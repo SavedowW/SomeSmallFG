@@ -64,12 +64,18 @@ public:
     Action *setOutdatedTransition(int targetState_);
     Action *setOutdatedMovementData(Vector2<float> mulOwnVel_, Vector2<float> mulOwnInr_, Vector2<float> mulOwnDirVel_, Vector2<float> mulOwnDirInr_, Vector2<float> rawAddVel_, Vector2<float> rawAddInr_);
 
+    Action *setDisadvantageFlags(bool isBlockstun_, bool isHitstun_, bool isKnockdown_);
+
     const int actionState;
     const HurtboxFramesVec m_hurtboxes;
     const ANIMATIONS m_anim;
     const bool m_isAttack;
     const bool m_isThrowStartup;
     const bool m_isCrouchState;
+
+    bool m_isBlockstun = false;
+    bool m_isHitstun = false;
+    bool m_isKnockdown = false;
 
 protected:
     InputComparator_ptr incmp;

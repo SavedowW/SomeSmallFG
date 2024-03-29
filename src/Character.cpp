@@ -617,9 +617,35 @@ void Character::generateHitParticles(HitEvent &ev_, const Vector2<float> hitpos_
     }
 }
 
+bool Character::isInHitstun() const
+{
+    return m_currentAction->m_isHitstun;
+}
+
 bool Character::isInHitstop() const
 {
     return m_inHitstop;
+}
+
+bool Character::isKnockedDown() const
+{
+    return m_currentAction->m_isKnockdown;
+}
+
+
+bool Character::isInBlockstun() const
+{
+    return m_currentAction->m_isBlockstun;
+}
+
+bool Character::isInInstantBlockstun() const
+{
+    return m_currentAction->m_isBlockstun && m_blockstunType == BLOCK_FRAME::INSTANT;
+}
+
+bool Character::isInAttackState() const
+{
+    return m_currentAction->m_isAttack;
 }
 
 void Character::proceedCurrentState()
@@ -639,11 +665,6 @@ void Character::proceedCurrentState()
             if (m_genericCharacterData.m_prejums.getMark(m_currentState))
             {
                 jumpUsingAction();
-            }
-            else if (m_genericCharacterData.m_noAction.getMark(m_currentState))
-            {
-                switchTo(m_genericCharacterData.m_idle);
-                m_currentTakenHit.m_hitId = -1;
             }
             else
             {
@@ -713,7 +734,6 @@ HitsVec Character::getHits(bool allHits_)
 
 GenericCharacterData::GenericCharacterData(int statecnt_) :
     m_dontConvertVelocityToInertia(statecnt_),
-    m_noAction(statecnt_),
     m_prejums(statecnt_),
     m_noDrag(statecnt_),
     m_noInertia(statecnt_)

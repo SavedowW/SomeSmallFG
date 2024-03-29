@@ -138,7 +138,6 @@ struct GenericCharacterData
     int m_idle;
     int m_float;
     StateMarker m_dontConvertVelocityToInertia;
-    StateMarker m_noAction;
     StateMarker m_prejums;
     StateMarker m_noDrag;
     StateMarker m_noInertia;
@@ -146,6 +145,10 @@ struct GenericCharacterData
     std::map<int, int> m_hitstunAnimToStates;
     int m_crouchHitstunAnim = (int)HITSTUN_ANIMATION::CROUCH;
     int m_groundBounceHitstun;
+
+    int m_blockstunStanding;
+    int m_blockstunCrouching;
+    int m_blockstunAir;
 };
 
 // TODO: messy interface, should move something to protected or private
@@ -184,12 +187,12 @@ public:
     virtual HitsVec getHits(bool allHits_ = false);
     virtual HurtboxVec getHurtboxes() = 0;
     virtual void updateBlockState() = 0;
-    virtual bool isInHitstun() const = 0;
+    virtual bool isInHitstun() const;
     virtual bool isInHitstop() const;
-    virtual bool isInBlockstun() const = 0;
-    virtual bool isInInstantBlockstun() const = 0;
-    virtual bool isKnockedDown() const = 0;
-    virtual bool isInAttackState() const = 0;
+    virtual bool isInBlockstun() const;
+    virtual bool isInInstantBlockstun() const;
+    virtual bool isKnockedDown() const;
+    virtual bool isInAttackState() const;
     virtual bool isAirborne();
     bool passableThrough() const;
 
@@ -230,7 +233,6 @@ protected:
 
     void switchTo(int state_);
     virtual void jumpUsingAction() = 0;
-    virtual void enterKndRecovery() = 0;
 
     void lockInAnimation();
     void releaseFromAnimation();
