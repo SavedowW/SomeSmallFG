@@ -486,6 +486,28 @@ void Character::switchTo(int state_)
     m_actionResolver.getAction(state_)->switchTo(*this);
 }
 
+void Character::jumpUsingAction()
+{
+    turnVelocityToInertia();
+
+    auto ownOrientationVector = getOwnHorDir();
+    ownOrientationVector.y = 1;
+    auto jumpAction = dynamic_cast<const Action_jump*>(m_currentAction);
+    m_velocity = (jumpAction)->m_impulse.mulComponents(ownOrientationVector);
+    if (m_inertia.y > 0)
+        m_inertia.y = 0;
+
+    auto currentXInertia = m_inertia.x;
+    currentXInertia *= ownOrientationVector.x;
+    if (currentXInertia > jumpAction->m_maxHorInertia)
+    {
+        m_inertia.x = jumpAction->m_maxHorInertia * ownOrientationVector.x;
+    }
+
+    switchTo(m_genericCharacterData.m_float);
+    m_currentAnimation->reset();
+}
+
 void Character::lockInAnimation()
 {
     m_lockedInAnimation = true;
@@ -712,6 +734,50 @@ void Character::updateState()
         m_currentAction->update(*this);
 }
 
+void Character::land()
+{
+    m_blockstunType = BLOCK_FRAME::NONE;
+    bool vulnerable = m_usedAirAttack;
+    m_jumpsAvailable.free();
+    m_airdashesAvailable.free();
+    m_airjumpTimer.begin(0);
+    m_airdashTimer.begin(0);
+    m_usedAirAttack = false;
+
+    if (m_currentAction->onLand(*this))
+        return;
+
+    if (m_lockedInAnimation)
+        return;
+
+    if (isInHitstun())
+    {
+        if (m_hitProps.groundBounce)
+        {
+            switchTo(m_genericCharacterData.m_groundBounceHitstun);
+            m_inertia.y = 0;
+            m_velocity.y = -m_comboPhysHandler.getGroundBounceForce(m_hitProps.groundBounceStrength);
+            m_hitProps.groundBounce = false;
+        }
+        else if (m_hitProps.hardKnd)
+            switchTo(m_genericCharacterData.m_hardKD);
+        else
+            switchTo(m_genericCharacterData.m_softKD);
+        m_currentTakenHit.m_hitId = -1;
+
+        return;
+    }
+
+    switch (m_currentState)
+    {            
+        default:
+            if (vulnerable)
+                switchTo(m_genericCharacterData.m_vulnerableLandingRecovery);
+            else
+                switchTo(m_genericCharacterData.m_softLandingRecovery);
+    }
+}
+
 HitsVec Character::getHits(bool allHits_)
 {
     if (m_currentAction && m_currentAction->m_isAttack)
@@ -730,6 +796,12 @@ HitsVec Character::getHits(bool allHits_)
         return hits;
     }
     return {};
+}
+
+HurtboxVec Character::getHurtboxes()
+{
+    auto currentFrame = m_timer.getCurrentFrame() + 1;
+    return m_currentAction->getCurrentHurtboxes(currentFrame, m_pos, m_ownOrientation);
 }
 
 GenericCharacterData::GenericCharacterData(int statecnt_) :

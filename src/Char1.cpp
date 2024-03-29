@@ -342,7 +342,7 @@ void Char1::provideActions()
             gamedata::characters::char1::standingHurtbox
         }
     }, ANIMATIONS::CHAR1_BLOCKSTUN_STANDING, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true), StateMarker(gamedata::characters::totalStateCount, {}),
-    false, false, false, 0, 0, false, false, true ))->setOutdatedTransition((int)CHAR1_STATE::FLOAT)->setDisadvantageFlags(true, false, false)));
+    false, false, false, 0, 0, false, false, true ))->setOutdatedTransition((int)CHAR1_STATE::FLOAT)->setDisadvantageFlags(true, false, false)->setLandingRecoveryState((int)CHAR1_STATE::HARD_LANDING_RECOVERY)));
 
 
     m_actionResolver.addAction(std::make_unique<Action_char1_air_dash_extention>());
@@ -399,6 +399,14 @@ Char1::Char1(Application &application_, Vector2<float> pos_, Camera *cam_, Parti
     m_genericCharacterData.m_blockstunStanding = (int)CHAR1_STATE::BLOCKSTUN_STANDING;
     m_genericCharacterData.m_blockstunCrouching = (int)CHAR1_STATE::BLOCKSTUN_CROUCHING;
     m_genericCharacterData.m_blockstunAir = (int)CHAR1_STATE::BLOCKSTUN_AIR;
+
+    m_genericCharacterData.m_softKD = (int)CHAR1_STATE::SOFT_KNOCKDOWN;
+    m_genericCharacterData.m_hardKD = (int)CHAR1_STATE::HARD_KNOCKDOWN;
+    m_genericCharacterData.m_softLandingRecovery = (int)CHAR1_STATE::SOFT_LANDING_RECOVERY;
+    m_genericCharacterData.m_vulnerableLandingRecovery = (int)CHAR1_STATE::VULNERABLE_LANDING_RECOVERY;
+
+    m_genericCharacterData.m_step = (int)CHAR1_STATE::STEP;
+    m_genericCharacterData.m_airdash = (int)CHAR1_STATE::AIR_DASH;
 }
 
 void Char1::loadAnimations(Application &application_)
@@ -476,130 +484,6 @@ void Char1::initiate()
 
     m_currentState = (int)CHAR1_STATE::IDLE;
     switchTo(m_genericCharacterData.m_idle);
-}
-
-
-void Char1::jumpUsingAction()
-{
-    turnVelocityToInertia();
-
-    auto ownOrientationVector = getOwnHorDir();
-    ownOrientationVector.y = 1;
-    auto jumpAction = dynamic_cast<const Action_jump*>(m_currentAction);
-    m_velocity = (jumpAction)->m_impulse.mulComponents(ownOrientationVector);
-    if (m_inertia.y > 0)
-        m_inertia.y = 0;
-
-    auto currentXInertia = m_inertia.x;
-    currentXInertia *= ownOrientationVector.x;
-    if (currentXInertia > jumpAction->m_maxHorInertia)
-    {
-        std::cout << "LIMIT INERTIA\n";
-        m_inertia.x = jumpAction->m_maxHorInertia * ownOrientationVector.x;
-    }
-
-    m_currentState = (int)CHAR1_STATE::JUMP;
-    m_currentAnimation = m_animations[ANIMATIONS::CHAR1_JUMP].get();
-    m_currentAnimation->reset();
-
-    m_airborne = true;
-}
-
-void Char1::switchToSoftLandingRecovery()
-{
-    m_actionResolver.getAction((int)CHAR1_STATE::SOFT_LANDING_RECOVERY)->switchTo(*this);
-}
-
-void Char1::land()
-{
-    m_blockstunType = BLOCK_FRAME::NONE;
-    bool vulnerable = m_usedAirAttack;
-    m_jumpsAvailable.free();
-    m_airdashesAvailable.free();
-    m_airjumpTimer.begin(0);
-    m_airdashTimer.begin(0);
-    m_usedAirAttack = false;
-
-    if (m_lockedInAnimation)
-        return;
-
-    if (isInHitstun())
-    {
-        if (m_hitProps.groundBounce)
-        {
-            switchTo(m_genericCharacterData.m_groundBounceHitstun);
-            m_inertia.y = 0;
-            m_velocity.y = -m_comboPhysHandler.getGroundBounceForce(m_hitProps.groundBounceStrength);
-            m_hitProps.groundBounce = false;
-            m_hitstunAnimation = HITSTUN_ANIMATION::FLOAT;
-        }
-        else if (m_hitProps.hardKnd)
-            switchTo((int)CHAR1_STATE::HARD_KNOCKDOWN);
-        else
-            switchTo((int)CHAR1_STATE::SOFT_KNOCKDOWN);
-        m_currentTakenHit.m_hitId = -1;
-
-        return;
-    }
-
-    switch (m_currentState)
-    {
-
-        case ((int)CHAR1_STATE::GROUND_BACKDASH):
-            m_velocity = {0.0f, 0.0f};
-            m_inertia = {0.0f, 0.0f};
-            break;
-
-        case ((int)CHAR1_STATE::AIR_THROW_TECH_CHAR1):
-            [[fallthrough]];
-        case ((int)CHAR1_STATE::BLOCKSTUN_AIR):
-            switchTo((int)CHAR1_STATE::HARD_LANDING_RECOVERY);
-            break;
-            
-        case ((int)CHAR1_STATE::MOVE_JC):
-            switchTo((int)CHAR1_STATE::MOVE_JC_LANDING_RECOVERY);
-            break;
-
-        default:
-            if (vulnerable)
-                m_actionResolver.getAction((int)CHAR1_STATE::VULNERABLE_LANDING_RECOVERY)->switchTo(*this);
-            else
-                switchToSoftLandingRecovery();
-    }
-}
-
-HurtboxVec Char1::getHurtboxes()
-{
-    if (m_currentAction)
-    {
-        auto currentFrame = m_timer.getCurrentFrame() + 1;
-        return m_currentAction->getCurrentHurtboxes(currentFrame, m_pos, m_ownOrientation);
-    }
-    else if (
-    m_currentState == (int)CHAR1_STATE::BLOCKSTUN_CROUCHING ||
-    m_currentState == (int)CHAR1_STATE::BLOCKSTUN_STANDING ||
-    m_currentState == (int)CHAR1_STATE::BLOCKSTUN_AIR)
-    {
-        HurtboxVec currentHBoxes = {gamedata::characters::char1::standingHurtbox};
-        if (m_hitstunAnimation == HITSTUN_ANIMATION::FLOAT)
-            currentHBoxes = {gamedata::characters::char1::airHitstunHurtbox};
-        else if (m_currentState == (int)CHAR1_STATE::BLOCKSTUN_CROUCHING || m_hitstunAnimation == HITSTUN_ANIMATION::CROUCH)
-            currentHBoxes = {gamedata::characters::char1::crouchingHurtbox};
-
-        for (auto &currentHBox : currentHBoxes)
-        {
-            currentHBox.y += m_pos.y;
-            if (m_ownOrientation == ORIENTATION::RIGHT)
-                currentHBox.x += m_pos.x;
-            else
-                currentHBox.x = m_pos.x - currentHBox.x - currentHBox.w;
-        }
-
-        return currentHBoxes;
-    }
-
-    return {};
-
 }
 
 HIT_RESULT Char1::applyHit(HitEvent &hitEvent)
@@ -784,9 +668,8 @@ HIT_RESULT Char1::applyHit(HitEvent &hitEvent)
                 CancelWindow tempwindow;
                 tempwindow.first = {1, 20};
                 tempwindow.second = {
-                    (int)CHAR1_STATE::STEP,
-                    (int)CHAR1_STATE::AIR_DASH,
-                    (int)CHAR1_STATE::PREJUMP,
+                    m_genericCharacterData.m_step,
+                    m_genericCharacterData.m_airdash
                 };
 
                 applyCancelWindow(tempwindow);
@@ -1081,10 +964,10 @@ std::string Char1::CharStateData() const
 
 bool Char1::isInActiveFrames() const
 {
-    if (m_currentAction && m_currentAction->m_isAttack)
+    if (m_currentAction->m_isAttack)
     {
         auto atkAction = dynamic_cast<const Action_attack*>(m_currentAction);
-        return atkAction->getCurrentHits(m_timer.getCurrentFrame() + 1, m_pos, m_ownOrientation).size();
+        return atkAction->isActive(m_timer.getCurrentFrame() + 1);
     }
 
     return false;
@@ -1115,13 +998,6 @@ float Char1::touchedWall(int sideDir_)
 
         m_hitProps.wallBounce = false;
     }
-
-    // With code below, if the character reaches max range and continues to walk back and another character moves in,
-    // character that walks back would be stuck in 1 point
-    /*if (utils::sameSign<float>(m_velocity.x, sideDir_))
-        m_velocity.x = 0;
-    if (utils::sameSign<float>(m_inertia.x, sideDir_))
-        m_inertia.x = 0;*/
 
     if ((isInHitstun() || isInBlockstun()) && utils::sameSign<float>(m_pushback.x, sideDir_))
     {

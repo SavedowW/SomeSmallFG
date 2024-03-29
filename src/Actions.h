@@ -38,9 +38,11 @@ public:
     virtual void outdated(Character &character_);
     virtual void switchTo(Character &character_);
     virtual void update(Character &character_);
+    virtual bool onLand(Character &character_);
     virtual bool isInCounterState(uint32_t currentFrame_) const;
     virtual bool applyGravity(uint32_t currentFrame_) const;
     virtual bool canBlock(uint32_t currentFrame_) const;
+
 
 
     // 0 if not possible
@@ -65,6 +67,9 @@ public:
     Action *setOutdatedMovementData(Vector2<float> mulOwnVel_, Vector2<float> mulOwnInr_, Vector2<float> mulOwnDirVel_, Vector2<float> mulOwnDirInr_, Vector2<float> rawAddVel_, Vector2<float> rawAddInr_);
 
     Action *setDisadvantageFlags(bool isBlockstun_, bool isHitstun_, bool isKnockdown_);
+
+    Action *setLandingMovementData(Vector2<float> mulOwnVel_, Vector2<float> mulOwnInr_, Vector2<float> mulOwnDirVel_, Vector2<float> mulOwnDirInr_, Vector2<float> rawAddVel_, Vector2<float> rawAddInr_);
+    Action *setLandingRecoveryState(int m_recoveryState_);
 
     const int actionState;
     const HurtboxFramesVec m_hurtboxes;
@@ -138,6 +143,14 @@ protected:
     int m_targetStateOutdated = -1;
 
     int m_hitstunAnimation = (int)HITSTUN_ANIMATION::NONE;
+
+    int m_recoveryOnLand = -1;
+    Vector2<float> m_mulOwnVelLand{1.0f, 1.0f};
+    Vector2<float> m_mulOwnInrLand{1.0f, 1.0f};
+    Vector2<float> m_mulOwnDirVelLand;
+    Vector2<float> m_mulOwnDirInrLand;
+    Vector2<float> m_rawAddVelLand;
+    Vector2<float> m_rawAddInrLand;
 };
 
 
@@ -213,6 +226,7 @@ class Action_attack : public Action
 public:
     Action_attack(int actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, StateMarker transitionableFrom_, bool isCrouchState_, bool isAirborne_);
     virtual const HitsVec getCurrentHits(uint32_t currentFrame_, const Vector2<float>& offset_, ORIENTATION ownOrientation_) const;
+    virtual const bool isActive(uint32_t currentFrame_) const;
     const int m_fullDuration;
 
 protected:

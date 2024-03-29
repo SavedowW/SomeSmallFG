@@ -166,6 +166,19 @@ void Action::update(Character &character_)
         character_.m_cam->startShake(camShakeData.x, camShakeData.y);
 }
 
+bool Action::onLand(Character &character_)
+{
+    character_.m_velocity = character_.m_velocity.mulComponents(m_mulOwnVelLand) + character_.getOwnHorDir().mulComponents(m_mulOwnDirVelLand) + m_rawAddVelLand;
+    character_.m_inertia = character_.m_inertia.mulComponents(m_mulOwnInrLand) + character_.getOwnHorDir().mulComponents(m_mulOwnDirInrLand) + m_rawAddInrLand;
+    if (m_recoveryOnLand >= 0)
+    {
+        character_.switchTo(m_recoveryOnLand);
+        return true;
+    }
+
+    return m_recoveryOnLand != -1;
+}
+
 bool Action::isInCounterState(uint32_t currentFrame_) const
 {
     return m_counterWindow[currentFrame_];
@@ -332,6 +345,24 @@ Action *Action::setDisadvantageFlags(bool isBlockstun_, bool isHitstun_, bool is
     return this;
 }
 
+Action *Action::setLandingMovementData(Vector2<float> mulOwnVel_, Vector2<float> mulOwnInr_, Vector2<float> mulOwnDirVel_, Vector2<float> mulOwnDirInr_, Vector2<float> rawAddVel_, Vector2<float> rawAddInr_)
+{
+    m_mulOwnVelLand = mulOwnVel_;
+    m_mulOwnInrLand = mulOwnInr_;
+    m_mulOwnDirVelLand = mulOwnDirVel_;
+    m_mulOwnDirInrLand = mulOwnDirInr_;
+    m_rawAddVelLand = rawAddVel_;
+    m_rawAddInrLand = rawAddInr_;
+
+    return this;
+}
+
+Action *Action::setLandingRecoveryState(int recoveryState_)
+{
+    m_recoveryOnLand = recoveryState_;
+    return this;
+}
+
 // ABSTRACT PROLONGED ACTION
 Action_prolonged::Action_prolonged(int actionState_, InputComparator_ptr incmp_, InputComparator_ptr incmp_prolonged_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, StateMarker transitionableFrom_, bool isCrouchState_, int consumeAirdash_, int consumeAirjump_, bool waitAirdashTimer_, bool waitAirjumpTimer_, bool isAirborne_) :
     Action(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, std::move(counterWindow_), std::move(gravityWindow_), std::move(blockWindow_), std::move(transitionableFrom_), false, isCrouchState_, false, consumeAirdash_, consumeAirjump_, waitAirdashTimer_, waitAirjumpTimer_, isAirborne_)
@@ -453,6 +484,23 @@ const HitsVec Action_attack::getCurrentHits(uint32_t currentFrame_, const Vector
     return vec;
 }
 
+const bool Action_attack::isActive(uint32_t currentFrame_) const
+{
+    for (const auto &el : m_hits)
+    {
+        if (el.first.first <= currentFrame_ && el.first.second >= currentFrame_)
+        {
+            auto hit = el.second;
+
+            for (auto &hb : hit.m_hitboxes)
+                if (currentFrame_ >= hb.first.first && currentFrame_ <= hb.first.second)
+                    return true;
+    
+        }
+    }
+
+    return false;
+}
 
 // ABSTRACT THROW STARTUP
 Action_throw_startup::Action_throw_startup(int actionState_, int whiffState_, int holdState_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, float range_, FrameWindow activeWindow_, bool requiredAirborne_, THROW_LIST throw_, StateMarker transitionableFrom_, bool isAirborne_) :
@@ -935,6 +983,8 @@ Action_char1_ground_backdash::Action_char1_ground_backdash() :
 {
     setSwitchData(false, m_totalDuration, true, false, false, false, false, {1.0f, 1.0f}, {0.0f, 0.0f}, {-gamedata::characters::char1::backdashSpd, 0.0f}, {0.0f, 0.0f}, {0.0f, -14.0f}, {0.0f, 0.0f});
     setOutdatedTransition((int)CHAR1_STATE::IDLE);
+    setLandingMovementData({0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, -0.0f}, {0.0f, 0.0f});
+    setLandingRecoveryState(-2);
 }
 
 
@@ -1202,6 +1252,8 @@ Action_char1_move_JC::Action_char1_move_JC() :
             }), // Raw vel
         TimelineProperty<Vector2<float>>({0.0f, 0.0f}) // Raw inr
     );
+
+    setLandingRecoveryState((int)CHAR1_STATE::MOVE_JC_LANDING_RECOVERY);
 }
 
 
@@ -1497,6 +1549,7 @@ Action_char1_air_throw_tech_char1::Action_char1_air_throw_tech_char1() :
     true, (int)CHAR1_STATE::IDLE, (int)CHAR1_STATE::FLOAT)
 {
     setSwitchData(false, m_duration, true, true, true, false, false, {1.0f, 1.0f}, {1.0f, 1.0f}, {-10.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
+    setLandingRecoveryState((int)CHAR1_STATE::HARD_LANDING_RECOVERY);
 }
 
 

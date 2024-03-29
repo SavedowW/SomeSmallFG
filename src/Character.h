@@ -149,6 +149,13 @@ struct GenericCharacterData
     int m_blockstunStanding;
     int m_blockstunCrouching;
     int m_blockstunAir;
+
+    int m_hardKD;
+    int m_softKD;
+    int m_vulnerableLandingRecovery;
+    int m_softLandingRecovery;
+    int m_step;
+    int m_airdash;
 };
 
 // TODO: messy interface, should move something to protected or private
@@ -183,9 +190,9 @@ public:
     virtual void proceedCurrentState();
     virtual void updateState();
     virtual void initiate() = 0;
-    virtual void land() = 0;
+    virtual void land();
     virtual HitsVec getHits(bool allHits_ = false);
-    virtual HurtboxVec getHurtboxes() = 0;
+    virtual HurtboxVec getHurtboxes();
     virtual void updateBlockState() = 0;
     virtual bool isInHitstun() const;
     virtual bool isInHitstop() const;
@@ -232,7 +239,7 @@ protected:
     void startShine(const SDL_Color &col_, int lockedDuration_, int alphaDuration_);
 
     void switchTo(int state_);
-    virtual void jumpUsingAction() = 0;
+    virtual void jumpUsingAction();
 
     void lockInAnimation();
     void releaseFromAnimation();

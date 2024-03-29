@@ -82,8 +82,6 @@ public:
 
     void loadAnimations(Application &application_) final;
     void initiate() final;
-    void land() final;
-    HurtboxVec getHurtboxes() final;
     HIT_RESULT applyHit(HitEvent &hitEvent) final;
     void applyClash(const Hit &clashedHit_) final;
     void updateBlockState() final;
@@ -96,8 +94,6 @@ public:
     std::string CharStateData() const final;
 
 protected:
-    virtual void jumpUsingAction() override;
-    void switchToSoftLandingRecovery();
     bool isInActiveFrames() const;
 
     void throwTeched(THROW_TECHS_LIST tech_) final;
