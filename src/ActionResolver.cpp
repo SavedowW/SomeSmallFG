@@ -97,7 +97,7 @@ void ActionResolver::receiveInput(EVENTS event_, const float scale_)
     }
 }
 
-Action *ActionResolver::update(Character *char_, int extendBuffer_)
+Action *ActionResolver::update(InteractableStateMachine *char_, int extendBuffer_)
 {
    //std::cout << "=== UPDATE RESOLVER ===\n";
 

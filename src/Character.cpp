@@ -4,18 +4,14 @@
 
 Character::Character(Application &application_, Vector2<float> pos_, float maxHealth_, float baseGravity_, Camera *cam_, ParticleManager *particleManager_, int maxAirdashes_, int maxDJumps_,
     int framesBeforeAirdash_, int framesBeforeAirjump_, StateMarker autoRealignAfter_, int stateCnt_) :
-    m_playerId(0),
-    m_currentAnimation(nullptr),
+    InteractableStateMachine(application_, pos_, stateCnt_, cam_),
     m_healthHandler(maxHealth_),
-    m_cam(cam_),
     m_comboPhysHandler(baseGravity_),
     m_particleManager(particleManager_),
     m_jumpsAvailable(maxDJumps_),
     m_airdashesAvailable(maxAirdashes_),
     m_framesBeforeAirdash(framesBeforeAirdash_),
     m_framesBeforeAirjump(framesBeforeAirjump_),
-    m_actionResolver(application_.getInputSystem()),
-    m_currentAction(nullptr),
     m_autoRealignAfter(std::move(autoRealignAfter_)),
     m_genericCharacterData(stateCnt_)
 {
@@ -24,30 +20,12 @@ Character::Character(Application &application_, Vector2<float> pos_, float maxHe
 
 void Character::setOnStage(Application &application_, int playerId_, Character *otherCharacter_, PriorityHandler *priorityHandler_)
 {
-    m_playerId = playerId_;
-    if (m_playerId == 1)
-    {
-        m_dirToEnemy = ORIENTATION::RIGHT;
-        m_ownOrientation = ORIENTATION::RIGHT;
-    }
-    else
-    {
-        m_dirToEnemy = ORIENTATION::LEFT;
-        m_ownOrientation = ORIENTATION::LEFT;
-    }
+    InteractableStateMachine::setOnStage(application_, playerId_, otherCharacter_, priorityHandler_);
 
-    m_otherCharacter = otherCharacter_;
-    m_priorityHandler = priorityHandler_;
-
-    loadAnimations(application_);
     for (auto &el : m_animations)
     {
         el.second->generateWhite(*application_.getRenderer());
     }
-
-    initiate();
-    m_currentTakenHit.m_hitId = -1;
-    m_hitstunAnimation = HITSTUN_ANIMATION::NONE;
 }
 
 CharacterUpdateRes Character::update()
@@ -289,67 +267,6 @@ void Character::draw(Renderer &renderer_, Camera &camera_)
     #endif
 }
 
-Vector2<float> Character::getPos() const
-{
-    return m_pos;
-}
-
-
-void Character::setPos(Vector2<float> pos_)
-{
-    //std::cout << "setPos to " << pos_ << std::endl;
-    m_pos = pos_;
-}
-
-Vector2<float> Character::getHorDirToEnemy() const
-{
-    return Vector2(m_otherCharacter->getPos().x - getPos().x, 0.0f).normalised();
-}
-
-Vector2<float> Character::getOwnHorDir() const
-{
-    return Vector2<float>{(m_ownOrientation == ORIENTATION::RIGHT ? 1.0f : -1.0f), 0.0f};
-}
-
-ORIENTATION Character::getOwnOrientation() const
-{
-    return m_ownOrientation;
-}
-
-ORIENTATION Character::getOrientationToEnemy() const
-{
-    return m_dirToEnemy;
-}
-
-Vector2<float> Character::getVelocity() const
-{
-    return m_velocity;
-}
-
-Vector2<float> Character::getFullVelocity() const
-{
-    return m_velocity + m_inertia;
-}
-
-Vector2<float> Character::getInertia() const
-{
-    return m_inertia;
-}
-
-void Character::updateOwnOrientation()
-{
-    m_ownOrientation = m_dirToEnemy;
-}
-
-void Character::updateDirToEnemy()
-{
-    auto vecToEnemy = getHorDirToEnemy();
-    if (vecToEnemy.x > 0)
-        m_dirToEnemy = ORIENTATION::RIGHT;
-    else if (vecToEnemy.x < 0)
-        m_dirToEnemy = ORIENTATION::LEFT;
-}
-
 bool Character::canApplyDrag() const
 {
     return !m_genericCharacterData.m_noDrag.getMark(m_currentState);
@@ -357,10 +274,9 @@ bool Character::canApplyDrag() const
 
 bool Character::canApplyGravity() const
 {
-    if (m_currentAction)
-        return m_currentAction->applyGravity(m_timer.getCurrentFrame() + 1);
+    auto *act = dynamic_cast<ActionCharacter*>(m_currentAction);
 
-    return true;
+    return act->applyGravity(m_timer.getCurrentFrame() + 1);
 }
 
 bool Character::canBeDraggedByInertia() const
@@ -381,6 +297,7 @@ void Character::turnVelocityToInertia(float horMultiplier_)
 HIT_RESULT Character::applyHit(HitEvent &hitEvent_)
 {
     float range = (m_pos - m_otherCharacter->getPos()).getLen();
+    auto *act = dynamic_cast<ActionCharacter*>(m_currentAction);
 
     // Attacker's side
     if (hitEvent_.m_hittingPlayerId == m_playerId)
@@ -419,6 +336,7 @@ HIT_RESULT Character::applyHit(HitEvent &hitEvent_)
 
         auto blockState = m_blockHandler.getBlockState();
         bool blocked = hitEvent_.m_hitData.canBeBlockedAs.contains(blockState);
+
         // Took hit
         if (!blocked)
         {
@@ -429,7 +347,7 @@ HIT_RESULT Character::applyHit(HitEvent &hitEvent_)
             auto hitres = HIT_RESULT::HIT;
             bool isCounter = false;
 
-            if (m_currentAction && m_currentAction->isInCounterState(m_timer.getCurrentFrame() + 1))
+            if (act->isInCounterState(m_timer.getCurrentFrame() + 1))
             {
                 isCounter = true;
             }
@@ -585,31 +503,6 @@ void Character::applyHitstop(int hitstopLength)
     m_extendedBuffer = hitstopLength - gamedata::global::inputBufferLength;
 }
 
-void Character::applyCancelWindow(CancelWindow cw_)
-{
-    if (cw_.first.first == 0 && cw_.first.second == 0)
-    {
-        if (m_playerId == 1)
-            std::cout << "Drop cancels\n";
-        m_currentCancelWindow = cw_;
-        m_cancelAvailable = false;
-        m_cancelTimer.begin(0);
-    }
-
-    m_currentCancelWindow.first = std::move(cw_.first);
-    m_currentCancelWindow.second = std::move(cw_.second);
-    m_cancelAvailable = false;
-    if (m_currentCancelWindow.second.size() > 0)
-        m_cancelTimer.begin(m_currentCancelWindow.first.first);
-    else
-        m_cancelTimer.begin(0);
-}
-
-bool Character::isCancelAllowed(int cancelTarget_)
-{
-    return m_cancelAvailable && m_currentCancelWindow.second.contains(cancelTarget_);
-}
-
 void Character::takePushback(const Vector2<float> pushback_)
 {
     if (m_lockedInAnimation || m_tiedAnimWithOpponent)
@@ -652,6 +545,8 @@ void Character::enterHitstunAnimation(const PostHitProperties &props_)
     if (m_lockedInAnimation)
         return;
 
+    auto *act = dynamic_cast<ActionCharacter*>(m_currentAction);
+
     if (m_airborne)
     {
         switchTo(m_genericCharacterData.m_hitstunAnimToStates[(int)props_.airHitstunAnimation]);
@@ -659,7 +554,7 @@ void Character::enterHitstunAnimation(const PostHitProperties &props_)
     else
     {
         int targetAnim_;
-        if (m_currentAction && m_currentAction->m_isCrouchState || (int)m_hitstunAnimation == m_genericCharacterData.m_crouchHitstunAnim || props_.forceCrouch)
+        if (act->m_isCrouchState || (int)m_hitstunAnimation == m_genericCharacterData.m_crouchHitstunAnim || props_.forceCrouch)
         {
             targetAnim_ = m_genericCharacterData.m_crouchHitstunAnim;
         }
@@ -680,11 +575,6 @@ void Character::startShine(const SDL_Color &col_, int lockedDuration_, int alpha
     m_colorShine = col_;
     m_shineAlphaTimer.begin(alphaDuration_);
     m_shineLockedTimer.begin(lockedDuration_);
-}
-
-void Character::switchTo(int state_)
-{
-    m_actionResolver.getAction(state_)->switchTo(*this);
 }
 
 void Character::jumpUsingAction()
@@ -754,10 +644,12 @@ void Character::untieAnimWithOpponent()
 
 Collider Character::getUntiedPushbox() const
 {
+    auto *act = dynamic_cast<ActionCharacter*>(m_currentAction);
+
     Collider pb;
     if (m_airborne && m_hitstunAnimation != HITSTUN_ANIMATION::NONE)
         pb = m_genericCharacterData.m_airHitstunPushbox;
-    else if (m_currentAction && m_currentAction->m_isCrouchState || m_hitstunAnimation == HITSTUN_ANIMATION::CROUCH)
+    else if (act->m_isCrouchState || m_hitstunAnimation == HITSTUN_ANIMATION::CROUCH)
         pb = m_genericCharacterData.m_crouchingPushbox;
     else if (m_airborne)
         pb = m_genericCharacterData.m_airPushbox;
@@ -803,11 +695,6 @@ Collider Character::getPushbox() const
     return realpb;
 }
 
-bool Character::isAirborne()
-{
-    return m_airborne;
-}
-
 bool Character::passableThrough() const
 {
     return m_tiedAnimWithOpponent || m_lockedInAnimation;
@@ -825,7 +712,9 @@ void Character::setThrowInvul()
 
 void Character::attemptThrow()
 {
-    if (m_currentAction && m_currentAction->m_isThrowStartup)
+    auto *act = dynamic_cast<ActionCharacter*>(m_currentAction);
+
+    if (act->m_isThrowStartup)
     {
         auto action = dynamic_cast<const Action_throw_startup*>(m_currentAction);
         action->attemptThrow(*this);
@@ -858,11 +747,6 @@ float Character::touchedWall(int sideDir_)
     }
 
     return 0;
-}
-
-void Character::callForPriority()
-{
-    m_priorityHandler->callForPriority(m_playerId);
 }
 
 void Character::applyClash(const Hit &clashedHit_, int opponentsHitId_)
@@ -922,9 +806,11 @@ void Character::generateHitParticles(HitEvent &ev_, const Vector2<float> hitpos_
 
 void Character::updateBlockState()
 {
+    auto *act = dynamic_cast<ActionCharacter*>(m_currentAction);
+
     bool inBlockstun = isInBlockstun();
 
-    bool canBlock = (inBlockstun || m_currentAction && m_currentAction->canBlock(m_timer.getCurrentFrame() + 1));
+    bool canBlock = (inBlockstun || act->canBlock(m_timer.getCurrentFrame() + 1));
 
     auto backButton = (m_dirToEnemy == ORIENTATION::RIGHT ? INPUT_BUTTON::LEFT : INPUT_BUTTON::RIGHT);
 
@@ -933,28 +819,27 @@ void Character::updateBlockState()
 
 bool Character::isInHitstun() const
 {
-    return m_currentAction->m_isHitstun;
-}
-
-bool Character::isInHitstop() const
-{
-    return m_inHitstop;
+    auto *act = dynamic_cast<ActionCharacter*>(m_currentAction);
+    return act->m_isHitstun;
 }
 
 bool Character::isKnockedDown() const
 {
-    return m_currentAction->m_isKnockdown;
+    auto *act = dynamic_cast<ActionCharacter*>(m_currentAction);
+    return act->m_isKnockdown;
 }
 
 
 bool Character::isInBlockstun() const
 {
-    return m_currentAction->m_isBlockstun;
+    auto *act = dynamic_cast<ActionCharacter*>(m_currentAction);
+    return act->m_isBlockstun;
 }
 
 bool Character::isInInstantBlockstun() const
 {
-    return m_currentAction->m_isBlockstun && m_blockstunType == BLOCK_FRAME::INSTANT;
+    auto *act = dynamic_cast<ActionCharacter*>(m_currentAction);
+    return act->m_isBlockstun && m_blockstunType == BLOCK_FRAME::INSTANT;
 }
 
 bool Character::isInAttackState() const
@@ -1028,8 +913,6 @@ void Character::updateState()
 
 void Character::initiate()
 {
-    m_timer.begin(0);
-
     if (m_playerId == 1)
         m_actionResolver.subscribe_p1();
     else if (m_playerId == 2)

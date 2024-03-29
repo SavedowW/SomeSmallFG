@@ -13,8 +13,8 @@
 #include "NotifyWidget.h"
 #include "HealthHandler.h"
 #include "ComboPhysicsHandler.h"
-#include "PriorityHandler.h"
 #include "ResourceCounter.h"
+#include "InteractableStateMachine.h"
 
 /*
  * TODO: LIST
@@ -171,7 +171,7 @@ struct GenericCharacterData
 };
 
 // TODO: messy interface, should move something to protected or private
-class Character
+class Character : public InteractableStateMachine
 {
 public:
     Character(Application &application_, Vector2<float> pos_, float maxHealth_, float baseGravity_, Camera *cam_, ParticleManager *particleManager_, int maxAirdashes_, int maxDJumps_, int framesBeforeAirdash_, int framesBeforeAirjump_,
@@ -183,40 +183,23 @@ public:
     virtual void drawGroundProjection(Renderer &renderer_, Camera &camera_, float angle_);
     virtual void draw(Renderer &renderer_, Camera &camera_);
 
-    Vector2<float> getPos() const;
-    void setPos(Vector2<float> pos_);
     Collider getPushbox() const;
-
-    Vector2<float> getVelocity() const;
-    Vector2<float> getInertia() const;
-    Vector2<float> getFullVelocity() const;
-
-    Vector2<float> getHorDirToEnemy() const;
-    Vector2<float> getOwnHorDir() const;
-    ORIENTATION getOwnOrientation() const;
-    ORIENTATION getOrientationToEnemy() const;
 
     virtual ~Character() {};
 
-    virtual void loadAnimations(Application &application_) = 0;
     virtual void proceedCurrentState();
     virtual void updateState();
-    virtual void initiate();
+    virtual void initiate() override;
     virtual void land();
     virtual HitsVec getHits(bool allHits_ = false);
     virtual HurtboxVec getHurtboxes();
     virtual void updateBlockState();
     virtual bool isInHitstun() const;
-    virtual bool isInHitstop() const;
     virtual bool isInBlockstun() const;
     virtual bool isInInstantBlockstun() const;
     virtual bool isKnockedDown() const;
     virtual bool isInAttackState() const;
-    virtual bool isAirborne();
     bool passableThrough() const;
-
-    void applyCancelWindow(CancelWindow cw_);
-    bool isCancelAllowed(int cancelTarget_);
 
     virtual bool canBeThrown(THROW_LIST throw_) const;
     void setThrowInvul();
@@ -226,12 +209,9 @@ public:
 
     virtual std::string CharStateData() const = 0;
 
-    virtual void updateOwnOrientation();
-    virtual void updateDirToEnemy();
     virtual void updatePosition();
-    virtual ORIENTATION getInputDir() const;
 
-    virtual HIT_RESULT applyHit(HitEvent &hitEvent_);
+    virtual HIT_RESULT applyHit(HitEvent &hitEvent_) override;
     void addTakenHit(int hitId_);
     void removeTakenHit(int hitId_);
     bool isHitTaken(int hitId_);
@@ -243,9 +223,11 @@ public:
     virtual bool canApplyDrag() const;
     virtual bool canApplyGravity() const;
     virtual bool canBeDraggedByInertia() const;
-    virtual void turnVelocityToInertia(float horMultiplier_ = 0.9f);
+    virtual void turnVelocityToInertia(float horMultiplier_ = 0.9f) override;
 
     virtual void generateWidgets(Application &application_, HUD &hud_);
+
+    virtual ORIENTATION getInputDir() const override;
 
     virtual void generateHitParticles(HitEvent &ev_, const Vector2<float> hitpos_);
 
@@ -253,7 +235,6 @@ protected:
     void enterHitstunAnimation(const PostHitProperties &props_);
     void startShine(const SDL_Color &col_, int lockedDuration_, int alphaDuration_);
 
-    void switchTo(int state_);
     virtual void jumpUsingAction();
 
     void lockInAnimation();
@@ -264,35 +245,14 @@ protected:
     virtual void enterThrown(THROW_LIST throw_);
     virtual void throwTeched(THROW_TECHS_LIST tech_);
 
-    void callForPriority();
-
-    Vector2<float> m_pos;
-    Vector2<float> m_velocity;
-    Vector2<float> m_inertia;
     Vector2<float> m_pushback;
-    float m_inertiaDrag = 1;
-    bool m_airborne = false;
     float m_pushbackMaxCarry = 12.0f;
     float m_pushbackCurrentCarry = 12.0f;
     float m_pushbackDeterioration = 2.0f;
     float m_pushbackTreshold = 35.0f;
 
-    bool m_inHitstop = false;
-    FrameTimer m_hitstopTimer;
-    int m_extendedBuffer = 0;
-
-    int m_currentState;
-
-    Character *m_otherCharacter;
-    int m_playerId;
-
     BlockHandler m_blockHandler;
     BLOCK_FRAME m_blockstunType = BLOCK_FRAME::NONE;
-
-    std::map<ANIMATIONS, std::unique_ptr<Animation>> m_animations;
-    Animation *m_currentAnimation;
-    ORIENTATION m_dirToEnemy;
-    ORIENTATION m_ownOrientation;
 
     HitData m_currentTakenHit;
     PostHitProperties m_hitProps;
@@ -305,7 +265,6 @@ protected:
     ComboPhysicsHandler m_comboPhysHandler;
 
     Camera *m_cam = nullptr;
-    PriorityHandler *m_priorityHandler = nullptr;
 
     HITSTUN_ANIMATION m_hitstunAnimation;
 
@@ -320,10 +279,6 @@ protected:
 
     bool m_throwPossible = false;
 
-    CancelWindow m_currentCancelWindow;
-    FrameTimer m_cancelTimer;
-    bool m_cancelAvailable = false;
-
     ResourceCounter<int> m_jumpsAvailable;
     ResourceCounter<int> m_airdashesAvailable;
     FrameTimer m_airdashTimer;
@@ -331,72 +286,30 @@ protected:
     const int m_framesBeforeAirdash;
     const int m_framesBeforeAirjump;
 
-    FrameTimer m_timer;
-    int framesInState = 1;
-
     std::set<int> m_takenHits;
     bool m_usedAirAttack = false;
 
-    Action *m_currentAction;
-    ActionResolver m_actionResolver;
-    StateMarker m_autoRealignAfter;
-
     GenericCharacterData m_genericCharacterData;
 
+    StateMarker m_autoRealignAfter;
+
     friend Action_throw_startup;
     friend Action_throw_tech;
     friend Action_throw_hold;
     friend Action_thrown_hold;
     friend Action_throw_whiff;
     friend Action_locked_animation;
-    friend Action;
+    friend ActionCharacter;
     friend Action_throw_startup;
     friend Action_throw_hold;
     friend Action_thrown_hold;
     friend Action_throw_whiff;
     friend Action_throw_tech;
     friend Action_locked_animation;
-    friend Action_char1_normal_throw;
-    friend Action_char1_normal_throw_startup;
-    friend Action_char1_normal_air_throw_startup;
-    friend Action_char1_back_air_throw_startup;
-    friend Action_char1_back_throw_startup;
-    friend Action_char1_normal_air_throw;
-    friend Action_char1_thrown_char1_normal;
-    friend Action_char1_thrown_char1_normal_air;
-    friend Action_char1_throw_tech;
-    friend Action_char1_throw_tech_char1;
-    friend Action_char1_air_throw_tech;
-    friend Action_char1_air_throw_tech_char1;
     friend Action_jump;
     friend Action_prolonged;
     friend Action_attack;
-    friend Action_char1_ground_attack;
-    friend Action_char1_crouch;
-    friend Action_char1_idle;
-    friend Action_char1_walk_fwd;
-    friend Action_char1_walk_bwd;
-    friend Action_char1_airjump;
-    friend Action_char1_jump;
-    friend Action_char1_ground_backdash;
-    friend Action_char1_ground_dash;
-    friend Action_char1_ground_dash_recovery;
-    friend Action_char1_step;
-    friend Action_char1_step_recovery;
-    friend Action_char1_soft_landing_recovery;
-    friend Action_char1_jc_landing_recovery;
-    friend Action_char1_soft_knockdown;
-    friend Action_char1_hard_knockdown;
-    friend Action_char1_knockdown_recovery;
-    friend Action_char1_air_attack;
-    friend Action_char1_air_dash;
-    friend Action_char1_air_dash_extention;
-    friend Action_char1_air_backdash;
     friend Action_float;
-    friend Action_char1_move_JC;
-    friend Action_char1_vulnerable_landing_recovery;
-    friend Action_char1_hard_landing_recovery;
-    friend Action_char1_move_214C;
     friend Action_airjump;
 };
 

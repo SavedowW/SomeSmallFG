@@ -29,6 +29,7 @@ HealthHandler.cpp
 ComboPhysicsHandler.cpp
 PriorityHandler.cpp
 StateMachineEntity.cpp
+InteractableStateMachine.cpp
 )
 
 set(INCLUDE_DIRS

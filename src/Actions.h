@@ -7,7 +7,7 @@
 #include "TimelineProperty.h"
 #include "StateMarker.h"
 
-class Character;
+class InteractableStateMachine;
 
 enum class THROW_LIST {
     CHAR1_NORMAL_THROW,
@@ -24,21 +24,52 @@ enum class THROW_TECHS_LIST {
  *
  *       ABSTRACT ACTION
  *  All actions should be inherited from
- *  this class. Internal transitions should
- *  be handled by the character.
+ *  this class.
  *
  *========================== */
+
 class Action
 {
 public:
-    Action(int actionState_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, StateMarker transitionableFrom_, bool isAttack_, bool isCrouchState_, bool isThrowStartup_,
+    Action(int actionState_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, StateMarker transitionableFrom_, bool isAttack_, bool isAirborne_);
+    virtual ~Action() = default;
+
+    virtual void switchTo(InteractableStateMachine &character_) = 0;
+    virtual void outdated(InteractableStateMachine &character_) = 0;
+    virtual void update(InteractableStateMachine &character_) = 0;
+    virtual bool onLand(InteractableStateMachine &character_) = 0;
+    virtual int isPossible(const InputQueue &inputQueue_, InteractableStateMachine *char_, int extendBuffer_) const = 0;
+
+    virtual const HurtboxVec getCurrentHurtboxes(uint32_t currentFrame_, const Vector2<float>& offset_, ORIENTATION ownOrientation_) const;
+
+
+    const int actionState;
+    const HurtboxFramesVec m_hurtboxes;
+    const ANIMATIONS m_anim;
+    const bool m_isAttack;
+
+protected:
+    StateMarker m_transitionableFrom;
+    bool m_isAirborne;
+};
+
+/* ============================
+ *
+ *       ABSTRACT CHARACTER ACTION
+ *  All character actions should be inherited from
+ *  this class.
+ *
+ *========================== */
+class ActionCharacter : public Action
+{
+public:
+    ActionCharacter(int actionState_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, StateMarker transitionableFrom_, bool isAttack_, bool isCrouchState_, bool isThrowStartup_,
     int consumeAirdash_, int consumeAirjump_, bool waitAirdashTimer_, bool waitAirjumpTimer_, bool isAirborne_);
     virtual bool isInputPossible(const InputQueue &inputQueue_, ORIENTATION ownDirection_, int extendBuffer_) const;
-    virtual const HurtboxVec getCurrentHurtboxes(uint32_t currentFrame_, const Vector2<float>& offset_, ORIENTATION ownOrientation_) const;
-    virtual void outdated(Character &character_);
-    virtual void switchTo(Character &character_);
-    virtual void update(Character &character_);
-    virtual bool onLand(Character &character_);
+    virtual void outdated(InteractableStateMachine &character_);
+    virtual void switchTo(InteractableStateMachine &character_);
+    virtual void update(InteractableStateMachine &character_);
+    virtual bool onLand(InteractableStateMachine &character_);
     virtual bool isInCounterState(uint32_t currentFrame_) const;
     virtual bool applyGravity(uint32_t currentFrame_) const;
     virtual bool canBlock(uint32_t currentFrame_) const;
@@ -48,33 +79,29 @@ public:
     // 0 if not possible
     // 1 if possible
     // -1 if already active and is still possible
-    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const;
+    virtual int isPossible(const InputQueue &inputQueue_, InteractableStateMachine *char_, int extendBuffer_) const;
     virtual int responseOnOwnState(const InputQueue &inputQueue_, ORIENTATION ownDirection_, int extendBuffer_) const;
-    virtual ~Action() {};
+    virtual ~ActionCharacter() {};
 
-    Action *setSwitchData(bool realign_, int timerValue_, bool velToInertia_, bool resetDefenseState_, bool setAirAttackFlag_, bool resetPushback_, bool callForPriority_,
+    ActionCharacter *setSwitchData(bool realign_, int timerValue_, bool velToInertia_, bool resetDefenseState_, bool setAirAttackFlag_, bool resetPushback_, bool callForPriority_,
     Vector2<float> mulOwnVel_, Vector2<float> mulOwnInr_, Vector2<float> mulOwnDirVel_, Vector2<float> mulOwnDirInr_, Vector2<float> rawAddVel_, Vector2<float> rawAddInr_);
-    Action *setHitstunAnimation(int hitstunAnim_);
-    Action *setAnimResetData(int animResetFrame_, int animResetDirection_);
-    Action *setUpdateMovementData(TimelineProperty<Vector2<float>> &&mulOwnVelUpd_, TimelineProperty<Vector2<float>> &&mulOwnInrUpd_, TimelineProperty<Vector2<float>> &&mulOwnDirVelUpd_,
+    ActionCharacter *setHitstunAnimation(int hitstunAnim_);
+    ActionCharacter *setAnimResetData(int animResetFrame_, int animResetDirection_);
+    ActionCharacter *setUpdateMovementData(TimelineProperty<Vector2<float>> &&mulOwnVelUpd_, TimelineProperty<Vector2<float>> &&mulOwnInrUpd_, TimelineProperty<Vector2<float>> &&mulOwnDirVelUpd_,
     TimelineProperty<Vector2<float>> &&mulOwnDirInrUpd_, TimelineProperty<Vector2<float>> &&rawAddVelUpd_, TimelineProperty<Vector2<float>> &&rawAddInrUpd_);
-    Action *setUpdateSpeedLimitData(TimelineProperty<float> &&ownVelLimitUpd_, TimelineProperty<float> &&ownInrLimitUpd_);
-    Action *setUpdateCamShakeData(TimelineProperty<Vector2<int>> &&camShakeUpd_);
-    Action *setUpdateRealignData(TimelineProperty<bool> &&updRealign_);
+    ActionCharacter *setUpdateSpeedLimitData(TimelineProperty<float> &&ownVelLimitUpd_, TimelineProperty<float> &&ownInrLimitUpd_);
+    ActionCharacter *setUpdateCamShakeData(TimelineProperty<Vector2<int>> &&camShakeUpd_);
+    ActionCharacter *setUpdateRealignData(TimelineProperty<bool> &&updRealign_);
 
-    Action *setOutdatedFlags(bool setRealign_, bool setThrowInvul_, bool setAirborne_, bool enterHitstun_, bool setAboveGroundOtd_);
-    Action *setOutdatedTransition(int targetState_);
-    Action *setOutdatedMovementData(Vector2<float> mulOwnVel_, Vector2<float> mulOwnInr_, Vector2<float> mulOwnDirVel_, Vector2<float> mulOwnDirInr_, Vector2<float> rawAddVel_, Vector2<float> rawAddInr_);
+    ActionCharacter *setOutdatedFlags(bool setRealign_, bool setThrowInvul_, bool setAirborne_, bool enterHitstun_, bool setAboveGroundOtd_);
+    ActionCharacter *setOutdatedTransition(int targetState_);
+    ActionCharacter *setOutdatedMovementData(Vector2<float> mulOwnVel_, Vector2<float> mulOwnInr_, Vector2<float> mulOwnDirVel_, Vector2<float> mulOwnDirInr_, Vector2<float> rawAddVel_, Vector2<float> rawAddInr_);
 
-    Action *setDisadvantageFlags(bool isBlockstun_, bool isHitstun_, bool isKnockdown_);
+    ActionCharacter *setDisadvantageFlags(bool isBlockstun_, bool isHitstun_, bool isKnockdown_);
 
-    Action *setLandingMovementData(Vector2<float> mulOwnVel_, Vector2<float> mulOwnInr_, Vector2<float> mulOwnDirVel_, Vector2<float> mulOwnDirInr_, Vector2<float> rawAddVel_, Vector2<float> rawAddInr_);
-    Action *setLandingRecoveryState(int m_recoveryState_);
+    ActionCharacter *setLandingMovementData(Vector2<float> mulOwnVel_, Vector2<float> mulOwnInr_, Vector2<float> mulOwnDirVel_, Vector2<float> mulOwnDirInr_, Vector2<float> rawAddVel_, Vector2<float> rawAddInr_);
+    ActionCharacter *setLandingRecoveryState(int m_recoveryState_);
 
-    const int actionState;
-    const HurtboxFramesVec m_hurtboxes;
-    const ANIMATIONS m_anim;
-    const bool m_isAttack;
     const bool m_isThrowStartup;
     const bool m_isCrouchState;
 
@@ -87,13 +114,11 @@ protected:
     TimelineProperty<bool> m_counterWindow;
     TimelineProperty<bool> m_gravityWindow;
     TimelineProperty<bool> m_blockWindow;
-    StateMarker m_transitionableFrom;
 
     int m_consumeAirdash;
     int m_consumeAirjump;
     bool m_waitAirdashTimer;
     bool m_waitAirjumpTimer;
-    bool m_isAirborne;
 
     bool m_realign = false;
     int m_timerValue = 0;
@@ -167,7 +192,7 @@ protected:
  *   hold X to continue), etc
  *
  *========================== */
-class Action_prolonged : public Action
+class Action_prolonged : public ActionCharacter
 {
 public:
     Action_prolonged(int actionState_, InputComparator_ptr incmp_, InputComparator_ptr incmp_prolonged_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, StateMarker transitionableFrom_, bool isCrouchState_,
@@ -185,11 +210,11 @@ protected:
  *       ABSTRACT GROUND JUMP
  *
  *========================== */
-class Action_jump : public Action
+class Action_jump : public ActionCharacter
 {
 public:
     Action_jump(int actionState_, const Vector2<float> &impulse_, float prejumpLen_, float maxHorInertia_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&blockWindow_, StateMarker transitionableFrom_);
-    virtual void switchTo(Character &character_) override;
+    virtual void switchTo(InteractableStateMachine &character_) override;
     Action_jump *setAirActionTimers(int airjumpTimerValue_, int airdashTimerValue_);
     const Vector2<float> m_impulse;
     const float m_prejumpLen;
@@ -205,12 +230,12 @@ private:
  *       ABSTRACT AIR JUMP
  *
  *========================== */
-class Action_airjump : public Action
+class Action_airjump : public ActionCharacter
 {
 public:
     Action_airjump(int actionState_, const Vector2<float> &impulse_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, StateMarker transitionableFrom_);
     virtual int responseOnOwnState(const InputQueue &inputQueue_, ORIENTATION ownDirection_, int extendBuffer_) const override;
-    virtual int isPossible(const InputQueue &inputQueue_, Character *char_, int extendBuffer_) const;
+    virtual int isPossible(const InputQueue &inputQueue_, InteractableStateMachine *char_, int extendBuffer_) const;
     const Vector2<float> m_impulse;
 };
 
@@ -221,14 +246,14 @@ public:
  *       ABSTRACT ATTACK
  *
  *========================== */
-class Action_attack : public Action
+class Action_attack : public ActionCharacter
 {
 public:
     Action_attack(int actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, StateMarker transitionableFrom_, bool isCrouchState_, bool isAirborne_);
     virtual const HitsVec getCurrentHits(uint32_t currentFrame_, const Vector2<float>& offset_, ORIENTATION ownOrientation_) const;
     virtual const bool isActive(uint32_t currentFrame_) const;
-    virtual void switchTo(Character &character_) override;
-    void resetOpponentsHits(Character &character_);
+    virtual void switchTo(InteractableStateMachine &character_) override;
+    void resetOpponentsHits(InteractableStateMachine &character_);
     const int m_fullDuration;
 
 protected:
@@ -240,11 +265,11 @@ protected:
  *       ABSTRACT THROW STARTUP
  *
  *========================== */
-class Action_throw_startup : public Action
+class Action_throw_startup : public ActionCharacter
 {
 public:
     Action_throw_startup(int actionState_, int whiffState_, int holdState_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, float range_, FrameWindow activeWindow_, bool requiredAirborne_, THROW_LIST throw_, StateMarker transitionableFrom_, bool isAirborne_);
-    virtual void attemptThrow(Character &character_) const;
+    virtual void attemptThrow(InteractableStateMachine &character_) const;
 
     const FrameWindow m_activeWindow;
 
@@ -260,12 +285,12 @@ protected:
  *       ABSTRACT THROW HOLD
  *
  *========================== */
-class Action_throw_hold : public Action
+class Action_throw_hold : public ActionCharacter
 {
 public:
     Action_throw_hold(int actionState_, int throwState_, float setRange_, float duration_, bool sideSwitch_);
-    virtual void switchTo(Character &character_) override;
-    void outdated(Character &character_) override;
+    virtual void switchTo(InteractableStateMachine &character_) override;
+    void outdated(InteractableStateMachine &character_) override;
 
 protected:
     const float m_setRange;
@@ -278,11 +303,11 @@ protected:
  *       ABSTRACT THROWN HOLD
  *
  *========================== */
-class Action_thrown_hold : public Action
+class Action_thrown_hold : public ActionCharacter
 {
 public:
     Action_thrown_hold(int actionState_, int thrownState_, ANIMATIONS anim_, float duration_);
-    virtual void switchTo(Character &character_) override;
+    virtual void switchTo(InteractableStateMachine &character_) override;
 
 protected:
     const float m_duration;
@@ -294,11 +319,11 @@ protected:
  *       ABSTRACT THROW WHIFF
  *
  *========================== */
-class Action_throw_whiff : public Action
+class Action_throw_whiff : public ActionCharacter
 {
 public:
     Action_throw_whiff(int actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, float duration_, HurtboxFramesVec &&hurtboxes_, int idleState_, int floatState_);
-    void outdated(Character &character_) override;
+    void outdated(InteractableStateMachine &character_) override;
 
 protected:
     const float m_duration;
@@ -311,12 +336,12 @@ protected:
  *       ABSTRACT THROW TECH
  *
  *========================== */
-class Action_throw_tech : public Action
+class Action_throw_tech : public ActionCharacter
 {
 public:
     Action_throw_tech(int actionState_, InputComparator_ptr incmp_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, float duration_, HurtboxFramesVec &&hurtboxes_, THROW_TECHS_LIST throwTech_, StateMarker transitionableFrom_, bool isAirborne_, int idleState_, int floatState_);
-    virtual void switchTo(Character &character_) override;
-    void outdated(Character &character_) override;
+    virtual void switchTo(InteractableStateMachine &character_) override;
+    void outdated(InteractableStateMachine &character_) override;
 
 protected:
     const float m_duration;
@@ -333,13 +358,13 @@ protected:
  *      from hits and does not change animation
  *
  *========================== */
-class Action_locked_animation : public Action
+class Action_locked_animation : public ActionCharacter
 {
 public:
     Action_locked_animation(int actionState_, int quitState_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, float duration_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&blockWindow_);
-    virtual void switchTo(Character &character_) override;
-    virtual void update(Character &character_) override;
-    void outdated(Character &character_) override;
+    virtual void switchTo(InteractableStateMachine &character_) override;
+    virtual void update(InteractableStateMachine &character_) override;
+    void outdated(InteractableStateMachine &character_) override;
 
     Action_locked_animation *setUpdateHitsToOpponent(TimelineProperty<HitData*> &&hitsToOpponent_);
 
@@ -357,11 +382,11 @@ protected:
  *      after aerial action without double jumping
  *
  *========================== */
-class Action_float : public Action
+class Action_float : public ActionCharacter
 {
 public:
     Action_float(int actionState_, int realState_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_);
-    virtual void switchTo(Character &character_) override;
+    virtual void switchTo(InteractableStateMachine &character_) override;
 
 protected:
     int m_realState;
@@ -374,7 +399,7 @@ protected:
  *
  *========================== */
 
-class Action_char1_idle : public Action
+class Action_char1_idle : public ActionCharacter
 {
 public:
     Action_char1_idle();
@@ -425,7 +450,7 @@ public:
     Action_char1_backward_jump();
 };
 
-class Action_char1_air_dash_extention : public Action
+class Action_char1_air_dash_extention : public ActionCharacter
 {
 public:
     Action_char1_air_dash_extention();
@@ -466,89 +491,89 @@ public:
     const float m_maxspd;
 };
 
-class Action_char1_step: public Action
+class Action_char1_step: public ActionCharacter
 {
 public:
     Action_char1_step();
     const int m_duration;
 };
 
-class Action_char1_step_recovery : public Action
+class Action_char1_step_recovery : public ActionCharacter
 {
 public:
     Action_char1_step_recovery();
     const int m_recoveryLen;
 };
 
-class Action_char1_ground_backdash: public Action
+class Action_char1_ground_backdash: public ActionCharacter
 {
 public:
     Action_char1_ground_backdash();
     const int m_totalDuration;
 };
 
-class Action_char1_ground_dash_recovery : public Action
+class Action_char1_ground_dash_recovery : public ActionCharacter
 {
 public:
     Action_char1_ground_dash_recovery();
     const int m_recoveryLen;
 };
 
-class Action_char1_air_dash : public Action
+class Action_char1_air_dash : public ActionCharacter
 {
 public:
     Action_char1_air_dash();
     const int m_duration;
 };
 
-class Action_char1_air_backdash : public Action
+class Action_char1_air_backdash : public ActionCharacter
 {
 public:
     Action_char1_air_backdash();
     const int m_duration;
 };
 
-class Action_char1_soft_landing_recovery : public Action
+class Action_char1_soft_landing_recovery : public ActionCharacter
 {
 public:
     Action_char1_soft_landing_recovery();
     const int m_recoveryLen;
 };
 
-class Action_char1_hard_landing_recovery : public Action
+class Action_char1_hard_landing_recovery : public ActionCharacter
 {
 public:
     Action_char1_hard_landing_recovery();
     const int m_recoveryLen;
 };
 
-class Action_char1_vulnerable_landing_recovery : public Action
+class Action_char1_vulnerable_landing_recovery : public ActionCharacter
 {
 public:
     Action_char1_vulnerable_landing_recovery();
     const int m_recoveryLen;
 };
 
-class Action_char1_jc_landing_recovery : public Action
+class Action_char1_jc_landing_recovery : public ActionCharacter
 {
 public:
     Action_char1_jc_landing_recovery();
     const int m_recoveryLen;
 };
 
-class Action_char1_soft_knockdown : public Action
+class Action_char1_soft_knockdown : public ActionCharacter
 {
 public:
     Action_char1_soft_knockdown();
 };
 
-class Action_char1_hard_knockdown : public Action
+class Action_char1_hard_knockdown : public ActionCharacter
 {
 public:
     Action_char1_hard_knockdown();
 };
 
-class Action_char1_knockdown_recovery : public Action
+class Action_char1_knockdown_recovery : public ActionCharacter
 {
 public:
     Action_char1_knockdown_recovery();

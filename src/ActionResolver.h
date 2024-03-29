@@ -8,7 +8,7 @@
 #include "InputSystem.h"
 #include <vector>
 
-class Character;
+class InteractableStateMachine;
 
 class ActionResolver : public InputReactor
 {
@@ -26,7 +26,7 @@ public:
 
     virtual void addAction(std::unique_ptr<Action> &&action_);
 
-    Action *update(Character *char_, int extendBuffer_ = 0);
+    Action *update(InteractableStateMachine *char_, int extendBuffer_ = 0);
 
 protected:
     std::vector<std::unique_ptr<Action>> m_actions;
