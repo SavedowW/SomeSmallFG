@@ -35,8 +35,8 @@ public:
     virtual ~Action() = default;
 
     virtual void switchTo(InteractableStateMachine &character_);
-    virtual void outdated(InteractableStateMachine &character_) = 0;
-    virtual void update(InteractableStateMachine &character_) = 0;
+    virtual void outdated(InteractableStateMachine &character_);
+    virtual void update(InteractableStateMachine &character_);
     virtual bool onLand(InteractableStateMachine &character_) = 0;
     virtual int isPossible(const InputQueue &inputQueue_, InteractableStateMachine *char_, int extendBuffer_) const = 0;
 
@@ -45,6 +45,16 @@ public:
     Action *setSwitchData(bool realign_, int timerValue_, bool velToInertia_, bool callForPriority_,
     Vector2<float> mulOwnVel_, Vector2<float> mulOwnInr_, Vector2<float> mulOwnDirVel_, Vector2<float> mulOwnDirInr_, Vector2<float> rawAddVel_, Vector2<float> rawAddInr_);
     Action *setAnimResetData(int animResetFrame_, int animResetDirection_);
+
+    Action *setUpdateMovementData(TimelineProperty<Vector2<float>> &&mulOwnVelUpd_, TimelineProperty<Vector2<float>> &&mulOwnInrUpd_, TimelineProperty<Vector2<float>> &&mulOwnDirVelUpd_,
+    TimelineProperty<Vector2<float>> &&mulOwnDirInrUpd_, TimelineProperty<Vector2<float>> &&rawAddVelUpd_, TimelineProperty<Vector2<float>> &&rawAddInrUpd_);
+    Action *setUpdateSpeedLimitData(TimelineProperty<float> &&ownVelLimitUpd_, TimelineProperty<float> &&ownInrLimitUpd_);
+    Action *setUpdateCamShakeData(TimelineProperty<Vector2<int>> &&camShakeUpd_);
+    Action *setUpdateRealignData(TimelineProperty<bool> &&updRealign_);
+
+    Action *setOutdatedFlags(bool setRealign_, bool setAirborne_, bool setAboveGroundOtd_);
+    Action *setOutdatedTransition(int targetState_);
+    Action *setOutdatedMovementData(Vector2<float> mulOwnVel_, Vector2<float> mulOwnInr_, Vector2<float> mulOwnDirVel_, Vector2<float> mulOwnDirInr_, Vector2<float> rawAddVel_, Vector2<float> rawAddInr_);
 
 
     const int actionState;
@@ -72,6 +82,36 @@ protected:
 
     int m_animResetFrame = -1;
     int m_animResetDirection = 1;
+
+    bool m_usingUpdateMovement = false;
+    TimelineProperty<Vector2<float>> m_mulOwnVelUpd;
+    TimelineProperty<Vector2<float>> m_mulOwnInrUpd;
+    TimelineProperty<Vector2<float>> m_mulOwnDirVelUpd;
+    TimelineProperty<Vector2<float>> m_mulOwnDirInrUpd;
+    TimelineProperty<Vector2<float>> m_rawAddVelUpd;
+    TimelineProperty<Vector2<float>> m_rawAddInrUpd;
+
+    TimelineProperty<float> m_ownVelLimitUpd;
+    TimelineProperty<float> m_ownInrLimitUpd;
+
+    TimelineProperty<Vector2<int>> m_camShakeUpd;
+
+    TimelineProperty<bool> m_updRealign;
+
+    bool m_setRealignOtd = false;
+    bool m_setAirborneOtd = false;
+    bool m_setAboveGroundOtd = false;
+
+    Vector2<float> m_mulOwnVelOtd{1.0f, 1.0f};
+    Vector2<float> m_mulOwnInrOtd{1.0f, 1.0f};
+    Vector2<float> m_mulOwnDirVelOtd;
+    Vector2<float> m_mulOwnDirInrOtd;
+    Vector2<float> m_rawAddVelOtd;
+    Vector2<float> m_rawAddInrOtd;
+
+    int m_targetStateOutdated = -1;
+
+
 };
 
 /* ============================
@@ -107,15 +147,7 @@ public:
     ActionCharacter *setSwitchData(bool realign_, int timerValue_, bool velToInertia_, bool resetDefenseState_, bool setAirAttackFlag_, bool resetPushback_, bool callForPriority_,
     Vector2<float> mulOwnVel_, Vector2<float> mulOwnInr_, Vector2<float> mulOwnDirVel_, Vector2<float> mulOwnDirInr_, Vector2<float> rawAddVel_, Vector2<float> rawAddInr_);
     ActionCharacter *setHitstunAnimation(int hitstunAnim_);
-    ActionCharacter *setUpdateMovementData(TimelineProperty<Vector2<float>> &&mulOwnVelUpd_, TimelineProperty<Vector2<float>> &&mulOwnInrUpd_, TimelineProperty<Vector2<float>> &&mulOwnDirVelUpd_,
-    TimelineProperty<Vector2<float>> &&mulOwnDirInrUpd_, TimelineProperty<Vector2<float>> &&rawAddVelUpd_, TimelineProperty<Vector2<float>> &&rawAddInrUpd_);
-    ActionCharacter *setUpdateSpeedLimitData(TimelineProperty<float> &&ownVelLimitUpd_, TimelineProperty<float> &&ownInrLimitUpd_);
-    ActionCharacter *setUpdateCamShakeData(TimelineProperty<Vector2<int>> &&camShakeUpd_);
-    ActionCharacter *setUpdateRealignData(TimelineProperty<bool> &&updRealign_);
-
     ActionCharacter *setOutdatedFlags(bool setRealign_, bool setThrowInvul_, bool setAirborne_, bool enterHitstun_, bool setAboveGroundOtd_);
-    ActionCharacter *setOutdatedTransition(int targetState_);
-    ActionCharacter *setOutdatedMovementData(Vector2<float> mulOwnVel_, Vector2<float> mulOwnInr_, Vector2<float> mulOwnDirVel_, Vector2<float> mulOwnDirInr_, Vector2<float> rawAddVel_, Vector2<float> rawAddInr_);
 
     ActionCharacter *setDisadvantageFlags(bool isBlockstun_, bool isHitstun_, bool isKnockdown_);
 
@@ -147,35 +179,8 @@ protected:
     int m_animResetFrame = -1;
     int m_animResetDirection = 1;
 
-    bool m_usingUpdateMovement = false;
-    TimelineProperty<Vector2<float>> m_mulOwnVelUpd;
-    TimelineProperty<Vector2<float>> m_mulOwnInrUpd;
-    TimelineProperty<Vector2<float>> m_mulOwnDirVelUpd;
-    TimelineProperty<Vector2<float>> m_mulOwnDirInrUpd;
-    TimelineProperty<Vector2<float>> m_rawAddVelUpd;
-    TimelineProperty<Vector2<float>> m_rawAddInrUpd;
-
-    TimelineProperty<float> m_ownVelLimitUpd;
-    TimelineProperty<float> m_ownInrLimitUpd;
-
-    TimelineProperty<Vector2<int>> m_camShakeUpd;
-
-    TimelineProperty<bool> m_updRealign;
-
-    bool m_setRealignOtd = false;
     bool m_setThrowInvulOtd = false;
-    bool m_setAirborneOtd = false;
     bool m_enterHitstunOtd = false;
-    bool m_setAboveGroundOtd = false;
-
-    Vector2<float> m_mulOwnVelOtd{1.0f, 1.0f};
-    Vector2<float> m_mulOwnInrOtd{1.0f, 1.0f};
-    Vector2<float> m_mulOwnDirVelOtd;
-    Vector2<float> m_mulOwnDirInrOtd;
-    Vector2<float> m_rawAddVelOtd;
-    Vector2<float> m_rawAddInrOtd;
-
-    int m_targetStateOutdated = -1;
 
     int m_hitstunAnimation = (int)HITSTUN_ANIMATION::NONE;
 

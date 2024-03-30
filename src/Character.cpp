@@ -842,11 +842,6 @@ bool Character::isInInstantBlockstun() const
     return act->m_isBlockstun && m_blockstunType == BLOCK_FRAME::INSTANT;
 }
 
-bool Character::isInAttackState() const
-{
-    return m_currentAction->m_isAttack;
-}
-
 void Character::proceedCurrentState()
 {
     if (!m_inHitstop)
@@ -873,42 +868,6 @@ void Character::proceedCurrentState()
 
         }
     }
-}
-
-void Character::updateState()
-{
-    framesInState++;
-
-    // Update cancel window
-    if (!m_inHitstop)
-    {
-        auto timerres = m_cancelTimer.update();
-        if (timerres)
-        {
-            if (!m_cancelAvailable)
-            {
-                m_cancelTimer.begin(m_currentCancelWindow.first.second - m_currentCancelWindow.first.first + 1);
-                std::cout << "Cancel window opened\n";
-                m_cancelAvailable = true;
-            }
-            else
-            {
-                std::cout << "Cancel window outdated\n";
-                m_cancelTimer.begin(0);
-                m_cancelAvailable = false;
-            }
-        }
-    }
-
-    auto resolverRes = m_actionResolver.update(this, m_extendedBuffer);
-
-    if (resolverRes)
-    {
-        resolverRes->switchTo(*this);
-    }
-
-    if (m_currentAction)
-        m_currentAction->update(*this);
 }
 
 void Character::initiate()
@@ -978,12 +937,6 @@ HitsVec Character::getHits(bool allHits_)
         return hits;
     }
     return {};
-}
-
-HurtboxVec Character::getHurtboxes()
-{
-    auto currentFrame = m_timer.getCurrentFrame() + 1;
-    return m_currentAction->getCurrentHurtboxes(currentFrame, m_pos, m_ownOrientation);
 }
 
 GenericCharacterData::GenericCharacterData(int statecnt_) :

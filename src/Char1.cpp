@@ -59,7 +59,7 @@ void Char1::provideActions()
     (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}), false)));
 
     // 2B
-    m_actionResolver.addAction(std::unique_ptr<ActionCharacter>((new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_2B, ANIMATIONS::CHAR1_MOVE_2B, TimelineProperty(true), std::make_unique<InputComparator2BPress>(), 29,
+    m_actionResolver.addAction(std::unique_ptr<Action>((new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_2B, ANIMATIONS::CHAR1_MOVE_2B, TimelineProperty(true), std::make_unique<InputComparator2BPress>(), 29,
     {
         hitgeneration::generate_char1_move2B()
     },
@@ -92,7 +92,7 @@ void Char1::provideActions()
     )));
 
     // 236C
-    m_actionResolver.addAction(std::unique_ptr<ActionCharacter>((new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_236C, ANIMATIONS::CHAR1_MOVE_236C, TimelineProperty(true), std::make_unique<InputComparator236CPress>(), 40,
+    m_actionResolver.addAction(std::unique_ptr<Action>((new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_236C, ANIMATIONS::CHAR1_MOVE_236C, TimelineProperty(true), std::make_unique<InputComparator236CPress>(), 40,
     {
         hitgeneration::generate_char1_236C()
     },
@@ -134,7 +134,7 @@ void Char1::provideActions()
     )));
 
     // s.5C
-    m_actionResolver.addAction(std::unique_ptr<ActionCharacter>((new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_STEP_C, ANIMATIONS::CHAR1_MOVE_STEP_C, TimelineProperty(true), std::make_unique<InputComparatorCPress>(), 53,
+    m_actionResolver.addAction(std::unique_ptr<Action>((new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_STEP_C, ANIMATIONS::CHAR1_MOVE_STEP_C, TimelineProperty(true), std::make_unique<InputComparatorCPress>(), 53,
     {
         hitgeneration::generate_char1_moveStepC()
     },
@@ -163,7 +163,7 @@ void Char1::provideActions()
     )));
 
     // 5C
-    m_actionResolver.addAction(std::unique_ptr<ActionCharacter>((new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_C, ANIMATIONS::CHAR1_MOVE_C, TimelineProperty(true), std::make_unique<InputComparatorCPress>(), 26,
+    m_actionResolver.addAction(std::unique_ptr<Action>((new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_C, ANIMATIONS::CHAR1_MOVE_C, TimelineProperty(true), std::make_unique<InputComparatorCPress>(), 26,
     {
         hitgeneration::generate_char1_moveC()
     },
@@ -195,7 +195,7 @@ void Char1::provideActions()
     )));
 
     // 5B
-    m_actionResolver.addAction(std::unique_ptr<ActionCharacter>((new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_B, ANIMATIONS::CHAR1_MOVE_B, TimelineProperty(true), std::make_unique<InputComparatorBPress>(), 22,
+    m_actionResolver.addAction(std::unique_ptr<Action>((new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_B, ANIMATIONS::CHAR1_MOVE_B, TimelineProperty(true), std::make_unique<InputComparatorBPress>(), 22,
     {
         hitgeneration::generate_char1_moveB()
     },
@@ -272,39 +272,39 @@ void Char1::provideActions()
     }, ANIMATIONS::CHAR1_JUMP))->setAnimResetData(20, 1)));
 
 
-    m_actionResolver.addAction(std::unique_ptr<ActionCharacter>((new ActionCharacter( (int)CHAR1_STATE::HITSTUN_HIGH, std::make_unique<InputComparatorIdle>(), {
+    m_actionResolver.addAction(std::unique_ptr<Action>((new ActionCharacter( (int)CHAR1_STATE::HITSTUN_HIGH, std::make_unique<InputComparatorIdle>(), {
         {
             TimelineProperty(true),
             gamedata::characters::char1::standingHurtbox
         }
     }, ANIMATIONS::CHAR1_HITSTUN_HIGH, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false), StateMarker(gamedata::characters::totalStateCount, {}),
-    false, false, false, 0, 0, false, false, false ))->setOutdatedTransition((int)CHAR1_STATE::IDLE)->setHitstunAnimation((int)HITSTUN_ANIMATION::HIGH)->setDisadvantageFlags(false, true, false)));
+    false, false, false, 0, 0, false, false, false ))->setHitstunAnimation((int)HITSTUN_ANIMATION::HIGH)->setDisadvantageFlags(false, true, false)->setOutdatedTransition((int)CHAR1_STATE::IDLE)));
 
-    m_actionResolver.addAction(std::unique_ptr<ActionCharacter>((new ActionCharacter( (int)CHAR1_STATE::HITSTUN_MID, std::make_unique<InputComparatorIdle>(), {
+    m_actionResolver.addAction(std::unique_ptr<Action>((new ActionCharacter( (int)CHAR1_STATE::HITSTUN_MID, std::make_unique<InputComparatorIdle>(), {
         {
             TimelineProperty(true),
             gamedata::characters::char1::standingHurtbox
         }
     }, ANIMATIONS::CHAR1_HITSTUN_MID, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false), StateMarker(gamedata::characters::totalStateCount, {}),
-    false, false, false, 0, 0, false, false, false ))->setOutdatedTransition((int)CHAR1_STATE::IDLE)->setHitstunAnimation((int)HITSTUN_ANIMATION::MID)->setDisadvantageFlags(false, true, false)));
+    false, false, false, 0, 0, false, false, false ))->setHitstunAnimation((int)HITSTUN_ANIMATION::MID)->setDisadvantageFlags(false, true, false)->setOutdatedTransition((int)CHAR1_STATE::IDLE)));
 
-    m_actionResolver.addAction(std::unique_ptr<ActionCharacter>((new ActionCharacter( (int)CHAR1_STATE::HITSTUN_LOW, std::make_unique<InputComparatorIdle>(), {
+    m_actionResolver.addAction(std::unique_ptr<Action>((new ActionCharacter( (int)CHAR1_STATE::HITSTUN_LOW, std::make_unique<InputComparatorIdle>(), {
         {
             TimelineProperty(true),
             gamedata::characters::char1::standingHurtbox
         }
     }, ANIMATIONS::CHAR1_HITSTUN_LOW, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false), StateMarker(gamedata::characters::totalStateCount, {}),
-    false, false, false, 0, 0, false, false, false ))->setOutdatedTransition((int)CHAR1_STATE::IDLE)->setHitstunAnimation((int)HITSTUN_ANIMATION::LOW)->setDisadvantageFlags(false, true, false)));
+    false, false, false, 0, 0, false, false, false ))->setHitstunAnimation((int)HITSTUN_ANIMATION::LOW)->setDisadvantageFlags(false, true, false)->setOutdatedTransition((int)CHAR1_STATE::IDLE)));
 
-    m_actionResolver.addAction(std::unique_ptr<ActionCharacter>((new ActionCharacter( (int)CHAR1_STATE::HITSTUN_CROUCH, std::make_unique<InputComparatorIdle>(), {
+    m_actionResolver.addAction(std::unique_ptr<Action>((new ActionCharacter( (int)CHAR1_STATE::HITSTUN_CROUCH, std::make_unique<InputComparatorIdle>(), {
         {
             TimelineProperty(true),
             gamedata::characters::char1::crouchingHurtbox
         }
     }, ANIMATIONS::CHAR1_HITSTUN_CROUCH, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false), StateMarker(gamedata::characters::totalStateCount, {}),
-    false, true, false, 0, 0, false, false, false ))->setOutdatedTransition((int)CHAR1_STATE::IDLE)->setHitstunAnimation((int)HITSTUN_ANIMATION::CROUCH)->setDisadvantageFlags(false, true, false)));
+    false, true, false, 0, 0, false, false, false ))->setHitstunAnimation((int)HITSTUN_ANIMATION::CROUCH)->setDisadvantageFlags(false, true, false)->setOutdatedTransition((int)CHAR1_STATE::IDLE)));
 
-    m_actionResolver.addAction(std::unique_ptr<ActionCharacter>((new ActionCharacter( (int)CHAR1_STATE::HITSTUN_FLOAT, std::make_unique<InputComparatorIdle>(), {
+    m_actionResolver.addAction(std::unique_ptr<Action>((new ActionCharacter( (int)CHAR1_STATE::HITSTUN_FLOAT, std::make_unique<InputComparatorIdle>(), {
         {
             TimelineProperty(true),
             gamedata::characters::char1::airHitstunHurtbox
@@ -312,7 +312,7 @@ void Char1::provideActions()
     }, ANIMATIONS::CHAR1_HITSTUN_AIR, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false), StateMarker(gamedata::characters::totalStateCount, {}),
     false, false, false, 0, 0, false, false, true ))->setHitstunAnimation((int)HITSTUN_ANIMATION::FLOAT)->setDisadvantageFlags(false, true, false)));
 
-    m_actionResolver.addAction(std::unique_ptr<ActionCharacter>((new ActionCharacter( (int)CHAR1_STATE::HITSTUN_GROUND_BOUNCE, std::make_unique<InputComparatorIdle>(), {
+    m_actionResolver.addAction(std::unique_ptr<Action>((new ActionCharacter( (int)CHAR1_STATE::HITSTUN_GROUND_BOUNCE, std::make_unique<InputComparatorIdle>(), {
         {
             TimelineProperty(true),
             gamedata::characters::char1::airHitstunHurtbox
@@ -320,29 +320,29 @@ void Char1::provideActions()
     }, ANIMATIONS::CHAR1_HITSTUN_AIR, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false), StateMarker(gamedata::characters::totalStateCount, {}),
     false, false, false, 0, 0, false, false, true ))->setHitstunAnimation((int)HITSTUN_ANIMATION::FLOAT)->setDisadvantageFlags(false, true, false)));
 
-    m_actionResolver.addAction(std::unique_ptr<ActionCharacter>((new ActionCharacter( (int)CHAR1_STATE::BLOCKSTUN_STANDING, std::make_unique<InputComparatorIdle>(), {
+    m_actionResolver.addAction(std::unique_ptr<Action>((new ActionCharacter( (int)CHAR1_STATE::BLOCKSTUN_STANDING, std::make_unique<InputComparatorIdle>(), {
         {
             TimelineProperty(true),
             gamedata::characters::char1::standingHurtbox
         }
     }, ANIMATIONS::CHAR1_BLOCKSTUN_STANDING, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true), StateMarker(gamedata::characters::totalStateCount, {}),
-    false, false, false, 0, 0, false, false, false ))->setOutdatedTransition((int)CHAR1_STATE::IDLE)->setDisadvantageFlags(true, false, false)));
+    false, false, false, 0, 0, false, false, false ))->setDisadvantageFlags(true, false, false)->setOutdatedTransition((int)CHAR1_STATE::IDLE)));
 
-    m_actionResolver.addAction(std::unique_ptr<ActionCharacter>((new ActionCharacter( (int)CHAR1_STATE::BLOCKSTUN_CROUCHING, std::make_unique<InputComparatorIdle>(), {
+    m_actionResolver.addAction(std::unique_ptr<Action>((new ActionCharacter( (int)CHAR1_STATE::BLOCKSTUN_CROUCHING, std::make_unique<InputComparatorIdle>(), {
         {
             TimelineProperty(true),
             gamedata::characters::char1::crouchingHurtbox
         }
     }, ANIMATIONS::CHAR1_BLOCKSTUN_CROUCHING, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true), StateMarker(gamedata::characters::totalStateCount, {}),
-    false, true, false, 0, 0, false, false, false ))->setOutdatedTransition((int)CHAR1_STATE::IDLE)->setDisadvantageFlags(true, false, false)));
+    false, true, false, 0, 0, false, false, false ))->setDisadvantageFlags(true, false, false)->setOutdatedTransition((int)CHAR1_STATE::IDLE)));
 
-    m_actionResolver.addAction(std::unique_ptr<ActionCharacter>((new ActionCharacter( (int)CHAR1_STATE::BLOCKSTUN_AIR, std::make_unique<InputComparatorIdle>(), {
+    m_actionResolver.addAction(std::unique_ptr<Action>((new ActionCharacter( (int)CHAR1_STATE::BLOCKSTUN_AIR, std::make_unique<InputComparatorIdle>(), {
         {
             TimelineProperty(true),
             gamedata::characters::char1::standingHurtbox
         }
     }, ANIMATIONS::CHAR1_BLOCKSTUN_STANDING, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true), StateMarker(gamedata::characters::totalStateCount, {}),
-    false, false, false, 0, 0, false, false, true ))->setOutdatedTransition((int)CHAR1_STATE::FLOAT)->setDisadvantageFlags(true, false, false)->setLandingRecoveryState((int)CHAR1_STATE::HARD_LANDING_RECOVERY)));
+    false, false, false, 0, 0, false, false, true ))->setDisadvantageFlags(true, false, false)->setLandingRecoveryState((int)CHAR1_STATE::HARD_LANDING_RECOVERY)->setOutdatedTransition((int)CHAR1_STATE::FLOAT)));
 
 
     m_actionResolver.addAction(std::make_unique<Action_char1_air_dash_extention>());

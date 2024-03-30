@@ -36,26 +36,13 @@ void ActionCharacter::outdated(InteractableStateMachine &character_)
 {
     auto *chr = dynamic_cast<Character*>(&character_);
 
-    if (m_setRealignOtd)
-        character_.updateOwnOrientation();
-
     if (m_setThrowInvulOtd)
         chr->setThrowInvul();
-
-    if (m_setAirborneOtd)
-        character_.m_airborne = true;
 
     if (m_enterHitstunOtd)
         chr->enterHitstunAnimation(chr->m_hitProps);
 
-    if (m_setAboveGroundOtd)
-        character_.m_pos.y = gamedata::stages::levelOfGround - 1;
-
-    character_.m_velocity = character_.m_velocity.mulComponents(m_mulOwnVelOtd) + character_.getOwnHorDir().mulComponents(m_mulOwnDirVelOtd) + m_rawAddVelOtd;
-    character_.m_inertia = character_.m_inertia.mulComponents(m_mulOwnInrOtd) + character_.getOwnHorDir().mulComponents(m_mulOwnDirInrOtd) + m_rawAddInrOtd;
-
-    if (m_targetStateOutdated != -1)
-        character_.m_actionResolver.getAction(m_targetStateOutdated)->switchTo(character_);
+    Action::outdated(character_);
 }
 
 void ActionCharacter::switchTo(InteractableStateMachine &character_)
@@ -95,32 +82,9 @@ void ActionCharacter::switchTo(InteractableStateMachine &character_)
         chr->takePushback({0.0f, 0.0f});
 }
 
-// TODO: Add particle generation
 void ActionCharacter::update(InteractableStateMachine &character_)
 {
-    if (character_.m_inHitstop)
-        return;
-        
-    auto frame = character_.m_timer.getCurrentFrame() + 1;
-
-    if (m_updRealign[frame])
-        character_.updateOwnOrientation();
-
-    if (m_usingUpdateMovement)
-    {
-        character_.m_velocity = character_.m_velocity.mulComponents(m_mulOwnVelUpd[frame]) + character_.getOwnHorDir().mulComponents(m_mulOwnDirVelUpd[frame]) + m_rawAddVelUpd[frame];
-        character_.m_inertia = character_.m_inertia.mulComponents(m_mulOwnInrUpd[frame]) + character_.getOwnHorDir().mulComponents(m_mulOwnDirInrUpd[frame]) + m_rawAddInrUpd[frame];
-    }
-    
-    if (!m_ownVelLimitUpd.isEmpty())
-        character_.m_velocity = utils::limitVectorLength(character_.m_velocity, m_ownVelLimitUpd[frame]);
-
-    if (!m_ownInrLimitUpd.isEmpty())
-        character_.m_inertia = utils::limitVectorLength(character_.m_inertia, m_ownInrLimitUpd[frame]);
-
-    auto camShakeData = m_camShakeUpd[frame];
-    if (camShakeData.y != 0)
-        character_.m_cam->startShake(camShakeData.x, camShakeData.y);
+    Action::update(character_);
 }
 
 bool ActionCharacter::onLand(InteractableStateMachine &character_)
@@ -211,70 +175,12 @@ ActionCharacter *ActionCharacter::setHitstunAnimation(int hitstunAnim_)
     return this;
 }
 
-ActionCharacter *ActionCharacter::setUpdateMovementData(TimelineProperty<Vector2<float>> &&mulOwnVelUpd_, TimelineProperty<Vector2<float>> &&mulOwnInrUpd_, TimelineProperty<Vector2<float>> &&mulOwnDirVelUpd_,
-TimelineProperty<Vector2<float>> &&mulOwnDirInrUpd_, TimelineProperty<Vector2<float>> &&rawAddVelUpd_, TimelineProperty<Vector2<float>> &&rawAddInrUpd_)
-{
-    m_mulOwnVelUpd = std::move(mulOwnVelUpd_);
-    m_mulOwnInrUpd = std::move(mulOwnInrUpd_);
-    m_mulOwnDirVelUpd = std::move(mulOwnDirVelUpd_);
-    m_mulOwnDirInrUpd = std::move(mulOwnDirInrUpd_);
-    m_rawAddVelUpd = std::move(rawAddVelUpd_);
-    m_rawAddInrUpd = std::move(rawAddInrUpd_);
-
-    m_usingUpdateMovement = !m_mulOwnVelUpd.isEmpty() || !m_mulOwnInrUpd.isEmpty() || !m_mulOwnDirVelUpd.isEmpty() ||
-    !m_mulOwnDirInrUpd.isEmpty() || !m_rawAddVelUpd.isEmpty() || !m_rawAddInrUpd.isEmpty();
-
-    return this;
-}
-
-ActionCharacter *ActionCharacter::setUpdateSpeedLimitData(TimelineProperty<float> &&ownVelLimitUpd_, TimelineProperty<float> &&ownInrLimitUpd_)
-{
-    m_ownVelLimitUpd = std::move(ownVelLimitUpd_);
-    m_ownInrLimitUpd = std::move(ownInrLimitUpd_);
-
-    return this;
-}
-
-ActionCharacter *ActionCharacter::setUpdateCamShakeData(TimelineProperty<Vector2<int>> &&camShakeUpd_)
-{
-    m_camShakeUpd = std::move(camShakeUpd_);
-
-    return this;
-}
-
-ActionCharacter *ActionCharacter::setUpdateRealignData(TimelineProperty<bool> &&updRealign_)
-{
-    m_updRealign = std::move(updRealign_);
-
-    return this;
-}
-
 ActionCharacter *ActionCharacter::setOutdatedFlags(bool setRealign_, bool setThrowInvul_, bool setAirborne_, bool enterHitstun_, bool setAboveGroundOtd_)
 {
-    m_setRealignOtd = setRealign_;
     m_setThrowInvulOtd = setThrowInvul_;
-    m_setAirborneOtd = setAirborne_;
     m_enterHitstunOtd = enterHitstun_;
-    m_setAboveGroundOtd = setAboveGroundOtd_;
 
-    return this;
-}
-
-ActionCharacter *ActionCharacter::setOutdatedTransition(int targetState_)
-{
-    m_targetStateOutdated = targetState_;
-
-    return this;
-}
-
-ActionCharacter *ActionCharacter::setOutdatedMovementData(Vector2<float> mulOwnVel_, Vector2<float> mulOwnInr_, Vector2<float> mulOwnDirVel_, Vector2<float> mulOwnDirInr_, Vector2<float> rawAddVel_, Vector2<float> rawAddInr_)
-{
-    m_mulOwnVelOtd = mulOwnVel_;
-    m_mulOwnInrOtd = mulOwnInr_;
-    m_mulOwnDirVelOtd = mulOwnDirVel_;
-    m_mulOwnDirInrOtd = mulOwnDirInr_;
-    m_rawAddVelOtd = rawAddVel_;
-    m_rawAddInrOtd = rawAddInr_;
+    Action::setOutdatedFlags(setRealign_, setAirborne_, setAboveGroundOtd_);
 
     return this;
 }
@@ -1643,6 +1549,52 @@ void Action::switchTo(InteractableStateMachine &character_)
     character_.m_inertia = character_.m_inertia.mulComponents(m_mulOwnInr) + character_.getOwnHorDir().mulComponents(m_mulOwnDirInr) + m_rawAddInr;
 }
 
+void Action::outdated(InteractableStateMachine &character_)
+{
+    if (m_setRealignOtd)
+        character_.updateOwnOrientation();
+
+    if (m_setAirborneOtd)
+        character_.m_airborne = true;
+
+    if (m_setAboveGroundOtd)
+        character_.m_pos.y = gamedata::stages::levelOfGround - 1;
+
+    character_.m_velocity = character_.m_velocity.mulComponents(m_mulOwnVelOtd) + character_.getOwnHorDir().mulComponents(m_mulOwnDirVelOtd) + m_rawAddVelOtd;
+    character_.m_inertia = character_.m_inertia.mulComponents(m_mulOwnInrOtd) + character_.getOwnHorDir().mulComponents(m_mulOwnDirInrOtd) + m_rawAddInrOtd;
+
+    if (m_targetStateOutdated != -1)
+        character_.m_actionResolver.getAction(m_targetStateOutdated)->switchTo(character_);
+}
+
+// TODO: Add particle generation
+void Action::update(InteractableStateMachine &character_)
+{
+    if (character_.m_inHitstop)
+        return;
+        
+    auto frame = character_.m_timer.getCurrentFrame() + 1;
+
+    if (m_updRealign[frame])
+        character_.updateOwnOrientation();
+
+    if (m_usingUpdateMovement)
+    {
+        character_.m_velocity = character_.m_velocity.mulComponents(m_mulOwnVelUpd[frame]) + character_.getOwnHorDir().mulComponents(m_mulOwnDirVelUpd[frame]) + m_rawAddVelUpd[frame];
+        character_.m_inertia = character_.m_inertia.mulComponents(m_mulOwnInrUpd[frame]) + character_.getOwnHorDir().mulComponents(m_mulOwnDirInrUpd[frame]) + m_rawAddInrUpd[frame];
+    }
+    
+    if (!m_ownVelLimitUpd.isEmpty())
+        character_.m_velocity = utils::limitVectorLength(character_.m_velocity, m_ownVelLimitUpd[frame]);
+
+    if (!m_ownInrLimitUpd.isEmpty())
+        character_.m_inertia = utils::limitVectorLength(character_.m_inertia, m_ownInrLimitUpd[frame]);
+
+    auto camShakeData = m_camShakeUpd[frame];
+    if (camShakeData.y != 0)
+        character_.m_cam->startShake(camShakeData.x, camShakeData.y);
+}
+
 const HurtboxVec Action::getCurrentHurtboxes(uint32_t currentFrame_, const Vector2<float> &offset_, ORIENTATION ownOrientation_) const
 {
     HurtboxVec vec;
@@ -1688,6 +1640,72 @@ Action *Action::setAnimResetData(int animResetFrame_, int animResetDirection_)
 {
     m_animResetFrame = animResetFrame_;
     m_animResetDirection = animResetDirection_;
+
+    return this;
+}
+
+Action *Action::setUpdateMovementData(TimelineProperty<Vector2<float>> &&mulOwnVelUpd_, TimelineProperty<Vector2<float>> &&mulOwnInrUpd_, TimelineProperty<Vector2<float>> &&mulOwnDirVelUpd_,
+TimelineProperty<Vector2<float>> &&mulOwnDirInrUpd_, TimelineProperty<Vector2<float>> &&rawAddVelUpd_, TimelineProperty<Vector2<float>> &&rawAddInrUpd_)
+{
+    m_mulOwnVelUpd = std::move(mulOwnVelUpd_);
+    m_mulOwnInrUpd = std::move(mulOwnInrUpd_);
+    m_mulOwnDirVelUpd = std::move(mulOwnDirVelUpd_);
+    m_mulOwnDirInrUpd = std::move(mulOwnDirInrUpd_);
+    m_rawAddVelUpd = std::move(rawAddVelUpd_);
+    m_rawAddInrUpd = std::move(rawAddInrUpd_);
+
+    m_usingUpdateMovement = !m_mulOwnVelUpd.isEmpty() || !m_mulOwnInrUpd.isEmpty() || !m_mulOwnDirVelUpd.isEmpty() ||
+    !m_mulOwnDirInrUpd.isEmpty() || !m_rawAddVelUpd.isEmpty() || !m_rawAddInrUpd.isEmpty();
+
+    return this;
+}
+
+Action *Action::setUpdateSpeedLimitData(TimelineProperty<float> &&ownVelLimitUpd_, TimelineProperty<float> &&ownInrLimitUpd_)
+{
+    m_ownVelLimitUpd = std::move(ownVelLimitUpd_);
+    m_ownInrLimitUpd = std::move(ownInrLimitUpd_);
+
+    return this;
+}
+
+Action *Action::setUpdateCamShakeData(TimelineProperty<Vector2<int>> &&camShakeUpd_)
+{
+    m_camShakeUpd = std::move(camShakeUpd_);
+
+    return this;
+}
+
+Action *Action::setUpdateRealignData(TimelineProperty<bool> &&updRealign_)
+{
+    m_updRealign = std::move(updRealign_);
+
+    return this;
+}
+
+Action *Action::setOutdatedFlags(bool setRealign_, bool setAirborne_, bool setAboveGroundOtd_)
+{
+    m_setRealignOtd = setRealign_;
+    m_setAirborneOtd = setAirborne_;
+    m_setAboveGroundOtd = setAboveGroundOtd_;
+
+    return this;
+}
+
+Action *Action::setOutdatedTransition(int targetState_)
+{
+    m_targetStateOutdated = targetState_;
+
+    return this;
+}
+
+Action *Action::setOutdatedMovementData(Vector2<float> mulOwnVel_, Vector2<float> mulOwnInr_, Vector2<float> mulOwnDirVel_, Vector2<float> mulOwnDirInr_, Vector2<float> rawAddVel_, Vector2<float> rawAddInr_)
+{
+    m_mulOwnVelOtd = mulOwnVel_;
+    m_mulOwnInrOtd = mulOwnInr_;
+    m_mulOwnDirVelOtd = mulOwnDirVel_;
+    m_mulOwnDirInrOtd = mulOwnDirInr_;
+    m_rawAddVelOtd = rawAddVel_;
+    m_rawAddInrOtd = rawAddInr_;
 
     return this;
 }

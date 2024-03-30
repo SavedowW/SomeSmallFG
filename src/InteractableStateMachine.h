@@ -13,15 +13,22 @@ public:
     InteractableStateMachine(Application &application_, Vector2<float> pos_, int stateCnt_, Camera *cam_);
     ~InteractableStateMachine() = default;
 
+    virtual void proceedCurrentState();
+    virtual void updateState();
+    virtual HurtboxVec getHurtboxes();
+
     void setOnStage(Application &application_, int playerId_, Character *otherCharacter_, PriorityHandler *priorityHandler_);
 
     Vector2<float> getPos() const;
     void setPos(Vector2<float> pos_);
+    virtual void updatePosition();
 
     Vector2<float> getVelocity() const;
     Vector2<float> getInertia() const;
     Vector2<float> getFullVelocity() const;
     virtual void turnVelocityToInertia(float horMultiplier_ = 0.9f);
+    virtual bool canApplyDrag() const;
+    virtual bool canBeDraggedByInertia() const;
 
     virtual void updateOwnOrientation();
     virtual void updateDirToEnemy();

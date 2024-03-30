@@ -187,18 +187,15 @@ public:
 
     virtual ~Character() {};
 
-    virtual void proceedCurrentState();
-    virtual void updateState();
+    virtual void proceedCurrentState() override;
     virtual void initiate() override;
     virtual void land();
     virtual HitsVec getHits(bool allHits_ = false);
-    virtual HurtboxVec getHurtboxes();
     virtual void updateBlockState();
     virtual bool isInHitstun() const;
     virtual bool isInBlockstun() const;
     virtual bool isInInstantBlockstun() const;
     virtual bool isKnockedDown() const;
-    virtual bool isInAttackState() const;
     bool passableThrough() const;
 
     virtual bool canBeThrown(THROW_LIST throw_) const;
@@ -209,7 +206,7 @@ public:
 
     virtual std::string CharStateData() const = 0;
 
-    virtual void updatePosition();
+    virtual void updatePosition() override;
 
     virtual HIT_RESULT applyHit(HitEvent &hitEvent_) override;
     void addTakenHit(int hitId_);
@@ -220,9 +217,9 @@ public:
     void takePushback(const Vector2<float> pushback_);
     virtual void applyClash(const Hit &clashedHit_, int opponentsHitId_);
 
-    virtual bool canApplyDrag() const;
+    virtual bool canApplyDrag() const override;
     virtual bool canApplyGravity() const;
-    virtual bool canBeDraggedByInertia() const;
+    virtual bool canBeDraggedByInertia() const override;
     virtual void turnVelocityToInertia(float horMultiplier_ = 0.9f) override;
 
     virtual void generateWidgets(Application &application_, HUD &hud_);
