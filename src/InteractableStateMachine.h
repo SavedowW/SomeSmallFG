@@ -10,7 +10,7 @@ class Character;
 class InteractableStateMachine
 {
 public:
-    InteractableStateMachine(Application &application_, Vector2<float> pos_, int stateCnt_, Camera *cam_);
+    InteractableStateMachine(Application &application_, Vector2<float> pos_, int stateCnt_, Camera *cam_, ParticleManager *particleManager_);
     ~InteractableStateMachine() = default;
 
     virtual void proceedCurrentState();
@@ -22,6 +22,8 @@ public:
     Vector2<float> getPos() const;
     void setPos(Vector2<float> pos_);
     virtual void updatePosition();
+
+    virtual float touchedWall(int sideDir_);
 
     Vector2<float> getVelocity() const;
     Vector2<float> getInertia() const;
@@ -49,6 +51,8 @@ public:
     bool isCancelAllowed(int cancelTarget_);
 
     virtual HIT_RESULT applyHit(HitEvent &hitEvent_) = 0;
+
+    virtual void generateHitParticles(HitEvent &ev_, const Vector2<float> hitpos_);
 
 protected:
     void switchTo(int state_);
@@ -85,6 +89,8 @@ protected:
     CancelWindow m_currentCancelWindow;
     FrameTimer m_cancelTimer;
     bool m_cancelAvailable = false;
+
+    ParticleManager *m_particleManager;
 
     friend Action_throw_startup;
     friend Action_throw_tech;

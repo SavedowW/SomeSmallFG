@@ -38,7 +38,10 @@ public:
     virtual void outdated(InteractableStateMachine &character_);
     virtual void update(InteractableStateMachine &character_);
     virtual bool onLand(InteractableStateMachine &character_) = 0;
-    virtual int isPossible(const InputQueue &inputQueue_, InteractableStateMachine *char_, int extendBuffer_) const = 0;
+    virtual int isPossible(const InputQueue &inputQueue_, InteractableStateMachine *char_, int extendBuffer_) const;
+
+    virtual bool isInputPossible(const InputQueue &inputQueue_, ORIENTATION ownDirection_, int extendBuffer_) const;
+    virtual int responseOnOwnState(const InputQueue &inputQueue_, ORIENTATION ownDirection_, int extendBuffer_) const;
 
     virtual const HurtboxVec getCurrentHurtboxes(uint32_t currentFrame_, const Vector2<float>& offset_, ORIENTATION ownOrientation_) const;
 
@@ -51,6 +54,9 @@ public:
     Action *setUpdateSpeedLimitData(TimelineProperty<float> &&ownVelLimitUpd_, TimelineProperty<float> &&ownInrLimitUpd_);
     Action *setUpdateCamShakeData(TimelineProperty<Vector2<int>> &&camShakeUpd_);
     Action *setUpdateRealignData(TimelineProperty<bool> &&updRealign_);
+
+    Action *setLandingMovementData(Vector2<float> mulOwnVel_, Vector2<float> mulOwnInr_, Vector2<float> mulOwnDirVel_, Vector2<float> mulOwnDirInr_, Vector2<float> rawAddVel_, Vector2<float> rawAddInr_);
+    Action *setLandingRecoveryState(int m_recoveryState_);
 
     Action *setOutdatedFlags(bool setRealign_, bool setAirborne_, bool setAboveGroundOtd_);
     Action *setOutdatedTransition(int targetState_);
@@ -111,6 +117,14 @@ protected:
 
     int m_targetStateOutdated = -1;
 
+    int m_recoveryOnLand = -1;
+    Vector2<float> m_mulOwnVelLand{1.0f, 1.0f};
+    Vector2<float> m_mulOwnInrLand{1.0f, 1.0f};
+    Vector2<float> m_mulOwnDirVelLand;
+    Vector2<float> m_mulOwnDirInrLand;
+    Vector2<float> m_rawAddVelLand;
+    Vector2<float> m_rawAddInrLand;
+
 
 };
 
@@ -141,7 +155,6 @@ public:
     // 1 if possible
     // -1 if already active and is still possible
     virtual int isPossible(const InputQueue &inputQueue_, InteractableStateMachine *char_, int extendBuffer_) const;
-    virtual int responseOnOwnState(const InputQueue &inputQueue_, ORIENTATION ownDirection_, int extendBuffer_) const;
     virtual ~ActionCharacter() {};
 
     ActionCharacter *setSwitchData(bool realign_, int timerValue_, bool velToInertia_, bool resetDefenseState_, bool setAirAttackFlag_, bool resetPushback_, bool callForPriority_,
@@ -150,9 +163,6 @@ public:
     ActionCharacter *setOutdatedFlags(bool setRealign_, bool setThrowInvul_, bool setAirborne_, bool enterHitstun_, bool setAboveGroundOtd_);
 
     ActionCharacter *setDisadvantageFlags(bool isBlockstun_, bool isHitstun_, bool isKnockdown_);
-
-    ActionCharacter *setLandingMovementData(Vector2<float> mulOwnVel_, Vector2<float> mulOwnInr_, Vector2<float> mulOwnDirVel_, Vector2<float> mulOwnDirInr_, Vector2<float> rawAddVel_, Vector2<float> rawAddInr_);
-    ActionCharacter *setLandingRecoveryState(int m_recoveryState_);
 
     const bool m_isThrowStartup;
     const bool m_isCrouchState;
@@ -183,14 +193,6 @@ protected:
     bool m_enterHitstunOtd = false;
 
     int m_hitstunAnimation = (int)HITSTUN_ANIMATION::NONE;
-
-    int m_recoveryOnLand = -1;
-    Vector2<float> m_mulOwnVelLand{1.0f, 1.0f};
-    Vector2<float> m_mulOwnInrLand{1.0f, 1.0f};
-    Vector2<float> m_mulOwnDirVelLand;
-    Vector2<float> m_mulOwnDirInrLand;
-    Vector2<float> m_rawAddVelLand;
-    Vector2<float> m_rawAddInrLand;
 };
 
 

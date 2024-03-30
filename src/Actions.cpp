@@ -152,11 +152,6 @@ int ActionCharacter::isPossible(const InputQueue &inputQueue_, InteractableState
     return 0;
 }
 
-int ActionCharacter::responseOnOwnState(const InputQueue &inputQueue_, ORIENTATION ownDirection_, int extendBuffer_) const
-{
-    return 0;
-}
-
 ActionCharacter *ActionCharacter::setSwitchData(bool realign_, int timerValue_, bool velToInertia_, bool resetDefenseState_, bool setAirAttackFlag_, bool resetPushback_, bool callForPriority_, Vector2<float> mulOwnVel_, Vector2<float> mulOwnInr_, Vector2<float> mulOwnDirVel_, Vector2<float> mulOwnDirInr_, Vector2<float> rawAddVel_, Vector2<float> rawAddInr_)
 {
     m_resetDefenseState = resetDefenseState_;
@@ -191,24 +186,6 @@ ActionCharacter *ActionCharacter::setDisadvantageFlags(bool isBlockstun_, bool i
     m_isHitstun = isHitstun_;
     m_isKnockdown = isKnockdown_;
 
-    return this;
-}
-
-ActionCharacter *ActionCharacter::setLandingMovementData(Vector2<float> mulOwnVel_, Vector2<float> mulOwnInr_, Vector2<float> mulOwnDirVel_, Vector2<float> mulOwnDirInr_, Vector2<float> rawAddVel_, Vector2<float> rawAddInr_)
-{
-    m_mulOwnVelLand = mulOwnVel_;
-    m_mulOwnInrLand = mulOwnInr_;
-    m_mulOwnDirVelLand = mulOwnDirVel_;
-    m_mulOwnDirInrLand = mulOwnDirInr_;
-    m_rawAddVelLand = rawAddVel_;
-    m_rawAddInrLand = rawAddInr_;
-
-    return this;
-}
-
-ActionCharacter *ActionCharacter::setLandingRecoveryState(int recoveryState_)
-{
-    m_recoveryOnLand = recoveryState_;
     return this;
 }
 
@@ -1595,6 +1572,27 @@ void Action::update(InteractableStateMachine &character_)
         character_.m_cam->startShake(camShakeData.x, camShakeData.y);
 }
 
+int Action::isPossible(const InputQueue &inputQueue_, InteractableStateMachine *char_, int extendBuffer_) const
+{
+    auto *chr = dynamic_cast<Character*>(char_);
+
+    if (char_->isInHitstop() || char_->isAirborne() != m_isAirborne)
+        return 0;
+
+    if (char_->isCancelAllowed(actionState))
+    {
+        return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
+    }
+
+    if (actionState == char_->m_currentState)
+        return responseOnOwnState(inputQueue_, char_->getInputDir(), extendBuffer_);
+
+    if (m_transitionableFrom.getMark(char_->m_currentState))
+        return (isInputPossible(inputQueue_, char_->getInputDir(), extendBuffer_) ? 1 : 0);
+
+    return 0;
+}
+
 const HurtboxVec Action::getCurrentHurtboxes(uint32_t currentFrame_, const Vector2<float> &offset_, ORIENTATION ownOrientation_) const
 {
     HurtboxVec vec;
@@ -1708,4 +1706,32 @@ Action *Action::setOutdatedMovementData(Vector2<float> mulOwnVel_, Vector2<float
     m_rawAddInrOtd = rawAddInr_;
 
     return this;
+}
+
+Action *Action::setLandingMovementData(Vector2<float> mulOwnVel_, Vector2<float> mulOwnInr_, Vector2<float> mulOwnDirVel_, Vector2<float> mulOwnDirInr_, Vector2<float> rawAddVel_, Vector2<float> rawAddInr_)
+{
+    m_mulOwnVelLand = mulOwnVel_;
+    m_mulOwnInrLand = mulOwnInr_;
+    m_mulOwnDirVelLand = mulOwnDirVel_;
+    m_mulOwnDirInrLand = mulOwnDirInr_;
+    m_rawAddVelLand = rawAddVel_;
+    m_rawAddInrLand = rawAddInr_;
+
+    return this;
+}
+
+Action *Action::setLandingRecoveryState(int recoveryState_)
+{
+    m_recoveryOnLand = recoveryState_;
+    return this;
+}
+
+bool Action::isInputPossible(const InputQueue &inputQueue_, ORIENTATION ownDirection_, int extendBuffer_) const
+{
+    return true;
+}
+
+int Action::responseOnOwnState(const InputQueue &inputQueue_, ORIENTATION ownDirection_, int extendBuffer_) const
+{
+    return 0;
 }

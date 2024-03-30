@@ -4,10 +4,9 @@
 
 Character::Character(Application &application_, Vector2<float> pos_, float maxHealth_, float baseGravity_, Camera *cam_, ParticleManager *particleManager_, int maxAirdashes_, int maxDJumps_,
     int framesBeforeAirdash_, int framesBeforeAirjump_, StateMarker autoRealignAfter_, int stateCnt_) :
-    InteractableStateMachine(application_, pos_, stateCnt_, cam_),
+    InteractableStateMachine(application_, pos_, stateCnt_, cam_, particleManager_),
     m_healthHandler(maxHealth_),
     m_comboPhysHandler(baseGravity_),
-    m_particleManager(particleManager_),
     m_jumpsAvailable(maxDJumps_),
     m_airdashesAvailable(maxAirdashes_),
     m_framesBeforeAirdash(framesBeforeAirdash_),
@@ -761,47 +760,6 @@ void Character::applyClash(const Hit &clashedHit_, int opponentsHitId_)
     tempwindow.second = m_genericCharacterData.m_clashCancelOptions;
 
     applyCancelWindow(tempwindow);
-}
-
-void Character::generateHitParticles(HitEvent &ev_, const Vector2<float> hitpos_)
-{
-    auto hordir = getOwnHorDir();
-    hordir.y = 1;
-    const std::vector<HitParticleData> *pdata;
-    if (ev_.m_hitRes == HIT_RESULT::COUNTER)
-        pdata = &ev_.m_hitData.particlesOnCH;
-    else if (ev_.m_hitRes == HIT_RESULT::HIT || ev_.m_hitRes == HIT_RESULT::THROWN)
-        pdata = &ev_.m_hitData.particlesOnHit;
-    else
-        pdata = &ev_.m_hitData.particlesOnBlock;
-
-    for (const auto &el : *pdata)
-    {
-        ParticleSpawnData psd;
-        psd.m_angle = el.m_angle;
-        psd.m_pos = hitpos_;
-        psd.m_particleType = el.m_partType;
-        psd.m_scale = el.m_scale;
-        psd.m_flip = (hordir.x > 0 ? SDL_FLIP_NONE : SDL_FLIP_HORIZONTAL);
-        for (int i = 0; i < el.count; ++i)
-        {
-            psd.m_velocity = el.m_baseVelocity;
-            if (el.m_randVelocity)
-            {
-                psd.m_velocity.x += el.m_baseVelocity.x + ((rand() % (el.m_velocityRange.x * 100)) - el.m_velocityRange.x * 100 / 2.0f) / 100.0f;
-                psd.m_velocity.y += el.m_baseVelocity.y + ((rand() % (el.m_velocityRange.y * 100)) - el.m_velocityRange.y * 100 / 2.0f) / 100.0f;
-            }
-
-            psd.m_accel = el.m_additionalAccel + (psd.m_velocity * (-el.m_reverseAccel));
-
-            if (el.m_randLifeTime)
-            {
-                psd.m_forcedLifeTime = (rand() % (el.m_maxLifeTime - el.m_minLifeTime + 1)) + el.m_minLifeTime;
-            }
-
-            m_particleManager->spawnParticles(psd);
-        }
-    }
 }
 
 void Character::updateBlockState()

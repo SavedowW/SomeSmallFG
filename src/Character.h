@@ -202,7 +202,7 @@ public:
     void setThrowInvul();
     virtual void attemptThrow();
 
-    virtual float touchedWall(int sideDir_);
+    virtual float touchedWall(int sideDir_) override;
 
     virtual std::string CharStateData() const = 0;
 
@@ -225,8 +225,6 @@ public:
     virtual void generateWidgets(Application &application_, HUD &hud_);
 
     virtual ORIENTATION getInputDir() const override;
-
-    virtual void generateHitParticles(HitEvent &ev_, const Vector2<float> hitpos_);
 
 protected:
     void enterHitstunAnimation(const PostHitProperties &props_);
@@ -264,8 +262,6 @@ protected:
     Camera *m_cam = nullptr;
 
     HITSTUN_ANIMATION m_hitstunAnimation;
-
-    ParticleManager *m_particleManager;
 
     SDL_Color m_colorShine;
     FrameTimer m_shineLockedTimer;
