@@ -6,6 +6,7 @@
 #include "ActionResolver.h"
 
 class Character;
+struct CharacterUpdateRes;
 
 class InteractableStateMachine
 {
@@ -17,7 +18,7 @@ public:
     virtual void updateState();
     virtual HurtboxVec getHurtboxes();
 
-    void setOnStage(Application &application_, int playerId_, Character *otherCharacter_, PriorityHandler *priorityHandler_);
+    virtual void setOnStage(Application &application_, int playerId_, Character *otherCharacter_, PriorityHandler *priorityHandler_);
 
     Vector2<float> getPos() const;
     void setPos(Vector2<float> pos_);
@@ -53,6 +54,10 @@ public:
     virtual HIT_RESULT applyHit(HitEvent &hitEvent_) = 0;
 
     virtual void generateHitParticles(HitEvent &ev_, const Vector2<float> hitpos_);
+
+    virtual CharacterUpdateRes update();
+    virtual void drawGroundProjection(Renderer &renderer_, Camera &camera_, float angle_);
+    virtual void draw(Renderer &renderer_, Camera &camera_);
 
 protected:
     void switchTo(int state_);
@@ -111,6 +116,7 @@ protected:
     friend Action_float;
     friend Action_airjump;
     friend Action;
+    friend Action_char1_move_projectile;
 };
 
 #endif

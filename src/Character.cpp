@@ -12,7 +12,8 @@ Character::Character(Application &application_, Vector2<float> pos_, float maxHe
     m_framesBeforeAirdash(framesBeforeAirdash_),
     m_framesBeforeAirjump(framesBeforeAirjump_),
     m_autoRealignAfter(std::move(autoRealignAfter_)),
-    m_genericCharacterData(stateCnt_)
+    m_genericCharacterData(stateCnt_),
+    m_ptFactory(&application_, cam_, particleManager_)
 {
     setPos(pos_);
 }
@@ -25,6 +26,8 @@ void Character::setOnStage(Application &application_, int playerId_, Character *
     {
         el.second->generateWhite(*application_.getRenderer());
     }
+
+    m_ptFactory.setPlayerID(playerId_);
 }
 
 CharacterUpdateRes Character::update()
@@ -141,6 +144,16 @@ ORIENTATION Character::getInputDir() const
     if (m_genericCharacterData.m_useDirToEnemyForInputs.getMark(m_currentState))
         res = m_dirToEnemy;
     return res;
+}
+
+void Character::queueProjectile(std::unique_ptr<Projectile> &&pt_)
+{
+    m_queuedProjectiles.push_back(std::move(pt_));
+}
+
+std::vector<std::unique_ptr<Projectile>> &Character::getQueuedProjectiles()
+{
+    return m_queuedProjectiles;
 }
 
 void Character::drawGroundProjection(Renderer &renderer_, Camera &camera_, float angle_)

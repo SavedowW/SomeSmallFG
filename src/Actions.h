@@ -37,7 +37,7 @@ public:
     virtual void switchTo(InteractableStateMachine &character_);
     virtual void outdated(InteractableStateMachine &character_);
     virtual void update(InteractableStateMachine &character_);
-    virtual bool onLand(InteractableStateMachine &character_) = 0;
+    virtual bool onLand(InteractableStateMachine &character_);
     virtual int isPossible(const InputQueue &inputQueue_, InteractableStateMachine *char_, int extendBuffer_) const;
 
     virtual bool isInputPossible(const InputQueue &inputQueue_, ORIENTATION ownDirection_, int extendBuffer_) const;
@@ -620,10 +620,11 @@ public:
     Action_char1_move_214C();
 };
 
-class Action_char1_move_projectile : public Action_char1_ground_attack
+class Action_char1_move_projectile : public Action_attack
 {
 public:
     Action_char1_move_projectile();
+    virtual void switchTo(InteractableStateMachine &character_);
 };
 
 // THROW RELATED STUFF

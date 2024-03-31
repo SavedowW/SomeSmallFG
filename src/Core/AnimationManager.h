@@ -104,6 +104,7 @@ class AnimationManager
 public:
 	AnimationManager(Renderer* renderer_, const std::string &rootPath_);
 	std::shared_ptr<TextureArr> getTextureArr(ANIMATIONS tex_);
+	void preload(ANIMATIONS t_animToPreload);
 
 private:
 	std::string m_rootPath;
@@ -162,7 +163,6 @@ private:
 	};
 	std::map<ANIMATIONS, std::weak_ptr<TextureArr>> m_textureArrPointers;
 
-	void preload(ANIMATIONS t_animToPreload);
 	std::shared_ptr<TextureArr> m_preloadedArrs[(int)ANIMATIONS::NONE];
 };
 

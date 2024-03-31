@@ -15,6 +15,7 @@
 #include "ComboPhysicsHandler.h"
 #include "ResourceCounter.h"
 #include "InteractableStateMachine.h"
+#include "ProjectileFactory.h"
 
 /*
  * TODO: LIST
@@ -179,9 +180,9 @@ public:
 
     void setOnStage(Application &application_, int playerId_, Character *otherCharacter_, PriorityHandler *priorityHandler_);
 
-    virtual CharacterUpdateRes update();
-    virtual void drawGroundProjection(Renderer &renderer_, Camera &camera_, float angle_);
-    virtual void draw(Renderer &renderer_, Camera &camera_);
+    virtual CharacterUpdateRes update() override;
+    virtual void drawGroundProjection(Renderer &renderer_, Camera &camera_, float angle_) override;
+    virtual void draw(Renderer &renderer_, Camera &camera_) override;
 
     Collider getPushbox() const;
 
@@ -225,6 +226,9 @@ public:
     virtual void generateWidgets(Application &application_, HUD &hud_);
 
     virtual ORIENTATION getInputDir() const override;
+
+    void queueProjectile(std::unique_ptr<Projectile> &&pt_);
+    std::vector<std::unique_ptr<Projectile>> &getQueuedProjectiles();
 
 protected:
     void enterHitstunAnimation(const PostHitProperties &props_);
@@ -286,6 +290,10 @@ protected:
 
     StateMarker m_autoRealignAfter;
 
+    std::vector<std::unique_ptr<Projectile>> m_queuedProjectiles;
+
+    ProjectileFactory m_ptFactory;
+
     friend Action_throw_startup;
     friend Action_throw_tech;
     friend Action_throw_hold;
@@ -304,6 +312,7 @@ protected:
     friend Action_attack;
     friend Action_float;
     friend Action_airjump;
+    friend Action_char1_move_projectile;
 };
 
 #endif

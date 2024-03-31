@@ -1,6 +1,7 @@
 #include "Actions.h"
 #include "Char1.h"
 #include <stdexcept>
+#include "ActionProjectile.h"
 
 /* ============================
  *
@@ -89,15 +90,7 @@ void ActionCharacter::update(InteractableStateMachine &character_)
 
 bool ActionCharacter::onLand(InteractableStateMachine &character_)
 {
-    character_.m_velocity = character_.m_velocity.mulComponents(m_mulOwnVelLand) + character_.getOwnHorDir().mulComponents(m_mulOwnDirVelLand) + m_rawAddVelLand;
-    character_.m_inertia = character_.m_inertia.mulComponents(m_mulOwnInrLand) + character_.getOwnHorDir().mulComponents(m_mulOwnDirInrLand) + m_rawAddInrLand;
-    if (m_recoveryOnLand >= 0)
-    {
-        character_.switchTo(m_recoveryOnLand);
-        return true;
-    }
-
-    return m_recoveryOnLand != -1;
+    return Action::onLand(character_);
 }
 
 bool ActionCharacter::isInCounterState(uint32_t currentFrame_) const
@@ -1164,7 +1157,7 @@ Action_char1_move_214C::Action_char1_move_214C() :
 
 // MOVE PROJECTILE ACTION
 Action_char1_move_projectile::Action_char1_move_projectile() :
-    Action_char1_ground_attack((int)CHAR1_STATE::PROJECTILE_CHAR, ANIMATIONS::CHAR1_PROJECTILE_CHAR_ANIM, TimelineProperty(true), std::make_unique<InputComparator214APress>(), 60,
+    Action_attack((int)CHAR1_STATE::PROJECTILE_CHAR, std::make_unique<InputComparator214APress>(), 60,
     {
     },
     {
@@ -1180,9 +1173,9 @@ Action_char1_move_projectile::Action_char1_move_projectile() :
             TimelineProperty<bool>({{31, true}, {35, false}}),
             {120.0f, -370.0f, 60.0f, 250.0f}
         }
-    }, StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
+    }, ANIMATIONS::CHAR1_PROJECTILE_CHAR_ANIM, TimelineProperty(true), StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
     (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}),
-    false)
+    false, false)
 {
     setUpdateMovementData(
         TimelineProperty<Vector2<float>>({0.0f, 0.0f}), // Vel mul
@@ -1198,6 +1191,22 @@ Action_char1_move_projectile::Action_char1_move_projectile() :
         TimelineProperty<Vector2<float>>({0.0f, 0.0f}), // Raw vel
         TimelineProperty<Vector2<float>>({0.0f, 0.0f}) // Raw inr
     );
+
+    setOutdatedTransition((int)CHAR1_STATE::IDLE);
+    setOutdatedMovementData({0.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
+}
+
+void Action_char1_move_projectile::switchTo(InteractableStateMachine &character_)
+{
+    Action_attack::switchTo(character_);
+
+    auto *chr = dynamic_cast<Character*>(&character_);
+
+    PTRecipe rp;
+    rp.m_starterOrientation = character_.getOwnOrientation();
+    rp.m_starterPos = character_.m_pos + character_.getOwnHorDir().mulComponents(Vector2{50.0f, 0.0f});
+
+    chr->queueProjectile(std::move(chr->m_ptFactory.createProjectile(rp)));
 }
 
 // Normal throw startup
@@ -1734,4 +1743,17 @@ bool Action::isInputPossible(const InputQueue &inputQueue_, ORIENTATION ownDirec
 int Action::responseOnOwnState(const InputQueue &inputQueue_, ORIENTATION ownDirection_, int extendBuffer_) const
 {
     return 0;
+}
+
+bool Action::onLand(InteractableStateMachine &character_)
+{
+    character_.m_velocity = character_.m_velocity.mulComponents(m_mulOwnVelLand) + character_.getOwnHorDir().mulComponents(m_mulOwnDirVelLand) + m_rawAddVelLand;
+    character_.m_inertia = character_.m_inertia.mulComponents(m_mulOwnInrLand) + character_.getOwnHorDir().mulComponents(m_mulOwnDirInrLand) + m_rawAddInrLand;
+    if (m_recoveryOnLand >= 0)
+    {
+        character_.switchTo(m_recoveryOnLand);
+        return true;
+    }
+
+    return m_recoveryOnLand != -1;
 }

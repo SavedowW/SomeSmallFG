@@ -178,6 +178,17 @@ protected:
         for (const auto &i : priorityList)
             results[i] = m_characters[i]->update();
 
+        for (auto &pt : m_projectiles)
+            pt->update();
+
+        for (int i = 0; i < m_projectiles.size();)
+        {
+            if (m_projectiles[i]->isExpired())
+                m_projectiles.erase(m_projectiles.begin() + i);
+            else
+                i++;
+        }
+
         results[0].pushbox = m_characters[0]->getPushbox();
         results[1].pushbox = m_characters[1]->getPushbox();
 
@@ -322,6 +333,8 @@ protected:
             m_characters[1]->setPos(m_characters[1]->getPos() + directionToPush[1] * rangeToPush[1]);
         }
 
+        for (const auto &pid : priorityList)
+            getProjectiles(m_characters[pid]->getQueuedProjectiles(), pid);
 
         // Update block state
         for (const auto &pid : priorityList)
@@ -466,7 +479,7 @@ protected:
             renderer.fillRectangle({0, 0}, {gamedata::global::cameraWidth, gamedata::global::cameraHeight}, {m_flashColor.r, m_flashColor.g, m_flashColor.b, Uint8(m_flashColor.a * alpha)});
         }
 
-        auto priorityList = m_priorityHandler.getCurrentPriority();
+        auto priorityList = m_priorityHandler.getCurrentPriority(); 
 
         // TODO: move shadow or reflection logic to specific stage
         renderer.setRenderTarget(m_shadowsLayer);
@@ -483,6 +496,9 @@ protected:
         for (const auto &i : priorityList | std::views::reverse)
             m_characters[i]->draw(*m_application->getRenderer(), m_camera);
 
+        for (auto &el : m_projectiles)
+            el->draw(*m_application->getRenderer(), m_camera);
+
         m_hud.draw(*m_application->getRenderer(), m_camera);
 
         m_particleManager.draw(m_camera);
@@ -490,6 +506,17 @@ protected:
         renderer.fillRectangle(m_hitpos, m_hitsize, {255, 255, 255, 255}, m_camera);
 
     	renderer.updateScreen();
+    }
+
+    void getProjectiles(std::vector<std::unique_ptr<Projectile>> &pts_, int pid_)
+    {
+        for (int i = 0; i < pts_.size(); ++i)
+        {
+            m_projectiles.push_back(std::move(pts_[i]));
+            m_projectiles[m_projectiles.size() - 1]->setOnStage(*m_application, pid_ + 1, m_characters[1 - pid_].get(), &m_priorityHandler);
+        }
+
+        pts_.clear();
     }
 
     FrameTimer m_frameTimerBeforeZoom;
@@ -502,6 +529,8 @@ protected:
     int m_maxCharRange;
     HUD m_hud;
     ParticleManager m_particleManager;
+
+    std::vector<std::unique_ptr<Projectile>> m_projectiles;
 
     PriorityHandler m_priorityHandler;
 

@@ -501,6 +501,10 @@ void Char1::loadAnimations(Application &application_)
 	CHAR1_NORMAL_THROW_WHIFF
     */
 
+   application_.getAnimationManager()->preload(ANIMATIONS::CHAR1_PROJECTILE_STARTUP);
+   application_.getAnimationManager()->preload(ANIMATIONS::CHAR1_PROJECTILE_FILLER);
+   application_.getAnimationManager()->preload(ANIMATIONS::CHAR1_PROJECTILE_FADEOUT);
+
     m_currentAnimation = m_animations[ANIMATIONS::CHAR1_IDLE].get();
     m_currentAnimation->reset();
 }

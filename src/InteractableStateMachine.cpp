@@ -1,5 +1,6 @@
 #include "InteractableStateMachine.h"
 #include "Character.h"
+#include "Projectile.h"
 
 bool InteractableStateMachine::isAirborne() const
 {
@@ -165,6 +166,129 @@ void InteractableStateMachine::generateHitParticles(HitEvent &ev_, const Vector2
             m_particleManager->spawnParticles(psd);
         }
     }
+}
+
+CharacterUpdateRes InteractableStateMachine::update()
+{
+    auto initPos = m_pos;
+
+    auto hstopTimerRes = m_hitstopTimer.update();
+    if (hstopTimerRes)
+    {
+        m_inHitstop = false;
+        m_hitstopTimer.begin(0);
+    }
+
+    if (!m_inHitstop)
+    {
+        updateDirToEnemy();
+    }
+
+    proceedCurrentState();
+
+    updateState();
+
+    updatePosition();
+
+    if (!m_inHitstop && m_extendedBuffer)
+        m_extendedBuffer = 0;
+
+    CharacterUpdateRes res;
+    res.moveOffset = m_pos - initPos;
+    res.newPos = m_pos;
+    return res;
+}
+
+void InteractableStateMachine::drawGroundProjection(Renderer &renderer_, Camera &camera_, float angle_)
+{
+    auto texSize = m_currentAnimation->getSize();
+    auto texPos = m_pos - Vector2{texSize.x / 2, texSize.y};
+    SDL_RendererFlip flip = SDL_FLIP_NONE;
+    if (m_ownOrientation == ORIENTATION::LEFT)
+            flip = SDL_FLIP_HORIZONTAL;
+
+    float xoffset = 0;
+
+    if (m_inHitstop)
+    {
+        xoffset = rand() % 13 - 6;
+    }
+
+    auto spr = m_currentAnimation->getSprite();
+
+    auto charBottomHeight = (m_pos.y - gamedata::stages::levelOfGround);
+    auto legposy = gamedata::stages::levelOfGround - charBottomHeight / 4.0f - 10.0f;
+    auto llegposx = texPos.x + xoffset;
+    auto rlegposx = texPos.x + xoffset + texSize.x;
+
+    float angleOffset = texSize.x * sin(angle_);
+    float sizeExtention = angleOffset / 2;
+
+    Vector2<float> tl = {llegposx, legposy};
+    Vector2<float> tr = {rlegposx, legposy};
+    Vector2<float> br = {rlegposx + angleOffset + sizeExtention, legposy + texSize.y / 4.0f};
+    Vector2<float> bl = {llegposx + angleOffset - sizeExtention, legposy + texSize.y / 4.0f};
+
+    auto camSize = camera_.getSize();
+
+    tl = ((tl - camera_.getTopLeft()) / camera_.getScale());
+    tr = ((tr - camera_.getTopLeft()) / camera_.getScale());
+    br = ((br - camera_.getTopLeft()) / camera_.getScale());
+    bl = ((bl - camera_.getTopLeft()) / camera_.getScale());
+
+    float leftpoint = (flip == SDL_FLIP_HORIZONTAL ? 1 : 0);
+    float rightpoint = 1 - leftpoint;
+
+    SDL_Vertex vertices[] = {
+        {{tl.x, tl.y}, {255, 255, 255, 255}, {leftpoint, 1}},
+        {{tr.x, tr.y}, {255, 255, 255, 255}, {rightpoint, 1}},
+        {{br.x, br.y}, {255, 255, 255, 255}, {rightpoint, 0}},
+        {{bl.x, bl.y}, {255, 255, 255, 255}, {leftpoint, 0}}
+    };
+    int indices1[] = {0, 1, 2};
+    int indices2[] = {0, 2, 3};
+
+    renderer_.drawGeometry(spr, vertices, 4, indices1, 3);
+    renderer_.drawGeometry(spr, vertices, 4, indices2, 3);
+}
+
+void InteractableStateMachine::draw(Renderer &renderer_, Camera &camera_)
+{
+    if (m_currentAnimation != nullptr)
+    {
+        auto texSize = m_currentAnimation->getSize();
+        auto texPos = m_pos - Vector2{texSize.x / 2, texSize.y};
+        SDL_RendererFlip flip = SDL_FLIP_NONE;
+        if (m_ownOrientation == ORIENTATION::LEFT)
+            flip = SDL_FLIP_HORIZONTAL;
+
+        float xoffset = 0;
+
+        if (m_inHitstop)
+        {
+            xoffset = rand() % 13 - 6;
+        }
+
+        auto spr = m_currentAnimation->getSprite();
+
+        auto sprsize = m_currentAnimation->getSize();
+        renderer_.renderTexture(spr, texPos.x + xoffset, texPos.y, sprsize.x , sprsize.y, camera_, 0.0f, flip);
+    }
+
+    // render pushboxes with macro DEBUG
+    #ifdef DEBUG_
+    {
+        auto hurtboxes = getHurtboxes();
+        for (const auto &hb : hurtboxes)
+        {
+            renderer_.fillRectangle({hb.x, hb.y}, {hb.w, hb.h}, gamedata::characters::hurtboxColor, camera_);
+            renderer_.drawRectangle({hb.x, hb.y}, {hb.w, hb.h}, gamedata::characters::hurtboxColor, camera_);
+        }
+
+        renderer_.fillRectangle({m_pos.x - 2.0f, m_pos.y - 25.0f}, {4.0f, 50.0f}, {255, 255, 255, 200}, camera_);
+        renderer_.fillRectangle({m_pos.x - 25.0f, m_pos.y - 2.0f}, {50.0f, 4.0f}, {255, 255, 255, 200}, camera_);
+    }
+    #endif
 }
 
 void InteractableStateMachine::switchTo(int state_)
