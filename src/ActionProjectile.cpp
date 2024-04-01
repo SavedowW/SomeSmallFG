@@ -20,3 +20,36 @@ ActionProjectile *ActionProjectile::setOutdatedExpire(bool expireWhenOutdated_)
     m_expireWhenOutdated = expireWhenOutdated_;
     return this;
 }
+
+ActionProjectileHitProvider::ActionProjectileHitProvider(int actionState_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, StateMarker transitionableFrom_, bool isAirborne_, Hit &&hitProto_, int hitCount_) :
+    ActionProjectile(actionState_, std::move(hurtboxes_), anim_, std::move(transitionableFrom_), true, isAirborne_),
+    m_hitProto(std::move(hitProto_)),
+    m_maxHitCount(hitCount_)
+{
+}
+
+void ActionProjectileHitProvider::switchTo(InteractableStateMachine &character_)
+{
+    ActionProjectile::switchTo(character_);
+
+    m_hitsLeft = m_maxHitCount;
+}
+
+void ActionProjectileHitProvider::ownHitApplied(HitEvent &ev_, InteractableStateMachine &owner_)
+{
+    m_hitsLeft--;
+    if (m_hitsLeft > 0)
+        m_hitProto.initializeHitID();
+    else
+        owner_.m_timer.begin(1);
+}
+
+Hit ActionProjectileHitProvider::getCurrentHit(const Vector2<float>& offset_, ORIENTATION ownOrientation_)
+{
+    auto nhit = m_hitProto;
+    for (auto &el : nhit.m_hitboxes)
+    {
+        el.second = el.second.getHitboxAtOffset(offset_, ownOrientation_);
+    }
+    return nhit;
+}

@@ -1,4 +1,5 @@
 #include "Projectile.h"
+#include "ActionProjectile.h"
 
 Projectile::Projectile(Application &application_, Vector2<float> pos_, int stateCnt_, Camera *cam_, ParticleManager *particleManager_, int initialState_, ORIENTATION initialOrientation_) :
     InteractableStateMachine(application_, pos_, stateCnt_, cam_, particleManager_),
@@ -36,6 +37,17 @@ void Projectile::expireSelf()
 bool Projectile::isExpired() const
 {
     return m_expired;
+}
+
+HitsVec Projectile::getHits()
+{
+    if (m_currentAction && m_currentAction->m_isAttack)
+    {
+        auto hit = dynamic_cast<ActionProjectileHitProvider*>(m_currentAction)->getCurrentHit(m_pos, m_ownOrientation);
+
+        return {hit};
+    }
+    return {};
 }
 
 void Projectile::initiate()

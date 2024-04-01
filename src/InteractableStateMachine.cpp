@@ -285,10 +285,26 @@ void InteractableStateMachine::draw(Renderer &renderer_, Camera &camera_)
             renderer_.drawRectangle({hb.x, hb.y}, {hb.w, hb.h}, gamedata::characters::hurtboxColor, camera_);
         }
 
+        auto hits = getHits();
+        for (const auto &el : hits)
+        {
+            auto hitboxes = el.getHitboxes();
+            for (const auto &hb : hitboxes)
+            {
+                renderer_.drawRectangle({hb.second.x, hb.second.y}, {hb.second.w, hb.second.h}, gamedata::characters::hitboxColor, camera_);
+                renderer_.fillRectangle({hb.second.x, hb.second.y}, {hb.second.w, hb.second.h}, gamedata::characters::hitboxColor, camera_);
+            }
+        }
+
         renderer_.fillRectangle({m_pos.x - 2.0f, m_pos.y - 25.0f}, {4.0f, 50.0f}, {255, 255, 255, 200}, camera_);
         renderer_.fillRectangle({m_pos.x - 25.0f, m_pos.y - 2.0f}, {50.0f, 4.0f}, {255, 255, 255, 200}, camera_);
     }
     #endif
+}
+
+int InteractableStateMachine::getPlayerID()
+{
+    return m_playerId;
 }
 
 void InteractableStateMachine::switchTo(int state_)

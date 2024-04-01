@@ -15,6 +15,8 @@ public:
     void expireSelf();
     bool isExpired() const;
 
+    virtual HitsVec getHits() override;
+
 protected:
     virtual void initiate() override;
     virtual void loadAnimations(Application &application_) override;
@@ -22,7 +24,6 @@ protected:
 
     int m_initialState;
     bool m_expired = false;
-
 };
 
 #endif

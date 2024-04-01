@@ -16,7 +16,7 @@ std::unique_ptr<Projectile> ProjectileFactory::createProjectile(PTRecipe &recipe
 {
     auto actpt1 = std::unique_ptr<Action>((new ActionProjectile(0, {}, ANIMATIONS::CHAR1_PROJECTILE_STARTUP, StateMarker(3, {}), false, false))->setSwitchData(false, 29, false, false,
     {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f})->setOutdatedTransition(1));
-    auto actpt2 = std::unique_ptr<Action>((new ActionProjectile(1, {}, ANIMATIONS::CHAR1_PROJECTILE_FILLER, StateMarker(3, {}), false, false))->setSwitchData(false, 60, false, false,
+    auto actpt2 = std::unique_ptr<Action>((new ActionProjectileHitProvider(1, {}, ANIMATIONS::CHAR1_PROJECTILE_FILLER, StateMarker(3, {}), false, hitgeneration::generate_char1_projectile_hit(), 3))->setSwitchData(false, 60, false, false,
     {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f})->setOutdatedTransition(2));
     auto actpt3 = std::unique_ptr<Action>((new ActionProjectile(2, {}, ANIMATIONS::CHAR1_PROJECTILE_FADEOUT, StateMarker(3, {}), false, false))->setOutdatedExpire(true)->setSwitchData(false, 16, false, false,
     {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}));

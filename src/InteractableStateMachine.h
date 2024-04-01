@@ -7,6 +7,7 @@
 
 class Character;
 struct CharacterUpdateRes;
+class ActionProjectileHitProvider;
 
 class InteractableStateMachine
 {
@@ -45,6 +46,8 @@ public:
     virtual void loadAnimations(Application &application_) = 0;
     void callForPriority();
 
+    virtual HitsVec getHits() = 0;
+
     virtual bool isAirborne() const;
     virtual bool isInHitstop() const;
 
@@ -58,6 +61,8 @@ public:
     virtual CharacterUpdateRes update();
     virtual void drawGroundProjection(Renderer &renderer_, Camera &camera_, float angle_);
     virtual void draw(Renderer &renderer_, Camera &camera_);
+
+    int getPlayerID();
 
 protected:
     void switchTo(int state_);
@@ -117,6 +122,7 @@ protected:
     friend Action_airjump;
     friend Action;
     friend Action_char1_move_projectile;
+    friend ActionProjectileHitProvider;
 };
 
 #endif

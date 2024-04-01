@@ -379,6 +379,8 @@ protected:
             }
         }
 
+        // TODO: Check for forced clashes with projectiles
+
         if (noHit)
         {
             // Check for hits
@@ -457,6 +459,10 @@ protected:
             }
 
         }
+
+        // TODO: Check for clashes with projectiles
+
+        // TODO: Check for projectiles leaving the screen
 
         m_camera.update();
         m_hud.update();

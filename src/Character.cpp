@@ -262,7 +262,7 @@ void Character::draw(Renderer &renderer_, Camera &camera_)
             renderer_.drawRectangle({hb.x, hb.y}, {hb.w, hb.h}, gamedata::characters::hurtboxColor, camera_);
         }
 
-        auto hits = getHits(true);
+        auto hits = getHits();
         for (const auto &el : hits)
         {
             auto hitboxes = el.getHitboxes();
@@ -324,10 +324,10 @@ HIT_RESULT Character::applyHit(HitEvent &hitEvent_)
         }
         m_notifyWidget->addNotification(std::to_string(hitEvent_.realDamage));
 
-        applyHitstop(hitEvent_.m_hitData.hitProps.hitstop);
-
         if (!isInHitstun())
         {
+            applyHitstop(hitEvent_.m_hitData.hitProps.hitstop);
+            
             if (hitEvent_.m_hitRes == HIT_RESULT::HIT || hitEvent_.m_hitRes == HIT_RESULT::COUNTER)
                 applyCancelWindow(hitEvent_.m_hitData.cancelsOnHit);
             else
@@ -899,7 +899,7 @@ void Character::land()
     }
 }
 
-HitsVec Character::getHits(bool allHits_)
+HitsVec Character::getHits()
 {
     if (m_currentAction && m_currentAction->m_isAttack)
     {

@@ -570,6 +570,55 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_236C()
     return {{13, 16}, hit};
 }
 
+Hit hitgeneration::generate_char1_projectile_hit()
+{
+    HitData hdata;
+
+    HitParticleData pdatatemp;
+
+    pdatatemp.m_partType = PARTICLE_TYPES::BLOCK;
+    pdatatemp.m_scale = 0.6f;
+    hdata.particlesOnBlock.push_back(pdatatemp);
+
+    pdatatemp.m_partType = PARTICLE_TYPES::HIT_1;
+    hdata.particlesOnHit.push_back(pdatatemp);
+    hdata.particlesOnCH.push_back(pdatatemp);
+
+    hdata.opponentPushbackOnBlock = 80.0f;
+
+    hdata.hitProps.hitstop = 11;
+    hdata.hitProps.hitstun = 15;
+    hdata.hitProps.proratio = 0.9f;
+    hdata.hitProps.opponentImpulseOnHit = {50.0f, 0.0f};
+    hdata.hitProps.opponentImpulseOnAirHit = {10.0f, -7.0f};
+    hdata.hitProps.groundHitstunAnimation = HITSTUN_ANIMATION::MID;
+    hdata.hitProps.airHitstunAnimation = HITSTUN_ANIMATION::FLOAT;
+
+    hdata.chProps = hdata.hitProps;
+    hdata.chProps.hitstun += 3;
+    hdata.chProps.hitstop += 4;
+
+    hdata.canBeBlockedAs = {BLOCK_STATE::HIGH, BLOCK_STATE::LOW, BLOCK_STATE::AIR, BLOCK_STATE::AUTO};
+
+    hdata.blockstun = 13;
+
+    hdata.hitBlockShakeAmp = 20;
+
+    hdata.damage = 15.0f / hdata.hitProps.proratio;
+
+    Hit hit(hdata, {{{1, 100}, {-50.0f, -400.0f, 130.0f, 400.0f}}});
+
+    hit.cancelsOnHit.first.first = 1;
+    hit.cancelsOnHit.first.second = 9;
+    hit.cancelsOnHit.second = {};
+
+    hit.cancelsOnBlock.first.first = 1;
+    hit.cancelsOnBlock.first.second = 9;
+    hit.cancelsOnBlock.second = {};
+
+    return hit;
+}
+
 TimelineProperty<bool> hitutils::getRegularCounterTimeline(const ActiveFramesVec &hits_)
 {
     int max = 0;

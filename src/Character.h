@@ -191,7 +191,7 @@ public:
     virtual void proceedCurrentState() override;
     virtual void initiate() override;
     virtual void land();
-    virtual HitsVec getHits(bool allHits_ = false);
+    virtual HitsVec getHits() override;
     virtual void updateBlockState();
     virtual bool isInHitstun() const;
     virtual bool isInBlockstun() const;

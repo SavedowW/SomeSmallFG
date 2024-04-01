@@ -113,6 +113,7 @@ using HurtboxVec = std::vector<Collider>;
 struct HitEvent
 {
     int m_hittingPlayerId = 0;
+    bool isHitByProjectile = false;
     HitData m_hitData;
     HIT_RESULT m_hitRes = HIT_RESULT::NONE;
     float realDamage;
@@ -132,6 +133,8 @@ namespace hitgeneration
     std::pair<FrameWindow, Hit> generate_char1_JC();
     std::pair<FrameWindow, Hit> generate_char1_214C();
     std::pair<FrameWindow, Hit> generate_char1_236C();
+
+    Hit generate_char1_projectile_hit();
 }
 
 namespace hitutils

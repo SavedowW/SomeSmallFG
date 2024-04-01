@@ -11,10 +11,29 @@ public:
 
     virtual void outdated(InteractableStateMachine &character_) override;
 
+    virtual void ownHitApplied(HitEvent &ev_, InteractableStateMachine &owner_) {};
+
     ActionProjectile *setOutdatedExpire(bool expireWhenOutdated_);
 
 protected:
     bool m_expireWhenOutdated = false;
+
+};
+
+class ActionProjectileHitProvider: public ActionProjectile
+{
+public:
+    ActionProjectileHitProvider(int actionState_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, StateMarker transitionableFrom_, bool isAirborne_, Hit &&hitProto_, int hitCount_);
+
+    virtual void switchTo(InteractableStateMachine &character_) override;
+
+    virtual void ownHitApplied(HitEvent &ev_, InteractableStateMachine &owner_) override;
+    virtual Hit getCurrentHit(const Vector2<float>& offset_, ORIENTATION ownOrientation_);
+
+protected:
+    Hit m_hitProto;
+    int m_maxHitCount = 0;
+    int m_hitsLeft = 0;
 
 };
 
