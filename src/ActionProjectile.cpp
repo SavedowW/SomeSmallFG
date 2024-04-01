@@ -33,20 +33,38 @@ void ActionProjectileHitProvider::switchTo(InteractableStateMachine &character_)
     ActionProjectile::switchTo(character_);
 
     m_hitsLeft = m_maxHitCount;
+    m_hitProto.initializeHitID();
 }
 
-void ActionProjectileHitProvider::ownHitApplied(HitEvent &ev_, InteractableStateMachine &owner_)
+void ActionProjectileHitProvider::ownHitApplied(const HitEvent &ev_, InteractableStateMachine &owner_)
 {
     m_hitsLeft--;
-    if (m_hitsLeft > 0)
-        m_hitProto.initializeHitID();
-    else
+    m_hitUsed = true;
+
+    if (m_hitsLeft <= 0)
         owner_.m_timer.begin(1);
 }
 
-Hit ActionProjectileHitProvider::getCurrentHit(const Vector2<float>& offset_, ORIENTATION ownOrientation_)
+void ActionProjectileHitProvider::ownHitClashed(const Hit &ev_, InteractableStateMachine &owner_)
 {
+    m_hitsLeft--;
+    m_hitUsed = true;
+
+    if (m_hitsLeft <= 0)
+        owner_.m_timer.begin(1);
+}
+
+Hit ActionProjectileHitProvider::getCurrentHit(const Vector2<float>& offset_, ORIENTATION ownOrientation_, InteractableStateMachine &owner_)
+{
+
+    if (!owner_.isInHitstop() && m_hitUsed && m_hitsLeft > 0)
+    {
+        m_hitUsed = false;
+        m_hitProto.initializeHitID();
+    }
+
     auto nhit = m_hitProto;
+
     for (auto &el : nhit.m_hitboxes)
     {
         el.second = el.second.getHitboxAtOffset(offset_, ownOrientation_);

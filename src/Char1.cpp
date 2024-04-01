@@ -275,7 +275,7 @@ void Char1::provideActions()
     m_actionResolver.addAction(std::unique_ptr<Action>((new ActionCharacter( (int)CHAR1_STATE::HITSTUN_HIGH, std::make_unique<InputComparatorIdle>(), {
         {
             TimelineProperty(true),
-            gamedata::characters::char1::standingHurtbox
+            {-100, -375, 200, 375}
         }
     }, ANIMATIONS::CHAR1_HITSTUN_HIGH, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false), StateMarker(gamedata::characters::totalStateCount, {}),
     false, false, false, 0, 0, false, false, false ))->setHitstunAnimation((int)HITSTUN_ANIMATION::HIGH)->setDisadvantageFlags(false, true, false)->setOutdatedTransition((int)CHAR1_STATE::IDLE)));
@@ -283,7 +283,7 @@ void Char1::provideActions()
     m_actionResolver.addAction(std::unique_ptr<Action>((new ActionCharacter( (int)CHAR1_STATE::HITSTUN_MID, std::make_unique<InputComparatorIdle>(), {
         {
             TimelineProperty(true),
-            gamedata::characters::char1::standingHurtbox
+            {-100, -375, 200, 375}
         }
     }, ANIMATIONS::CHAR1_HITSTUN_MID, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false), StateMarker(gamedata::characters::totalStateCount, {}),
     false, false, false, 0, 0, false, false, false ))->setHitstunAnimation((int)HITSTUN_ANIMATION::MID)->setDisadvantageFlags(false, true, false)->setOutdatedTransition((int)CHAR1_STATE::IDLE)));
@@ -291,7 +291,7 @@ void Char1::provideActions()
     m_actionResolver.addAction(std::unique_ptr<Action>((new ActionCharacter( (int)CHAR1_STATE::HITSTUN_LOW, std::make_unique<InputComparatorIdle>(), {
         {
             TimelineProperty(true),
-            gamedata::characters::char1::standingHurtbox
+            {-100, -375, 200, 375}
         }
     }, ANIMATIONS::CHAR1_HITSTUN_LOW, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false), StateMarker(gamedata::characters::totalStateCount, {}),
     false, false, false, 0, 0, false, false, false ))->setHitstunAnimation((int)HITSTUN_ANIMATION::LOW)->setDisadvantageFlags(false, true, false)->setOutdatedTransition((int)CHAR1_STATE::IDLE)));
@@ -299,7 +299,7 @@ void Char1::provideActions()
     m_actionResolver.addAction(std::unique_ptr<Action>((new ActionCharacter( (int)CHAR1_STATE::HITSTUN_CROUCH, std::make_unique<InputComparatorIdle>(), {
         {
             TimelineProperty(true),
-            gamedata::characters::char1::crouchingHurtbox
+            {-100, -200, 200, 200}
         }
     }, ANIMATIONS::CHAR1_HITSTUN_CROUCH, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false), StateMarker(gamedata::characters::totalStateCount, {}),
     false, true, false, 0, 0, false, false, false ))->setHitstunAnimation((int)HITSTUN_ANIMATION::CROUCH)->setDisadvantageFlags(false, true, false)->setOutdatedTransition((int)CHAR1_STATE::IDLE)));

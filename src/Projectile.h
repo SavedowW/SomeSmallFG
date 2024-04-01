@@ -16,11 +16,12 @@ public:
     bool isExpired() const;
 
     virtual HitsVec getHits() override;
+    virtual HIT_RESULT applyHit(HitEvent &hitEvent_) override;
+    virtual void applyClash(const Hit &clashedHit_, int opponentsHitId_);
 
 protected:
     virtual void initiate() override;
     virtual void loadAnimations(Application &application_) override;
-    virtual HIT_RESULT applyHit(HitEvent &hitEvent_) override;
 
     int m_initialState;
     bool m_expired = false;

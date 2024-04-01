@@ -50,6 +50,7 @@ public:
 
     virtual bool isAirborne() const;
     virtual bool isInHitstop() const;
+    virtual void applyHitstop(int hitstopLength);
 
     void applyCancelWindow(CancelWindow cw_);
     bool isCancelAllowed(int cancelTarget_);
@@ -63,6 +64,10 @@ public:
     virtual void draw(Renderer &renderer_, Camera &camera_);
 
     int getPlayerID();
+
+    void addTakenHit(int hitId_);
+    void removeTakenHit(int hitId_);
+    bool isHitTaken(int hitId_);
 
 protected:
     void switchTo(int state_);
@@ -101,6 +106,8 @@ protected:
     bool m_cancelAvailable = false;
 
     ParticleManager *m_particleManager;
+
+    std::set<int> m_takenHits;
 
     friend Action_throw_startup;
     friend Action_throw_tech;

@@ -322,6 +322,13 @@ bool InteractableStateMachine::isInHitstop() const
     return m_inHitstop;
 }
 
+void InteractableStateMachine::applyHitstop(int hitstopLength)
+{
+    m_inHitstop = true;
+    m_hitstopTimer.begin(hitstopLength);
+    m_extendedBuffer = hitstopLength - gamedata::global::inputBufferLength;
+}
+
 void InteractableStateMachine::applyCancelWindow(CancelWindow cw_)
 {
     if (cw_.first.first == 0 && cw_.first.second == 0)
@@ -440,4 +447,19 @@ void InteractableStateMachine::updatePosition()
 float InteractableStateMachine::touchedWall(int sideDir_)
 {
     return 0.0f;
+}
+
+void InteractableStateMachine::addTakenHit(int hitId_)
+{
+    m_takenHits.insert(hitId_);
+}
+
+void InteractableStateMachine::removeTakenHit(int hitId_)
+{
+    m_takenHits.erase(hitId_);
+}
+
+bool InteractableStateMachine::isHitTaken(int hitId_)
+{
+    return m_takenHits.contains(hitId_);
 }

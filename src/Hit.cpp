@@ -675,6 +675,45 @@ Vector2<float> hitutils::getHitPosition(const std::vector<std::pair<FrameWindow,
     return hitFullCollider.getOverlapArea(hurtFullCollider).getCenter();
 }
 
+std::pair<bool, Vector2<float>> hitutils::checkCollision(const Hit &hit1_, const Hit &hit2_)
+{
+    auto hbs1 = hit1_.getHitboxes();
+    auto hbs2 = hit2_.getHitboxes();
+
+    for (auto &hb1 : hbs1)
+    {
+        for (auto &hb2 : hbs2)
+        {
+            if (hb1.second.isCollideWith(hb2.second))
+            {
+                auto pos = hb1.second.getOverlapArea(hb2.second).getCenter();
+                return {true, pos};
+            }
+        }
+    }
+
+    return {false, {0.0f, 0.0f}};
+}
+
+std::pair<bool, Vector2<float>> hitutils::checkCollision(const Hit &hit_, const HurtboxVec &hurtboxes_)
+{
+    auto hbs = hit_.getHitboxes();
+
+    for (auto &hb1 : hbs)
+    {
+        for (auto &hb2 : hurtboxes_)
+        {
+            if (hb1.second.isCollideWith(hb2))
+            {
+                auto pos = getHitPosition(hbs, hurtboxes_);
+                return {true, pos};
+            }
+        }
+    }
+
+    return {false, {0.0f, 0.0f}};
+}
+
 void HitData::initializeHitID()
 {
     setHitID(nextHitID++);

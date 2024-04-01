@@ -113,7 +113,7 @@ using HurtboxVec = std::vector<Collider>;
 struct HitEvent
 {
     int m_hittingPlayerId = 0;
-    bool isHitByProjectile = false;
+    bool m_isHitByProjectile = false;
     HitData m_hitData;
     HIT_RESULT m_hitRes = HIT_RESULT::NONE;
     float realDamage;
@@ -141,6 +141,8 @@ namespace hitutils
 {
     TimelineProperty<bool> getRegularCounterTimeline(const ActiveFramesVec &hits_);
     Vector2<float> getHitPosition(const std::vector<std::pair<FrameWindow, Collider>> &hits_, const HurtboxVec &hurtboxes_);
+    std::pair<bool, Vector2<float>> checkCollision(const Hit &hit1_, const Hit &hit2_);
+    std::pair<bool, Vector2<float>> checkCollision(const Hit &hit_, const HurtboxVec &hurtboxes_);
 }
 
 #endif

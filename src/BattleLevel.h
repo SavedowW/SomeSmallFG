@@ -341,37 +341,68 @@ protected:
             m_characters[pid]->updateBlockState();
 
         // Check for hitbox interactions
-        bool noHit = true;
         std::array<HitsVec, 2> hits = {m_characters[0]->getHits(), m_characters[1]->getHits()};
         std::array<HurtboxVec, 2> hurtboxes = {m_characters[0]->getHurtboxes(), m_characters[1]->getHurtboxes()};
 
-        //Check for forced clashes
+        std::vector<HitsVec> ptHits;
+        std::vector<HurtboxVec> ptHurtboxes;
+        for (int i = 0; i < m_projectiles.size(); ++i)
+        {
+            ptHits.push_back(m_projectiles[i]->getHits());
+            ptHurtboxes.push_back(m_projectiles[i]->getHurtboxes());
+        }
+
+        //Check for forced clashes between characters
         for (auto &hit1 : hits[0])
         {
             for (auto &hit2 : hits[1])
             {
-                if (hit1.forcedClash || hit2.forcedClash)
+                if ((hit1.forcedClash || hit2.forcedClash) && !m_characters[0]->isHitTaken(hit2.m_hitId) && !m_characters[1]->isHitTaken(hit1.m_hitId)) // if any of them is forced
                 {
-                    auto hboxes1 = hit1.getHitboxes();
-                    for (auto &hbox1 : hboxes1)
+                    auto res = hitutils::checkCollision(hit1, hit2);
+                    if (res.first)
                     {
-                        auto hboxes2 = hit2.getHitboxes();
-                        for (auto &hbox2 : hboxes2)
+                        m_characters[0]->applyClash(hit1, hit2.m_hitId);
+                        m_characters[1]->applyClash(hit2, hit1.m_hitId);
+                        startFlash(10, 5);
+
+                        ParticleSpawnData spdata;
+                        spdata.m_pos = res.second;
+                        spdata.m_particleType = PARTICLE_TYPES::CLASH;
+                        spdata.m_scale = 0.65f;
+                        m_particleManager.spawnParticles(spdata);
+                    }
+                }
+            }
+        }
+
+        // Check for forced clashes between characters and projectiles
+        for (const auto &pid : priorityList)
+        {
+            int p2id = 1 - pid;
+            for (auto &hit1 : hits[pid])
+            {
+                for (int i = 0; i < m_projectiles.size(); ++i)
+                {
+                    if (m_projectiles[i]->getPlayerID() - 1 == p2id)
+                    {
+                        for (auto &ptHit: ptHits[i])
                         {
-                            if (hbox1.second.isCollideWith(hbox2.second) && !m_characters[0]->isHitTaken(hit2.m_hitId) && !m_characters[1]->isHitTaken(hit1.m_hitId))
+                            if (!m_characters[pid]->isHitTaken(ptHit.m_hitId) && !m_projectiles[i]->isHitTaken(hit1.m_hitId))
                             {
-                                m_characters[0]->applyClash(hit1, hit2.m_hitId);
-                                m_characters[1]->applyClash(hit2, hit1.m_hitId);
-                                startFlash(10, 5);
+                                auto res = hitutils::checkCollision(hit1, ptHit);
+                                if (res.first)
+                                {
+                                    m_characters[pid]->applyClash(hit1, ptHit.m_hitId);
+                                    m_projectiles[i]->applyClash(ptHit, hit1.m_hitId);
+                                    startFlash(10, 5);
 
-                                ParticleSpawnData spdata;
-                                auto pos = hbox1.second.getOverlapArea(hbox2.second).getCenter();
-                                spdata.m_pos = pos;
-                                spdata.m_particleType = PARTICLE_TYPES::CLASH;
-                                spdata.m_scale = 0.65f;
-                                m_particleManager.spawnParticles(spdata);
-
-                                noHit = false;
+                                    ParticleSpawnData spdata;
+                                    spdata.m_pos = res.second;
+                                    spdata.m_particleType = PARTICLE_TYPES::CLASH;
+                                    spdata.m_scale = 0.65f;
+                                    m_particleManager.spawnParticles(spdata);
+                                }
                             }
                         }
                     }
@@ -379,43 +410,58 @@ protected:
             }
         }
 
-        // TODO: Check for forced clashes with projectiles
-
-        if (noHit)
+        // Check for hits
+        for (const auto &pid : priorityList)
         {
-            // Check for hits
-            for (const auto &pid : priorityList)
+            int p2id = 1 - pid;
+            for (const auto &hit1 : hits[pid])
             {
-                int p2id = 1 - pid;
-                bool hitFound = false;
-                for (int ihit = 0; ihit < hits[pid].size() && !hitFound; ++ihit)
+                auto res = hitutils::checkCollision(hit1, hurtboxes[p2id]);
+                if (res.first)
                 {
-                    auto hboxes = hits[pid][ihit].getHitboxes();
-                    for (int ihitbox = 0; ihitbox < hboxes.size() && !hitFound; ++ihitbox)
-                    {
-                        for (int ihurtbox = 0; ihurtbox < hurtboxes[p2id].size() && !hitFound; ++ihurtbox)
-                        {
-                            if (hboxes[ihitbox].second.isCollideWith(hurtboxes[p2id][ihurtbox]))
-                            {
-                                HitEvent ev;
-                                ev.m_hittingPlayerId = pid + 1;
-                                ev.m_hitData = hits[pid][ihit].getHitData();
-                                m_characters[p2id]->applyHit(ev);
-                                m_characters[pid]->applyHit(ev);
+                    HitEvent ev;
+                    ev.m_hittingPlayerId = pid + 1;
+                    ev.m_hitData = hit1.getHitData();
+                    m_characters[p2id]->applyHit(ev);
+                    m_characters[pid]->applyHit(ev);
 
-                                if (ev.m_hitRes != HIT_RESULT::NONE)
-                                {
-                                    m_camera.startShake(ev.m_hitData.hitBlockShakeAmp, ev.m_hitData.hitProps.hitstop + 1);
+                    if (ev.m_hitRes != HIT_RESULT::NONE)
+                    {
+                        m_camera.startShake(ev.m_hitData.hitBlockShakeAmp, ev.m_hitData.hitProps.hitstop + 1);
     
-                                    auto hitpos = hitutils::getHitPosition(hboxes, hurtboxes[p2id]);
-                                    m_hitpos = hitpos - m_hitsize / 2;
-                                    m_characters[pid]->generateHitParticles(ev, hitpos);
+                        auto hitpos = res.second;
+                        m_hitpos = hitpos - m_hitsize / 2;
+                        m_characters[pid]->generateHitParticles(ev, hitpos);
+
+                    }
+                }
+            }
+        }
+
+        // Check for projectile vs character hits
+        for (int i = 0; i < m_projectiles.size(); ++i)
+        {
+            int pid = m_projectiles[i]->getPlayerID() - 1;
+            int p2id = 1 - pid;
+            for (const auto &hit1_ : ptHits[i])
+            {
+                auto res = hitutils::checkCollision(hit1_, hurtboxes[p2id]);
+                if (res.first)
+                {
+                    HitEvent ev;
+                    ev.m_hittingPlayerId = pid + 1;
+                    ev.m_isHitByProjectile = true;
+                    ev.m_hitData = hit1_.getHitData();
+                    m_characters[p2id]->applyHit(ev);
+                    m_projectiles[i]->applyHit(ev);
+
+                    if (ev.m_hitRes != HIT_RESULT::NONE)
+                    {
+                        m_camera.startShake(ev.m_hitData.hitBlockShakeAmp, ev.m_hitData.hitProps.hitstop + 1);
     
-                                    noHit = false;
-                                    hitFound = true;
-                                }
-                            }
-                        }
+                        auto hitpos = res.second;
+                        m_hitpos = hitpos - m_hitsize / 2;
+                        m_projectiles[i]->generateHitParticles(ev, hitpos);
                     }
                 }
             }
@@ -427,40 +473,29 @@ protected:
             m_characters[i]->attemptThrow();
         }
 
-        if (noHit)
+        // Check for clashes
+        for (auto &hit1 : hits[0])
         {
-            // Check for clashes
-            for (auto &hit1 : hits[0])
+            for (auto &hit2 : hits[1])
             {
-                auto hboxes1 = hit1.getHitboxes();
-                for (auto &hbox1 : hboxes1)
+                if (!m_characters[0]->isHitTaken(hit2.m_hitId) && !m_characters[1]->isHitTaken(hit1.m_hitId))
                 {
-                    for (auto &hit2 : hits[1])
+                    auto res = hitutils::checkCollision(hit1, hit2);
+                    if (res.first)
                     {
-                        auto hboxes2 = hit2.getHitboxes();
-                        for (auto &hbox2 : hboxes2)
-                        {
-                            if (hbox1.second.isCollideWith(hbox2.second) && !m_characters[0]->isHitTaken(hit2.m_hitId) && !m_characters[1]->isHitTaken(hit1.m_hitId))
-                            {
-                                m_characters[0]->applyClash(hit1, hit2.m_hitId);
-                                m_characters[1]->applyClash(hit2, hit1.m_hitId);
-                                startFlash(10, 5);
+                        m_characters[0]->applyClash(hit1, hit2.m_hitId);
+                        m_characters[1]->applyClash(hit2, hit1.m_hitId);
+                        startFlash(10, 5);
 
-                                ParticleSpawnData spdata;
-                                auto pos = hbox1.second.getOverlapArea(hbox2.second).getCenter();
-                                spdata.m_pos = pos;
-                                spdata.m_particleType = PARTICLE_TYPES::CLASH;
-                                spdata.m_scale = 0.65f;
-                                m_particleManager.spawnParticles(spdata);
-                            }
-                        }
+                        ParticleSpawnData spdata;
+                        spdata.m_pos = res.second;
+                        spdata.m_particleType = PARTICLE_TYPES::CLASH;
+                        spdata.m_scale = 0.65f;
+                        m_particleManager.spawnParticles(spdata);
                     }
                 }
             }
-
         }
-
-        // TODO: Check for clashes with projectiles
 
         // TODO: Check for projectiles leaving the screen
 

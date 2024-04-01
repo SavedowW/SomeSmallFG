@@ -43,7 +43,7 @@ HitsVec Projectile::getHits()
 {
     if (m_currentAction && m_currentAction->m_isAttack)
     {
-        auto hit = dynamic_cast<ActionProjectileHitProvider*>(m_currentAction)->getCurrentHit(m_pos, m_ownOrientation);
+        auto hit = dynamic_cast<ActionProjectileHitProvider*>(m_currentAction)->getCurrentHit(m_pos, m_ownOrientation, *this);
 
         return {hit};
     }
@@ -68,5 +68,38 @@ void Projectile::loadAnimations(Application &application_)
 
 HIT_RESULT Projectile::applyHit(HitEvent &hitEvent_)
 {
+    auto *act = dynamic_cast<ActionProjectile*>(m_currentAction);
+
+    // Attacker's side
+    if (hitEvent_.m_hittingPlayerId == m_playerId && hitEvent_.m_isHitByProjectile)
+    {
+        if (hitEvent_.m_hitRes == HIT_RESULT::NONE)
+            return HIT_RESULT::NONE;
+
+        act->ownHitApplied(hitEvent_, *this);
+
+        callForPriority();
+
+        applyHitstop(hitEvent_.m_hitData.hitProps.hitstop - 2);
+            
+        if (hitEvent_.m_hitRes == HIT_RESULT::HIT || hitEvent_.m_hitRes == HIT_RESULT::COUNTER)
+            applyCancelWindow(hitEvent_.m_hitData.cancelsOnHit);
+        else
+            applyCancelWindow(hitEvent_.m_hitData.cancelsOnBlock);
+
+
+        return HIT_RESULT::NONE;
+    }
+
     return HIT_RESULT::NONE;
+}
+
+void Projectile::applyClash(const Hit &clashedHit_, int opponentsHitId_)
+{
+    auto *act = dynamic_cast<ActionProjectile*>(m_currentAction);
+
+    applyHitstop(20);
+    m_takenHits.insert(opponentsHitId_);
+
+    act->ownHitClashed(clashedHit_, *this);
 }

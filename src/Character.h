@@ -210,11 +210,7 @@ public:
     virtual void updatePosition() override;
 
     virtual HIT_RESULT applyHit(HitEvent &hitEvent_) override;
-    void addTakenHit(int hitId_);
-    void removeTakenHit(int hitId_);
-    bool isHitTaken(int hitId_);
 
-    virtual void applyHitstop(int hitstopLength);
     void takePushback(const Vector2<float> pushback_);
     virtual void applyClash(const Hit &clashedHit_, int opponentsHitId_);
 
@@ -283,7 +279,6 @@ protected:
     const int m_framesBeforeAirdash;
     const int m_framesBeforeAirjump;
 
-    std::set<int> m_takenHits;
     bool m_usedAirAttack = false;
 
     GenericCharacterData m_genericCharacterData;

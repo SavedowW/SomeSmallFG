@@ -508,13 +508,6 @@ HIT_RESULT Character::applyHit(HitEvent &hitEvent_)
     }
 }
 
-void Character::applyHitstop(int hitstopLength)
-{
-    m_inHitstop = true;
-    m_hitstopTimer.begin(hitstopLength);
-    m_extendedBuffer = hitstopLength - gamedata::global::inputBufferLength;
-}
-
 void Character::takePushback(const Vector2<float> pushback_)
 {
     if (m_lockedInAnimation || m_tiedAnimWithOpponent)
@@ -614,21 +607,6 @@ void Character::jumpUsingAction()
 void Character::lockInAnimation()
 {
     m_lockedInAnimation = true;
-}
-
-void Character::addTakenHit(int hitId_)
-{
-    m_takenHits.insert(hitId_);
-}
-
-void Character::removeTakenHit(int hitId_)
-{
-    m_takenHits.erase(hitId_);
-}
-
-bool Character::isHitTaken(int hitId_)
-{
-    return m_takenHits.contains(hitId_);
 }
 
 void Character::releaseFromAnimation()

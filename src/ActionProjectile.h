@@ -11,7 +11,8 @@ public:
 
     virtual void outdated(InteractableStateMachine &character_) override;
 
-    virtual void ownHitApplied(HitEvent &ev_, InteractableStateMachine &owner_) {};
+    virtual void ownHitApplied(const HitEvent &ev_, InteractableStateMachine &owner_) {};
+    virtual void ownHitClashed(const Hit &ev_, InteractableStateMachine &owner_) {};
 
     ActionProjectile *setOutdatedExpire(bool expireWhenOutdated_);
 
@@ -27,13 +28,15 @@ public:
 
     virtual void switchTo(InteractableStateMachine &character_) override;
 
-    virtual void ownHitApplied(HitEvent &ev_, InteractableStateMachine &owner_) override;
-    virtual Hit getCurrentHit(const Vector2<float>& offset_, ORIENTATION ownOrientation_);
+    virtual void ownHitApplied(const HitEvent &ev_, InteractableStateMachine &owner_) override;
+    virtual void ownHitClashed(const Hit &ev_, InteractableStateMachine &owner_) override;
+    virtual Hit getCurrentHit(const Vector2<float>& offset_, ORIENTATION ownOrientation_, InteractableStateMachine &owner_);
 
 protected:
     Hit m_hitProto;
     int m_maxHitCount = 0;
     int m_hitsLeft = 0;
+    bool m_hitUsed = false;
 
 };
 
