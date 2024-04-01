@@ -22,7 +22,8 @@ std::unique_ptr<Projectile> ProjectileFactory::createProjectile(PTRecipe &recipe
     auto actpt3 = std::unique_ptr<Action>((new ActionProjectile(2, {}, ANIMATIONS::CHAR1_PROJECTILE_FADEOUT, StateMarker(3, {}), false, false))->setOutdatedExpire(true)->setSwitchData(false, 16, false, false,
     {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}));
 
-    auto pt = std::unique_ptr<Projectile>(new Projectile(*m_application, recipe_.m_starterPos, 3, m_cam, m_particleManager, 0, recipe_.m_starterOrientation, m_projectileManager, recipe_.m_ptType));
+    auto pos = utils::clamp(recipe_.m_starterPos, recipe_.m_minPos, recipe_.m_maxPos);
+    auto pt = std::unique_ptr<Projectile>(new Projectile(*m_application, pos, 3, m_cam, m_particleManager, 0, recipe_.m_starterOrientation, m_projectileManager, recipe_.m_ptType));
     pt->addAction(std::move(actpt1));
     pt->addAction(std::move(actpt2));
     pt->addAction(std::move(actpt3));

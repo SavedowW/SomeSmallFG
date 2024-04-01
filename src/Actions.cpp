@@ -91,7 +91,7 @@ void ActionCharacter::update(InteractableStateMachine &character_)
     auto frame = character_.m_timer.getCurrentFrame() + 1;
 
     m_ptRecipe.m_starterOrientation = character_.getOwnOrientation();
-    m_ptRecipe.m_starterPos = character_.m_pos + character_.getOwnHorDir().mulComponents(Vector2{50.0f, 0.0f});
+    m_ptRecipe.m_starterPos = character_.m_pos + character_.getOwnHorDir().mulComponents(Vector2{200.0f, 0.0f});
 
     if (m_createPt[frame])
         chr->m_projectileManager->addProjectile(std::move(chr->m_ptFactory.createProjectile(m_ptRecipe)), character_.getPlayerID(), character_.m_otherCharacter);
@@ -1219,6 +1219,8 @@ Action_char1_move_projectile::Action_char1_move_projectile() :
 
     PTRecipe rp;
     rp.m_ptType = 1;
+    rp.m_minPos = {100, gamedata::stages::levelOfGround};
+    rp.m_maxPos = {gamedata::stages::stageWidth - 100, gamedata::stages::levelOfGround};
     setIsPossibleProjectileCheck(1);
     setUpdateCreateProjectile(TimelineProperty<bool>(
         {
