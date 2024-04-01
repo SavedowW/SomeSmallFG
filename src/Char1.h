@@ -75,7 +75,7 @@ enum class CHAR1_STATE {
 class Char1 : public Character
 {
 public:
-    Char1(Application &application_, Vector2<float> pos_, Camera *cam_, ParticleManager *particleManager_);
+    Char1(Application &application_, Vector2<float> pos_, Camera *cam_, ParticleManager *particleManager_, ProjectileManager *ptManager_);
     virtual ~Char1() {};
 
     void provideActions();

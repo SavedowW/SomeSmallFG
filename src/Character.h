@@ -176,7 +176,7 @@ class Character : public InteractableStateMachine
 {
 public:
     Character(Application &application_, Vector2<float> pos_, float maxHealth_, float baseGravity_, Camera *cam_, ParticleManager *particleManager_, int maxAirdashes_, int maxDJumps_, int framesBeforeAirdash_, int framesBeforeAirjump_,
-    StateMarker autoRealignAfter_, int stateCnt_);
+    StateMarker autoRealignAfter_, int stateCnt_, ProjectileManager *ptManager_);
 
     void setOnStage(Application &application_, int playerId_, Character *otherCharacter_, PriorityHandler *priorityHandler_);
 
@@ -222,9 +222,6 @@ public:
     virtual void generateWidgets(Application &application_, HUD &hud_);
 
     virtual ORIENTATION getInputDir() const override;
-
-    void queueProjectile(std::unique_ptr<Projectile> &&pt_);
-    std::vector<std::unique_ptr<Projectile>> &getQueuedProjectiles();
 
 protected:
     void enterHitstunAnimation(const PostHitProperties &props_);
@@ -284,8 +281,6 @@ protected:
     GenericCharacterData m_genericCharacterData;
 
     StateMarker m_autoRealignAfter;
-
-    std::vector<std::unique_ptr<Projectile>> m_queuedProjectiles;
 
     ProjectileFactory m_ptFactory;
 

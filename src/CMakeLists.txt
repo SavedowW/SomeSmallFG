@@ -33,6 +33,7 @@ InteractableStateMachine.cpp
 Projectile.cpp
 ActionProjectile.cpp
 ProjectileFactory.cpp
+ProjectileManager.cpp
 )
 
 set(INCLUDE_DIRS

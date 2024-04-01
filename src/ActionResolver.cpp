@@ -1,5 +1,7 @@
+#include "ProjectileFactory.h"
 #include "ActionResolver.h"
 #include "Char1.h"
+#include "Projectile.h"
 
 ActionResolver::ActionResolver(InputSystem *input_) :
     InputReactor(input_)

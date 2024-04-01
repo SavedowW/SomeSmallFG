@@ -1,7 +1,7 @@
+#include "ProjectileFactory.h"
 #include "Actions.h"
 #include "Char1.h"
 #include <stdexcept>
-#include "ActionProjectile.h"
 
 /* ============================
  *
@@ -86,7 +86,25 @@ void ActionCharacter::switchTo(InteractableStateMachine &character_)
 void ActionCharacter::update(InteractableStateMachine &character_)
 {
     Action::update(character_);
+
+    auto *chr = dynamic_cast<Character*>(&character_);
+    auto frame = character_.m_timer.getCurrentFrame() + 1;
+
+    m_ptRecipe.m_starterOrientation = character_.getOwnOrientation();
+    m_ptRecipe.m_starterPos = character_.m_pos + character_.getOwnHorDir().mulComponents(Vector2{50.0f, 0.0f});
+
+    if (m_createPt[frame])
+        chr->m_projectileManager->addProjectile(std::move(chr->m_ptFactory.createProjectile(m_ptRecipe)), character_.getPlayerID(), character_.m_otherCharacter);
 }
+
+ActionCharacter *ActionCharacter::setUpdateCreateProjectile(TimelineProperty<bool> &&createPt_, PTRecipe recipe_)
+{
+    m_createPt = std::move(createPt_);
+    m_ptRecipe = recipe_;
+
+    return this;
+}
+
 
 bool ActionCharacter::onLand(InteractableStateMachine &character_)
 {
@@ -129,6 +147,10 @@ int ActionCharacter::isPossible(const InputQueue &inputQueue_, InteractableState
 
     if (m_consumeAirjump)
         if (!chr->m_jumpsAvailable.canConsume(m_consumeAirjump))
+            return 0;
+
+    if (m_checkOwnProjectileToNotExist != -1)
+        if (char_->m_projectileManager->containsProjectile(char_->getPlayerID(), m_checkOwnProjectileToNotExist))
             return 0;
 
     if (char_->isCancelAllowed(actionState))
@@ -1194,19 +1216,17 @@ Action_char1_move_projectile::Action_char1_move_projectile() :
 
     setOutdatedTransition((int)CHAR1_STATE::IDLE);
     setOutdatedMovementData({0.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
-}
-
-void Action_char1_move_projectile::switchTo(InteractableStateMachine &character_)
-{
-    Action_attack::switchTo(character_);
-
-    auto *chr = dynamic_cast<Character*>(&character_);
 
     PTRecipe rp;
-    rp.m_starterOrientation = character_.getOwnOrientation();
-    rp.m_starterPos = character_.m_pos + character_.getOwnHorDir().mulComponents(Vector2{50.0f, 0.0f});
-
-    chr->queueProjectile(std::move(chr->m_ptFactory.createProjectile(rp)));
+    rp.m_ptType = 1;
+    setIsPossibleProjectileCheck(1);
+    setUpdateCreateProjectile(TimelineProperty<bool>(
+        {
+            {1, false},
+            {29, true},
+            {30, false}
+        }
+    ), rp);
 }
 
 // Normal throw startup
@@ -1713,6 +1733,13 @@ Action *Action::setOutdatedMovementData(Vector2<float> mulOwnVel_, Vector2<float
     m_mulOwnDirInrOtd = mulOwnDirInr_;
     m_rawAddVelOtd = rawAddVel_;
     m_rawAddInrOtd = rawAddInr_;
+
+    return this;
+}
+
+Action *Action::setIsPossibleProjectileCheck(int ownTypeToNotExist_)
+{
+    m_checkOwnProjectileToNotExist = ownTypeToNotExist_;
 
     return this;
 }

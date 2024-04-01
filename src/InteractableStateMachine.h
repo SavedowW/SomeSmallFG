@@ -8,11 +8,12 @@
 class Character;
 struct CharacterUpdateRes;
 class ActionProjectileHitProvider;
+class ProjectileManager;
 
 class InteractableStateMachine
 {
 public:
-    InteractableStateMachine(Application &application_, Vector2<float> pos_, int stateCnt_, Camera *cam_, ParticleManager *particleManager_);
+    InteractableStateMachine(Application &application_, Vector2<float> pos_, int stateCnt_, Camera *cam_, ParticleManager *particleManager_, ProjectileManager *ptManager_);
     ~InteractableStateMachine() = default;
 
     virtual void proceedCurrentState();
@@ -108,6 +109,8 @@ protected:
     ParticleManager *m_particleManager;
 
     std::set<int> m_takenHits;
+
+    ProjectileManager *m_projectileManager;
 
     friend Action_throw_startup;
     friend Action_throw_tech;

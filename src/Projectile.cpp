@@ -1,9 +1,11 @@
 #include "Projectile.h"
 #include "ActionProjectile.h"
+#include "ProjectileManager.h"
 
-Projectile::Projectile(Application &application_, Vector2<float> pos_, int stateCnt_, Camera *cam_, ParticleManager *particleManager_, int initialState_, ORIENTATION initialOrientation_) :
-    InteractableStateMachine(application_, pos_, stateCnt_, cam_, particleManager_),
-    m_initialState(initialState_)
+Projectile::Projectile(Application &application_, Vector2<float> pos_, int stateCnt_, Camera *cam_, ParticleManager *particleManager_, int initialState_, ORIENTATION initialOrientation_, ProjectileManager *ptManager_, int ptTypeID_) :
+    InteractableStateMachine(application_, pos_, stateCnt_, cam_, particleManager_, ptManager_),
+    m_initialState(initialState_),
+    m_ptTypeID(ptTypeID_)
 {
     m_ownOrientation = initialOrientation_;
 }
@@ -102,4 +104,9 @@ void Projectile::applyClash(const Hit &clashedHit_, int opponentsHitId_)
     m_takenHits.insert(opponentsHitId_);
 
     act->ownHitClashed(clashedHit_, *this);
+}
+
+int Projectile::getPtTypeID()
+{
+    return m_ptTypeID;
 }

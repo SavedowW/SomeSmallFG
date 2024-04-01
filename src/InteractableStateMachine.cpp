@@ -1,6 +1,7 @@
 #include "InteractableStateMachine.h"
 #include "Character.h"
 #include "Projectile.h"
+#include "ProjectileManager.h"
 
 bool InteractableStateMachine::isAirborne() const
 {
@@ -24,7 +25,7 @@ bool InteractableStateMachine::canBeDraggedByInertia() const
     return true;
 }
 
-InteractableStateMachine::InteractableStateMachine(Application &application_, Vector2<float> pos_, int stateCnt_, Camera *cam_, ParticleManager *particleManager_) :
+InteractableStateMachine::InteractableStateMachine(Application &application_, Vector2<float> pos_, int stateCnt_, Camera *cam_, ParticleManager *particleManager_, ProjectileManager *ptManager_) :
     m_pos(pos_),
     m_actionResolver(application_.getInputSystem()),
     m_currentAction(nullptr),
@@ -32,7 +33,8 @@ InteractableStateMachine::InteractableStateMachine(Application &application_, Ve
     m_playerId(0),
     m_currentAnimation(nullptr),
     m_cam(cam_),
-    m_particleManager(particleManager_)
+    m_particleManager(particleManager_),
+    m_projectileManager(ptManager_)
 {
 }
 

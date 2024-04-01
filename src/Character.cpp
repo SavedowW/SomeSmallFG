@@ -3,8 +3,8 @@
 #include "ActionResolver.h"
 
 Character::Character(Application &application_, Vector2<float> pos_, float maxHealth_, float baseGravity_, Camera *cam_, ParticleManager *particleManager_, int maxAirdashes_, int maxDJumps_,
-    int framesBeforeAirdash_, int framesBeforeAirjump_, StateMarker autoRealignAfter_, int stateCnt_) :
-    InteractableStateMachine(application_, pos_, stateCnt_, cam_, particleManager_),
+    int framesBeforeAirdash_, int framesBeforeAirjump_, StateMarker autoRealignAfter_, int stateCnt_, ProjectileManager *ptManager_) :
+    InteractableStateMachine(application_, pos_, stateCnt_, cam_, particleManager_, ptManager_),
     m_healthHandler(maxHealth_),
     m_comboPhysHandler(baseGravity_),
     m_jumpsAvailable(maxDJumps_),
@@ -13,7 +13,7 @@ Character::Character(Application &application_, Vector2<float> pos_, float maxHe
     m_framesBeforeAirjump(framesBeforeAirjump_),
     m_autoRealignAfter(std::move(autoRealignAfter_)),
     m_genericCharacterData(stateCnt_),
-    m_ptFactory(&application_, cam_, particleManager_)
+    m_ptFactory(&application_, cam_, particleManager_, ptManager_)
 {
     setPos(pos_);
 }
@@ -144,16 +144,6 @@ ORIENTATION Character::getInputDir() const
     if (m_genericCharacterData.m_useDirToEnemyForInputs.getMark(m_currentState))
         res = m_dirToEnemy;
     return res;
-}
-
-void Character::queueProjectile(std::unique_ptr<Projectile> &&pt_)
-{
-    m_queuedProjectiles.push_back(std::move(pt_));
-}
-
-std::vector<std::unique_ptr<Projectile>> &Character::getQueuedProjectiles()
-{
-    return m_queuedProjectiles;
 }
 
 void Character::drawGroundProjection(Renderer &renderer_, Camera &camera_, float angle_)

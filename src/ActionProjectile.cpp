@@ -1,3 +1,4 @@
+#include "ProjectileFactory.h"
 #include "ActionProjectile.h"
 
 ActionProjectile::ActionProjectile(int actionState_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, StateMarker transitionableFrom_, bool isAttack_, bool isAirborne_) :

@@ -1,9 +1,10 @@
 #include "ProjectileFactory.h"
 
-ProjectileFactory::ProjectileFactory(Application *application_, Camera *cam_, ParticleManager *particleManager_) :
+ProjectileFactory::ProjectileFactory(Application *application_, Camera *cam_, ParticleManager *particleManager_, ProjectileManager *ptManager_) :
     m_application(application_),
     m_cam(cam_),
-    m_particleManager(particleManager_)
+    m_particleManager(particleManager_),
+    m_projectileManager(ptManager_)
 {
 }
 
@@ -21,7 +22,7 @@ std::unique_ptr<Projectile> ProjectileFactory::createProjectile(PTRecipe &recipe
     auto actpt3 = std::unique_ptr<Action>((new ActionProjectile(2, {}, ANIMATIONS::CHAR1_PROJECTILE_FADEOUT, StateMarker(3, {}), false, false))->setOutdatedExpire(true)->setSwitchData(false, 16, false, false,
     {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}));
 
-    auto pt = std::unique_ptr<Projectile>(new Projectile(*m_application, recipe_.m_starterPos, 3, m_cam, m_particleManager, 0, recipe_.m_starterOrientation));
+    auto pt = std::unique_ptr<Projectile>(new Projectile(*m_application, recipe_.m_starterPos, 3, m_cam, m_particleManager, 0, recipe_.m_starterOrientation, m_projectileManager, recipe_.m_ptType));
     pt->addAction(std::move(actpt1));
     pt->addAction(std::move(actpt2));
     pt->addAction(std::move(actpt3));

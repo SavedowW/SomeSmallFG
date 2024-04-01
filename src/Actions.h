@@ -6,6 +6,7 @@
 #include "AnimationManager.h"
 #include "TimelineProperty.h"
 #include "StateMarker.h"
+#include "PTRecipe.h"
 
 class InteractableStateMachine;
 
@@ -62,6 +63,8 @@ public:
     Action *setOutdatedTransition(int targetState_);
     Action *setOutdatedMovementData(Vector2<float> mulOwnVel_, Vector2<float> mulOwnInr_, Vector2<float> mulOwnDirVel_, Vector2<float> mulOwnDirInr_, Vector2<float> rawAddVel_, Vector2<float> rawAddInr_);
 
+    Action *setIsPossibleProjectileCheck(int ownTypeToNotExist_);
+
 
     const int actionState;
     const HurtboxFramesVec m_hurtboxes;
@@ -71,6 +74,8 @@ public:
 protected:
     StateMarker m_transitionableFrom;
     bool m_isAirborne;
+
+    int m_checkOwnProjectileToNotExist = -1;
 
     bool m_realign = false;
     int m_timerValue = 0;
@@ -162,6 +167,8 @@ public:
     ActionCharacter *setHitstunAnimation(int hitstunAnim_);
     ActionCharacter *setOutdatedFlags(bool setRealign_, bool setThrowInvul_, bool setAirborne_, bool enterHitstun_, bool setAboveGroundOtd_);
 
+    ActionCharacter *setUpdateCreateProjectile(TimelineProperty<bool> &&createPt_, PTRecipe recipe_);
+
     ActionCharacter *setDisadvantageFlags(bool isBlockstun_, bool isHitstun_, bool isKnockdown_);
 
     const bool m_isThrowStartup;
@@ -193,6 +200,9 @@ protected:
     bool m_enterHitstunOtd = false;
 
     int m_hitstunAnimation = (int)HITSTUN_ANIMATION::NONE;
+
+    PTRecipe m_ptRecipe;
+    TimelineProperty<bool> m_createPt;
 };
 
 
@@ -624,7 +634,6 @@ class Action_char1_move_projectile : public Action_attack
 {
 public:
     Action_char1_move_projectile();
-    virtual void switchTo(InteractableStateMachine &character_);
 };
 
 // THROW RELATED STUFF

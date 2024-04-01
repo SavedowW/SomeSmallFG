@@ -1,21 +1,16 @@
 #ifndef PROJECTILE_FACTORY_H_
 #define PROJECTILE_FACTORY_H_
 #include "Application.h"
-#include "Projectile.h"
+#include "ProjectileManager.h"
 #include "ActionProjectile.h"
+#include "PTRecipe.h"
 
 class Projectile;
-
-struct PTRecipe
-{
-    Vector2<float> m_starterPos;
-    ORIENTATION m_starterOrientation;
-};
 
 class ProjectileFactory
 {
 public:
-    ProjectileFactory(Application *application_, Camera *cam_, ParticleManager *particleManager_);
+    ProjectileFactory(Application *application_, Camera *cam_, ParticleManager *particleManager_, ProjectileManager *ptManager_);
 
     void setPlayerID(int playerId_);
 
@@ -28,6 +23,7 @@ public:
     Camera *m_cam;
     int m_playerID;
     ParticleManager *m_particleManager;
+    ProjectileManager *m_projectileManager;
 
 };
 

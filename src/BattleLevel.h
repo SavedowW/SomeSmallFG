@@ -12,6 +12,7 @@
 #include "ParticleManager.h"
 #include "PriorityHandler.h"
 #include <ranges>
+#include "ProjectileManager.h"
 
 template <typename BackType>
 class BattleLevel : public Level
@@ -22,7 +23,8 @@ public:
     	m_camera(gamedata::stages::startingCameraPos, {gamedata::global::cameraWidth, gamedata::global::cameraHeight}, m_size),
         m_frameTimerBeforeZoom(gamedata::stages::framesBeforeZoom),
         m_maxCharRange(gamedata::stages::maxCharRange),
-        m_particleManager(application_->getRenderer(), application_->getAnimationManager())
+        m_particleManager(application_->getRenderer(), application_->getAnimationManager()),
+        m_projectileManager(application_, &m_priorityHandler)
     {
         subscribe(EVENTS::FN2);
     }
@@ -178,16 +180,7 @@ protected:
         for (const auto &i : priorityList)
             results[i] = m_characters[i]->update();
 
-        for (auto &pt : m_projectiles)
-            pt->update();
-
-        for (int i = 0; i < m_projectiles.size();)
-        {
-            if (m_projectiles[i]->isExpired())
-                m_projectiles.erase(m_projectiles.begin() + i);
-            else
-                i++;
-        }
+        m_projectileManager.update();
 
         results[0].pushbox = m_characters[0]->getPushbox();
         results[1].pushbox = m_characters[1]->getPushbox();
@@ -333,9 +326,6 @@ protected:
             m_characters[1]->setPos(m_characters[1]->getPos() + directionToPush[1] * rangeToPush[1]);
         }
 
-        for (const auto &pid : priorityList)
-            getProjectiles(m_characters[pid]->getQueuedProjectiles(), pid);
-
         // Update block state
         for (const auto &pid : priorityList)
             m_characters[pid]->updateBlockState();
@@ -344,12 +334,14 @@ protected:
         std::array<HitsVec, 2> hits = {m_characters[0]->getHits(), m_characters[1]->getHits()};
         std::array<HurtboxVec, 2> hurtboxes = {m_characters[0]->getHurtboxes(), m_characters[1]->getHurtboxes()};
 
+        auto &projectiles = m_projectileManager.getProjectiles();
+
         std::vector<HitsVec> ptHits;
         std::vector<HurtboxVec> ptHurtboxes;
-        for (int i = 0; i < m_projectiles.size(); ++i)
+        for (int i = 0; i < projectiles.size(); ++i)
         {
-            ptHits.push_back(m_projectiles[i]->getHits());
-            ptHurtboxes.push_back(m_projectiles[i]->getHurtboxes());
+            ptHits.push_back(projectiles[i]->getHits());
+            ptHurtboxes.push_back(projectiles[i]->getHurtboxes());
         }
 
         //Check for forced clashes between characters
@@ -382,19 +374,19 @@ protected:
             int p2id = 1 - pid;
             for (auto &hit1 : hits[pid])
             {
-                for (int i = 0; i < m_projectiles.size(); ++i)
+                for (int i = 0; i < projectiles.size(); ++i)
                 {
-                    if (m_projectiles[i]->getPlayerID() - 1 == p2id)
+                    if (projectiles[i]->getPlayerID() - 1 == p2id)
                     {
                         for (auto &ptHit: ptHits[i])
                         {
-                            if (!m_characters[pid]->isHitTaken(ptHit.m_hitId) && !m_projectiles[i]->isHitTaken(hit1.m_hitId))
+                            if ((hit1.forcedClash || ptHit.forcedClash) && !m_characters[pid]->isHitTaken(ptHit.m_hitId) && !projectiles[i]->isHitTaken(hit1.m_hitId))
                             {
                                 auto res = hitutils::checkCollision(hit1, ptHit);
                                 if (res.first)
                                 {
                                     m_characters[pid]->applyClash(hit1, ptHit.m_hitId);
-                                    m_projectiles[i]->applyClash(ptHit, hit1.m_hitId);
+                                    projectiles[i]->applyClash(ptHit, hit1.m_hitId);
                                     startFlash(10, 5);
 
                                     ParticleSpawnData spdata;
@@ -439,9 +431,9 @@ protected:
         }
 
         // Check for projectile vs character hits
-        for (int i = 0; i < m_projectiles.size(); ++i)
+        for (int i = 0; i < projectiles.size(); ++i)
         {
-            int pid = m_projectiles[i]->getPlayerID() - 1;
+            int pid = projectiles[i]->getPlayerID() - 1;
             int p2id = 1 - pid;
             for (const auto &hit1_ : ptHits[i])
             {
@@ -453,7 +445,7 @@ protected:
                     ev.m_isHitByProjectile = true;
                     ev.m_hitData = hit1_.getHitData();
                     m_characters[p2id]->applyHit(ev);
-                    m_projectiles[i]->applyHit(ev);
+                    projectiles[i]->applyHit(ev);
 
                     if (ev.m_hitRes != HIT_RESULT::NONE)
                     {
@@ -461,7 +453,7 @@ protected:
     
                         auto hitpos = res.second;
                         m_hitpos = hitpos - m_hitsize / 2;
-                        m_projectiles[i]->generateHitParticles(ev, hitpos);
+                        projectiles[i]->generateHitParticles(ev, hitpos);
                     }
                 }
             }
@@ -537,7 +529,9 @@ protected:
         for (const auto &i : priorityList | std::views::reverse)
             m_characters[i]->draw(*m_application->getRenderer(), m_camera);
 
-        for (auto &el : m_projectiles)
+        auto &projectiles = m_projectileManager.getProjectiles();
+
+        for (auto &el : projectiles)
             el->draw(*m_application->getRenderer(), m_camera);
 
         m_hud.draw(*m_application->getRenderer(), m_camera);
@@ -547,17 +541,6 @@ protected:
         renderer.fillRectangle(m_hitpos, m_hitsize, {255, 255, 255, 255}, m_camera);
 
     	renderer.updateScreen();
-    }
-
-    void getProjectiles(std::vector<std::unique_ptr<Projectile>> &pts_, int pid_)
-    {
-        for (int i = 0; i < pts_.size(); ++i)
-        {
-            m_projectiles.push_back(std::move(pts_[i]));
-            m_projectiles[m_projectiles.size() - 1]->setOnStage(*m_application, pid_ + 1, m_characters[1 - pid_].get(), &m_priorityHandler);
-        }
-
-        pts_.clear();
     }
 
     FrameTimer m_frameTimerBeforeZoom;
@@ -571,7 +554,7 @@ protected:
     HUD m_hud;
     ParticleManager m_particleManager;
 
-    std::vector<std::unique_ptr<Projectile>> m_projectiles;
+    ProjectileManager m_projectileManager;
 
     PriorityHandler m_priorityHandler;
 
