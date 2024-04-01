@@ -34,6 +34,7 @@ Projectile.cpp
 ActionProjectile.cpp
 ProjectileFactory.cpp
 ProjectileManager.cpp
+RecipeParser.cpp
 )
 
 set(INCLUDE_DIRS
@@ -59,4 +60,4 @@ add_subdirectory (Core)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 23)
 
 include_directories(${INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} ${LINK_LIBRARIES} Core)
+target_link_libraries(${PROJECT_NAME} ${LINK_LIBRARIES} Core nlohmann_json::nlohmann_json)
