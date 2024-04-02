@@ -1,7 +1,10 @@
 #include "StateMarker.h"
 
-StateMarker::StateMarker(int count_) :
-    m_stateMarks(count_ / STATE_HOLDER_SIZE + 1 , 0)
+StateMarker::StateMarker()
+{
+}
+
+StateMarker::StateMarker(int count_) : m_stateMarks(count_ / STATE_HOLDER_SIZE + 1, 0)
 {
 
 }
@@ -9,6 +12,13 @@ StateMarker::StateMarker(int count_) :
 StateMarker::StateMarker(const StateMarker &sm_)
 {
     m_stateMarks = sm_.m_stateMarks;
+}
+
+StateMarker &StateMarker::operator=(const StateMarker &sm_)
+{
+    m_stateMarks = sm_.m_stateMarks;
+
+    return *this;
 }
 
 StateMarker::StateMarker(StateMarker &&sm_)

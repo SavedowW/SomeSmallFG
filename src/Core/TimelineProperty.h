@@ -16,7 +16,7 @@ public:
 
     // std::pair that requires copy constructor is bad civilization
     TimelineProperty(const TimelineProperty<T> &rhs);
-    TimelineProperty& operator=(const TimelineProperty<T> &rhs) = delete;
+    TimelineProperty& operator=(const TimelineProperty<T> &rhs);
     TimelineProperty(TimelineProperty<T> &&rhs);
     TimelineProperty& operator=(TimelineProperty<T> &&rhs);
 

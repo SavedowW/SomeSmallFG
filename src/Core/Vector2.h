@@ -310,4 +310,10 @@ struct Collider
 	
 };
 
+inline std::ostream& operator<< (std::ostream& out_, const Collider& cld_)
+{
+    out_ << "{ " << cld_.x << ", " << cld_.y << ", " << cld_.w << ", " << cld_.h << " }";
+    return out_;
+}
+
 #endif

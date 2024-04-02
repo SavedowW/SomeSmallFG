@@ -26,6 +26,15 @@ TimelineProperty<T>::TimelineProperty(const TimelineProperty<T> &rhs)
     m_isEmpty = rhs.m_isEmpty;
 }
 
+template <typename T>
+TimelineProperty<T> &TimelineProperty<T>::operator=(const TimelineProperty<T> &rhs)
+{
+    m_values = rhs.m_values;
+    m_isEmpty = rhs.m_isEmpty;
+
+    return *this;
+}
+
 template<typename T>
 TimelineProperty<T>::TimelineProperty(T &&value_)
 {

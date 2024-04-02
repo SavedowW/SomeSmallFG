@@ -14,8 +14,10 @@ constexpr inline int STATE_HOLDER_SIZE = sizeof(StateHolder_t) * 8;
 class StateMarker
 {
 public:
+    StateMarker();
     StateMarker(int count_);
     StateMarker(const StateMarker &sm_);
+    StateMarker &operator=(const StateMarker &sm_);
     StateMarker(StateMarker &&sm_);
     StateMarker(int count_, const std::vector<int> &trueFields_);
     void toggleMark(int id_);
