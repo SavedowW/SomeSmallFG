@@ -61,7 +61,38 @@
                         "char1_crouch",
                         "char1_walk_fwd",
                         "char1_walk_bwd"
-                    ]
+                    ],
+                    "isAttack": false,
+                    "isCrouchState": false,
+                    "isThrowStartup": false,
+                    "consumeAirdash": 0,
+                    "consumeAirjump": 0,
+                    "waitAirdashTimer": false,
+                    "waitAirjumpTimer": false,
+                    "isAirborne": false,
+                    "extentionSwitchData": {
+                        "realign": false,
+                        "timerValue": 0,
+                        "velToInertia": true,
+                        "resetDefenseState": true,
+                        "setAirAttackFlag": false,
+                        "resetPushback": false,
+                        "callForPriority": false,
+                        "mulOwnVel": {"x": 1.0, "y": 1.0},
+                        "mulOwnInr": {"x": 1.0, "y": 1.0},
+                        "mulOwnDirVel": {"x": 0.0, "y": 0.0},
+                        "mulOwnDirInr": {"x": 0.0, "y": 0.0},
+                        "rawAddVel": {"x": 0.0, "y": 0.0},
+                        "rawAddInr": {"x": 0.0, "y": 0.0}
+                    },
+                    "extentionRealignData": {
+                        "realignData": [
+                            {
+                                "frame": 0,
+                                "value": true
+                            }
+                        ]
+                    }
                 },
                 {
                     "ActionType": "Action_prolonged",
