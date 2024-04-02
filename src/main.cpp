@@ -14,8 +14,8 @@ int main(int argc, char* args[])
     std::cout << app.getBasePath() << std::endl;
     RecipeParser pr(app.getBasePath() + "/Resources/data.json");
 
-    //app.setLevel(gamedata::stages::stage1::stageID, new Stage1(&app, {gamedata::stages::stageWidth, gamedata::stages::stageHeight}, gamedata::stages::stage1::stageID));
-    //app.run();
+    app.setLevel(gamedata::stages::stage1::stageID, new Stage1(&app, {gamedata::stages::stageWidth, gamedata::stages::stageHeight}, gamedata::stages::stage1::stageID));
+    app.run();
 
     return 0;
 }

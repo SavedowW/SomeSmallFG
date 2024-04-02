@@ -450,28 +450,19 @@ public:
     Action_char1_walk_bwd();
 };
 
-class Action_char1_jump : public Action_jump
-{
-public:
-    Action_char1_jump(int actionState_, const Vector2<float> &impulse_, float prejumpLen_, float maxHorInertia_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_);
-    const Vector2<float> m_impulse;
-    const float m_prejumpLen;
-    const float m_maxHorInertia;
-};
-
-class Action_char1_neutral_jump : public Action_char1_jump
+class Action_char1_neutral_jump : public Action_jump
 {
 public:
     Action_char1_neutral_jump();
 };
 
-class Action_char1_forward_jump : public Action_char1_jump
+class Action_char1_forward_jump : public Action_jump
 {
 public:
     Action_char1_forward_jump();
 };
 
-class Action_char1_backward_jump : public Action_char1_jump
+class Action_char1_backward_jump : public Action_jump
 {
 public:
     Action_char1_backward_jump();
@@ -606,25 +597,13 @@ public:
     Action_char1_knockdown_recovery();
 };
 
-class Action_char1_ground_attack : public Action_attack
-{
-public:
-    Action_char1_ground_attack(int actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, StateMarker transitionableFrom_, bool isCrouchState_);
-};
-
-class Action_char1_air_attack : public Action_attack
-{
-public:
-    Action_char1_air_attack(int actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, StateMarker transitionableFrom_);
-};
-
-class Action_char1_move_JC : public Action_char1_air_attack
+class Action_char1_move_JC : public Action_attack
 {
 public:
     Action_char1_move_JC();
 };
 
-class Action_char1_move_214C : public Action_char1_ground_attack
+class Action_char1_move_214C : public Action_attack
 {
 public:
     Action_char1_move_214C();

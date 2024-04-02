@@ -63,13 +63,11 @@ void RecipeParser::parseAction(const nlohmann::json &json_)
     m_currentActionRecipe = &m_currentCharacterRecipe->actions[m_currentCharacterRecipe->actions.size() - 1];
     m_currentActionRecipe->m_actionType = actType;
     if (actType == "ActionCharacter")
-    {
         parseActionCharacter(json_);
-    }
+    else if (actType == "Action_prolonged")
+        parseActionProlonged(json_);
     else
-    {
         std::cout << "Unknown action type: " << actType << std::endl;
-    }
 }
 
 void RecipeParser::parseActionCharacter(const nlohmann::json &json_)
@@ -94,6 +92,37 @@ void RecipeParser::parseActionCharacter(const nlohmann::json &json_)
     m_currentActionRecipe->m_isAttack = json_["isAttack"];
     m_currentActionRecipe->m_isCrouchState = json_["isCrouchState"];
     m_currentActionRecipe->m_isThrowStartup = json_["isThrowStartup"];
+    m_currentActionRecipe->m_consumeAirdash = json_["consumeAirdash"];
+    m_currentActionRecipe->m_consumeAirjump = json_["consumeAirjump"];
+    m_currentActionRecipe->m_waitAirdashTimer = json_["waitAirdashTimer"];
+    m_currentActionRecipe->m_waitAirjumpTimer = json_["waitAirjumpTimer"];
+    m_currentActionRecipe->m_isAirborne = json_["isAirborne"];
+
+    // Handle extentions
+    parseActionExtentions(json_);
+}
+
+void RecipeParser::parseActionProlonged(const nlohmann::json &json_)
+{
+    std::cout << json_["ActionType"] << std::endl;
+
+    // Build vector of state IDs
+    std::vector<int> statesFrom;
+    for (auto &el : json_["TransitionableFrom"].get<std::vector<std::string>>())
+        statesFrom.push_back(m_currentCharacterRecipe->states[el]);
+    StateMarker transitionableFrom(m_currentCharacterRecipe->states.size(), statesFrom);
+
+    // Parsing regular data
+    m_currentActionRecipe->m_inputComparator = json_["InputComparator"];
+    m_currentActionRecipe->m_inputComparatorProlong = json_["InputComparatorProlong"];
+    m_currentActionRecipe->m_state = m_currentCharacterRecipe->states[json_["State"]];
+    m_currentActionRecipe->m_hurtboxes = parseHurtboxFramesVec(json_["Hurtboxes"]);
+    // TODO: calculate animation
+    m_currentActionRecipe->m_counterWindow = parseTimelineProperty<bool>(json_["CounterWindow"]);
+    m_currentActionRecipe->m_gravityWindow = parseTimelineProperty<bool>(json_["GravityWindow"]);
+    m_currentActionRecipe->m_blockWindow = parseTimelineProperty<bool>(json_["BlockWindow"]);
+    m_currentActionRecipe->m_transitionableFrom = transitionableFrom;
+    m_currentActionRecipe->m_isCrouchState = json_["isCrouchState"];
     m_currentActionRecipe->m_consumeAirdash = json_["consumeAirdash"];
     m_currentActionRecipe->m_consumeAirjump = json_["consumeAirjump"];
     m_currentActionRecipe->m_waitAirdashTimer = json_["waitAirdashTimer"];

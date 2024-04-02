@@ -21,7 +21,7 @@ void Char1::provideActions()
     m_actionResolver.addAction(std::make_unique<Action_char1_move_JC>());
 
     // j.A
-    m_actionResolver.addAction(std::unique_ptr<Action_char1_air_attack>(new Action_char1_air_attack((int)CHAR1_STATE::MOVE_JA, ANIMATIONS::CHAR1_MOVE_JA, TimelineProperty(true), std::make_unique<InputComparatorAPress>(), 17,
+    m_actionResolver.addAction(std::unique_ptr<Action>((new Action_attack((int)CHAR1_STATE::MOVE_JA, std::make_unique<InputComparatorAPress>(), 17,
     {
         hitgeneration::generate_char1_JA()
     },
@@ -34,14 +34,14 @@ void Char1::provideActions()
             TimelineProperty<bool>({{5, true}, {12, false}}),
             {40.0f, -290.0f, 100.0f, 100.0f}
         }
-    },
-    StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::AIR_DASH_EXTENTION, (int)CHAR1_STATE::JUMP}))));
+    }, ANIMATIONS::CHAR1_MOVE_JA, TimelineProperty(true),
+    StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::AIR_DASH_EXTENTION, (int)CHAR1_STATE::JUMP}), false, true))->setSwitchData(false, 17, false, true, true, false, false, {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f})->setOutdatedTransition((int)CHAR1_STATE::FLOAT)));
 
     m_actionResolver.addAction(std::make_unique<Action_char1_move_214C>());
     m_actionResolver.addAction(std::make_unique<Action_char1_move_projectile>());
 
     //4A
-    m_actionResolver.addAction(std::unique_ptr<Action_char1_ground_attack>(new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_4A, ANIMATIONS::CHAR1_MOVE_4A, TimelineProperty(true), std::make_unique<InputComparator4APress>(), 24,
+    m_actionResolver.addAction(std::unique_ptr<Action>((new Action_attack((int)CHAR1_STATE::MOVE_4A, std::make_unique<InputComparator4APress>(), 24,
     {
         hitgeneration::generate_char1_move4A()
     },
@@ -54,12 +54,12 @@ void Char1::provideActions()
             TimelineProperty<bool>({{8, true}, {18, false}}),
             {60.0f, -420.0f, 60.0f, 150.0f}
         }
-    },
+    }, ANIMATIONS::CHAR1_MOVE_4A, TimelineProperty(true),
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
-    (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}), false)));
+    (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}), false, false))->setOutdatedTransition((int)CHAR1_STATE::IDLE)->setOutdatedMovementData({0.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f})));
 
     // 2B
-    m_actionResolver.addAction(std::unique_ptr<Action>((new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_2B, ANIMATIONS::CHAR1_MOVE_2B, TimelineProperty(true), std::make_unique<InputComparator2BPress>(), 29,
+    m_actionResolver.addAction(std::unique_ptr<Action>((new Action_attack((int)CHAR1_STATE::MOVE_2B, std::make_unique<InputComparator2BPress>(), 29,
     {
         hitgeneration::generate_char1_move2B()
     },
@@ -72,10 +72,10 @@ void Char1::provideActions()
             TimelineProperty<bool>({{9, true}, {22, false}}),
             {10.0f, -110.0f, 200.0f, 110.0f}
         }
-    },
+    }, ANIMATIONS::CHAR1_MOVE_2B, TimelineProperty(true),
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
     (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}),
-    true))->setUpdateMovementData(
+    true, false))->setUpdateMovementData(
         TimelineProperty<Vector2<float>>({0.0f, 0.0f}), // Vel mul
         TimelineProperty<Vector2<float>>({1.0f, 1.0f}), // Inr mul
         TimelineProperty<Vector2<float>>(
@@ -89,10 +89,10 @@ void Char1::provideActions()
         TimelineProperty<Vector2<float>>({0.0f, 0.0f}),  // Dir inr mul
         TimelineProperty<Vector2<float>>({0.0f, 0.0f}), // Raw vel
         TimelineProperty<Vector2<float>>({0.0f, 0.0f}) // Raw inr
-    )));
+    )->setOutdatedTransition((int)CHAR1_STATE::IDLE)->setOutdatedMovementData({0.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f})));
 
     // 236C
-    m_actionResolver.addAction(std::unique_ptr<Action>((new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_236C, ANIMATIONS::CHAR1_MOVE_236C, TimelineProperty(true), std::make_unique<InputComparator236CPress>(), 40,
+    m_actionResolver.addAction(std::unique_ptr<Action>((new Action_attack((int)CHAR1_STATE::MOVE_236C, std::make_unique<InputComparator236CPress>(), 40,
     {
         hitgeneration::generate_char1_236C()
     },
@@ -113,10 +113,10 @@ void Char1::provideActions()
             TimelineProperty<bool>({{17, true}, {34, false}}),
             {60.0f, -350.0f, 40.0f, 150.0f}
         },
-    },
-        StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
+    }, ANIMATIONS::CHAR1_MOVE_236C, TimelineProperty(true),
+    StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
     (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}),
-    false))->setUpdateMovementData(
+    false, false))->setUpdateMovementData(
         TimelineProperty<Vector2<float>>({0.0f, 0.0f}), // Vel mul
         TimelineProperty<Vector2<float>>({1.0f, 1.0f}), // Inr mul
         TimelineProperty<Vector2<float>>(
@@ -131,10 +131,10 @@ void Char1::provideActions()
         TimelineProperty<Vector2<float>>({0.0f, 0.0f}),  // Dir inr mul
         TimelineProperty<Vector2<float>>({0.0f, 0.0f}), // Raw vel
         TimelineProperty<Vector2<float>>({0.0f, 0.0f}) // Raw inr
-    )));
+    )->setOutdatedTransition((int)CHAR1_STATE::IDLE)->setOutdatedMovementData({0.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f})));
 
     // s.5C
-    m_actionResolver.addAction(std::unique_ptr<Action>((new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_STEP_C, ANIMATIONS::CHAR1_MOVE_STEP_C, TimelineProperty(true), std::make_unique<InputComparatorCPress>(), 53,
+    m_actionResolver.addAction(std::unique_ptr<Action>((new Action_attack((int)CHAR1_STATE::MOVE_STEP_C, std::make_unique<InputComparatorCPress>(), 53,
     {
         hitgeneration::generate_char1_moveStepC()
     },
@@ -147,9 +147,9 @@ void Char1::provideActions()
             TimelineProperty<bool>({{6, true}, {32, false}}),
             {60.0f, -450.0f, 200.0f, 400.0f}
         }
-    },
+    }, ANIMATIONS::CHAR1_MOVE_STEP_C, TimelineProperty(true),
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::STEP_RECOVERY}),
-    false))->setUpdateMovementData(
+    false, false))->setUpdateMovementData(
         TimelineProperty<Vector2<float>>({0.0f, 0.0f}), // Vel mul
         TimelineProperty<Vector2<float>>({1.0f, 1.0f}), // Inr mul
         TimelineProperty<Vector2<float>>(
@@ -160,10 +160,10 @@ void Char1::provideActions()
         TimelineProperty<Vector2<float>>({0.0f, 0.0f}),  // Dir inr mul
         TimelineProperty<Vector2<float>>({0.0f, 0.0f}), // Raw vel
         TimelineProperty<Vector2<float>>({0.0f, 0.0f}) // Raw inr
-    )));
+    )->setOutdatedTransition((int)CHAR1_STATE::IDLE)->setOutdatedMovementData({0.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f})));
 
     // 5C
-    m_actionResolver.addAction(std::unique_ptr<Action>((new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_C, ANIMATIONS::CHAR1_MOVE_C, TimelineProperty(true), std::make_unique<InputComparatorCPress>(), 26,
+    m_actionResolver.addAction(std::unique_ptr<Action>((new Action_attack((int)CHAR1_STATE::MOVE_C, std::make_unique<InputComparatorCPress>(), 26,
     {
         hitgeneration::generate_char1_moveC()
     },
@@ -176,10 +176,10 @@ void Char1::provideActions()
             TimelineProperty<bool>({{11, true}, {23, false}}),
             {60.0f, -220.0f, 60.0f, 100.0f}
         }
-    },
+    }, ANIMATIONS::CHAR1_MOVE_C, TimelineProperty(true),
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
     (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}),
-    false))->setUpdateMovementData(
+    false, false))->setUpdateMovementData(
         TimelineProperty<Vector2<float>>({0.0f, 0.0f}), // Vel mul
         TimelineProperty<Vector2<float>>({1.0f, 1.0f}), // Inr mul
         TimelineProperty<Vector2<float>>(
@@ -192,10 +192,10 @@ void Char1::provideActions()
         TimelineProperty<Vector2<float>>({0.0f, 0.0f}),  // Dir inr mul
         TimelineProperty<Vector2<float>>({0.0f, 0.0f}), // Raw vel
         TimelineProperty<Vector2<float>>({0.0f, 0.0f}) // Raw inr
-    )));
+    )->setOutdatedTransition((int)CHAR1_STATE::IDLE)->setOutdatedMovementData({0.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f})));
 
     // 5B
-    m_actionResolver.addAction(std::unique_ptr<Action>((new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_B, ANIMATIONS::CHAR1_MOVE_B, TimelineProperty(true), std::make_unique<InputComparatorBPress>(), 22,
+    m_actionResolver.addAction(std::unique_ptr<Action>((new Action_attack((int)CHAR1_STATE::MOVE_B, std::make_unique<InputComparatorBPress>(), 22,
     {
         hitgeneration::generate_char1_moveB()
     },
@@ -208,10 +208,10 @@ void Char1::provideActions()
             TimelineProperty<bool>({{7, true}, {20, false}}),
             {50.0f, -275.0f, 175.0f, 80.0f}
         }
-    },
+    }, ANIMATIONS::CHAR1_MOVE_B, TimelineProperty(true),
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
     (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}),
-    false))->setUpdateMovementData(
+    false, false))->setUpdateMovementData(
         TimelineProperty<Vector2<float>>({0.0f, 0.0f}), // Vel mul
         TimelineProperty<Vector2<float>>({1.0f, 1.0f}), // Inr mul
         TimelineProperty<Vector2<float>>(
@@ -224,10 +224,10 @@ void Char1::provideActions()
         TimelineProperty<Vector2<float>>({0.0f, 0.0f}),  // Dir inr mul
         TimelineProperty<Vector2<float>>({0.0f, 0.0f}), // Raw vel
         TimelineProperty<Vector2<float>>({0.0f, 0.0f}) // Raw inr
-    )));
+    )->setOutdatedTransition((int)CHAR1_STATE::IDLE)->setOutdatedMovementData({0.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f})));
 
     // 5A
-    m_actionResolver.addAction(std::unique_ptr<Action_char1_ground_attack>(new Action_char1_ground_attack((int)CHAR1_STATE::MOVE_A, ANIMATIONS::CHAR1_MOVE_A, TimelineProperty(true), std::make_unique<InputComparatorAPress>(), 16,
+    m_actionResolver.addAction(std::unique_ptr<Action>((new Action_attack((int)CHAR1_STATE::MOVE_A, std::make_unique<InputComparatorAPress>(), 16,
     {
         hitgeneration::generate_char1_jab()
     },
@@ -240,10 +240,10 @@ void Char1::provideActions()
             TimelineProperty<bool>({{4, true}, {13, false}}),
             {40.0f, -310.0f, 140.0f, 50.0f}
         }
-    },
+    }, ANIMATIONS::CHAR1_MOVE_A, TimelineProperty(true),
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
     (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}),
-    false)));
+    false, false))->setOutdatedTransition((int)CHAR1_STATE::IDLE)->setOutdatedMovementData({0.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f})));
 
     m_actionResolver.addAction(std::make_unique<Action_char1_ground_backdash>());
     m_actionResolver.addAction(std::make_unique<Action_char1_ground_dash>());

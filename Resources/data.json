@@ -105,33 +105,52 @@
                             "hurtbox": {"x": -70, "y": -200, "w": 140, "h": 200}
                         }
                     ],
-                    "InputComparator": "downHold"
-                },
-                {
-                    "ActionType": "Action_prolonged",
-                    "State": "char1_walk_fwd",
-                    "Hurtboxes": [
-                        {
-                            "frames": [
-                                {"frame": 0, "value": true}
-                            ],
-                            "hurtbox": {"x": -70, "y": -375, "w": 140, "h": 375}
-                        }
+                    "InputComparator": "downHold",
+                    "InputComparatorProlong": "downHold",
+                    "Animation": "CHAR1_CROUCH",
+                    "CounterWindow": [
+                        {"frame": 0, "value": false}
                     ],
-                    "InputComparator": "forward"
-                },
-                {
-                    "ActionType": "Action_prolonged",
-                    "State": "char1_walk_bwd",
-                    "Hurtboxes": [
-                        {
-                            "frames": [
-                                {"frame": 0, "value": true}
-                            ],
-                            "hurtbox": {"x": -70, "y": -375, "w": 140, "h": 375}
-                        }
+                    "GravityWindow": [
+                        {"frame": 0, "value": true}
                     ],
-                    "InputComparator": "backward"
+                    "BlockWindow": [
+                        {"frame": 0, "value": true}
+                    ],
+                    "TransitionableFrom": [
+                        "char1_idle",
+                        "char1_walk_fwd",
+                        "char1_walk_bwd"
+                    ],
+                    "isCrouchState": true,
+                    "consumeAirdash": 0,
+                    "consumeAirjump": 0,
+                    "waitAirdashTimer": false,
+                    "waitAirjumpTimer": false,
+                    "isAirborne": false,
+                    "extentionSwitchData": {
+                        "realign": false,
+                        "timerValue": 0,
+                        "velToInertia": true,
+                        "resetDefenseState": true,
+                        "setAirAttackFlag": false,
+                        "resetPushback": false,
+                        "callForPriority": false,
+                        "mulOwnVel": {"x": 1.0, "y": 1.0},
+                        "mulOwnInr": {"x": 1.0, "y": 1.0},
+                        "mulOwnDirVel": {"x": 0.0, "y": 0.0},
+                        "mulOwnDirInr": {"x": 0.0, "y": 0.0},
+                        "rawAddVel": {"x": 0.0, "y": 0.0},
+                        "rawAddInr": {"x": 0.0, "y": 0.0}
+                    },
+                    "extentionRealignData": {
+                        "realignData": [
+                            {
+                                "frame": 0,
+                                "value": true
+                            }
+                        ]
+                    }
                 },
                 {
                     "ActionType": "Action_jump",

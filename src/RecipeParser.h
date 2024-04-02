@@ -59,6 +59,7 @@ struct ActionRecipe
 {
     std::string m_actionType;
     std::string m_inputComparator;
+    std::string m_inputComparatorProlong;
     int m_state;
     HurtboxFramesVec m_hurtboxes;
     int m_animation;
@@ -116,6 +117,7 @@ private:
     void parseAction(const nlohmann::json &json_);
     void parseActionExtentions(const nlohmann::json &json_);
     void parseActionCharacter(const nlohmann::json &json_);
+    void parseActionProlonged(const nlohmann::json &json_);
     
     void parseExtentionSwitchData(const nlohmann::json &json_);
     void parseExtentionRealignData(const nlohmann::json &json_);

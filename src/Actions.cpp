@@ -667,19 +667,9 @@ Action_char1_walk_bwd::Action_char1_walk_bwd() :
     );
 }
 
-// ABSTRACT CHAR1 JUMP ACTION
-Action_char1_jump::Action_char1_jump(int actionState_, const Vector2<float> &impulse_, float prejumpLen_, float maxHorInertia_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_) :
-    Action_jump((int)actionState_, impulse_, prejumpLen_, maxHorInertia_, std::move(incmp_), std::move(hurtboxes_), ANIMATIONS::CHAR1_PREJUMP, TimelineProperty(false), TimelineProperty(true), StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD, (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::IDLE})),
-    m_impulse(impulse_),
-    m_prejumpLen(prejumpLen_),
-    m_maxHorInertia(maxHorInertia_)
-{
-    setAirActionTimers(5, 6);
-}
-
 // NEUTRAL JUMP ACTION
 Action_char1_neutral_jump::Action_char1_neutral_jump() :
-    Action_char1_jump((int)CHAR1_STATE::PREJUMP,
+    Action_jump((int)CHAR1_STATE::PREJUMP,
     {0.0f, -gamedata::characters::char1::groundJumpVerticalImpulse},
     gamedata::characters::char1::prejumpFrames, gamedata::characters::char1::groundJumpMaxHorizontalInertia,
     std::make_unique<InputComparatorUpHold>(),
@@ -692,13 +682,15 @@ Action_char1_neutral_jump::Action_char1_neutral_jump() :
             TimelineProperty(true),
             {-70, -350, 140, 300}
         }
-    })
+    }, ANIMATIONS::CHAR1_PREJUMP, TimelineProperty(false), TimelineProperty(true),
+    StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD, (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::IDLE}))
 {
+    setAirActionTimers(5, 6);
 }
 
 // FORWARD JUMP ACTION
 Action_char1_forward_jump::Action_char1_forward_jump() :
-    Action_char1_jump((int)CHAR1_STATE::PREJUMP,
+    Action_jump((int)CHAR1_STATE::PREJUMP,
     {gamedata::characters::char1::groundJumpHorizontalImpulse, -gamedata::characters::char1::groundJumpVerticalImpulse},
     gamedata::characters::char1::prejumpFrames, gamedata::characters::char1::groundJumpMaxHorizontalInertia,
     std::make_unique<InputComparatorUpForwardHold>(),
@@ -711,13 +703,15 @@ Action_char1_forward_jump::Action_char1_forward_jump() :
             TimelineProperty(true),
             {-70, -350, 140, 300}
         }
-    })
+    }, ANIMATIONS::CHAR1_PREJUMP, TimelineProperty(false), TimelineProperty(true),
+    StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD, (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::IDLE}))
 {
+    setAirActionTimers(5, 6);
 }
 
 // BACKWARD JUMP ACTION
 Action_char1_backward_jump::Action_char1_backward_jump() :
-    Action_char1_jump((int)CHAR1_STATE::PREJUMP,
+    Action_jump((int)CHAR1_STATE::PREJUMP,
     {-gamedata::characters::char1::groundJumpHorizontalImpulse, -gamedata::characters::char1::groundJumpVerticalImpulse},
     gamedata::characters::char1::prejumpFrames, gamedata::characters::char1::groundJumpMaxHorizontalInertia,
     std::make_unique<InputComparatorUpBackwardHold>(),
@@ -730,8 +724,10 @@ Action_char1_backward_jump::Action_char1_backward_jump() :
             TimelineProperty(true),
             {-70, -350, 140, 300}
         }
-    })
+    }, ANIMATIONS::CHAR1_PREJUMP, TimelineProperty(false), TimelineProperty(true),
+    StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD, (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::IDLE}))
 {
+    setAirActionTimers(5, 6);
 }
 
 
@@ -1058,28 +1054,9 @@ Action_char1_knockdown_recovery::Action_char1_knockdown_recovery() :
     setDisadvantageFlags(false, false, true);
 }
 
-
-// ABSTRACT CHAR1 GROUND ATTACK ACTION
-Action_char1_ground_attack::Action_char1_ground_attack(int actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, StateMarker transitionableFrom_, bool isCrouchState_) :
-    Action_attack(actionState_, std::move(incmp_), fullDuration_, hits_, std::move(hurtboxes_), anim_, std::move(gravityWindow_), std::move(transitionableFrom_), isCrouchState_, false)
-{
-    setOutdatedTransition((int)CHAR1_STATE::IDLE);
-    setOutdatedMovementData({0.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
-}
-
-
-// ABSTRACT CHAR1 AIR ATTACK ACTION
-Action_char1_air_attack::Action_char1_air_attack(int actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, StateMarker transitionableFrom_) :
-    Action_attack(actionState_, std::move(incmp_), fullDuration_, hits_, std::move(hurtboxes_), anim_, std::move(gravityWindow_), std::move(transitionableFrom_), false, true)
-{
-    setSwitchData(false, fullDuration_, false, true, true, false, false, {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
-    setOutdatedTransition((int)CHAR1_STATE::FLOAT);
-}
-
-
 // j.C ACTION
 Action_char1_move_JC::Action_char1_move_JC() :
-    Action_char1_air_attack((int)CHAR1_STATE::MOVE_JC, ANIMATIONS::CHAR1_MOVE_JC, TimelineProperty<bool>({{0, false}, {10, true}}), std::make_unique<InputComparatorCPress>(), 200,
+    Action_attack((int)CHAR1_STATE::MOVE_JC, std::make_unique<InputComparatorCPress>(), 200,
     {
         hitgeneration::generate_char1_JC()
     },
@@ -1092,8 +1069,8 @@ Action_char1_move_JC::Action_char1_move_JC() :
             TimelineProperty<bool>({{10, true}, {22, false}}),
             {0, -450, 120, 250}
         }
-    },
-    StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::AIR_DASH_EXTENTION, (int)CHAR1_STATE::JUMP}))
+    }, ANIMATIONS::CHAR1_MOVE_JC, TimelineProperty<bool>({{0, false}, {10, true}}),
+    StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::AIR_DASH_EXTENTION, (int)CHAR1_STATE::JUMP}), false, true)
 {
     setUpdateMovementData(
         TimelineProperty<Vector2<float>>(
@@ -1124,12 +1101,15 @@ Action_char1_move_JC::Action_char1_move_JC() :
     );
 
     setLandingRecoveryState((int)CHAR1_STATE::MOVE_JC_LANDING_RECOVERY);
+
+    setSwitchData(false, 200, false, true, true, false, false, {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
+    setOutdatedTransition((int)CHAR1_STATE::FLOAT);
 }
 
 
 // MOVE 214C ACTION
 Action_char1_move_214C::Action_char1_move_214C() :
-    Action_char1_ground_attack((int)CHAR1_STATE::MOVE_214C, ANIMATIONS::CHAR1_MOVE_214C, TimelineProperty(true), std::make_unique<InputComparator214CPress>(), 40,
+    Action_attack((int)CHAR1_STATE::MOVE_214C, std::make_unique<InputComparator214CPress>(), 40,
     {
         hitgeneration::generate_char1_214C()
     },
@@ -1146,10 +1126,10 @@ Action_char1_move_214C::Action_char1_move_214C() :
             TimelineProperty<bool>({{18, true}, {36, false}}),
             {50.0f, -120.0f, 30.0f, 120.0f}
         }
-    },
+    }, ANIMATIONS::CHAR1_MOVE_214C, TimelineProperty(true),
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
     (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}),
-    false)
+    false, false)
 {
     setUpdateMovementData(
         TimelineProperty<Vector2<float>>({0.0f, 0.0f}), // Vel mul
@@ -1175,6 +1155,9 @@ Action_char1_move_214C::Action_char1_move_214C() :
                 {19, {0, 0}}
             }
     ));
+
+    setOutdatedTransition((int)CHAR1_STATE::IDLE);
+    setOutdatedMovementData({0.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f});
 }
 
 // MOVE PROJECTILE ACTION
