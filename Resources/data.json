@@ -211,6 +211,126 @@
                         "char1_air_dash_extention",
                         "char1_jump"
                     ]
+                },
+                {
+                    "ActionType": "Action_attack",
+                    "State": "char1_jc",
+                    "InputComparator": "CPress",
+                    "Duration": 200,
+                    "Hits": "TODO:",
+                    "Hurtboxes": [
+                        {
+                            "frames": [
+                                {"frame": 0, "value": true}
+                            ],
+                            "hurtbox": {"x": -70, "y": -350, "w": 140, "h": 300}
+                        },
+                        {
+                            "frames": [
+                                {"frame": 10, "value": true},
+                                {"frame": 22, "value": false}
+                            ],
+                            "hurtbox": {"x": 0, "y": -450, "w": 120, "h": 250}
+                        }
+                    ],
+                    "Animation": "CHAR1_MOVE_JC",
+                    "GravityWindow": [
+                        {"frame": 0, "value": false},
+                        {"frame": 10, "value": true}
+                    ],
+                    "TransitionableFrom": [
+                        "char1_jump",
+                        "char1_air_dash_extention"
+                    ],
+                    "isCrouchState": false,
+                    "isAirborne": true,
+                    "extentionUpdateMovementData": {
+                        "mulOwnVel": [
+                            {
+                                "frame": 1,
+                                "value": {"x": 0.9, "y": 0.125}
+                            },
+                            {
+                                "frame": 10,
+                                "value": {"x": 1.0, "y": 1.0}
+                            },
+                            {
+                                "frame": 12,
+                                "value": {"x": 1.0, "y": 0.0}
+                            },
+                            {
+                                "frame": 13,
+                                "value": {"x": 1.0, "y": 1.0}
+                            }
+                        ],
+                        "mulOwnInr": [
+                            {
+                                "frame": 1,
+                                "value": {"x": 0.9, "y": 0.33}
+                            },
+                            {
+                                "frame": 10,
+                                "value": {"x": 1.0, "y": 0.0}
+                            },
+                            {
+                                "frame": 11,
+                                "value": {"x": 1.0, "y": 1.0}
+                            }
+                        ],
+                        "mulOwnDirVel": [
+                            {
+                                "frame": 12,
+                                "value": {"x": 3.0, "y": 0.0}
+                            },
+                            {
+                                "frame": 13,
+                                "value": {"x": 0.0, "y": 0.0}
+                            }
+                        ],
+                        "mulOwnDirInr": [
+                            {
+                                "frame": 0,
+                                "value": {"x": 0.0, "y": 0.0}
+                            }
+                        ],
+                        "rawAddVel": [
+                            {
+                                "frame": 12,
+                                "value": {"x": 0.0, "y": -20.0}
+                            },
+                            {
+                                "frame": 13,
+                                "value": {"x": 0.0, "y": 0.0}
+                            }
+                        ],
+                        "rawAddInr": [
+                            {
+                                "frame": 0,
+                                "value": {"x": 0.0, "y": 0.0}
+                            }
+                        ]
+                    },
+                    "extentionLandingRecoveryState": {
+                        "recoveryState": "char1_jc_landing_recovery"
+                    },
+                    "extentionSwitchData": {
+                        "realign": false,
+                        "timerValue": 200,
+                        "velToInertia": false,
+                        "resetDefenseState": true,
+                        "setAirAttackFlag": true,
+                        "resetPushback": false,
+                        "callForPriority": false,
+                        "mulOwnVel": {"x": 1.0, "y": 1.0},
+                        "mulOwnInr": {"x": 1.0, "y": 1.0},
+                        "mulOwnDirVel": {"x": 0.0, "y": 0.0},
+                        "mulOwnDirInr": {"x": 0.0, "y": 0.0},
+                        "rawAddVel": {"x": 0.0, "y": 0.0},
+                        "rawAddInr": {"x": 0.0, "y": 0.0}
+                    },
+                    "extentionOutdatedTransition": {
+                        "targetState": "char1_float"
+                    }
                 }
             ]
         }

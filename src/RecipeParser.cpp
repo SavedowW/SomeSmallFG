@@ -26,7 +26,8 @@ void RecipeParser::parseCharacter(const nlohmann::json &json_)
     nlohmann::json actions = json_["Actions"];
     for (auto &action : actions)
     {
-        states[action["State"]] = i++;
+        if (!states.contains(action["State"]))
+            states[action["State"]] = i++;
     }
 
     std::cout << i << " states in total\n";
@@ -70,6 +71,8 @@ void RecipeParser::parseAction(const nlohmann::json &json_)
         parseActionJump(json_);
     else if (actType == "Action_airjump")
         parseActionAirjump(json_);
+    else if (actType == "Action_attack")
+        parseActionAttack(json_);
     else
         std::cout << "Unknown action type: " << actType << std::endl;
 }
@@ -152,7 +155,7 @@ void RecipeParser::parseActionJump(const nlohmann::json &json_)
     m_currentActionRecipe->m_hurtboxes = parseHurtboxFramesVec(json_["Hurtboxes"]);
     m_currentActionRecipe->m_inputComparator = json_["InputComparator"];
     m_currentActionRecipe->m_impulse = parseVector2<float>(json_["Impulse"]);
-    m_currentActionRecipe->m_prejumpLen = json_["PrejumpLen"];
+    m_currentActionRecipe->m_duration = json_["PrejumpLen"];
     m_currentActionRecipe->m_maxHorInertia = json_["MaxHorInertia"];
     // TODO: calculate animation
     m_currentActionRecipe->m_counterWindow = parseTimelineProperty<bool>(json_["CounterWindow"]);
@@ -185,6 +188,32 @@ void RecipeParser::parseActionAirjump(const nlohmann::json &json_)
     parseActionExtentions(json_);
 }
 
+void RecipeParser::parseActionAttack(const nlohmann::json &json_)
+{
+    std::cout << json_["ActionType"] << std::endl;
+
+    // Build vector of state IDs
+    std::vector<int> statesFrom;
+    for (auto &el : json_["TransitionableFrom"].get<std::vector<std::string>>())
+        statesFrom.push_back(m_currentCharacterRecipe->states[el]);
+    StateMarker transitionableFrom(m_currentCharacterRecipe->states.size(), statesFrom);
+
+    // Parsing regular data
+    m_currentActionRecipe->m_state = m_currentCharacterRecipe->states[json_["State"]];
+    m_currentActionRecipe->m_inputComparator = json_["InputComparator"];
+    m_currentActionRecipe->m_duration = json_["Duration"];
+    // TODO: hits
+    m_currentActionRecipe->m_hurtboxes = parseHurtboxFramesVec(json_["Hurtboxes"]);
+    // TODO: calculate animation
+    m_currentActionRecipe->m_gravityWindow = parseTimelineProperty<bool>(json_["GravityWindow"]);
+    m_currentActionRecipe->m_transitionableFrom = transitionableFrom;
+    m_currentActionRecipe->m_isCrouchState = json_["isCrouchState"];
+    m_currentActionRecipe->m_isAirborne = json_["isAirborne"];
+
+    // Handle extentions
+    parseActionExtentions(json_);
+}
+
 void RecipeParser::parseActionExtentions(const nlohmann::json &json_)
 {
     if (json_.contains("extentionSwitchData"))
@@ -195,6 +224,15 @@ void RecipeParser::parseActionExtentions(const nlohmann::json &json_)
 
     if (json_.contains("extentionAirActionTimers"))
         parseExtentionAirActionTimer(json_["extentionAirActionTimers"]);
+
+    if (json_.contains("extentionUpdateMovementData"))
+        parseExtentionUpdateMovementData(json_["extentionUpdateMovementData"]);
+
+    if (json_.contains("extentionLandingRecoveryState"))
+        parseExtentionLandingRecovery(json_["extentionLandingRecoveryState"]);
+
+    if (json_.contains("extentionOutdatedTransition"))
+        parseExtentionOutdatedTransition(json_["extentionOutdatedTransition"]);
 }
 
 void RecipeParser::parseExtentionSwitchData(const nlohmann::json &json_)
@@ -253,6 +291,49 @@ void RecipeParser::parseExtentionAirActionTimer(const nlohmann::json &json_)
 
     if (json_.contains("airdashTimer"))
         extdata->airdashTimer = json_["airdashTimer"];
+
+    m_currentActionRecipe->m_extentions.push_back(extdata);
+}
+
+void RecipeParser::parseExtentionUpdateMovementData(const nlohmann::json &json_)
+{
+    std::cout << "Update movement data\n";
+    auto *extdata = new ActionExtentionUpdateMovementData();
+
+    if (json_.contains("mulOwnVel"))
+        extdata->mulOwnVel = parseTimelineProperty<Vector2<float>>(json_["mulOwnVel"]);
+    if (json_.contains("mulOwnInr"))
+        extdata->mulOwnInr = parseTimelineProperty<Vector2<float>>(json_["mulOwnInr"]);
+    if (json_.contains("mulOwnDirVel"))
+        extdata->mulOwnDirVel = parseTimelineProperty<Vector2<float>>(json_["mulOwnDirVel"]);
+    if (json_.contains("mulOwnDirInr"))
+        extdata->mulOwnDirInr = parseTimelineProperty<Vector2<float>>(json_["mulOwnDirInr"]);
+    if (json_.contains("rawAddVel"))
+        extdata->rawAddVel = parseTimelineProperty<Vector2<float>>(json_["rawAddVel"]);
+    if (json_.contains("rawAddInr"))
+        extdata->rawAddInr = parseTimelineProperty<Vector2<float>>(json_["rawAddInr"]);
+
+    m_currentActionRecipe->m_extentions.push_back(extdata);
+}
+
+void RecipeParser::parseExtentionLandingRecovery(const nlohmann::json &json_)
+{
+    std::cout << "Landing recovery data\n";
+    auto *extdata = new ActionExtentionLandingRecovery();
+
+    if (json_.contains("recoveryState"))
+        extdata->recoveryState = m_currentCharacterRecipe->states[json_["recoveryState"]];
+
+    m_currentActionRecipe->m_extentions.push_back(extdata);
+}
+
+void RecipeParser::parseExtentionOutdatedTransition(const nlohmann::json &json_)
+{
+    std::cout << "Outdated transition data\n";
+    auto *extdata = new ActionExtentionOutdatedTransition();
+
+    if (json_.contains("targetState"))
+        extdata->targetState = m_currentCharacterRecipe->states[json_["targetState"]];
 
     m_currentActionRecipe->m_extentions.push_back(extdata);
 }
@@ -329,5 +410,20 @@ ActionExtentionRealignData::ActionExtentionRealignData() :
 
 ActionExtentionAirActionTimer::ActionExtentionAirActionTimer() :
     ActionExtention(ExtentionType::AIR_ACTION_TIMER)
+{
+}
+
+ActionExtentionLandingRecovery::ActionExtentionLandingRecovery() :
+    ActionExtention(ExtentionType::LANDING_RECOVERY)
+{
+}
+
+ActionExtentionOutdatedTransition::ActionExtentionOutdatedTransition() :
+    ActionExtention(ExtentionType::OUTDATED_TRANSITION)
+{
+}
+
+ActionExtentionUpdateMovementData::ActionExtentionUpdateMovementData() :
+    ActionExtention(ExtentionType::UPDATE_MOVEMENT_DATA)
 {
 }

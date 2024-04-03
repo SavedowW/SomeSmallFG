@@ -15,10 +15,11 @@ class ActionExtention
 public:
     enum class ExtentionType {
         SWITCH_DATA,
-        HITSTUN_ANIMATION,
-        ANIM_RESET_DATA,
         REALIGN_DATA,
-        AIR_ACTION_TIMER
+        AIR_ACTION_TIMER,
+        UPDATE_MOVEMENT_DATA,
+        LANDING_RECOVERY,
+        OUTDATED_TRANSITION
     } m_extentionType;
 
     ActionExtention(ExtentionType extType_);
@@ -66,6 +67,38 @@ public:
     int airdashTimer = 6;
 };
 
+class ActionExtentionUpdateMovementData : public ActionExtention
+{
+public:
+    ActionExtentionUpdateMovementData();
+    virtual ~ActionExtentionUpdateMovementData() = default;
+
+    TimelineProperty<Vector2<float>> mulOwnVel;
+    TimelineProperty<Vector2<float>> mulOwnInr;
+    TimelineProperty<Vector2<float>> mulOwnDirVel;
+    TimelineProperty<Vector2<float>> mulOwnDirInr;
+    TimelineProperty<Vector2<float>> rawAddVel;
+    TimelineProperty<Vector2<float>> rawAddInr;
+};
+
+class ActionExtentionLandingRecovery : public ActionExtention
+{
+public:
+    ActionExtentionLandingRecovery();
+    virtual ~ActionExtentionLandingRecovery() = default;
+
+    int recoveryState;
+};
+
+class ActionExtentionOutdatedTransition : public ActionExtention
+{
+public:
+    ActionExtentionOutdatedTransition();
+    virtual ~ActionExtentionOutdatedTransition() = default;
+
+    int targetState;
+};
+
 struct ActionRecipe
 {
     std::string m_actionType;
@@ -79,7 +112,7 @@ struct ActionRecipe
     TimelineProperty<bool> m_blockWindow;
     StateMarker m_transitionableFrom;
     Vector2<float> m_impulse;
-    int m_prejumpLen;
+    int m_duration;
     float m_maxHorInertia;
     bool m_isAttack;
     bool m_isCrouchState;
@@ -134,10 +167,14 @@ private:
     void parseActionProlonged(const nlohmann::json &json_);
     void parseActionJump(const nlohmann::json &json_);
     void parseActionAirjump(const nlohmann::json &json_);
+    void parseActionAttack(const nlohmann::json &json_);
     
     void parseExtentionSwitchData(const nlohmann::json &json_);
     void parseExtentionRealignData(const nlohmann::json &json_);
     void parseExtentionAirActionTimer(const nlohmann::json &json_);
+    void parseExtentionUpdateMovementData(const nlohmann::json &json_);
+    void parseExtentionLandingRecovery(const nlohmann::json &json_);
+    void parseExtentionOutdatedTransition(const nlohmann::json &json_);
 
     std::vector<CharacterRecipe> m_characterRecipes;
     CharacterRecipe *m_currentCharacterRecipe = nullptr;
