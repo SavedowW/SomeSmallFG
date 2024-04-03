@@ -28,7 +28,6 @@ NotifyWidget.cpp
 HealthHandler.cpp
 ComboPhysicsHandler.cpp
 PriorityHandler.cpp
-StateMachineEntity.cpp
 InteractableStateMachine.cpp
 Projectile.cpp
 ActionProjectile.cpp
