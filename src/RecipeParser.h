@@ -157,8 +157,8 @@ private:
     Vector2<T> parseVector2(const nlohmann::json &json_);
 
     Collider parseCollider(const nlohmann::json &json_);
-
     HurtboxFramesVec parseHurtboxFramesVec(const nlohmann::json &json_);
+    std::vector<std::pair<FrameWindow, Collider>> parseHitboxes(const nlohmann::json &json_);
 
     void parseCharacter(const nlohmann::json &json_);
 
@@ -177,10 +177,16 @@ private:
     void parseExtentionLandingRecovery(const nlohmann::json &json_);
     void parseExtentionOutdatedTransition(const nlohmann::json &json_);
 
+    void parseParticlesSpawnData(const nlohmann::json &json_);
+
+    LOOPMETHOD strToLoopMethod(const std::string &str_);
+
     std::vector<CharacterRecipe> m_characterRecipes;
     CharacterRecipe *m_currentCharacterRecipe = nullptr;
     ActionRecipe *m_currentActionRecipe = nullptr;
     AnimationManager *m_animManager;
+
+    std::map<std::string, ParticlesSpawnData> m_particles;
 };
 
 #endif

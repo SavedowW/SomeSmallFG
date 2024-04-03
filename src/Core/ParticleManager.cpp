@@ -75,7 +75,7 @@ void ParticleManager::spawnParticles(const ParticlesSpawnData &partData_, const 
     psd.m_loopMethod = partData_.m_loopMethod;
     psd.m_beginFrame = partData_.m_beginFrame;
     psd.m_beginDirection = partData_.m_beginDirection;
-    for (int i = 0; i < partData_.count; ++i)
+    for (int i = 0; i < partData_.m_count; ++i)
     {
         psd.m_velocity = partData_.m_baseVelocity;
         if (partData_.m_randVelocity)

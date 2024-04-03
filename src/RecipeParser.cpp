@@ -12,6 +12,13 @@ RecipeParser::RecipeParser(AnimationManager *animManager_, const std::string &fi
     nlohmann::json data = nlohmann::json::parse(finp);
 
     //auto hbv = parseHurtboxFramesVec(data["hurtboxvecexample"]);
+    //auto hbv = parseHitboxes(data["activeframesexample"]);
+
+    nlohmann::json particles = data["ParticlesSpawnData"];
+    for (auto &el : particles)
+    {
+        parseParticlesSpawnData(el);
+    }
 
     nlohmann::json chars = data["Characters"];
     for (auto &el : chars)
@@ -52,6 +59,21 @@ HurtboxFramesVec RecipeParser::parseHurtboxFramesVec(const nlohmann::json &json_
         auto frames = parseTimelineProperty<bool>(el["frames"]);
         auto hurtbox = parseCollider(el["hurtbox"]);
         vec.push_back({frames, hurtbox});
+    }
+
+    return vec;
+}
+
+std::vector<std::pair<FrameWindow, Collider>> RecipeParser::parseHitboxes(const nlohmann::json &json_)
+{
+    std::vector<std::pair<FrameWindow, Collider>> vec;
+
+    for (auto &el : json_)
+    {
+        auto beginFrame = el["BeginFrame"];
+        auto endFrame = el["EndFrame"];
+        auto hitbox = parseCollider(el["Hitbox"]);
+        vec.push_back({{beginFrame, endFrame}, hitbox});
     }
 
     return vec;
@@ -337,6 +359,69 @@ void RecipeParser::parseExtentionOutdatedTransition(const nlohmann::json &json_)
         extdata->targetState = m_currentCharacterRecipe->states[json_["targetState"]];
 
     m_currentActionRecipe->m_extentions.push_back(extdata);
+}
+
+void RecipeParser::parseParticlesSpawnData(const nlohmann::json &json_)
+{
+    std::string name = json_["SetName"];
+    std::cout << "Parsing particle \"" << name << "\"\n";
+
+    ParticlesSpawnData psd;
+
+    if (json_.contains("Count"))
+        psd.m_count = json_["Count"];
+
+    if (json_.contains("Angle"))
+        psd.m_angle = json_["Angle"];
+
+    if (json_.contains("Scale"))
+        psd.m_scale = json_["Scale"];
+
+    if (json_.contains("BaseVelocity"))
+        psd.m_baseVelocity = parseVector2<float>(json_["BaseVelocity"]);
+
+    if (json_.contains("VelocityRange"))
+        psd.m_velocityRange = parseVector2<float>(json_["VelocityRange"]);
+
+    if (json_.contains("ReverseAccel"))
+        psd.m_reverseAccel = json_["ReverseAccel"];
+
+    if (json_.contains("AdditionalAccel"))
+        psd.m_additionalAccel = parseVector2<float>(json_["AdditionalAccel"]);
+
+    if (json_.contains("MinLifeTime"))
+        psd.m_minLifeTime = json_["MinLifeTime"];
+
+    if (json_.contains("MaxLifeTime"))
+        psd.m_maxLifeTime = json_["MaxLifeTime"];
+
+    if (json_.contains("Animation"))
+        psd.m_animation = m_animManager->getAnimID(json_["Animation"]);
+
+    if (json_.contains("LoopMethod"))
+        psd.m_loopMethod = strToLoopMethod(json_["LoopMethod"]);
+
+    if (json_.contains("BeginFrame"))
+        psd.m_beginFrame = json_["BeginFrame"];
+
+    if (json_.contains("BeginDirection"))
+        psd.m_beginDirection = json_["BeginDirection"];
+
+    m_particles[name] = psd;
+}
+
+LOOPMETHOD RecipeParser::strToLoopMethod(const std::string &str_)
+{
+    if (str_ == "JUMP_LOOP")
+        return LOOPMETHOD::JUMP_LOOP;
+
+    if (str_ == "NOLOOP")
+        return LOOPMETHOD::NOLOOP;
+
+    if (str_ == "SWITCH_DIR_LOOP")
+        return LOOPMETHOD::SWITCH_DIR_LOOP;
+
+    throw std::string("Cannot identify loop method: " + str_);
 }
 
 template <typename T>

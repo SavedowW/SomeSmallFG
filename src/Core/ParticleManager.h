@@ -41,7 +41,7 @@ struct ParticleSpawnData
 
 struct ParticlesSpawnData
 {
-    int count = 1;
+    int m_count = 1;
     float m_angle = 0.0f;
     float m_scale = 1.0f;
 
