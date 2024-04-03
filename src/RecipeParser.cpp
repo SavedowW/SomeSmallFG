@@ -66,6 +66,8 @@ void RecipeParser::parseAction(const nlohmann::json &json_)
         parseActionCharacter(json_);
     else if (actType == "Action_prolonged")
         parseActionProlonged(json_);
+    else if (actType == "Action_jump")
+        parseActionJump(json_);
     else
         std::cout << "Unknown action type: " << actType << std::endl;
 }
@@ -133,6 +135,32 @@ void RecipeParser::parseActionProlonged(const nlohmann::json &json_)
     parseActionExtentions(json_);
 }
 
+void RecipeParser::parseActionJump(const nlohmann::json &json_)
+{
+    std::cout << json_["ActionType"] << std::endl;
+
+    // Build vector of state IDs
+    std::vector<int> statesFrom;
+    for (auto &el : json_["TransitionableFrom"].get<std::vector<std::string>>())
+        statesFrom.push_back(m_currentCharacterRecipe->states[el]);
+    StateMarker transitionableFrom(m_currentCharacterRecipe->states.size(), statesFrom);
+
+    // Parsing regular data
+    m_currentActionRecipe->m_state = m_currentCharacterRecipe->states[json_["State"]];
+    m_currentActionRecipe->m_hurtboxes = parseHurtboxFramesVec(json_["Hurtboxes"]);
+    m_currentActionRecipe->m_inputComparator = json_["InputComparator"];
+    m_currentActionRecipe->m_impulse = parseVector2<float>(json_["Impulse"]);
+    m_currentActionRecipe->m_prejumpLen = json_["PrejumpLen"];
+    m_currentActionRecipe->m_maxHorInertia = json_["MaxHorInertia"];
+    // TODO: calculate animation
+    m_currentActionRecipe->m_counterWindow = parseTimelineProperty<bool>(json_["CounterWindow"]);
+    m_currentActionRecipe->m_blockWindow = parseTimelineProperty<bool>(json_["BlockWindow"]);
+    m_currentActionRecipe->m_transitionableFrom = transitionableFrom;
+
+    // Handle extentions
+    parseActionExtentions(json_);
+}
+
 void RecipeParser::parseActionExtentions(const nlohmann::json &json_)
 {
     if (json_.contains("extentionSwitchData"))
@@ -140,6 +168,9 @@ void RecipeParser::parseActionExtentions(const nlohmann::json &json_)
 
     if (json_.contains("extentionRealignData"))
         parseExtentionRealignData(json_["extentionRealignData"]);
+
+    if (json_.contains("extentionAirActionTimers"))
+        parseExtentionAirActionTimer(json_["extentionAirActionTimers"]);
 }
 
 void RecipeParser::parseExtentionSwitchData(const nlohmann::json &json_)
@@ -184,6 +215,20 @@ void RecipeParser::parseExtentionRealignData(const nlohmann::json &json_)
 
     if (json_.contains("realignData"))
         extdata->realignData = parseTimelineProperty<bool>(json_["realignData"]);
+
+    m_currentActionRecipe->m_extentions.push_back(extdata);
+}
+
+void RecipeParser::parseExtentionAirActionTimer(const nlohmann::json &json_)
+{
+    std::cout << "Air action timer data\n";
+    auto *extdata = new ActionExtentionAirActionTimer();
+
+    if (json_.contains("airjumpTimer"))
+        extdata->airjumpTimer = json_["airjumpTimer"];
+
+    if (json_.contains("airdashTimer"))
+        extdata->airdashTimer = json_["airdashTimer"];
 
     m_currentActionRecipe->m_extentions.push_back(extdata);
 }
@@ -255,5 +300,10 @@ CharacterRecipe::~CharacterRecipe()
 
 ActionExtentionRealignData::ActionExtentionRealignData() :
     ActionExtention(ExtentionType::REALIGN_DATA)
+{
+}
+
+ActionExtentionAirActionTimer::ActionExtentionAirActionTimer() :
+    ActionExtention(ExtentionType::AIR_ACTION_TIMER)
 {
 }

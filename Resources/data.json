@@ -154,7 +154,7 @@
                 },
                 {
                     "ActionType": "Action_jump",
-                    "State": "char1_neutral_jump",
+                    "State": "prejump",
                     "Hurtboxes": [
                         {
                             "frames": [
@@ -170,7 +170,26 @@
                             "hurtbox": {"x": -70, "y": -50, "w": 140, "h": 50}
                         }
                     ],
-                    "InputComparator": "upHold"
+                    "InputComparator": "upHold",
+                    "Impulse": {"x": 0.0, "y": 30.0},
+                    "PrejumpLen": 4,
+                    "MaxHorInertia": 10.0,
+                    "Animation": "CHAR1_PREJUMP",
+                    "CounterWindow": [
+                        {"frame": 0, "value": false}
+                    ],
+                    "BlockWindow": [
+                        {"frame": 0, "value": true}
+                    ],
+                    "TransitionableFrom": [
+                        "char1_idle",
+                        "char1_walk_fwd",
+                        "char1_walk_bwd"
+                    ],
+                    "extentionAirActionTimers": {
+                        "airjumpTimer": 5,
+                        "airdashTimer": 6
+                    }
                 }
             ]
         }

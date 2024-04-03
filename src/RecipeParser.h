@@ -17,7 +17,8 @@ public:
         SWITCH_DATA,
         HITSTUN_ANIMATION,
         ANIM_RESET_DATA,
-        REALIGN_DATA
+        REALIGN_DATA,
+        AIR_ACTION_TIMER
     } m_extentionType;
 
     ActionExtention(ExtentionType extType_);
@@ -55,6 +56,16 @@ public:
     TimelineProperty<bool> realignData;
 };
 
+class ActionExtentionAirActionTimer : public ActionExtention
+{
+public:
+    ActionExtentionAirActionTimer();
+    virtual ~ActionExtentionAirActionTimer() = default;
+
+    int airjumpTimer = 5;
+    int airdashTimer = 6;
+};
+
 struct ActionRecipe
 {
     std::string m_actionType;
@@ -67,6 +78,9 @@ struct ActionRecipe
     TimelineProperty<bool> m_gravityWindow;
     TimelineProperty<bool> m_blockWindow;
     StateMarker m_transitionableFrom;
+    Vector2<float> m_impulse;
+    int m_prejumpLen;
+    float m_maxHorInertia;
     bool m_isAttack;
     bool m_isCrouchState;
     bool m_isThrowStartup;
@@ -118,9 +132,11 @@ private:
     void parseActionExtentions(const nlohmann::json &json_);
     void parseActionCharacter(const nlohmann::json &json_);
     void parseActionProlonged(const nlohmann::json &json_);
+    void parseActionJump(const nlohmann::json &json_);
     
     void parseExtentionSwitchData(const nlohmann::json &json_);
     void parseExtentionRealignData(const nlohmann::json &json_);
+    void parseExtentionAirActionTimer(const nlohmann::json &json_);
 
     std::vector<CharacterRecipe> m_characterRecipes;
     CharacterRecipe *m_currentCharacterRecipe = nullptr;
