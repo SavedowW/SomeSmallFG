@@ -6,7 +6,7 @@
 class ActionProjectile: public Action
 {
 public:
-    ActionProjectile(int actionState_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, StateMarker transitionableFrom_, bool isAttack_, bool isAirborne_);
+    ActionProjectile(int actionState_, HurtboxFramesVec &&hurtboxes_, int anim_, StateMarker transitionableFrom_, bool isAttack_, bool isAirborne_);
     virtual ~ActionProjectile() = default;
 
     virtual void outdated(InteractableStateMachine &character_) override;
@@ -24,7 +24,7 @@ protected:
 class ActionProjectileHitProvider: public ActionProjectile
 {
 public:
-    ActionProjectileHitProvider(int actionState_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, StateMarker transitionableFrom_, bool isAirborne_, Hit &&hitProto_, int hitCount_);
+    ActionProjectileHitProvider(int actionState_, HurtboxFramesVec &&hurtboxes_, int anim_, StateMarker transitionableFrom_, bool isAirborne_, Hit &&hitProto_, int hitCount_);
 
     virtual void switchTo(InteractableStateMachine &character_) override;
 

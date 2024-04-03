@@ -6,43 +6,47 @@ AnimationManager::AnimationManager(Renderer* renderer_, const std::string &rootP
 	m_renderer(renderer_),
 	m_rootPath(rootPath_ + "/")
 {
-	//Init preloaded textures arr
-	for (int i = 0; i < (int)ANIMATIONS::NONE; ++i)
+	auto sprPath = rootPath_ + "/Resources/Sprites/";
+	std::filesystem::path basePath(sprPath);
+	std::cout << "=== LISTING FOUND ANIMATIONS ===\n";
+	for (const auto &entry : std::filesystem::recursive_directory_iterator(sprPath))
 	{
-		m_preloadedArrs[i] = nullptr;
+		std::filesystem::path dirpath = entry.path();
+		std::filesystem::path filepath(entry.path().string() + "/animinfo.txt");
+		if (entry.is_directory() && std::filesystem::exists(filepath))
+		{
+			ContainedAnimationData cad;
+			cad.m_path = dirpath.string();
+			m_textureArrs.push_back(cad);
+			auto idstring = utils::getRelativePath(sprPath, dirpath.string());
+			m_ids[idstring] = m_textureArrs.size() - 1;
+			std::cout << dirpath.filename() << std::endl;
+		}
 	}
+	std::cout << "=== LISTING ENDS HERE ===\n";
 
 	//Load preloading textures
 	// TODO: preload particles and effects depending on characters and stage
-	preload(ANIMATIONS::PARTICLE_BLOCK);
-	preload(ANIMATIONS::PARTICLE_HIT1);
-	preload(ANIMATIONS::PARTICLE_HIT2);
-	preload(ANIMATIONS::PARTICLE_HIT2_SLOWED);
-	preload(ANIMATIONS::PARTICLE_CLASH);
-
-	//Init pointers to texture arrays
-	for (int i = 0; i < int(ANIMATIONS::NONE); ++i)
-	{
-		m_textureArrPointers[ANIMATIONS(i)] = std::weak_ptr<TextureArr>();
-	}
+	preload("Particles/Block");
+	preload("Particles/Hit1");
+	preload("Particles/Hit2");
+	preload("Particles/Hit2_Slowed");
+	preload("Particles/Clash");
 }
 
-std::shared_ptr<TextureArr> AnimationManager::getTextureArr(ANIMATIONS tex_)
+std::shared_ptr<TextureArr> AnimationManager::getTextureArr(int id_)
 {
-	if (tex_ == ANIMATIONS::CHAR1_PROJECTILE_STARTUP)
-		std::cout << "here\n";
-	if (m_preloadedArrs[(int)tex_] != nullptr)
+	if (m_textureArrs[id_].m_preloaded)
 	{
 		//Logger::print("Texture arr is preloaded\n");
-		return m_preloadedArrs[(int)tex_];
+		return m_textureArrs[id_].m_preloaded;
 	}
-	else if (m_textureArrPointers[tex_].expired())
+	else if (m_textureArrs[id_].m_texArr.expired())
 	{
 		//Logger::print("Texture arr does not exist, creating new\n");
 
 		//Parse data.txt
-		std::string ppth = m_rootPath + m_filePaths[(int)tex_] + "animinfo.txt";
-		std::ifstream loadData(m_rootPath + m_filePaths[(int)tex_] + "animinfo.txt");
+		std::ifstream loadData(m_textureArrs[id_].m_path + "/animinfo.txt");
 		std::string prefix;
 		int ibegin, iend;
 		int w = 0;
@@ -68,7 +72,7 @@ std::shared_ptr<TextureArr> AnimationManager::getTextureArr(ANIMATIONS tex_)
 		SDL_Texture** texs = new SDL_Texture * [amount];
 		for (int i = ibegin; i <= iend; ++i)
 		{
-			texs[i - ibegin] = m_renderer->loadTexture((m_rootPath + m_filePaths[(int)tex_] + prefix + std::to_string(i) + ".png").c_str());
+			texs[i - ibegin] = m_renderer->loadTexture((m_textureArrs[id_].m_path + "/" + prefix + std::to_string(i) + ".png").c_str());
 		}
 
 		int totalDuration = 0;
@@ -85,27 +89,48 @@ std::shared_ptr<TextureArr> AnimationManager::getTextureArr(ANIMATIONS tex_)
 		if (ver == 2)
 		{
 			std::shared_ptr<TextureArr> reqElem(new TextureArr(texs, amount, totalDuration, framesData, w, h));
-			m_textureArrPointers[tex_] = reqElem;
+			m_textureArrs[id_].m_texArr = reqElem;
 			return reqElem;
 		}
 		else
 		{
 			std::shared_ptr<TextureArr> reqElem(new TextureArr(texs, amount, totalDuration, framesData));
-			m_textureArrPointers[tex_] = reqElem;
+			m_textureArrs[id_].m_texArr = reqElem;
 			return reqElem;
 		}
 	}
 	else
 	{
 		//Logger::print("Texture arr already exist\n");
-		return m_textureArrPointers[tex_].lock();
+		return m_textureArrs[id_].m_texArr.lock();
 	}
 }
 
-void AnimationManager::preload(ANIMATIONS t_animToPreload)
+void AnimationManager::preload(int toPreload_)
 {
-	m_preloadedArrs[(int)t_animToPreload] = std::shared_ptr<TextureArr>(getTextureArr(t_animToPreload));
-	m_textureArrPointers[t_animToPreload] = m_preloadedArrs[(int)t_animToPreload];
+	if (m_textureArrs[toPreload_].m_preloaded)
+	{
+		m_textureArrs[toPreload_].m_preloaded = std::shared_ptr<TextureArr>(getTextureArr(toPreload_));
+	}
+}
+
+void AnimationManager::preload(const std::string &toPreload_)
+{
+	int id = getAnimID(toPreload_);
+
+	preload(id);
+}
+
+int AnimationManager::getAnimID(const std::string &animName_) const
+{
+	try
+	{
+    	return m_ids.at(animName_);
+	}
+	catch (std::out_of_range exc_)
+	{
+		throw std::string("Failed to find animation ") + animName_ + " : " + exc_.what();
+	}
 }
 
 //Properly release all textures
@@ -117,12 +142,12 @@ TextureArr::~TextureArr()
 	delete[] tex;
 }
 
-Animation::Animation(AnimationManager &animationManager_, ANIMATIONS textures_, LOOPMETHOD isLoop_, int beginFrame_, int beginDirection_) :
+Animation::Animation(AnimationManager &animationManager_, int id_, LOOPMETHOD isLoop_, int beginFrame_, int beginDirection_) :
 	m_isLoop(isLoop_),
 	m_currentFrame(beginFrame_),
 	m_direction(beginDirection_)
 {
-	m_textures = animationManager_.getTextureArr(textures_);
+	m_textures = animationManager_.getTextureArr(id_);
 }
 
 void Animation::generateWhite(Renderer &renderer_)

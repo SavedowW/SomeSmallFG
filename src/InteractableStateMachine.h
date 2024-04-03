@@ -92,7 +92,7 @@ protected:
     Character *m_otherCharacter;
     PriorityHandler *m_priorityHandler = nullptr;
 
-    std::map<ANIMATIONS, std::unique_ptr<Animation>> m_animations;
+    std::map<int, std::unique_ptr<Animation>> m_animations;
     Animation *m_currentAnimation;
     
     ORIENTATION m_dirToEnemy;

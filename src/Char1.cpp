@@ -4,26 +4,28 @@
 #include "Actions.h"
 #include <stdexcept>
 
-void Char1::provideActions()
+void Char1::provideActions(Application &application_)
 {
-    m_actionResolver.addAction(std::make_unique<Action_char1_back_air_throw_startup>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_normal_air_throw_startup>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_back_throw_startup>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_normal_throw_startup>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_air_throw_tech>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_throw_tech>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_step>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_air_dash>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_air_backdash>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_backward_doublejump>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_forward_doublejump>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_neutral_doublejump>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_move_JC>());
+    AnimationManager &animmgmgt = *application_.getAnimationManager();
+
+    m_actionResolver.addAction(std::make_unique<Action_char1_back_air_throw_startup>(animmgmgt.getAnimID("Char1/ThrowStartup")));
+    m_actionResolver.addAction(std::make_unique<Action_char1_normal_air_throw_startup>(animmgmgt.getAnimID("Char1/ThrowStartup")));
+    m_actionResolver.addAction(std::make_unique<Action_char1_back_throw_startup>(animmgmgt.getAnimID("Char1/ThrowStartup")));
+    m_actionResolver.addAction(std::make_unique<Action_char1_normal_throw_startup>(animmgmgt.getAnimID("Char1/ThrowStartup")));
+    m_actionResolver.addAction(std::make_unique<Action_char1_air_throw_tech>(animmgmgt.getAnimID("Char1/ThrowTech")));
+    m_actionResolver.addAction(std::make_unique<Action_char1_throw_tech>(animmgmgt.getAnimID("Char1/ThrowTech")));
+    m_actionResolver.addAction(std::make_unique<Action_char1_step>(animmgmgt.getAnimID("Char1/Step")));
+    m_actionResolver.addAction(std::make_unique<Action_char1_air_dash>(animmgmgt.getAnimID("Char1/Airdash")));
+    m_actionResolver.addAction(std::make_unique<Action_char1_air_backdash>(animmgmgt.getAnimID("Char1/AirBackdash")));
+    m_actionResolver.addAction(std::make_unique<Action_char1_backward_doublejump>(animmgmgt.getAnimID("Char1/Jump")));
+    m_actionResolver.addAction(std::make_unique<Action_char1_forward_doublejump>(animmgmgt.getAnimID("Char1/Jump")));
+    m_actionResolver.addAction(std::make_unique<Action_char1_neutral_doublejump>(animmgmgt.getAnimID("Char1/Jump")));
+    m_actionResolver.addAction(std::make_unique<Action_char1_move_JC>(animmgmgt.getAnimID("Char1/MoveJC"), animmgmgt.getAnimID("Particles/Hit2"), animmgmgt.getAnimID("Particles/Block")));
 
     // j.A
     m_actionResolver.addAction(std::unique_ptr<Action>((new Action_attack((int)CHAR1_STATE::MOVE_JA, std::make_unique<InputComparatorAPress>(), 17,
     {
-        hitgeneration::generate_char1_JA()
+        hitgeneration::generate_char1_JA(animmgmgt.getAnimID("Particles/Hit1"), animmgmgt.getAnimID("Particles/Block"))
     },
     {
         {
@@ -34,16 +36,16 @@ void Char1::provideActions()
             TimelineProperty<bool>({{5, true}, {12, false}}),
             {40.0f, -290.0f, 100.0f, 100.0f}
         }
-    }, ANIMATIONS::CHAR1_MOVE_JA, TimelineProperty(true),
+    }, animmgmgt.getAnimID("Char1/MoveJA"), TimelineProperty(true),
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::AIR_DASH_EXTENTION, (int)CHAR1_STATE::JUMP}), false, true))->setSwitchData(false, 17, false, true, true, false, false, {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f})->setOutdatedTransition((int)CHAR1_STATE::FLOAT)));
 
-    m_actionResolver.addAction(std::make_unique<Action_char1_move_214C>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_move_projectile>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_move_214C>(animmgmgt.getAnimID("Char1/Move214C"), animmgmgt.getAnimID("Particles/Hit2_Slowed"), animmgmgt.getAnimID("Particles/Block")));
+    m_actionResolver.addAction(std::make_unique<Action_char1_move_projectile>(animmgmgt.getAnimID("Char1/MoveProjectileCharAnim")));
 
     //4A
     m_actionResolver.addAction(std::unique_ptr<Action>((new Action_attack((int)CHAR1_STATE::MOVE_4A, std::make_unique<InputComparator4APress>(), 24,
     {
-        hitgeneration::generate_char1_move4A()
+        hitgeneration::generate_char1_move4A(animmgmgt.getAnimID("Particles/Hit1"), animmgmgt.getAnimID("Particles/Block"))
     },
     {
         {
@@ -54,14 +56,14 @@ void Char1::provideActions()
             TimelineProperty<bool>({{8, true}, {18, false}}),
             {60.0f, -420.0f, 60.0f, 150.0f}
         }
-    }, ANIMATIONS::CHAR1_MOVE_4A, TimelineProperty(true),
+    }, animmgmgt.getAnimID("Char1/Move4A"), TimelineProperty(true),
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
     (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}), false, false))->setOutdatedTransition((int)CHAR1_STATE::IDLE)->setOutdatedMovementData({0.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f})));
 
     // 2B
     m_actionResolver.addAction(std::unique_ptr<Action>((new Action_attack((int)CHAR1_STATE::MOVE_2B, std::make_unique<InputComparator2BPress>(), 29,
     {
-        hitgeneration::generate_char1_move2B()
+        hitgeneration::generate_char1_move2B(animmgmgt.getAnimID("Particles/Hit1"), animmgmgt.getAnimID("Particles/Block"))
     },
     {
         {
@@ -72,7 +74,7 @@ void Char1::provideActions()
             TimelineProperty<bool>({{9, true}, {22, false}}),
             {10.0f, -110.0f, 200.0f, 110.0f}
         }
-    }, ANIMATIONS::CHAR1_MOVE_2B, TimelineProperty(true),
+    }, animmgmgt.getAnimID("Char1/Move2B"), TimelineProperty(true),
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
     (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}),
     true, false))->setUpdateMovementData(
@@ -94,7 +96,7 @@ void Char1::provideActions()
     // 236C
     m_actionResolver.addAction(std::unique_ptr<Action>((new Action_attack((int)CHAR1_STATE::MOVE_236C, std::make_unique<InputComparator236CPress>(), 40,
     {
-        hitgeneration::generate_char1_236C()
+        hitgeneration::generate_char1_236C(animmgmgt.getAnimID("Particles/Hit2"), animmgmgt.getAnimID("Particles/Block"))
     },
     {
         {
@@ -113,7 +115,7 @@ void Char1::provideActions()
             TimelineProperty<bool>({{17, true}, {34, false}}),
             {60.0f, -350.0f, 40.0f, 150.0f}
         },
-    }, ANIMATIONS::CHAR1_MOVE_236C, TimelineProperty(true),
+    }, animmgmgt.getAnimID("Char1/Move236C"), TimelineProperty(true),
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
     (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}),
     false, false))->setUpdateMovementData(
@@ -136,7 +138,7 @@ void Char1::provideActions()
     // s.5C
     m_actionResolver.addAction(std::unique_ptr<Action>((new Action_attack((int)CHAR1_STATE::MOVE_STEP_C, std::make_unique<InputComparatorCPress>(), 53,
     {
-        hitgeneration::generate_char1_moveStepC()
+        hitgeneration::generate_char1_moveStepC(animmgmgt.getAnimID("Particles/Hit1"), animmgmgt.getAnimID("Particles/Block"))
     },
     {
         {
@@ -147,7 +149,7 @@ void Char1::provideActions()
             TimelineProperty<bool>({{6, true}, {32, false}}),
             {60.0f, -450.0f, 200.0f, 400.0f}
         }
-    }, ANIMATIONS::CHAR1_MOVE_STEP_C, TimelineProperty(true),
+    }, animmgmgt.getAnimID("Char1/MoveStepC"), TimelineProperty(true),
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::STEP_RECOVERY}),
     false, false))->setUpdateMovementData(
         TimelineProperty<Vector2<float>>({0.0f, 0.0f}), // Vel mul
@@ -165,7 +167,7 @@ void Char1::provideActions()
     // 5C
     m_actionResolver.addAction(std::unique_ptr<Action>((new Action_attack((int)CHAR1_STATE::MOVE_C, std::make_unique<InputComparatorCPress>(), 26,
     {
-        hitgeneration::generate_char1_moveC()
+        hitgeneration::generate_char1_moveC(animmgmgt.getAnimID("Particles/Hit1"), animmgmgt.getAnimID("Particles/Block"))
     },
     {
         {
@@ -176,7 +178,7 @@ void Char1::provideActions()
             TimelineProperty<bool>({{11, true}, {23, false}}),
             {60.0f, -220.0f, 60.0f, 100.0f}
         }
-    }, ANIMATIONS::CHAR1_MOVE_C, TimelineProperty(true),
+    }, animmgmgt.getAnimID("Char1/MoveC"), TimelineProperty(true),
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
     (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}),
     false, false))->setUpdateMovementData(
@@ -197,7 +199,7 @@ void Char1::provideActions()
     // 5B
     m_actionResolver.addAction(std::unique_ptr<Action>((new Action_attack((int)CHAR1_STATE::MOVE_B, std::make_unique<InputComparatorBPress>(), 22,
     {
-        hitgeneration::generate_char1_moveB()
+        hitgeneration::generate_char1_moveB(animmgmgt.getAnimID("Particles/Hit1"), animmgmgt.getAnimID("Particles/Block"))
     },
     {
         {
@@ -208,7 +210,7 @@ void Char1::provideActions()
             TimelineProperty<bool>({{7, true}, {20, false}}),
             {50.0f, -275.0f, 175.0f, 80.0f}
         }
-    }, ANIMATIONS::CHAR1_MOVE_B, TimelineProperty(true),
+    }, animmgmgt.getAnimID("Char1/MoveB"), TimelineProperty(true),
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
     (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}),
     false, false))->setUpdateMovementData(
@@ -229,7 +231,7 @@ void Char1::provideActions()
     // 5A
     m_actionResolver.addAction(std::unique_ptr<Action>((new Action_attack((int)CHAR1_STATE::MOVE_A, std::make_unique<InputComparatorAPress>(), 16,
     {
-        hitgeneration::generate_char1_jab()
+        hitgeneration::generate_char1_jab(animmgmgt.getAnimID("Particles/Hit1"), animmgmgt.getAnimID("Particles/Block"))
     },
     {
         {
@@ -240,28 +242,28 @@ void Char1::provideActions()
             TimelineProperty<bool>({{4, true}, {13, false}}),
             {40.0f, -310.0f, 140.0f, 50.0f}
         }
-    }, ANIMATIONS::CHAR1_MOVE_A, TimelineProperty(true),
+    }, animmgmgt.getAnimID("Char1/Jab"), TimelineProperty(true),
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
     (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}),
     false, false))->setOutdatedTransition((int)CHAR1_STATE::IDLE)->setOutdatedMovementData({0.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f})));
 
-    m_actionResolver.addAction(std::make_unique<Action_char1_ground_backdash>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_ground_dash>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_backward_jump>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_forward_jump>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_neutral_jump>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_walk_bwd>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_walk_fwd>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_ground_dash_recovery>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_crouch>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_idle>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_soft_landing_recovery>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_vulnerable_landing_recovery>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_hard_landing_recovery>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_jc_landing_recovery>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_hard_knockdown>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_soft_knockdown>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_knockdown_recovery>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_ground_backdash>(animmgmgt.getAnimID("Char1/Backdash")));
+    m_actionResolver.addAction(std::make_unique<Action_char1_ground_dash>(animmgmgt.getAnimID("Char1/GroundDash")));
+    m_actionResolver.addAction(std::make_unique<Action_char1_backward_jump>(animmgmgt.getAnimID("Char1/Prejump")));
+    m_actionResolver.addAction(std::make_unique<Action_char1_forward_jump>(animmgmgt.getAnimID("Char1/Prejump")));
+    m_actionResolver.addAction(std::make_unique<Action_char1_neutral_jump>(animmgmgt.getAnimID("Char1/Prejump")));
+    m_actionResolver.addAction(std::make_unique<Action_char1_walk_bwd>(animmgmgt.getAnimID("Char1/WalkBackward")));
+    m_actionResolver.addAction(std::make_unique<Action_char1_walk_fwd>(animmgmgt.getAnimID("Char1/WalkForward")));
+    m_actionResolver.addAction(std::make_unique<Action_char1_ground_dash_recovery>(animmgmgt.getAnimID("Char1/GroundDashRecovery")));
+    m_actionResolver.addAction(std::make_unique<Action_char1_crouch>(animmgmgt.getAnimID("Char1/CrouchIdle")));
+    m_actionResolver.addAction(std::make_unique<Action_char1_idle>(animmgmgt.getAnimID("Char1/Idle")));
+    m_actionResolver.addAction(std::make_unique<Action_char1_soft_landing_recovery>(animmgmgt.getAnimID("Char1/LandingRecovery")));
+    m_actionResolver.addAction(std::make_unique<Action_char1_vulnerable_landing_recovery>(animmgmgt.getAnimID("Char1/LandingRecovery")));
+    m_actionResolver.addAction(std::make_unique<Action_char1_hard_landing_recovery>(animmgmgt.getAnimID("Char1/LandingRecovery")));
+    m_actionResolver.addAction(std::make_unique<Action_char1_jc_landing_recovery>(animmgmgt.getAnimID("Char1/JCLandingRecovery")));
+    m_actionResolver.addAction(std::make_unique<Action_char1_hard_knockdown>(animmgmgt.getAnimID("Char1/Knockdown")));
+    m_actionResolver.addAction(std::make_unique<Action_char1_soft_knockdown>(animmgmgt.getAnimID("Char1/SoftKnockdown")));
+    m_actionResolver.addAction(std::make_unique<Action_char1_knockdown_recovery>(animmgmgt.getAnimID("Char1/KnockdownRecovery")));
     
     // Float state
     m_actionResolver.addAction(std::unique_ptr<Action>((new Action_float((int)CHAR1_STATE::FLOAT, (int)CHAR1_STATE::JUMP, {
@@ -269,7 +271,7 @@ void Char1::provideActions()
             TimelineProperty(true),
             {-70, -350, 140, 300}
         }
-    }, ANIMATIONS::CHAR1_JUMP))->setAnimResetData(20, 1)));
+    }, animmgmgt.getAnimID("Char1/Jump")))->setAnimResetData(20, 1)));
 
 
     m_actionResolver.addAction(std::unique_ptr<Action>((new ActionCharacter( (int)CHAR1_STATE::HITSTUN_HIGH, std::make_unique<InputComparatorIdle>(), {
@@ -277,7 +279,7 @@ void Char1::provideActions()
             TimelineProperty(true),
             {-100, -375, 200, 375}
         }
-    }, ANIMATIONS::CHAR1_HITSTUN_HIGH, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false), StateMarker(gamedata::characters::totalStateCount, {}),
+    }, animmgmgt.getAnimID("Char1/HighHitstun"), TimelineProperty(false), TimelineProperty(true), TimelineProperty(false), StateMarker(gamedata::characters::totalStateCount, {}),
     false, false, false, 0, 0, false, false, false ))->setHitstunAnimation((int)HITSTUN_ANIMATION::HIGH)->setDisadvantageFlags(false, true, false)->setOutdatedTransition((int)CHAR1_STATE::IDLE)));
 
     m_actionResolver.addAction(std::unique_ptr<Action>((new ActionCharacter( (int)CHAR1_STATE::HITSTUN_MID, std::make_unique<InputComparatorIdle>(), {
@@ -285,7 +287,7 @@ void Char1::provideActions()
             TimelineProperty(true),
             {-100, -375, 200, 375}
         }
-    }, ANIMATIONS::CHAR1_HITSTUN_MID, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false), StateMarker(gamedata::characters::totalStateCount, {}),
+    }, animmgmgt.getAnimID("Char1/MidHitstun"), TimelineProperty(false), TimelineProperty(true), TimelineProperty(false), StateMarker(gamedata::characters::totalStateCount, {}),
     false, false, false, 0, 0, false, false, false ))->setHitstunAnimation((int)HITSTUN_ANIMATION::MID)->setDisadvantageFlags(false, true, false)->setOutdatedTransition((int)CHAR1_STATE::IDLE)));
 
     m_actionResolver.addAction(std::unique_ptr<Action>((new ActionCharacter( (int)CHAR1_STATE::HITSTUN_LOW, std::make_unique<InputComparatorIdle>(), {
@@ -293,7 +295,7 @@ void Char1::provideActions()
             TimelineProperty(true),
             {-100, -375, 200, 375}
         }
-    }, ANIMATIONS::CHAR1_HITSTUN_LOW, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false), StateMarker(gamedata::characters::totalStateCount, {}),
+    }, animmgmgt.getAnimID("Char1/LowHitstun"), TimelineProperty(false), TimelineProperty(true), TimelineProperty(false), StateMarker(gamedata::characters::totalStateCount, {}),
     false, false, false, 0, 0, false, false, false ))->setHitstunAnimation((int)HITSTUN_ANIMATION::LOW)->setDisadvantageFlags(false, true, false)->setOutdatedTransition((int)CHAR1_STATE::IDLE)));
 
     m_actionResolver.addAction(std::unique_ptr<Action>((new ActionCharacter( (int)CHAR1_STATE::HITSTUN_CROUCH, std::make_unique<InputComparatorIdle>(), {
@@ -301,7 +303,7 @@ void Char1::provideActions()
             TimelineProperty(true),
             {-100, -200, 200, 200}
         }
-    }, ANIMATIONS::CHAR1_HITSTUN_CROUCH, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false), StateMarker(gamedata::characters::totalStateCount, {}),
+    }, animmgmgt.getAnimID("Char1/CrouchHitstun"), TimelineProperty(false), TimelineProperty(true), TimelineProperty(false), StateMarker(gamedata::characters::totalStateCount, {}),
     false, true, false, 0, 0, false, false, false ))->setHitstunAnimation((int)HITSTUN_ANIMATION::CROUCH)->setDisadvantageFlags(false, true, false)->setOutdatedTransition((int)CHAR1_STATE::IDLE)));
 
     m_actionResolver.addAction(std::unique_ptr<Action>((new ActionCharacter( (int)CHAR1_STATE::HITSTUN_FLOAT, std::make_unique<InputComparatorIdle>(), {
@@ -309,7 +311,7 @@ void Char1::provideActions()
             TimelineProperty(true),
             gamedata::characters::char1::airHitstunHurtbox
         }
-    }, ANIMATIONS::CHAR1_HITSTUN_AIR, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false), StateMarker(gamedata::characters::totalStateCount, {}),
+    }, animmgmgt.getAnimID("Char1/AirHitstun"), TimelineProperty(false), TimelineProperty(true), TimelineProperty(false), StateMarker(gamedata::characters::totalStateCount, {}),
     false, false, false, 0, 0, false, false, true ))->setHitstunAnimation((int)HITSTUN_ANIMATION::FLOAT)->setDisadvantageFlags(false, true, false)));
 
     m_actionResolver.addAction(std::unique_ptr<Action>((new ActionCharacter( (int)CHAR1_STATE::HITSTUN_GROUND_BOUNCE, std::make_unique<InputComparatorIdle>(), {
@@ -317,7 +319,7 @@ void Char1::provideActions()
             TimelineProperty(true),
             gamedata::characters::char1::airHitstunHurtbox
         }
-    }, ANIMATIONS::CHAR1_HITSTUN_AIR, TimelineProperty(false), TimelineProperty(true), TimelineProperty(false), StateMarker(gamedata::characters::totalStateCount, {}),
+    }, animmgmgt.getAnimID("Char1/AirHitstun"), TimelineProperty(false), TimelineProperty(true), TimelineProperty(false), StateMarker(gamedata::characters::totalStateCount, {}),
     false, false, false, 0, 0, false, false, true ))->setHitstunAnimation((int)HITSTUN_ANIMATION::FLOAT)->setDisadvantageFlags(false, true, false)));
 
     m_actionResolver.addAction(std::unique_ptr<Action>((new ActionCharacter( (int)CHAR1_STATE::BLOCKSTUN_STANDING, std::make_unique<InputComparatorIdle>(), {
@@ -325,7 +327,7 @@ void Char1::provideActions()
             TimelineProperty(true),
             gamedata::characters::char1::standingHurtbox
         }
-    }, ANIMATIONS::CHAR1_BLOCKSTUN_STANDING, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true), StateMarker(gamedata::characters::totalStateCount, {}),
+    }, animmgmgt.getAnimID("Char1/StandingBlock"), TimelineProperty(false), TimelineProperty(true), TimelineProperty(true), StateMarker(gamedata::characters::totalStateCount, {}),
     false, false, false, 0, 0, false, false, false ))->setDisadvantageFlags(true, false, false)->setOutdatedTransition((int)CHAR1_STATE::IDLE)));
 
     m_actionResolver.addAction(std::unique_ptr<Action>((new ActionCharacter( (int)CHAR1_STATE::BLOCKSTUN_CROUCHING, std::make_unique<InputComparatorIdle>(), {
@@ -333,7 +335,7 @@ void Char1::provideActions()
             TimelineProperty(true),
             gamedata::characters::char1::crouchingHurtbox
         }
-    }, ANIMATIONS::CHAR1_BLOCKSTUN_CROUCHING, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true), StateMarker(gamedata::characters::totalStateCount, {}),
+    }, animmgmgt.getAnimID("Char1/CrouchBlock"), TimelineProperty(false), TimelineProperty(true), TimelineProperty(true), StateMarker(gamedata::characters::totalStateCount, {}),
     false, true, false, 0, 0, false, false, false ))->setDisadvantageFlags(true, false, false)->setOutdatedTransition((int)CHAR1_STATE::IDLE)));
 
     m_actionResolver.addAction(std::unique_ptr<Action>((new ActionCharacter( (int)CHAR1_STATE::BLOCKSTUN_AIR, std::make_unique<InputComparatorIdle>(), {
@@ -341,42 +343,42 @@ void Char1::provideActions()
             TimelineProperty(true),
             gamedata::characters::char1::standingHurtbox
         }
-    }, ANIMATIONS::CHAR1_BLOCKSTUN_STANDING, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true), StateMarker(gamedata::characters::totalStateCount, {}),
+    }, animmgmgt.getAnimID("Char1/StandingBlock"), TimelineProperty(false), TimelineProperty(true), TimelineProperty(true), StateMarker(gamedata::characters::totalStateCount, {}),
     false, false, false, 0, 0, false, false, true ))->setDisadvantageFlags(true, false, false)->setLandingRecoveryState((int)CHAR1_STATE::HARD_LANDING_RECOVERY)->setOutdatedTransition((int)CHAR1_STATE::FLOAT)));
 
 
-    m_actionResolver.addAction(std::make_unique<Action_char1_air_dash_extention>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_step_recovery>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_air_dash_extention>(animmgmgt.getAnimID("Char1/Airdash")));
+    m_actionResolver.addAction(std::make_unique<Action_char1_step_recovery>(animmgmgt.getAnimID("Char1/StepRecovery")));
 
-    m_actionResolver.addAction(std::make_unique<Action_char1_normal_throw_hold>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_normal_throw_whiff>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_normal_throw>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_normal_throw_hold>(animmgmgt.getAnimID("Char1/ThrowStartup")));
+    m_actionResolver.addAction(std::make_unique<Action_char1_normal_throw_whiff>(animmgmgt.getAnimID("Char1/ThrowWhiff")));
+    m_actionResolver.addAction(std::make_unique<Action_char1_normal_throw>(animmgmgt.getAnimID("Char1/Throw"), animmgmgt.getAnimID("Particles/Hit1")));
 
-    m_actionResolver.addAction(std::make_unique<Action_char1_back_throw_hold>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_back_throw_hold>(animmgmgt.getAnimID("Char1/ThrowStartup")));
 
-    m_actionResolver.addAction(std::make_unique<Action_char1_thrown_char1_normal_hold>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_thrown_char1_normal>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_thrown_char1_normal_hold>(animmgmgt.getAnimID("Char1/ThrownChar1Hold")));
+    m_actionResolver.addAction(std::make_unique<Action_char1_thrown_char1_normal>(animmgmgt.getAnimID("Char1/ThrownChar1")));
 
-    m_actionResolver.addAction(std::make_unique<Action_char1_throw_tech_char1>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_throw_tech_char1>(animmgmgt.getAnimID("Char1/ThrowTech")));
 
 
-    m_actionResolver.addAction(std::make_unique<Action_char1_normal_air_throw_hold>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_normal_air_throw_whiff>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_normal_air_throw>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_normal_air_throw_hold>(animmgmgt.getAnimID("Char1/ThrowStartup")));
+    m_actionResolver.addAction(std::make_unique<Action_char1_normal_air_throw_whiff>(animmgmgt.getAnimID("Char1/ThrowWhiff")));
+    m_actionResolver.addAction(std::make_unique<Action_char1_normal_air_throw>(animmgmgt.getAnimID("Char1/Throw"), animmgmgt.getAnimID("Particles/Hit1")));
 
-    m_actionResolver.addAction(std::make_unique<Action_char1_back_air_throw_hold>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_back_air_throw_hold>(animmgmgt.getAnimID("Char1/ThrowStartup")));
 
-    m_actionResolver.addAction(std::make_unique<Action_char1_thrown_char1_normal_air_hold>());
-    m_actionResolver.addAction(std::make_unique<Action_char1_thrown_char1_normal_air>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_thrown_char1_normal_air_hold>(animmgmgt.getAnimID("Char1/ThrownChar1Hold")));
+    m_actionResolver.addAction(std::make_unique<Action_char1_thrown_char1_normal_air>(animmgmgt.getAnimID("Char1/ThrownChar1")));
 
-    m_actionResolver.addAction(std::make_unique<Action_char1_air_throw_tech_char1>());
+    m_actionResolver.addAction(std::make_unique<Action_char1_air_throw_tech_char1>(animmgmgt.getAnimID("Char1/ThrowTech")));
 }
 
 Char1::Char1(Application &application_, Vector2<float> pos_, Camera *cam_, ParticleManager *particleManager_, ProjectileManager *ptManager_) :
     Character(application_, pos_, 400.0f, gamedata::characters::char1::gravity, cam_, particleManager_, 1, 1, 6, 5, StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY}), 1000, ptManager_)
 {
 
-    provideActions();
+    provideActions(application_);
     m_genericCharacterData.m_idle = (int)CHAR1_STATE::IDLE;
     m_genericCharacterData.m_float = (int)CHAR1_STATE::FLOAT;
 
@@ -449,48 +451,50 @@ Char1::Char1(Application &application_, Vector2<float> pos_, Camera *cam_, Parti
 
 void Char1::loadAnimations(Application &application_)
 {
-    m_animations[ANIMATIONS::CHAR1_IDLE] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_IDLE, LOOPMETHOD::SWITCH_DIR_LOOP);
-    m_animations[ANIMATIONS::CHAR1_CROUCH_IDLE] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_CROUCH_IDLE, LOOPMETHOD::JUMP_LOOP);
-    m_animations[ANIMATIONS::CHAR1_WALK_FWD] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_WALK_FWD, LOOPMETHOD::JUMP_LOOP);
-    m_animations[ANIMATIONS::CHAR1_WALK_BWD] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_WALK_BWD, LOOPMETHOD::JUMP_LOOP, 65, -1);
-    m_animations[ANIMATIONS::CHAR1_PREJUMP] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_PREJUMP);
-    m_animations[ANIMATIONS::CHAR1_JUMP] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_JUMP);
-    m_animations[ANIMATIONS::CHAR1_LANDING_RECOVERY] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_LANDING_RECOVERY, LOOPMETHOD::NOLOOP);
-    m_animations[ANIMATIONS::CHAR1_GROUND_DASH] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_GROUND_DASH, LOOPMETHOD::JUMP_LOOP);
-    m_animations[ANIMATIONS::CHAR1_GROUND_DASH_RECOVERY] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_GROUND_DASH_RECOVERY);
-    m_animations[ANIMATIONS::CHAR1_BACKDASH] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_BACKDASH, LOOPMETHOD::NOLOOP);
-    m_animations[ANIMATIONS::CHAR1_AIRDASH] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_AIRDASH, LOOPMETHOD::NOLOOP);
-    m_animations[ANIMATIONS::CHAR1_AIR_BACKDASH] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_AIR_BACKDASH, LOOPMETHOD::NOLOOP);
-    m_animations[ANIMATIONS::CHAR1_MOVE_A] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_MOVE_A, LOOPMETHOD::NOLOOP);
-    m_animations[ANIMATIONS::CHAR1_MOVE_B] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_MOVE_B, LOOPMETHOD::NOLOOP);
-    m_animations[ANIMATIONS::CHAR1_MOVE_C] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_MOVE_C, LOOPMETHOD::NOLOOP);
-    m_animations[ANIMATIONS::CHAR1_MOVE_STEP_C] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_MOVE_STEP_C, LOOPMETHOD::NOLOOP);
-    m_animations[ANIMATIONS::CHAR1_MOVE_2B] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_MOVE_2B, LOOPMETHOD::NOLOOP);
-    m_animations[ANIMATIONS::CHAR1_MOVE_4A] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_MOVE_4A, LOOPMETHOD::NOLOOP);
-    m_animations[ANIMATIONS::CHAR1_MOVE_JA] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_MOVE_JA, LOOPMETHOD::NOLOOP);
-    m_animations[ANIMATIONS::CHAR1_MOVE_JC] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_MOVE_JC, LOOPMETHOD::NOLOOP);
-    m_animations[ANIMATIONS::CHAR1_MOVE_214C] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_MOVE_214C, LOOPMETHOD::NOLOOP);
-    m_animations[ANIMATIONS::CHAR1_MOVE_236C] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_MOVE_236C, LOOPMETHOD::NOLOOP);
-    m_animations[ANIMATIONS::CHAR1_JC_LANDING_RECOVERY] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_JC_LANDING_RECOVERY, LOOPMETHOD::NOLOOP);
-    m_animations[ANIMATIONS::CHAR1_HITSTUN_LOW] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_HITSTUN_LOW, LOOPMETHOD::NOLOOP);
-    m_animations[ANIMATIONS::CHAR1_HITSTUN_MID] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_HITSTUN_MID, LOOPMETHOD::NOLOOP);
-    m_animations[ANIMATIONS::CHAR1_HITSTUN_HIGH] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_HITSTUN_HIGH, LOOPMETHOD::NOLOOP);
-    m_animations[ANIMATIONS::CHAR1_HITSTUN_AIR] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_HITSTUN_AIR, LOOPMETHOD::NOLOOP);
-    m_animations[ANIMATIONS::CHAR1_HITSTUN_CROUCH] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_HITSTUN_CROUCH, LOOPMETHOD::NOLOOP);
-    m_animations[ANIMATIONS::CHAR1_BLOCKSTUN_STANDING] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_BLOCKSTUN_STANDING, LOOPMETHOD::NOLOOP);
-    m_animations[ANIMATIONS::CHAR1_BLOCKSTUN_CROUCHING] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_BLOCKSTUN_CROUCHING, LOOPMETHOD::NOLOOP);
-    m_animations[ANIMATIONS::CHAR1_KNOCKDOWN] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_KNOCKDOWN, LOOPMETHOD::NOLOOP);
-    m_animations[ANIMATIONS::CHAR1_SOFT_KNOCKDOWN] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_SOFT_KNOCKDOWN, LOOPMETHOD::NOLOOP);
-    m_animations[ANIMATIONS::CHAR1_KNOCKDOWN_RECOVERY] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_KNOCKDOWN_RECOVERY, LOOPMETHOD::NOLOOP);
-    m_animations[ANIMATIONS::CHAR1_STEP] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_STEP, LOOPMETHOD::NOLOOP);
-    m_animations[ANIMATIONS::CHAR1_STEP_RECOVERY] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_STEP_RECOVERY, LOOPMETHOD::NOLOOP);
-    m_animations[ANIMATIONS::CHAR1_NORMAL_THROW_STARTUP] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_NORMAL_THROW_STARTUP, LOOPMETHOD::NOLOOP);
-    m_animations[ANIMATIONS::CHAR1_NORMAL_THROW] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_NORMAL_THROW, LOOPMETHOD::NOLOOP);
-    m_animations[ANIMATIONS::CHAR1_THROWN_CHAR1_NORMAL_HOLD] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_THROWN_CHAR1_NORMAL_HOLD, LOOPMETHOD::NOLOOP);
-    m_animations[ANIMATIONS::CHAR1_THROWN_CHAR1_NORMAL] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_THROWN_CHAR1_NORMAL, LOOPMETHOD::NOLOOP);
-    m_animations[ANIMATIONS::CHAR1_THROW_TECH] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_THROW_TECH, LOOPMETHOD::NOLOOP);
-    m_animations[ANIMATIONS::CHAR1_NORMAL_THROW_WHIFF] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_NORMAL_THROW_WHIFF, LOOPMETHOD::NOLOOP);
-    m_animations[ANIMATIONS::CHAR1_PROJECTILE_CHAR_ANIM] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_PROJECTILE_CHAR_ANIM, LOOPMETHOD::NOLOOP);
+    AnimationManager animmgmgt = *application_.getAnimationManager();
+
+    m_animations[animmgmgt.getAnimID("Char1/Idle")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/Idle"), LOOPMETHOD::SWITCH_DIR_LOOP);
+    m_animations[animmgmgt.getAnimID("Char1/CrouchIdle")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/CrouchIdle"), LOOPMETHOD::JUMP_LOOP);
+    m_animations[animmgmgt.getAnimID("Char1/WalkForward")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/WalkForward"), LOOPMETHOD::JUMP_LOOP);
+    m_animations[animmgmgt.getAnimID("Char1/WalkBackward")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/WalkBackward"), LOOPMETHOD::JUMP_LOOP, 65, -1);
+    m_animations[animmgmgt.getAnimID("Char1/Prejump")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/Prejump"));
+    m_animations[animmgmgt.getAnimID("Char1/Jump")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/Jump"));
+    m_animations[animmgmgt.getAnimID("Char1/LandingRecovery")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/LandingRecovery"), LOOPMETHOD::NOLOOP);
+    m_animations[animmgmgt.getAnimID("Char1/GroundDash")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/GroundDash"), LOOPMETHOD::JUMP_LOOP);
+    m_animations[animmgmgt.getAnimID("Char1/GroundDashRecovery")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/GroundDashRecovery"));
+    m_animations[animmgmgt.getAnimID("Char1/Backdash")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/Backdash"), LOOPMETHOD::NOLOOP);
+    m_animations[animmgmgt.getAnimID("Char1/Airdash")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/Airdash"), LOOPMETHOD::NOLOOP);
+    m_animations[animmgmgt.getAnimID("Char1/AirBackdash")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/AirBackdash"), LOOPMETHOD::NOLOOP);
+    m_animations[animmgmgt.getAnimID("Char1/Jab")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/Jab"), LOOPMETHOD::NOLOOP);
+    m_animations[animmgmgt.getAnimID("Char1/MoveB")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/MoveB"), LOOPMETHOD::NOLOOP);
+    m_animations[animmgmgt.getAnimID("Char1/MoveC")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/MoveC"), LOOPMETHOD::NOLOOP);
+    m_animations[animmgmgt.getAnimID("Char1/MoveStepC")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/MoveStepC"), LOOPMETHOD::NOLOOP);
+    m_animations[animmgmgt.getAnimID("Char1/Move2B")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/Move2B"), LOOPMETHOD::NOLOOP);
+    m_animations[animmgmgt.getAnimID("Char1/Move4A")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/Move4A"), LOOPMETHOD::NOLOOP);
+    m_animations[animmgmgt.getAnimID("Char1/MoveJA")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/MoveJA"), LOOPMETHOD::NOLOOP);
+    m_animations[animmgmgt.getAnimID("Char1/MoveJC")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/MoveJC"), LOOPMETHOD::NOLOOP);
+    m_animations[animmgmgt.getAnimID("Char1/Move214C")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/Move214C"), LOOPMETHOD::NOLOOP);
+    m_animations[animmgmgt.getAnimID("Char1/Move236C")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/Move236C"), LOOPMETHOD::NOLOOP);
+    m_animations[animmgmgt.getAnimID("Char1/JCLandingRecovery")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/JCLandingRecovery"), LOOPMETHOD::NOLOOP);
+    m_animations[animmgmgt.getAnimID("Char1/LowHitstun")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/LowHitstun"), LOOPMETHOD::NOLOOP);
+    m_animations[animmgmgt.getAnimID("Char1/MidHitstun")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/MidHitstun"), LOOPMETHOD::NOLOOP);
+    m_animations[animmgmgt.getAnimID("Char1/HighHitstun")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/HighHitstun"), LOOPMETHOD::NOLOOP);
+    m_animations[animmgmgt.getAnimID("Char1/AirHitstun")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/AirHitstun"), LOOPMETHOD::NOLOOP);
+    m_animations[animmgmgt.getAnimID("Char1/CrouchHitstun")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/CrouchHitstun"), LOOPMETHOD::NOLOOP);
+    m_animations[animmgmgt.getAnimID("Char1/StandingBlock")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/StandingBlock"), LOOPMETHOD::NOLOOP);
+    m_animations[animmgmgt.getAnimID("Char1/CrouchBlock")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/CrouchBlock"), LOOPMETHOD::NOLOOP);
+    m_animations[animmgmgt.getAnimID("Char1/Knockdown")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/Knockdown"), LOOPMETHOD::NOLOOP);
+    m_animations[animmgmgt.getAnimID("Char1/SoftKnockdown")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/SoftKnockdown"), LOOPMETHOD::NOLOOP);
+    m_animations[animmgmgt.getAnimID("Char1/KnockdownRecovery")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/KnockdownRecovery"), LOOPMETHOD::NOLOOP);
+    m_animations[animmgmgt.getAnimID("Char1/Step")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/Step"), LOOPMETHOD::NOLOOP);
+    m_animations[animmgmgt.getAnimID("Char1/StepRecovery")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/StepRecovery"), LOOPMETHOD::NOLOOP);
+    m_animations[animmgmgt.getAnimID("Char1/ThrowStartup")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/ThrowStartup"), LOOPMETHOD::NOLOOP);
+    m_animations[animmgmgt.getAnimID("Char1/Throw")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/Throw"), LOOPMETHOD::NOLOOP);
+    m_animations[animmgmgt.getAnimID("Char1/ThrownChar1Hold")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/ThrownChar1Hold"), LOOPMETHOD::NOLOOP);
+    m_animations[animmgmgt.getAnimID("Char1/ThrownChar1")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/ThrownChar1"), LOOPMETHOD::NOLOOP);
+    m_animations[animmgmgt.getAnimID("Char1/ThrowTech")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/ThrowTech"), LOOPMETHOD::NOLOOP);
+    m_animations[animmgmgt.getAnimID("Char1/ThrowWhiff")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/ThrowWhiff"), LOOPMETHOD::NOLOOP);
+    m_animations[animmgmgt.getAnimID("Char1/MoveProjectileCharAnim")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/MoveProjectileCharAnim"), LOOPMETHOD::NOLOOP);
 
     /*
     CHAR1_NORMAL_THROW_STARTUP,
@@ -501,11 +505,11 @@ void Char1::loadAnimations(Application &application_)
 	CHAR1_NORMAL_THROW_WHIFF
     */
 
-   application_.getAnimationManager()->preload(ANIMATIONS::CHAR1_PROJECTILE_STARTUP);
-   application_.getAnimationManager()->preload(ANIMATIONS::CHAR1_PROJECTILE_FILLER);
-   application_.getAnimationManager()->preload(ANIMATIONS::CHAR1_PROJECTILE_FADEOUT);
+   application_.getAnimationManager()->preload("Char1/ProjectileFirewallStartup");
+   application_.getAnimationManager()->preload("Char1/ProjectileFirewallFiller");
+   application_.getAnimationManager()->preload("Char1/ProjectileFirewallFadeout");
 
-    m_currentAnimation = m_animations[ANIMATIONS::CHAR1_IDLE].get();
+    m_currentAnimation = m_animations[animmgmgt.getAnimID("Char1/Idle")].get();
     m_currentAnimation->reset();
 }
 

@@ -60,11 +60,13 @@ void Projectile::initiate()
 
 void Projectile::loadAnimations(Application &application_)
 {
-    m_animations[ANIMATIONS::CHAR1_PROJECTILE_STARTUP] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_PROJECTILE_STARTUP, LOOPMETHOD::NOLOOP);
-    m_animations[ANIMATIONS::CHAR1_PROJECTILE_FILLER] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_PROJECTILE_FILLER, LOOPMETHOD::JUMP_LOOP);
-    m_animations[ANIMATIONS::CHAR1_PROJECTILE_FADEOUT] = std::make_unique<Animation>(*application_.getAnimationManager(), ANIMATIONS::CHAR1_PROJECTILE_FADEOUT, LOOPMETHOD::NOLOOP);
+    AnimationManager animmgmgt = *application_.getAnimationManager();
 
-    m_currentAnimation = m_animations[ANIMATIONS::CHAR1_PROJECTILE_STARTUP].get();
+    m_animations[animmgmgt.getAnimID("Char1/ProjectileFirewallStartup")] = std::make_unique<Animation>(*application_.getAnimationManager(), animmgmgt.getAnimID("Char1/ProjectileFirewallStartup"), LOOPMETHOD::NOLOOP);
+    m_animations[animmgmgt.getAnimID("Char1/ProjectileFirewallFiller")] = std::make_unique<Animation>(*application_.getAnimationManager(), animmgmgt.getAnimID("Char1/ProjectileFirewallFiller"), LOOPMETHOD::JUMP_LOOP);
+    m_animations[animmgmgt.getAnimID("Char1/ProjectileFirewallFadeout")] = std::make_unique<Animation>(*application_.getAnimationManager(), animmgmgt.getAnimID("Char1/ProjectileFirewallFadeout"), LOOPMETHOD::NOLOOP);
+
+    m_currentAnimation = m_animations[animmgmgt.getAnimID("Char1/ProjectileFirewallStartup")].get();
     m_currentAnimation->reset();
 }
 

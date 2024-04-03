@@ -50,7 +50,7 @@ void ParticleManager::draw(Camera &camera_)
 
 void ParticleManager::spawnParticle(const ParticleSpawnData &partData_)
 {
-    Animation anim(*m_animationManager, (ANIMATIONS)partData_.m_animation, partData_.m_loopMethod, partData_.m_beginFrame, partData_.m_beginDirection);
+    Animation anim(*m_animationManager, partData_.m_animation, partData_.m_loopMethod, partData_.m_beginFrame, partData_.m_beginDirection);
     Particle part{std::move(anim)};
     part.m_pos = partData_.m_pos;
     part.m_velocity = partData_.m_velocity;

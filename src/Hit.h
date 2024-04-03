@@ -103,19 +103,19 @@ struct HitEvent
 
 namespace hitgeneration
 {
-    HitData generate_char1_normal_throw();
-    std::pair<FrameWindow, Hit> generate_char1_jab();
-    std::pair<FrameWindow, Hit> generate_char1_moveB();
-    std::pair<FrameWindow, Hit> generate_char1_moveC();
-    std::pair<FrameWindow, Hit> generate_char1_moveStepC();
-    std::pair<FrameWindow, Hit> generate_char1_move2B();
-    std::pair<FrameWindow, Hit> generate_char1_move4A();
-    std::pair<FrameWindow, Hit> generate_char1_JA();
-    std::pair<FrameWindow, Hit> generate_char1_JC();
-    std::pair<FrameWindow, Hit> generate_char1_214C();
-    std::pair<FrameWindow, Hit> generate_char1_236C();
+    HitData generate_char1_normal_throw(int animIdHit_);
+    std::pair<FrameWindow, Hit> generate_char1_jab(int animIdHit_, int animIdBlock_);
+    std::pair<FrameWindow, Hit> generate_char1_moveB(int animIdHit_, int animIdBlock_);
+    std::pair<FrameWindow, Hit> generate_char1_moveC(int animIdHit_, int animIdBlock_);
+    std::pair<FrameWindow, Hit> generate_char1_moveStepC(int animIdHit_, int animIdBlock_);
+    std::pair<FrameWindow, Hit> generate_char1_move2B(int animIdHit_, int animIdBlock_);
+    std::pair<FrameWindow, Hit> generate_char1_move4A(int animIdHit_, int animIdBlock_);
+    std::pair<FrameWindow, Hit> generate_char1_JA(int animIdHit_, int animIdBlock_);
+    std::pair<FrameWindow, Hit> generate_char1_JC(int animIdHit_, int animIdBlock_);
+    std::pair<FrameWindow, Hit> generate_char1_214C(int animIdHit_, int animIdBlock_);
+    std::pair<FrameWindow, Hit> generate_char1_236C(int animIdHit_, int animIdBlock_);
 
-    Hit generate_char1_projectile_hit();
+    Hit generate_char1_projectile_hit(int animIdHit_, int animIdBlock_);
 }
 
 namespace hitutils

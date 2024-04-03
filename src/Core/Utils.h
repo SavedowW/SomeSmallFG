@@ -1,5 +1,7 @@
 #ifndef UTILS_H_
 #define UTILS_H_
+#include <filesystem>
+#include <string>
 
 namespace utils
 {
@@ -27,6 +29,15 @@ namespace utils
     	T alpha = (val - min) / (max - min);
         return clamp<T>(alpha, 0, 1);
     }
+
+    inline std::string getRelativePath(const std::string &basePath_, const std::string &fullPath_)
+	{
+		std::filesystem::path path1(basePath_);
+    	std::filesystem::path path2(fullPath_);
+    	auto p = std::filesystem::relative(path2, path1).string();
+    	std::replace(p.begin(), p.end(), '\\', '/');
+    	return p;
+	}
 
 }
 

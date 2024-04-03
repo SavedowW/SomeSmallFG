@@ -37,7 +37,7 @@ public:
             std::cout << "EVENT\n";
             ParticleSpawnData spdata;
             spdata.m_pos = m_camera.getPos();
-            spdata.m_animation = (int)ANIMATIONS::PARTICLE_BLOCK;
+            spdata.m_animation = m_application->getAnimationManager()->getAnimID("Particles/Block");
             spdata.m_flip = (rand() % 2 ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
             //spdata.m_scale = ((rand() % 101) + 20) / 100.0f;
             spdata.m_scale = 0.5f;
@@ -61,7 +61,7 @@ public:
         SDL_SetTextureBlendMode(m_shadowsLayer, blendmode);
         SDL_SetTextureAlphaMod(m_shadowsLayer, 150);
 
-        m_clashParticles.m_animation = (int)ANIMATIONS::PARTICLE_CLASH;
+        m_clashParticles.m_animation = m_application->getAnimationManager()->getAnimID("Particles/Clash");
         m_clashParticles.m_scale = 0.65f;
         m_clashParticles.m_minLifeTime = m_clashParticles.m_maxLifeTime = 24;
     }

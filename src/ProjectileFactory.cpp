@@ -15,11 +15,13 @@ void ProjectileFactory::setPlayerID(int playerId_)
 
 std::unique_ptr<Projectile> ProjectileFactory::createProjectile(PTRecipe &recipe_)
 {
-    auto actpt1 = std::unique_ptr<Action>((new ActionProjectile(0, {}, ANIMATIONS::CHAR1_PROJECTILE_STARTUP, StateMarker(3, {}), false, false))->setSwitchData(false, 29, false, false,
+    AnimationManager animmgmgt = *m_application->getAnimationManager();
+
+    auto actpt1 = std::unique_ptr<Action>((new ActionProjectile(0, {}, animmgmgt.getAnimID("Char1/ProjectileFirewallStartup"), StateMarker(3, {}), false, false))->setSwitchData(false, 29, false, false,
     {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f})->setOutdatedTransition(1));
-    auto actpt2 = std::unique_ptr<Action>((new ActionProjectileHitProvider(1, {}, ANIMATIONS::CHAR1_PROJECTILE_FILLER, StateMarker(3, {}), false, hitgeneration::generate_char1_projectile_hit(), 3))->setSwitchData(false, 360, false, false,
+    auto actpt2 = std::unique_ptr<Action>((new ActionProjectileHitProvider(1, {}, animmgmgt.getAnimID("Char1/ProjectileFirewallFiller"), StateMarker(3, {}), false, hitgeneration::generate_char1_projectile_hit(animmgmgt.getAnimID("Particles/Hit1"), animmgmgt.getAnimID("Particles/Block")), 3))->setSwitchData(false, 360, false, false,
     {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f})->setOutdatedTransition(2));
-    auto actpt3 = std::unique_ptr<Action>((new ActionProjectile(2, {}, ANIMATIONS::CHAR1_PROJECTILE_FADEOUT, StateMarker(3, {}), false, false))->setOutdatedExpire(true)->setSwitchData(false, 16, false, false,
+    auto actpt3 = std::unique_ptr<Action>((new ActionProjectile(2, {}, animmgmgt.getAnimID("Char1/ProjectileFirewallFadeout"), StateMarker(3, {}), false, false))->setOutdatedExpire(true)->setSwitchData(false, 16, false, false,
     {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}));
 
     auto pos = utils::clamp(recipe_.m_starterPos, recipe_.m_minPos, recipe_.m_maxPos);

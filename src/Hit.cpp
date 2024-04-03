@@ -20,13 +20,13 @@ HitData Hit::getHitData() const
     return *static_cast<const HitData*>(this);
 }
 
-HitData hitgeneration::generate_char1_normal_throw()
+HitData hitgeneration::generate_char1_normal_throw(int animIdHit_)
 {
     HitData hdata;
 
     ParticlesSpawnData pdatatemp;
 
-    pdatatemp.m_animation = (int)ANIMATIONS::PARTICLE_HIT1;
+    pdatatemp.m_animation = animIdHit_;
     pdatatemp.m_scale = 0.6f;
     pdatatemp.m_minLifeTime = pdatatemp.m_maxLifeTime = 10;
     hdata.particlesOnHit.push_back(pdatatemp);
@@ -59,18 +59,18 @@ HitData hitgeneration::generate_char1_normal_throw()
     return hdata;
 }
 
-std::pair<FrameWindow, Hit> hitgeneration::generate_char1_jab()
+std::pair<FrameWindow, Hit> hitgeneration::generate_char1_jab(int animIdHit_, int animIdBlock_)
 {
     HitData hdata;
 
     ParticlesSpawnData pdatatemp;
 
-    pdatatemp.m_animation = (int)ANIMATIONS::PARTICLE_BLOCK;
+    pdatatemp.m_animation = animIdBlock_;
     pdatatemp.m_scale = 0.5f;
     pdatatemp.m_minLifeTime = pdatatemp.m_maxLifeTime = 10;
     hdata.particlesOnBlock.push_back(pdatatemp);
 
-    pdatatemp.m_animation = (int)ANIMATIONS::PARTICLE_HIT1;
+    pdatatemp.m_animation = animIdHit_;
     pdatatemp.m_scale = 0.4f;
     pdatatemp.m_minLifeTime = pdatatemp.m_maxLifeTime = 10;
     hdata.particlesOnHit.push_back(pdatatemp);
@@ -112,18 +112,18 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_jab()
     return {{5, 7}, hit};
 }
 
-std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveB()
+std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveB(int animIdHit_, int animIdBlock_)
 {
     HitData hdata;
 
     ParticlesSpawnData pdatatemp;
 
-    pdatatemp.m_animation = (int)ANIMATIONS::PARTICLE_BLOCK;
+    pdatatemp.m_animation = animIdBlock_;
     pdatatemp.m_scale = 0.6f;
     pdatatemp.m_minLifeTime = pdatatemp.m_maxLifeTime = 10;
     hdata.particlesOnBlock.push_back(pdatatemp);
 
-    pdatatemp.m_animation = (int)ANIMATIONS::PARTICLE_HIT1;
+    pdatatemp.m_animation = animIdHit_;
     pdatatemp.m_minLifeTime = pdatatemp.m_maxLifeTime = 10;
     hdata.particlesOnHit.push_back(pdatatemp);
     hdata.particlesOnCH.push_back(pdatatemp);
@@ -163,18 +163,18 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveB()
     return {{7, 10}, hit};
 }
 
-std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveC()
+std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveC(int animIdHit_, int animIdBlock_)
 {
     HitData hdata;
 
     ParticlesSpawnData pdatatemp;
 
-    pdatatemp.m_animation = (int)ANIMATIONS::PARTICLE_BLOCK;
+    pdatatemp.m_animation = animIdBlock_;
     pdatatemp.m_scale = 0.8f;
     pdatatemp.m_minLifeTime = pdatatemp.m_maxLifeTime = 10;
     hdata.particlesOnBlock.push_back(pdatatemp);
 
-    pdatatemp.m_animation = (int)ANIMATIONS::PARTICLE_HIT1;
+    pdatatemp.m_animation = animIdHit_;
     pdatatemp.m_minLifeTime = pdatatemp.m_maxLifeTime = 10;
     hdata.particlesOnHit.push_back(pdatatemp);
     hdata.particlesOnCH.push_back(pdatatemp);
@@ -215,18 +215,18 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveC()
     return {{11, 16}, hit};
 }
 
-std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveStepC()
+std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveStepC(int animIdHit_, int animIdBlock_)
 {
     HitData hdata;
 
     ParticlesSpawnData pdatatemp;
 
-    pdatatemp.m_animation = (int)ANIMATIONS::PARTICLE_BLOCK;
+    pdatatemp.m_animation = animIdBlock_;
     pdatatemp.m_scale = 0.8f;
     pdatatemp.m_minLifeTime = pdatatemp.m_maxLifeTime = 10;
     hdata.particlesOnBlock.push_back(pdatatemp);
 
-    pdatatemp.m_animation = (int)ANIMATIONS::PARTICLE_HIT1;
+    pdatatemp.m_animation = animIdHit_;
     pdatatemp.m_minLifeTime = pdatatemp.m_maxLifeTime = 10;
     hdata.particlesOnHit.push_back(pdatatemp);
     hdata.particlesOnCH.push_back(pdatatemp);
@@ -267,18 +267,18 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveStepC()
     return {{6, 13}, hit};
 }
 
-std::pair<FrameWindow, Hit> hitgeneration::generate_char1_move2B()
+std::pair<FrameWindow, Hit> hitgeneration::generate_char1_move2B(int animIdHit_, int animIdBlock_)
 {
     HitData hdata;
 
     ParticlesSpawnData pdatatemp;
 
-    pdatatemp.m_animation = (int)ANIMATIONS::PARTICLE_BLOCK;
+    pdatatemp.m_animation = animIdBlock_;
     pdatatemp.m_scale = 0.6f;
     pdatatemp.m_minLifeTime = pdatatemp.m_maxLifeTime = 10;
     hdata.particlesOnBlock.push_back(pdatatemp);
 
-    pdatatemp.m_animation = (int)ANIMATIONS::PARTICLE_HIT1;
+    pdatatemp.m_animation = animIdHit_;
     pdatatemp.m_minLifeTime = pdatatemp.m_maxLifeTime = 10;
     hdata.particlesOnHit.push_back(pdatatemp);
     hdata.particlesOnCH.push_back(pdatatemp);
@@ -318,18 +318,18 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_move2B()
     return {{10, 12}, hit};
 }
 
-std::pair<FrameWindow, Hit> hitgeneration::generate_char1_move4A()
+std::pair<FrameWindow, Hit> hitgeneration::generate_char1_move4A(int animIdHit_, int animIdBlock_)
 {
     HitData hdata;
 
     ParticlesSpawnData pdatatemp;
 
-    pdatatemp.m_animation = (int)ANIMATIONS::PARTICLE_BLOCK;
+    pdatatemp.m_animation = animIdBlock_;
     pdatatemp.m_scale = 0.6f;
     pdatatemp.m_minLifeTime = pdatatemp.m_maxLifeTime = 10;
     hdata.particlesOnBlock.push_back(pdatatemp);
 
-    pdatatemp.m_animation = (int)ANIMATIONS::PARTICLE_HIT1;
+    pdatatemp.m_animation = animIdHit_;
     pdatatemp.m_minLifeTime = pdatatemp.m_maxLifeTime = 10;
     hdata.particlesOnHit.push_back(pdatatemp);
     hdata.particlesOnCH.push_back(pdatatemp);
@@ -370,19 +370,19 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_move4A()
     return {{7, 10}, hit};
 }
 
-std::pair<FrameWindow, Hit> hitgeneration::generate_char1_JA()
+std::pair<FrameWindow, Hit> hitgeneration::generate_char1_JA(int animIdHit_, int animIdBlock_)
 {
     HitData hdata;
 
     ParticlesSpawnData pdatatemp;
 
-    pdatatemp.m_animation = (int)ANIMATIONS::PARTICLE_BLOCK;
+    pdatatemp.m_animation = animIdBlock_;
     pdatatemp.m_scale = 0.6f;
     pdatatemp.m_angle = 45.0f;
     pdatatemp.m_minLifeTime = pdatatemp.m_maxLifeTime = 10;
     hdata.particlesOnBlock.push_back(pdatatemp);
 
-    pdatatemp.m_animation = (int)ANIMATIONS::PARTICLE_HIT1;
+    pdatatemp.m_animation = animIdHit_;
     pdatatemp.m_angle = 0.0f;
     pdatatemp.m_minLifeTime = pdatatemp.m_maxLifeTime = 10;
     hdata.particlesOnHit.push_back(pdatatemp);
@@ -423,18 +423,18 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_JA()
     return {{6, 8}, hit};
 }
 
-std::pair<FrameWindow, Hit> hitgeneration::generate_char1_JC()
+std::pair<FrameWindow, Hit> hitgeneration::generate_char1_JC(int animIdHit_, int animIdBlock_)
 {
     HitData hdata;
 
     ParticlesSpawnData pdatatemp;
 
-    pdatatemp.m_animation = (int)ANIMATIONS::PARTICLE_BLOCK;
+    pdatatemp.m_animation = animIdBlock_;
     pdatatemp.m_scale = 0.9f;
     pdatatemp.m_minLifeTime = pdatatemp.m_maxLifeTime = 10;
     hdata.particlesOnBlock.push_back(pdatatemp);
 
-    pdatatemp.m_animation = (int)ANIMATIONS::PARTICLE_HIT2;
+    pdatatemp.m_animation = animIdHit_;
     pdatatemp.m_angle = -60.0f;
     pdatatemp.m_minLifeTime = pdatatemp.m_maxLifeTime = 15;
     hdata.particlesOnHit.push_back(pdatatemp);
@@ -479,17 +479,17 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_JC()
     return {{12, 17}, hit};
 }
 
-std::pair<FrameWindow, Hit> hitgeneration::generate_char1_214C()
+std::pair<FrameWindow, Hit> hitgeneration::generate_char1_214C(int animIdHit_, int animIdBlock_)
 {
     HitData hdata;
 
     ParticlesSpawnData pdatatemp;
 
-    pdatatemp.m_animation = (int)ANIMATIONS::PARTICLE_BLOCK;
+    pdatatemp.m_animation = animIdBlock_;
     pdatatemp.m_minLifeTime = pdatatemp.m_maxLifeTime = 10;
     hdata.particlesOnBlock.push_back(pdatatemp);
 
-    pdatatemp.m_animation = (int)ANIMATIONS::PARTICLE_HIT2_SLOWED;
+    pdatatemp.m_animation = animIdHit_;
     pdatatemp.m_angle = 90.0f;
     pdatatemp.m_minLifeTime = pdatatemp.m_maxLifeTime = 20;
     hdata.particlesOnHit.push_back(pdatatemp);
@@ -537,20 +537,20 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_214C()
     return {{16, 21}, hit};
 }
 
-std::pair<FrameWindow, Hit> hitgeneration::generate_char1_236C()
+std::pair<FrameWindow, Hit> hitgeneration::generate_char1_236C(int animIdHit_, int animIdBlock_)
 {
     HitData hdata;
 
     ParticlesSpawnData pdatatemp;
 
-    pdatatemp.m_animation = (int)ANIMATIONS::PARTICLE_BLOCK;
+    pdatatemp.m_animation = animIdBlock_;
     pdatatemp.m_scale = 0.8f;
     pdatatemp.m_angle = -45.0;
     pdatatemp.m_minLifeTime = pdatatemp.m_maxLifeTime = 10;
     hdata.particlesOnBlock.push_back(pdatatemp);
 
     pdatatemp.m_angle = -90.0;
-    pdatatemp.m_animation = (int)ANIMATIONS::PARTICLE_HIT2;
+    pdatatemp.m_animation = animIdHit_;
     pdatatemp.m_minLifeTime = pdatatemp.m_maxLifeTime = 15;
     hdata.particlesOnHit.push_back(pdatatemp);
     hdata.particlesOnCH.push_back(pdatatemp);
@@ -591,18 +591,18 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_236C()
     return {{13, 16}, hit};
 }
 
-Hit hitgeneration::generate_char1_projectile_hit()
+Hit hitgeneration::generate_char1_projectile_hit(int animIdHit_, int animIdBlock_)
 {
     HitData hdata;
 
     ParticlesSpawnData pdatatemp;
 
-    pdatatemp.m_animation = (int)ANIMATIONS::PARTICLE_BLOCK;
+    pdatatemp.m_animation = animIdBlock_;
     pdatatemp.m_scale = 0.6f;
     pdatatemp.m_minLifeTime = pdatatemp.m_maxLifeTime = 10;
     hdata.particlesOnBlock.push_back(pdatatemp);
 
-    pdatatemp.m_animation = (int)ANIMATIONS::PARTICLE_HIT1;
+    pdatatemp.m_animation = animIdHit_;
     pdatatemp.m_minLifeTime = pdatatemp.m_maxLifeTime = 10;
     hdata.particlesOnHit.push_back(pdatatemp);
     hdata.particlesOnCH.push_back(pdatatemp);

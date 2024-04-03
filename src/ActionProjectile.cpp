@@ -1,7 +1,7 @@
 #include "ProjectileFactory.h"
 #include "ActionProjectile.h"
 
-ActionProjectile::ActionProjectile(int actionState_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, StateMarker transitionableFrom_, bool isAttack_, bool isAirborne_) :
+ActionProjectile::ActionProjectile(int actionState_, HurtboxFramesVec &&hurtboxes_, int anim_, StateMarker transitionableFrom_, bool isAttack_, bool isAirborne_) :
     Action(actionState_, std::move(hurtboxes_), anim_, std::move(transitionableFrom_), isAttack_, isAirborne_)
 {
 }
@@ -22,7 +22,7 @@ ActionProjectile *ActionProjectile::setOutdatedExpire(bool expireWhenOutdated_)
     return this;
 }
 
-ActionProjectileHitProvider::ActionProjectileHitProvider(int actionState_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, StateMarker transitionableFrom_, bool isAirborne_, Hit &&hitProto_, int hitCount_) :
+ActionProjectileHitProvider::ActionProjectileHitProvider(int actionState_, HurtboxFramesVec &&hurtboxes_, int anim_, StateMarker transitionableFrom_, bool isAirborne_, Hit &&hitProto_, int hitCount_) :
     ActionProjectile(actionState_, std::move(hurtboxes_), anim_, std::move(transitionableFrom_), true, isAirborne_),
     m_hitProto(std::move(hitProto_)),
     m_maxHitCount(hitCount_)

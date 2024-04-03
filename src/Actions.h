@@ -32,7 +32,7 @@ enum class THROW_TECHS_LIST {
 class Action
 {
 public:
-    Action(int actionState_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, StateMarker transitionableFrom_, bool isAttack_, bool isAirborne_);
+    Action(int actionState_, HurtboxFramesVec &&hurtboxes_, int anim_, StateMarker transitionableFrom_, bool isAttack_, bool isAirborne_);
     virtual ~Action() = default;
 
     virtual void switchTo(InteractableStateMachine &character_);
@@ -68,7 +68,7 @@ public:
 
     const int actionState;
     const HurtboxFramesVec m_hurtboxes;
-    const ANIMATIONS m_anim;
+    const int m_anim;
     const bool m_isAttack;
 
 protected:
@@ -143,7 +143,7 @@ protected:
 class ActionCharacter : public Action
 {
 public:
-    ActionCharacter(int actionState_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, StateMarker transitionableFrom_, bool isAttack_, bool isCrouchState_, bool isThrowStartup_,
+    ActionCharacter(int actionState_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, int anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, StateMarker transitionableFrom_, bool isAttack_, bool isCrouchState_, bool isThrowStartup_,
     int consumeAirdash_, int consumeAirjump_, bool waitAirdashTimer_, bool waitAirjumpTimer_, bool isAirborne_);
     virtual bool isInputPossible(const InputQueue &inputQueue_, ORIENTATION ownDirection_, int extendBuffer_) const;
     virtual void outdated(InteractableStateMachine &character_);
@@ -222,7 +222,7 @@ protected:
 class Action_prolonged : public ActionCharacter
 {
 public:
-    Action_prolonged(int actionState_, InputComparator_ptr incmp_, InputComparator_ptr incmp_prolonged_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, StateMarker transitionableFrom_, bool isCrouchState_,
+    Action_prolonged(int actionState_, InputComparator_ptr incmp_, InputComparator_ptr incmp_prolonged_, HurtboxFramesVec &&hurtboxes_, int anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, StateMarker transitionableFrom_, bool isCrouchState_,
     int consumeAirdash_, int consumeAirjump_, bool waitAirdashTimer_, bool waitAirjumpTimer_, bool isAirborne_);
     virtual int isPossibleToProlong(const InputQueue &inputQueue_, ORIENTATION ownDirection_) const;
     virtual int responseOnOwnState(const InputQueue &inputQueue_, ORIENTATION ownDirection_, int extendBuffer_) const override;
@@ -240,7 +240,7 @@ protected:
 class Action_jump : public ActionCharacter
 {
 public:
-    Action_jump(int actionState_, const Vector2<float> &impulse_, float prejumpLen_, float maxHorInertia_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&blockWindow_, StateMarker transitionableFrom_);
+    Action_jump(int actionState_, const Vector2<float> &impulse_, float prejumpLen_, float maxHorInertia_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, int anim_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&blockWindow_, StateMarker transitionableFrom_);
     virtual void switchTo(InteractableStateMachine &character_) override;
     Action_jump *setAirActionTimers(int airjumpTimerValue_, int airdashTimerValue_);
     const Vector2<float> m_impulse;
@@ -260,7 +260,7 @@ private:
 class Action_airjump : public ActionCharacter
 {
 public:
-    Action_airjump(int actionState_, const Vector2<float> &impulse_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, StateMarker transitionableFrom_);
+    Action_airjump(int actionState_, const Vector2<float> &impulse_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, int anim_, StateMarker transitionableFrom_);
     virtual int responseOnOwnState(const InputQueue &inputQueue_, ORIENTATION ownDirection_, int extendBuffer_) const override;
     virtual int isPossible(const InputQueue &inputQueue_, InteractableStateMachine *char_, int extendBuffer_) const;
     const Vector2<float> m_impulse;
@@ -276,7 +276,7 @@ public:
 class Action_attack : public ActionCharacter
 {
 public:
-    Action_attack(int actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, StateMarker transitionableFrom_, bool isCrouchState_, bool isAirborne_);
+    Action_attack(int actionState_, InputComparator_ptr incmp_, int fullDuration_, const ActiveFramesVec &hits_, HurtboxFramesVec &&hurtboxes_, int anim_, TimelineProperty<bool> &&gravityWindow_, StateMarker transitionableFrom_, bool isCrouchState_, bool isAirborne_);
     virtual const HitsVec getCurrentHits(uint32_t currentFrame_, const Vector2<float>& offset_, ORIENTATION ownOrientation_) const;
     virtual const bool isActive(uint32_t currentFrame_) const;
     virtual void switchTo(InteractableStateMachine &character_) override;
@@ -295,7 +295,7 @@ protected:
 class Action_throw_startup : public ActionCharacter
 {
 public:
-    Action_throw_startup(int actionState_, int whiffState_, int holdState_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, float range_, FrameWindow activeWindow_, bool requiredAirborne_, THROW_LIST throw_, StateMarker transitionableFrom_, bool isAirborne_);
+    Action_throw_startup(int actionState_, int whiffState_, int holdState_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, int anim_, TimelineProperty<bool> &&gravityWindow_, float range_, FrameWindow activeWindow_, bool requiredAirborne_, THROW_LIST throw_, StateMarker transitionableFrom_, bool isAirborne_);
     virtual void attemptThrow(InteractableStateMachine &character_) const;
 
     const FrameWindow m_activeWindow;
@@ -315,7 +315,7 @@ protected:
 class Action_throw_hold : public ActionCharacter
 {
 public:
-    Action_throw_hold(int actionState_, int throwState_, float setRange_, float duration_, bool sideSwitch_);
+    Action_throw_hold(int actionState_, int throwState_, float setRange_, float duration_, bool sideSwitch_, int anim_);
     virtual void switchTo(InteractableStateMachine &character_) override;
     void outdated(InteractableStateMachine &character_) override;
 
@@ -333,7 +333,7 @@ protected:
 class Action_thrown_hold : public ActionCharacter
 {
 public:
-    Action_thrown_hold(int actionState_, int thrownState_, ANIMATIONS anim_, float duration_);
+    Action_thrown_hold(int actionState_, int thrownState_, int anim_, float duration_);
     virtual void switchTo(InteractableStateMachine &character_) override;
 
 protected:
@@ -349,7 +349,7 @@ protected:
 class Action_throw_whiff : public ActionCharacter
 {
 public:
-    Action_throw_whiff(int actionState_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, float duration_, HurtboxFramesVec &&hurtboxes_, int idleState_, int floatState_);
+    Action_throw_whiff(int actionState_, int anim_, TimelineProperty<bool> &&gravityWindow_, float duration_, HurtboxFramesVec &&hurtboxes_, int idleState_, int floatState_);
     void outdated(InteractableStateMachine &character_) override;
 
 protected:
@@ -366,7 +366,7 @@ protected:
 class Action_throw_tech : public ActionCharacter
 {
 public:
-    Action_throw_tech(int actionState_, InputComparator_ptr incmp_, ANIMATIONS anim_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, float duration_, HurtboxFramesVec &&hurtboxes_, THROW_TECHS_LIST throwTech_, StateMarker transitionableFrom_, bool isAirborne_, int idleState_, int floatState_);
+    Action_throw_tech(int actionState_, InputComparator_ptr incmp_, int anim_, TimelineProperty<bool> &&gravityWindow_, TimelineProperty<bool> &&blockWindow_, float duration_, HurtboxFramesVec &&hurtboxes_, THROW_TECHS_LIST throwTech_, StateMarker transitionableFrom_, bool isAirborne_, int idleState_, int floatState_);
     virtual void switchTo(InteractableStateMachine &character_) override;
     void outdated(InteractableStateMachine &character_) override;
 
@@ -388,7 +388,7 @@ protected:
 class Action_locked_animation : public ActionCharacter
 {
 public:
-    Action_locked_animation(int actionState_, int quitState_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_, float duration_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&blockWindow_);
+    Action_locked_animation(int actionState_, int quitState_, HurtboxFramesVec &&hurtboxes_, int anim_, float duration_, TimelineProperty<bool> &&counterWindow_, TimelineProperty<bool> &&blockWindow_);
     virtual void switchTo(InteractableStateMachine &character_) override;
     virtual void update(InteractableStateMachine &character_) override;
     void outdated(InteractableStateMachine &character_) override;
@@ -412,7 +412,7 @@ protected:
 class Action_float : public ActionCharacter
 {
 public:
-    Action_float(int actionState_, int realState_, HurtboxFramesVec &&hurtboxes_, ANIMATIONS anim_);
+    Action_float(int actionState_, int realState_, HurtboxFramesVec &&hurtboxes_, int anim_);
     virtual void switchTo(InteractableStateMachine &character_) override;
 
 protected:
@@ -429,49 +429,49 @@ protected:
 class Action_char1_idle : public ActionCharacter
 {
 public:
-    Action_char1_idle();
+    Action_char1_idle(int animId_);
 };
 
 class Action_char1_crouch : public Action_prolonged
 {
 public:
-    Action_char1_crouch();
+    Action_char1_crouch(int animId_);
 };
 
 class Action_char1_walk_fwd : public Action_prolonged
 {
 public:
-    Action_char1_walk_fwd();
+    Action_char1_walk_fwd(int animId_);
 };
 
 class Action_char1_walk_bwd : public Action_prolonged
 {
 public:
-    Action_char1_walk_bwd();
+    Action_char1_walk_bwd(int animId_);
 };
 
 class Action_char1_neutral_jump : public Action_jump
 {
 public:
-    Action_char1_neutral_jump();
+    Action_char1_neutral_jump(int animId_);
 };
 
 class Action_char1_forward_jump : public Action_jump
 {
 public:
-    Action_char1_forward_jump();
+    Action_char1_forward_jump(int animId_);
 };
 
 class Action_char1_backward_jump : public Action_jump
 {
 public:
-    Action_char1_backward_jump();
+    Action_char1_backward_jump(int animId_);
 };
 
 class Action_char1_air_dash_extention : public ActionCharacter
 {
 public:
-    Action_char1_air_dash_extention();
+    Action_char1_air_dash_extention(int animId_);
     const int m_duration;
     const float m_baseSpd;
     const float m_spdMultiplier;
@@ -480,25 +480,25 @@ public:
 class Action_char1_neutral_doublejump : public Action_airjump
 {
 public:
-    Action_char1_neutral_doublejump();
+    Action_char1_neutral_doublejump(int animId_);
 };
 
 class Action_char1_forward_doublejump : public Action_airjump
 {
 public:
-    Action_char1_forward_doublejump();
+    Action_char1_forward_doublejump(int animId_);
 };
 
 class Action_char1_backward_doublejump : public Action_airjump
 {
 public:
-    Action_char1_backward_doublejump();
+    Action_char1_backward_doublejump(int animId_);
 };
 
 class Action_char1_ground_dash : public Action_prolonged
 {
 public:
-    Action_char1_ground_dash();
+    Action_char1_ground_dash(int animId_);
     const float m_accel;
     const float m_maxspd;
 };
@@ -506,107 +506,107 @@ public:
 class Action_char1_step: public ActionCharacter
 {
 public:
-    Action_char1_step();
+    Action_char1_step(int animId_);
     const int m_duration;
 };
 
 class Action_char1_step_recovery : public ActionCharacter
 {
 public:
-    Action_char1_step_recovery();
+    Action_char1_step_recovery(int animId_);
     const int m_recoveryLen;
 };
 
 class Action_char1_ground_backdash: public ActionCharacter
 {
 public:
-    Action_char1_ground_backdash();
+    Action_char1_ground_backdash(int animId_);
     const int m_totalDuration;
 };
 
 class Action_char1_ground_dash_recovery : public ActionCharacter
 {
 public:
-    Action_char1_ground_dash_recovery();
+    Action_char1_ground_dash_recovery(int animId_);
     const int m_recoveryLen;
 };
 
 class Action_char1_air_dash : public ActionCharacter
 {
 public:
-    Action_char1_air_dash();
+    Action_char1_air_dash(int animId_);
     const int m_duration;
 };
 
 class Action_char1_air_backdash : public ActionCharacter
 {
 public:
-    Action_char1_air_backdash();
+    Action_char1_air_backdash(int animId_);
     const int m_duration;
 };
 
 class Action_char1_soft_landing_recovery : public ActionCharacter
 {
 public:
-    Action_char1_soft_landing_recovery();
+    Action_char1_soft_landing_recovery(int animId_);
     const int m_recoveryLen;
 };
 
 class Action_char1_hard_landing_recovery : public ActionCharacter
 {
 public:
-    Action_char1_hard_landing_recovery();
+    Action_char1_hard_landing_recovery(int animId_);
     const int m_recoveryLen;
 };
 
 class Action_char1_vulnerable_landing_recovery : public ActionCharacter
 {
 public:
-    Action_char1_vulnerable_landing_recovery();
+    Action_char1_vulnerable_landing_recovery(int animId_);
     const int m_recoveryLen;
 };
 
 class Action_char1_jc_landing_recovery : public ActionCharacter
 {
 public:
-    Action_char1_jc_landing_recovery();
+    Action_char1_jc_landing_recovery(int animId_);
     const int m_recoveryLen;
 };
 
 class Action_char1_soft_knockdown : public ActionCharacter
 {
 public:
-    Action_char1_soft_knockdown();
+    Action_char1_soft_knockdown(int animId_);
 };
 
 class Action_char1_hard_knockdown : public ActionCharacter
 {
 public:
-    Action_char1_hard_knockdown();
+    Action_char1_hard_knockdown(int animId_);
 };
 
 class Action_char1_knockdown_recovery : public ActionCharacter
 {
 public:
-    Action_char1_knockdown_recovery();
+    Action_char1_knockdown_recovery(int animId_);
 };
 
 class Action_char1_move_JC : public Action_attack
 {
 public:
-    Action_char1_move_JC();
+    Action_char1_move_JC(int animId_, int animIdHit_, int animIdBlock_);
 };
 
 class Action_char1_move_214C : public Action_attack
 {
 public:
-    Action_char1_move_214C();
+    Action_char1_move_214C(int animId_, int animIdHit_, int animIdBlock_);
 };
 
 class Action_char1_move_projectile : public Action_attack
 {
 public:
-    Action_char1_move_projectile();
+    Action_char1_move_projectile(int animId_);
 };
 
 // THROW RELATED STUFF
@@ -617,37 +617,37 @@ public:
 class Action_char1_normal_throw_startup : public Action_throw_startup
 {
 public:
-    Action_char1_normal_throw_startup();
+    Action_char1_normal_throw_startup(int animId_);
 };
 
 class Action_char1_normal_throw_hold : public Action_throw_hold
 {
 public:
-    Action_char1_normal_throw_hold();
+    Action_char1_normal_throw_hold(int animId_);
 };
 
 class Action_char1_back_throw_startup : public Action_throw_startup
 {
 public:
-    Action_char1_back_throw_startup();
+    Action_char1_back_throw_startup(int animId_);
 };
 
 class Action_char1_back_throw_hold : public Action_throw_hold
 {
 public:
-    Action_char1_back_throw_hold();
+    Action_char1_back_throw_hold(int animId_);
 };
 
 class Action_char1_normal_throw_whiff : public Action_throw_whiff
 {
 public:
-    Action_char1_normal_throw_whiff();
+    Action_char1_normal_throw_whiff(int animId_);
 };
 
 class Action_char1_normal_throw : public Action_locked_animation
 {
 public:
-    Action_char1_normal_throw();
+    Action_char1_normal_throw(int animId_, int animIdHit_);
 };
 
 // AIR THROW
@@ -655,37 +655,37 @@ public:
 class Action_char1_normal_air_throw_startup : public Action_throw_startup
 {
 public:
-    Action_char1_normal_air_throw_startup();
+    Action_char1_normal_air_throw_startup(int animId_);
 };
 
 class Action_char1_normal_air_throw_hold : public Action_throw_hold
 {
 public:
-    Action_char1_normal_air_throw_hold();
+    Action_char1_normal_air_throw_hold(int animId_);
 };
 
 class Action_char1_back_air_throw_startup : public Action_throw_startup
 {
 public:
-    Action_char1_back_air_throw_startup();
+    Action_char1_back_air_throw_startup(int animId_);
 };
 
 class Action_char1_back_air_throw_hold : public Action_throw_hold
 {
 public:
-    Action_char1_back_air_throw_hold();
+    Action_char1_back_air_throw_hold(int animId_);
 };
 
 class Action_char1_normal_air_throw_whiff : public Action_throw_whiff
 {
 public:
-    Action_char1_normal_air_throw_whiff();
+    Action_char1_normal_air_throw_whiff(int animId_);
 };
 
 class Action_char1_normal_air_throw : public Action_locked_animation
 {
 public:
-    Action_char1_normal_air_throw();
+    Action_char1_normal_air_throw(int animId_, int animIdHit_);
 };
 
 
@@ -693,25 +693,25 @@ public:
 class Action_char1_throw_tech : public Action_throw_tech
 {
 public:
-    Action_char1_throw_tech();
+    Action_char1_throw_tech(int animId_);
 };
 
 class Action_char1_throw_tech_char1 : public Action_throw_tech
 {
 public:
-    Action_char1_throw_tech_char1();
+    Action_char1_throw_tech_char1(int animId_);
 };
 
 class Action_char1_air_throw_tech : public Action_throw_tech
 {
 public:
-    Action_char1_air_throw_tech();
+    Action_char1_air_throw_tech(int animId_);
 };
 
 class Action_char1_air_throw_tech_char1 : public Action_throw_tech
 {
 public:
-    Action_char1_air_throw_tech_char1();
+    Action_char1_air_throw_tech_char1(int animId_);
 };
 
 
@@ -720,25 +720,25 @@ public:
 class Action_char1_thrown_char1_normal_hold : public Action_thrown_hold
 {
 public:
-    Action_char1_thrown_char1_normal_hold();
+    Action_char1_thrown_char1_normal_hold(int animId_);
 };
 
 class Action_char1_thrown_char1_normal : public Action_locked_animation
 {
 public:
-    Action_char1_thrown_char1_normal();
+    Action_char1_thrown_char1_normal(int animId_);
 };
 
 class Action_char1_thrown_char1_normal_air_hold : public Action_thrown_hold
 {
 public:
-    Action_char1_thrown_char1_normal_air_hold();
+    Action_char1_thrown_char1_normal_air_hold(int animId_);
 };
 
 class Action_char1_thrown_char1_normal_air : public Action_locked_animation
 {
 public:
-    Action_char1_thrown_char1_normal_air();
+    Action_char1_thrown_char1_normal_air(int animId_);
 };
 
 

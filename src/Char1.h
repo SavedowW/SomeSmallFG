@@ -78,7 +78,7 @@ public:
     Char1(Application &application_, Vector2<float> pos_, Camera *cam_, ParticleManager *particleManager_, ProjectileManager *ptManager_);
     virtual ~Char1() {};
 
-    void provideActions();
+    void provideActions(Application &application_);
 
     void loadAnimations(Application &application_) final;
 
