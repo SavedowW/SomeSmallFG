@@ -37,13 +37,13 @@ public:
             std::cout << "EVENT\n";
             ParticleSpawnData spdata;
             spdata.m_pos = m_camera.getPos();
-            spdata.m_particleType = PARTICLE_TYPES::BLOCK;
+            spdata.m_animation = (int)ANIMATIONS::PARTICLE_BLOCK;
             spdata.m_flip = (rand() % 2 ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
             //spdata.m_scale = ((rand() % 101) + 20) / 100.0f;
             spdata.m_scale = 0.5f;
             spdata.m_angle = 45;
             //spdata.m_angle = rand() % 360;
-            m_particleManager.spawnParticles(spdata);
+            m_particleManager.spawnParticle(spdata);
         }
     }
 
@@ -60,6 +60,10 @@ public:
         auto blendmode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ZERO, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD);
         SDL_SetTextureBlendMode(m_shadowsLayer, blendmode);
         SDL_SetTextureAlphaMod(m_shadowsLayer, 150);
+
+        m_clashParticles.m_animation = (int)ANIMATIONS::PARTICLE_CLASH;
+        m_clashParticles.m_scale = 0.65f;
+        m_clashParticles.m_minLifeTime = m_clashParticles.m_maxLifeTime = 24;
     }
 
     void startFlash(int lockedDuration_, int alphaDuration_)
@@ -358,11 +362,7 @@ protected:
                         m_characters[1]->applyClash(hit2, hit1.m_hitId);
                         startFlash(10, 5);
 
-                        ParticleSpawnData spdata;
-                        spdata.m_pos = res.second;
-                        spdata.m_particleType = PARTICLE_TYPES::CLASH;
-                        spdata.m_scale = 0.65f;
-                        m_particleManager.spawnParticles(spdata);
+                        m_particleManager.spawnParticles(m_clashParticles, res.second, ORIENTATION::RIGHT);
                     }
                 }
             }
@@ -389,11 +389,7 @@ protected:
                                     projectiles[i]->applyClash(ptHit, hit1.m_hitId);
                                     startFlash(10, 5);
 
-                                    ParticleSpawnData spdata;
-                                    spdata.m_pos = res.second;
-                                    spdata.m_particleType = PARTICLE_TYPES::CLASH;
-                                    spdata.m_scale = 0.65f;
-                                    m_particleManager.spawnParticles(spdata);
+                                    m_particleManager.spawnParticles(m_clashParticles, res.second, ORIENTATION::RIGHT);
                                 }
                             }
                         }
@@ -479,11 +475,7 @@ protected:
                         m_characters[1]->applyClash(hit2, hit1.m_hitId);
                         startFlash(10, 5);
 
-                        ParticleSpawnData spdata;
-                        spdata.m_pos = res.second;
-                        spdata.m_particleType = PARTICLE_TYPES::CLASH;
-                        spdata.m_scale = 0.65f;
-                        m_particleManager.spawnParticles(spdata);
+                        m_particleManager.spawnParticles(m_clashParticles, res.second, ORIENTATION::RIGHT);
                     }
                 }
             }
@@ -555,6 +547,7 @@ protected:
     ParticleManager m_particleManager;
 
     ProjectileManager m_projectileManager;
+    ParticlesSpawnData m_clashParticles;
 
     PriorityHandler m_priorityHandler;
 
@@ -566,6 +559,7 @@ protected:
 
     Vector2<float> m_hitpos;
     Vector2<float> m_hitsize = {20.0f, 20.0f};
+
 };
 
 #endif

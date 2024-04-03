@@ -23,25 +23,42 @@ struct Particle
     int m_lifetime;
 };
 
-enum class PARTICLE_TYPES {
-    HIT_1,
-    HIT_2,
-    HIT_2_SLOWED,
-    BLOCK,
-    CLASH
-};
-
 struct ParticleSpawnData
 {
     Vector2<float> m_pos;
     Vector2<float> m_velocity;
     Vector2<float> m_accel;
-    PARTICLE_TYPES m_particleType;
     SDL_RendererFlip m_flip = SDL_FLIP_NONE;
     float m_angle = 0;
     float m_scale = 1;
-    int m_forcedLifeTime = -1;
+    int m_lifeTime = -1;
 
+    int m_animation;
+    LOOPMETHOD m_loopMethod = LOOPMETHOD::JUMP_LOOP;
+    int m_beginFrame = -1;
+    int m_beginDirection = 1;
+};
+
+struct ParticlesSpawnData
+{
+    int count = 1;
+    float m_angle = 0.0f;
+    float m_scale = 1.0f;
+
+    Vector2<float> m_baseVelocity;
+    bool m_randVelocity = false;
+    Vector2<int> m_velocityRange;
+
+    float m_reverseAccel = 0.0f;
+    Vector2<float> m_additionalAccel;
+
+    int m_minLifeTime = 1;
+    int m_maxLifeTime = 1;
+
+    int m_animation;
+    LOOPMETHOD m_loopMethod = LOOPMETHOD::JUMP_LOOP;
+    int m_beginFrame = -1;
+    int m_beginDirection = 1;
 };
 
 class ParticleManager
@@ -50,7 +67,8 @@ public:
     ParticleManager(Renderer *renderer_, AnimationManager *animManager_);
     void update();
     void draw(Camera &camera_);
-    void spawnParticles(const ParticleSpawnData &partData_);
+    void spawnParticle(const ParticleSpawnData &partData_);
+    void spawnParticles(const ParticlesSpawnData &partData_, const Vector2<float> &basePos_, ORIENTATION orientation_);
 
 private:
     std::vector<Particle> m_particles;

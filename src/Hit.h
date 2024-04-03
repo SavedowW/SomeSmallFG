@@ -18,25 +18,6 @@ enum class HITSTUN_ANIMATION {HIGH, MID, LOW, CROUCH, FLOAT, NONE};
 // Integers in set are values of character-specific state ENUMs
 using CancelWindow = std::pair<FrameWindow, std::set<int>>;
 
-struct HitParticleData
-{
-    int count = 1;
-    PARTICLE_TYPES m_partType;
-    float m_angle = 0.0f;
-    float m_scale = 1.0f;
-
-    Vector2<float> m_baseVelocity;
-    bool m_randVelocity = false;
-    Vector2<int> m_velocityRange;
-
-    float m_reverseAccel = 0.0f;
-    Vector2<float> m_additionalAccel;
-
-    bool m_randLifeTime = false;
-    int m_minLifeTime = 1;
-    int m_maxLifeTime = 1;
-};
-
 struct PostHitProperties
 {
     bool hardKnd = false;
@@ -84,9 +65,9 @@ struct HitData
     CancelWindow cancelsOnHit;
     CancelWindow cancelsOnBlock;
 
-    std::vector<HitParticleData> particlesOnBlock;
-    std::vector<HitParticleData> particlesOnHit;
-    std::vector<HitParticleData> particlesOnCH;
+    std::vector<ParticlesSpawnData> particlesOnBlock;
+    std::vector<ParticlesSpawnData> particlesOnHit;
+    std::vector<ParticlesSpawnData> particlesOnCH;
 
     static int nextHitID;
 
