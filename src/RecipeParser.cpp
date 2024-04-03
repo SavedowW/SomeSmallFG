@@ -1,8 +1,9 @@
 #include "RecipeParser.h"
 #include <map>
 
-RecipeParser::RecipeParser(const std::string &filepath_)
+RecipeParser::RecipeParser(AnimationManager *animManager_, const std::string &filepath_)
 {
+    m_animManager = animManager_;
     std::ifstream finp(filepath_);
     if (!finp.is_open())
     {
@@ -91,7 +92,7 @@ void RecipeParser::parseActionCharacter(const nlohmann::json &json_)
     m_currentActionRecipe->m_inputComparator = json_["InputComparator"];
     m_currentActionRecipe->m_state = m_currentCharacterRecipe->states[json_["State"]];
     m_currentActionRecipe->m_hurtboxes = parseHurtboxFramesVec(json_["Hurtboxes"]);
-    // TODO: calculate animation
+    m_currentActionRecipe->m_animation = m_animManager->getAnimID(json_["Animation"]);
     m_currentActionRecipe->m_counterWindow = parseTimelineProperty<bool>(json_["CounterWindow"]);
     m_currentActionRecipe->m_gravityWindow = parseTimelineProperty<bool>(json_["GravityWindow"]);
     m_currentActionRecipe->m_blockWindow = parseTimelineProperty<bool>(json_["BlockWindow"]);
@@ -124,7 +125,7 @@ void RecipeParser::parseActionProlonged(const nlohmann::json &json_)
     m_currentActionRecipe->m_inputComparatorProlong = json_["InputComparatorProlong"];
     m_currentActionRecipe->m_state = m_currentCharacterRecipe->states[json_["State"]];
     m_currentActionRecipe->m_hurtboxes = parseHurtboxFramesVec(json_["Hurtboxes"]);
-    // TODO: calculate animation
+    m_currentActionRecipe->m_animation = m_animManager->getAnimID(json_["Animation"]);
     m_currentActionRecipe->m_counterWindow = parseTimelineProperty<bool>(json_["CounterWindow"]);
     m_currentActionRecipe->m_gravityWindow = parseTimelineProperty<bool>(json_["GravityWindow"]);
     m_currentActionRecipe->m_blockWindow = parseTimelineProperty<bool>(json_["BlockWindow"]);
@@ -157,7 +158,7 @@ void RecipeParser::parseActionJump(const nlohmann::json &json_)
     m_currentActionRecipe->m_impulse = parseVector2<float>(json_["Impulse"]);
     m_currentActionRecipe->m_duration = json_["PrejumpLen"];
     m_currentActionRecipe->m_maxHorInertia = json_["MaxHorInertia"];
-    // TODO: calculate animation
+    m_currentActionRecipe->m_animation = m_animManager->getAnimID(json_["Animation"]);
     m_currentActionRecipe->m_counterWindow = parseTimelineProperty<bool>(json_["CounterWindow"]);
     m_currentActionRecipe->m_blockWindow = parseTimelineProperty<bool>(json_["BlockWindow"]);
     m_currentActionRecipe->m_transitionableFrom = transitionableFrom;
@@ -181,7 +182,7 @@ void RecipeParser::parseActionAirjump(const nlohmann::json &json_)
     m_currentActionRecipe->m_impulse = parseVector2<float>(json_["Impulse"]);
     m_currentActionRecipe->m_inputComparator = json_["InputComparator"];
     m_currentActionRecipe->m_hurtboxes = parseHurtboxFramesVec(json_["Hurtboxes"]);
-    // TODO: calculate animation
+    m_currentActionRecipe->m_animation = m_animManager->getAnimID(json_["Animation"]);
     m_currentActionRecipe->m_transitionableFrom = transitionableFrom;
 
     // Handle extentions
@@ -204,7 +205,7 @@ void RecipeParser::parseActionAttack(const nlohmann::json &json_)
     m_currentActionRecipe->m_duration = json_["Duration"];
     // TODO: hits
     m_currentActionRecipe->m_hurtboxes = parseHurtboxFramesVec(json_["Hurtboxes"]);
-    // TODO: calculate animation
+    m_currentActionRecipe->m_animation = m_animManager->getAnimID(json_["Animation"]);
     m_currentActionRecipe->m_gravityWindow = parseTimelineProperty<bool>(json_["GravityWindow"]);
     m_currentActionRecipe->m_transitionableFrom = transitionableFrom;
     m_currentActionRecipe->m_isCrouchState = json_["isCrouchState"];

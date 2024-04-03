@@ -47,7 +47,7 @@
                         }
                     ],
                     "InputComparator": "idle",
-                    "Animation": "CHAR1_IDLE",
+                    "Animation": "Char1/Idle",
                     "CounterWindow": [
                         {"frame": 0, "value": false}
                     ],
@@ -107,7 +107,7 @@
                     ],
                     "InputComparator": "downHold",
                     "InputComparatorProlong": "downHold",
-                    "Animation": "CHAR1_CROUCH",
+                    "Animation": "Char1/CrouchIdle",
                     "CounterWindow": [
                         {"frame": 0, "value": false}
                     ],
@@ -174,7 +174,7 @@
                     "Impulse": {"x": 0.0, "y": -30.0},
                     "PrejumpLen": 4,
                     "MaxHorInertia": 10.0,
-                    "Animation": "CHAR1_PREJUMP",
+                    "Animation": "Char1/Prejump",
                     "CounterWindow": [
                         {"frame": 0, "value": false}
                     ],
@@ -206,7 +206,7 @@
                             "hurtbox": {"x": -70, "y": -350, "w": 140, "h": 300}
                         }
                     ],
-                    "Animation": "CHAR1_JUMP",
+                    "Animation": "Char1/Jump",
                     "TransitionableFrom": [
                         "char1_air_dash_extention",
                         "char1_jump"
@@ -233,7 +233,7 @@
                             "hurtbox": {"x": 0, "y": -450, "w": 120, "h": 250}
                         }
                     ],
-                    "Animation": "CHAR1_MOVE_JC",
+                    "Animation": "Char1/MoveJC",
                     "GravityWindow": [
                         {"frame": 0, "value": false},
                         {"frame": 10, "value": true}

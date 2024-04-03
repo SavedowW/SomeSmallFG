@@ -9,6 +9,7 @@
 #include "Hit.h"
 #include "StateMarker.h"
 #include <memory>
+#include "AnimationManager.h"
 
 class ActionExtention
 {
@@ -140,7 +141,7 @@ struct CharacterRecipe
 struct RecipeParser
 {
 public:
-    RecipeParser(const std::string &filepath_);
+    RecipeParser(AnimationManager *animManager_, const std::string &filepath_);
 
 private:
     template <typename T>
@@ -179,6 +180,7 @@ private:
     std::vector<CharacterRecipe> m_characterRecipes;
     CharacterRecipe *m_currentCharacterRecipe = nullptr;
     ActionRecipe *m_currentActionRecipe = nullptr;
+    AnimationManager *m_animManager;
 };
 
 #endif
