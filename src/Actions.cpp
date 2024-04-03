@@ -255,6 +255,7 @@ Action_airjump::Action_airjump(int actionState_, const Vector2<float> &impulse_,
     0, 1, false, true, true),
     m_impulse(impulse_)
 {
+    setSwitchData(true, 0, false, true, false, false, false, {0.0f, 0.0f}, {1.0f, 0.0f}, {impulse_.x, 0.0f}, {0.0f, 0.0f}, {0.0f, impulse_.y}, {0.0f, 0.0f});
 }
 
 int Action_airjump::responseOnOwnState(const InputQueue &inputQueue_, ORIENTATION ownDirection_, int extendBuffer_) const
@@ -730,10 +731,9 @@ Action_char1_backward_jump::Action_char1_backward_jump() :
     setAirActionTimers(5, 6);
 }
 
-
-// ABSTRACT CHAR1 AIR JUMP ACTION
-Action_char1_airjump::Action_char1_airjump(const Vector2<float> &impulse_, InputComparator_ptr incmp_) :
-    Action_airjump((int)CHAR1_STATE::JUMP, impulse_, std::move(incmp_), {
+// NEUTRAL DOUBLEJUMP ACTION
+Action_char1_neutral_doublejump::Action_char1_neutral_doublejump() :
+    Action_airjump((int)CHAR1_STATE::JUMP, {0.0f, -gamedata::characters::char1::airJumpVerticalImpulse}, std::move(std::make_unique<InputComparatorUpPress>()), {
         {
             TimelineProperty(true),
             {-70, -350, 140, 300}
@@ -741,24 +741,29 @@ Action_char1_airjump::Action_char1_airjump(const Vector2<float> &impulse_, Input
     }, ANIMATIONS::CHAR1_JUMP,
     StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::AIR_DASH_EXTENTION, (int)CHAR1_STATE::JUMP}))
 {
-    setSwitchData(true, 0, false, true, false, false, false, {0.0f, 0.0f}, {1.0f, 0.0f}, {impulse_.x, 0.0f}, {0.0f, 0.0f}, {0.0f, impulse_.y}, {0.0f, 0.0f});
-}
-
-// NEUTRAL DOUBLEJUMP ACTION
-Action_char1_neutral_doublejump::Action_char1_neutral_doublejump() :
-    Action_char1_airjump({0.0f, -gamedata::characters::char1::airJumpVerticalImpulse}, std::make_unique<InputComparatorUpPress>())
-{
 }
 
 // FORWARD DOUBLEJUMP ACTION
 Action_char1_forward_doublejump::Action_char1_forward_doublejump() :
-    Action_char1_airjump({gamedata::characters::char1::airJumpHorizontalImpulse, -gamedata::characters::char1::airJumpVerticalImpulse}, std::make_unique<InputComparatorUpForwardPress>())
+    Action_airjump((int)CHAR1_STATE::JUMP, {gamedata::characters::char1::airJumpHorizontalImpulse, -gamedata::characters::char1::airJumpVerticalImpulse}, std::move(std::make_unique<InputComparatorUpForwardPress>()), {
+        {
+            TimelineProperty(true),
+            {-70, -350, 140, 300}
+        }
+    }, ANIMATIONS::CHAR1_JUMP,
+    StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::AIR_DASH_EXTENTION, (int)CHAR1_STATE::JUMP}))
 {
 }
 
 // BACKWARD DOUBLEJUMP ACTION
 Action_char1_backward_doublejump::Action_char1_backward_doublejump() :
-    Action_char1_airjump({-gamedata::characters::char1::airJumpHorizontalImpulse, -gamedata::characters::char1::airJumpVerticalImpulse}, std::make_unique<InputComparatorUpBackwardPress>())
+    Action_airjump((int)CHAR1_STATE::JUMP, {-gamedata::characters::char1::airJumpHorizontalImpulse, -gamedata::characters::char1::airJumpVerticalImpulse}, std::move(std::make_unique<InputComparatorUpBackwardPress>()), {
+        {
+            TimelineProperty(true),
+            {-70, -350, 140, 300}
+        }
+    }, ANIMATIONS::CHAR1_JUMP,
+    StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::AIR_DASH_EXTENTION, (int)CHAR1_STATE::JUMP}))
 {
 }
 

@@ -477,25 +477,19 @@ public:
     const float m_spdMultiplier;
 };
 
-class Action_char1_airjump : public Action_airjump
-{
-public:
-    Action_char1_airjump(const Vector2<float> &impulse_, InputComparator_ptr incmp_);
-};
-
-class Action_char1_neutral_doublejump : public Action_char1_airjump
+class Action_char1_neutral_doublejump : public Action_airjump
 {
 public:
     Action_char1_neutral_doublejump();
 };
 
-class Action_char1_forward_doublejump : public Action_char1_airjump
+class Action_char1_forward_doublejump : public Action_airjump
 {
 public:
     Action_char1_forward_doublejump();
 };
 
-class Action_char1_backward_doublejump : public Action_char1_airjump
+class Action_char1_backward_doublejump : public Action_airjump
 {
 public:
     Action_char1_backward_doublejump();
