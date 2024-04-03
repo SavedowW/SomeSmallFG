@@ -154,7 +154,7 @@
                 },
                 {
                     "ActionType": "Action_jump",
-                    "State": "prejump",
+                    "State": "char1_prejump",
                     "Hurtboxes": [
                         {
                             "frames": [
@@ -171,7 +171,7 @@
                         }
                     ],
                     "InputComparator": "upHold",
-                    "Impulse": {"x": 0.0, "y": 30.0},
+                    "Impulse": {"x": 0.0, "y": -30.0},
                     "PrejumpLen": 4,
                     "MaxHorInertia": 10.0,
                     "Animation": "CHAR1_PREJUMP",
@@ -182,6 +182,8 @@
                         {"frame": 0, "value": true}
                     ],
                     "TransitionableFrom": [
+                        "char1_ground_dash",
+                        "char1_ground_dash_recovery",
                         "char1_idle",
                         "char1_walk_fwd",
                         "char1_walk_bwd"
@@ -190,6 +192,25 @@
                         "airjumpTimer": 5,
                         "airdashTimer": 6
                     }
+                },
+                {
+                    "ActionType": "Action_airjump",
+                    "State": "char1_jump",
+                    "Impulse": {"x": 0.0, "y": -30.0},
+                    "InputComparator": "upPress",
+                    "Hurtboxes": [
+                        {
+                            "frames": [
+                                {"frame": 0, "value": true}
+                            ],
+                            "hurtbox": {"x": -70, "y": -350, "w": 140, "h": 300}
+                        }
+                    ],
+                    "Animation": "CHAR1_JUMP",
+                    "TransitionableFrom": [
+                        "char1_air_dash_extention",
+                        "char1_jump"
+                    ]
                 }
             ]
         }

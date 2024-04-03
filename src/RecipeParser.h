@@ -133,6 +133,7 @@ private:
     void parseActionCharacter(const nlohmann::json &json_);
     void parseActionProlonged(const nlohmann::json &json_);
     void parseActionJump(const nlohmann::json &json_);
+    void parseActionAirjump(const nlohmann::json &json_);
     
     void parseExtentionSwitchData(const nlohmann::json &json_);
     void parseExtentionRealignData(const nlohmann::json &json_);

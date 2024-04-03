@@ -68,6 +68,8 @@ void RecipeParser::parseAction(const nlohmann::json &json_)
         parseActionProlonged(json_);
     else if (actType == "Action_jump")
         parseActionJump(json_);
+    else if (actType == "Action_airjump")
+        parseActionAirjump(json_);
     else
         std::cout << "Unknown action type: " << actType << std::endl;
 }
@@ -155,6 +157,28 @@ void RecipeParser::parseActionJump(const nlohmann::json &json_)
     // TODO: calculate animation
     m_currentActionRecipe->m_counterWindow = parseTimelineProperty<bool>(json_["CounterWindow"]);
     m_currentActionRecipe->m_blockWindow = parseTimelineProperty<bool>(json_["BlockWindow"]);
+    m_currentActionRecipe->m_transitionableFrom = transitionableFrom;
+
+    // Handle extentions
+    parseActionExtentions(json_);
+}
+
+void RecipeParser::parseActionAirjump(const nlohmann::json &json_)
+{
+    std::cout << json_["ActionType"] << std::endl;
+
+    // Build vector of state IDs
+    std::vector<int> statesFrom;
+    for (auto &el : json_["TransitionableFrom"].get<std::vector<std::string>>())
+        statesFrom.push_back(m_currentCharacterRecipe->states[el]);
+    StateMarker transitionableFrom(m_currentCharacterRecipe->states.size(), statesFrom);
+
+    // Parsing regular data
+    m_currentActionRecipe->m_state = m_currentCharacterRecipe->states[json_["State"]];
+    m_currentActionRecipe->m_impulse = parseVector2<float>(json_["Impulse"]);
+    m_currentActionRecipe->m_inputComparator = json_["InputComparator"];
+    m_currentActionRecipe->m_hurtboxes = parseHurtboxFramesVec(json_["Hurtboxes"]);
+    // TODO: calculate animation
     m_currentActionRecipe->m_transitionableFrom = transitionableFrom;
 
     // Handle extentions
