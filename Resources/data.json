@@ -85,6 +85,19 @@
             "MinLifeTime": 15,
             "MaxLifeTime": 15,
             "Animation": "Particles/Hit2"
+        },
+        {
+            "SetName": "Char1/firewall/Hit",
+            "MinLifeTime": 10,
+            "MaxLifeTime": 10,
+            "Animation": "Particles/Hit1"
+        },
+        {
+            "SetName": "Char1/firewall/Block",
+            "Scale": 0.6,
+            "MinLifeTime": 10,
+            "MaxLifeTime": 10,
+            "Animation": "Particles/Block"
         }
     ],
 
@@ -168,13 +181,13 @@
                 "AirHitstunAnimation": "FLOAT"
             },
             "ParticlesOnBlock": [
-                "Char1/JC/Block"
+                "Char1/firewall/Block"
             ],
             "ParticlesOnHit": [
-                "Char1/JC/Hit"
+                "Char1/firewall/Hit"
             ],
             "ParticlesOnCH": [
-                "Char1/JC/Hit"
+                "Char1/firewall/Hit"
             ]
         },
         {
@@ -205,6 +218,64 @@
                 "GroundHitstunAnimation": "FLOAT",
                 "AirHitstunAnimation": "FLOAT"
             }
+        },
+        {
+            "HitName": "Char1/firewall/hit",
+            "Hitboxes": [
+                {
+                    "BeginFrame": 1,
+                    "EndFrame": 100,
+                    "Hitbox": {"x": -50.0, "y": -400.0, "w": 130.0, "h": 400.0}
+                }
+            ],
+            "Damage": 17,
+            "OpponentPushbackOnBlock": 80.0,
+            "Blockstun": 13,
+            "ChipDamage": 0,
+            "HitBlockShakeAmp": 20,
+            "CanBeBlockedAs": [
+                "HIGH",
+                "LOW",
+                "AIR",
+                "AUTO"
+            ],
+            "CancelsOnHit": {
+                "BeginFrame": 1,
+                "EndFrame": 9,
+                "Options": []
+            },
+            "CancelsOnBlock": {
+                "BeginFrame": 1,
+                "EndFrame": 9,
+                "Options": []
+            },
+            "HitProperties": {
+                "Hitstun": 15,
+                "Hitstop": 11,
+                "Proratio": 0.9,
+                "OpponentImpulseOnHit": {"x": 50.0, "y": 0.0},
+                "OpponentImpulseOnAirhit": {"x": 10.0, "y": -7.0},
+                "GroundHitstunAnimation": "MID",
+                "AirHitstunAnimation": "FLOAT"
+            },
+            "CounterHitProperties": {
+                "Hitstun": 18,
+                "Hitstop": 15,
+                "Proratio": 0.9,
+                "OpponentImpulseOnHit": {"x": 50.0, "y": 0.0},
+                "OpponentImpulseOnAirhit": {"x": 10.0, "y": -7.0},
+                "GroundHitstunAnimation": "MID",
+                "AirHitstunAnimation": "FLOAT"
+            },
+            "ParticlesOnBlock": [
+                "Char1/JC/Block"
+            ],
+            "ParticlesOnHit": [
+                "Char1/JC/Hit"
+            ],
+            "ParticlesOnCH": [
+                "Char1/JC/Hit"
+            ]
         }
     ],
 
@@ -230,6 +301,59 @@
                     "extentionActionSwitchData": {
                         "realign": false,
                         "timerValue": 29,
+                        "velToInertia": false,
+                        "callForPriority": false,
+                        "mulOwnVel": {"x": 1.0, "y": 1.0},
+                        "mulOwnInr": {"x": 1.0, "y": 1.0},
+                        "mulOwnDirVel": {"x": 0.0, "y": 0.0},
+                        "mulOwnDirInr": {"x": 0.0, "y": 0.0},
+                        "rawAddVel": {"x": 0.0, "y": 0.0},
+                        "rawAddInr": {"x": 0.0, "y": 0.0}
+                    }
+                },
+                {
+                    "ActionType": "ActionProjectileHitProvider",
+                    "State": "char1/firewall/filler",
+                    "Hurtboxes": [
+                    ],
+                    "Animation": "Char1/ProjectileFirewallFiller",
+                    "TransitionableFrom": [
+                    ],
+                    "isAirborne": false,
+                    "HitProto": "Char1/firewall/hit",
+                    "HitCount": 3,
+                    "extentionOutdatedTransition": {
+                        "targetState": "char1/firewall/fadeout"
+                    },
+                    "extentionActionSwitchData": {
+                        "realign": false,
+                        "timerValue": 360,
+                        "velToInertia": false,
+                        "callForPriority": false,
+                        "mulOwnVel": {"x": 1.0, "y": 1.0},
+                        "mulOwnInr": {"x": 1.0, "y": 1.0},
+                        "mulOwnDirVel": {"x": 0.0, "y": 0.0},
+                        "mulOwnDirInr": {"x": 0.0, "y": 0.0},
+                        "rawAddVel": {"x": 0.0, "y": 0.0},
+                        "rawAddInr": {"x": 0.0, "y": 0.0}
+                    }
+                },
+                {
+                    "ActionType": "ActionProjectile",
+                    "State": "char1/firewall/fadeout",
+                    "Hurtboxes": [
+                    ],
+                    "Animation": "Char1/ProjectileFirewallStartup",
+                    "TransitionableFrom": [
+                    ],
+                    "isAttack": false,
+                    "isAirborne": false,
+                    "extentionActionOutdatedExpire": {
+                        "Expire": true
+                    },
+                    "extentionActionSwitchData": {
+                        "realign": false,
+                        "timerValue": 16,
                         "velToInertia": false,
                         "callForPriority": false,
                         "mulOwnVel": {"x": 1.0, "y": 1.0},

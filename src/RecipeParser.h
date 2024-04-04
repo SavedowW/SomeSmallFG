@@ -23,7 +23,8 @@ public:
         UPDATE_MOVEMENT_DATA,
         LANDING_RECOVERY,
         OUTDATED_TRANSITION,
-        HITS_TO_OPPONENT
+        HITS_TO_OPPONENT,
+        OUTDATED_EXPIRE
     } m_extentionType;
 
     ActionExtention(ExtentionType extType_);
@@ -129,6 +130,16 @@ public:
 
     std::vector<std::pair<int, std::string>> m_hits;
 };
+
+class ActionExtentionOutdatedExpire : public ActionExtention
+{
+public:
+    ActionExtentionOutdatedExpire();
+    virtual ~ActionExtentionOutdatedExpire() = default;
+
+    bool m_expire;
+};
+
 
 struct ActionRecipe
 {
@@ -250,6 +261,7 @@ private:
     void parseExtentionLandingRecovery(const nlohmann::json &json_);
     void parseExtentionOutdatedTransition(const nlohmann::json &json_);
     void parseExtentionHitsToOpponent(const nlohmann::json &json_);
+    void parseExtentionOutdatedExpire(const nlohmann::json &json_);
 
     void parseParticlesSpawnData(const nlohmann::json &json_);
     void parseHitData(const nlohmann::json &json_);

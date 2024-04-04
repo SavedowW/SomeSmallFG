@@ -534,6 +534,9 @@ void RecipeParser::parseActionExtentions(const nlohmann::json &json_)
 
     if (json_.contains("extentionUpdateHitsToOpponent"))
         parseExtentionHitsToOpponent(json_["extentionUpdateHitsToOpponent"]);
+
+    if (json_.contains("extentionActionOutdatedExpire"))
+        parseExtentionOutdatedExpire(json_["extentionActionOutdatedExpire"]);
 }
 
 void RecipeParser::parseExtentionActionSwitchData(const nlohmann::json &json_)
@@ -679,6 +682,16 @@ void RecipeParser::parseExtentionHitsToOpponent(const nlohmann::json &json_)
         std::string hit = el["Hit"];
         extdata->m_hits.push_back({frame, hit});
     }
+
+    m_currentActionRecipe->m_extentions.push_back(extdata);
+}
+
+void RecipeParser::parseExtentionOutdatedExpire(const nlohmann::json &json_)
+{
+    std::cout << "Outdated expire data\n";
+    auto *extdata = new ActionExtentionOutdatedExpire();
+
+    extdata->m_expire = json_["Expire"];
 
     m_currentActionRecipe->m_extentions.push_back(extdata);
 }
@@ -963,5 +976,10 @@ ActionExtentionUpdateHitsToOpponent::ActionExtentionUpdateHitsToOpponent() :
 
 ActionExtentionActionSwitchData::ActionExtentionActionSwitchData() :
     ActionExtention(ExtentionType::ACTION_SWITCH_DATA)
+{
+}
+
+ActionExtentionOutdatedExpire::ActionExtentionOutdatedExpire() :
+    ActionExtention(ExtentionType::OUTDATED_EXPIRE)
 {
 }
