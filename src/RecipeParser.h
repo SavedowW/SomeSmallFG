@@ -106,6 +106,12 @@ struct ActionRecipe
     std::string m_inputComparator;
     std::string m_inputComparatorProlong;
     int m_state;
+    int m_throwWhiffState;
+    int m_throwHoldState;
+    int m_throwID;
+    float m_throwRange;
+    FrameWindow m_activeWindow;
+    bool m_requireAirborne;
     HurtboxFramesVec m_hurtboxes;
     int m_animation;
     TimelineProperty<bool> m_counterWindow;
@@ -163,6 +169,7 @@ private:
     std::vector<std::pair<FrameWindow, Collider>> parseHitboxes(const nlohmann::json &json_);
     PostHitProperties parsePostHitProperties(const nlohmann::json &json_);
     CancelWindow parseCancelWindow(const nlohmann::json &json_);
+    FrameWindow parseFrameWindow(const nlohmann::json &json_);
 
     void parseCharacter(const nlohmann::json &json_);
 
@@ -173,6 +180,7 @@ private:
     void parseActionJump(const nlohmann::json &json_);
     void parseActionAirjump(const nlohmann::json &json_);
     void parseActionAttack(const nlohmann::json &json_);
+    void parseActionThrowStartup(const nlohmann::json &json_);
     
     void parseExtentionSwitchData(const nlohmann::json &json_);
     void parseExtentionRealignData(const nlohmann::json &json_);
@@ -187,6 +195,7 @@ private:
     LOOPMETHOD strToLoopMethod(const std::string &str_);
     BLOCK_STATE strToBlockState(const std::string &str_);
     HITSTUN_ANIMATION strToHitstunAnimation(const std::string &str_);
+    int strToThrowID(const std::string &str_);
 
     std::vector<CharacterRecipe> m_characterRecipes;
     CharacterRecipe *m_currentCharacterRecipe = nullptr;
@@ -195,6 +204,7 @@ private:
 
     std::map<std::string, ParticlesSpawnData> m_particles;
     std::map<std::string, Hit> m_hits;
+    std::map<std::string, int> m_throwIDs;
 };
 
 #endif

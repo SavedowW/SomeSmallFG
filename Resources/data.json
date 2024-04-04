@@ -184,7 +184,7 @@
             "Actions": [
                 {
                     "ActionType": "ActionCharacter",
-                    "State": "char1_idle",
+                    "State": "char1/idle",
                     "Hurtboxes": [
                         {
                             "frames": [
@@ -205,9 +205,9 @@
                         {"frame": 0, "value": true}
                     ],
                     "TransitionableFrom": [
-                        "char1_crouch",
-                        "char1_walk_fwd",
-                        "char1_walk_bwd"
+                        "char1/crouch",
+                        "char1/walk_fwd",
+                        "char1/walk_bwd"
                     ],
                     "isAttack": false,
                     "isCrouchState": false,
@@ -243,7 +243,7 @@
                 },
                 {
                     "ActionType": "Action_prolonged",
-                    "State": "char1_crouch",
+                    "State": "char1/crouch",
                     "Hurtboxes": [
                         {
                             "frames": [
@@ -265,9 +265,9 @@
                         {"frame": 0, "value": true}
                     ],
                     "TransitionableFrom": [
-                        "char1_idle",
-                        "char1_walk_fwd",
-                        "char1_walk_bwd"
+                        "char1/idle",
+                        "char1/walk_fwd",
+                        "char1/walk_bwd"
                     ],
                     "isCrouchState": true,
                     "consumeAirdash": 0,
@@ -301,7 +301,7 @@
                 },
                 {
                     "ActionType": "Action_jump",
-                    "State": "char1_prejump",
+                    "State": "char1/prejump",
                     "Hurtboxes": [
                         {
                             "frames": [
@@ -329,11 +329,11 @@
                         {"frame": 0, "value": true}
                     ],
                     "TransitionableFrom": [
-                        "char1_ground_dash",
-                        "char1_ground_dash_recovery",
-                        "char1_idle",
-                        "char1_walk_fwd",
-                        "char1_walk_bwd"
+                        "char1/ground_dash",
+                        "char1/ground_dash_recovery",
+                        "char1/idle",
+                        "char1/walk_fwd",
+                        "char1/walk_bwd"
                     ],
                     "extentionAirActionTimers": {
                         "airjumpTimer": 5,
@@ -342,7 +342,7 @@
                 },
                 {
                     "ActionType": "Action_airjump",
-                    "State": "char1_jump",
+                    "State": "char1/jump",
                     "Impulse": {"x": 0.0, "y": -30.0},
                     "InputComparator": "upPress",
                     "Hurtboxes": [
@@ -355,13 +355,13 @@
                     ],
                     "Animation": "Char1/Jump",
                     "TransitionableFrom": [
-                        "char1_air_dash_extention",
-                        "char1_jump"
+                        "char1/air_dash_extention",
+                        "char1/jump"
                     ]
                 },
                 {
                     "ActionType": "Action_attack",
-                    "State": "char1_jc",
+                    "State": "char1/jc",
                     "InputComparator": "CPress",
                     "Duration": 200,
                     "Hits": [
@@ -388,8 +388,8 @@
                         {"frame": 10, "value": true}
                     ],
                     "TransitionableFrom": [
-                        "char1_jump",
-                        "char1_air_dash_extention"
+                        "char1/jump",
+                        "char1/air_dash_extention"
                     ],
                     "isCrouchState": false,
                     "isAirborne": true,
@@ -460,7 +460,7 @@
                         ]
                     },
                     "extentionLandingRecoveryState": {
-                        "recoveryState": "char1_jc_landing_recovery"
+                        "recoveryState": "char1/jc_landing_recovery"
                     },
                     "extentionSwitchData": {
                         "realign": false,
@@ -478,8 +478,42 @@
                         "rawAddInr": {"x": 0.0, "y": 0.0}
                     },
                     "extentionOutdatedTransition": {
-                        "targetState": "char1_float"
+                        "targetState": "char1/float"
                     }
+                },
+                {
+                    "ActionType": "Action_throw_startup",
+                    "State": "char1/throw_normal_startup",
+                    "WhiffState": "char1/throw_normal_whiff",
+                    "HoldState": "char1/throw_normal_hold",
+                    "InputComparator": "BCPress",
+                    "Hurtboxes": [
+                        {
+                            "frames": [
+                                {"frame": 0, "value": true}
+                            ],
+                            "hurtbox": {"x": -70, "y": -375, "w": 140, "h": 375}
+                        }
+                    ],
+                    "Animation": "Char1/ThrowStartup",
+                    "GravityWindow": [
+                        {"frame": 0, "value": true}
+                    ],
+                    "Range": 200.0,
+                    "ActiveWindow": {"BeginFrame": 2, "EndFrame": 5},
+                    "RequireAirborne": false,
+                    "Throw": "char1/normal_throw",
+                    "TransitionableFrom": [
+                        "char1/soft_landing_recovery",
+                        "char1/ground_dash",
+                        "char1/ground_dash_recovery",
+                        "char1/walk_bwd",
+                        "char1/walk_fwd",
+                        "char1/crouch",
+                        "char1/step_recovery",
+                        "char1/idle"
+                    ],
+                    "isAirborne": false
                 }
             ]
         }

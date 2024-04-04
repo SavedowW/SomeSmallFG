@@ -134,6 +134,16 @@ CancelWindow RecipeParser::parseCancelWindow(const nlohmann::json &json_)
     return cw;
 }
 
+FrameWindow RecipeParser::parseFrameWindow(const nlohmann::json &json_)
+{
+    FrameWindow fw;
+
+    fw.first = json_["BeginFrame"];
+    fw.second = json_["EndFrame"];
+
+    return fw;
+}
+
 void RecipeParser::parseAction(const nlohmann::json &json_)
 {
     std::cout << json_["State"] << ": " << m_currentCharacterRecipe->states[json_["State"]] << std::endl;
@@ -151,6 +161,8 @@ void RecipeParser::parseAction(const nlohmann::json &json_)
         parseActionAirjump(json_);
     else if (actType == "Action_attack")
         parseActionAttack(json_);
+    else if (actType == "Action_throw_startup")
+        parseActionThrowStartup(json_);
     else
         std::cout << "Unknown action type: " << actType << std::endl;
 }
@@ -287,6 +299,35 @@ void RecipeParser::parseActionAttack(const nlohmann::json &json_)
     m_currentActionRecipe->m_gravityWindow = parseTimelineProperty<bool>(json_["GravityWindow"]);
     m_currentActionRecipe->m_transitionableFrom = transitionableFrom;
     m_currentActionRecipe->m_isCrouchState = json_["isCrouchState"];
+    m_currentActionRecipe->m_isAirborne = json_["isAirborne"];
+
+    // Handle extentions
+    parseActionExtentions(json_);
+}
+
+void RecipeParser::parseActionThrowStartup(const nlohmann::json &json_)
+{
+    std::cout << json_["ActionType"] << std::endl;
+
+    // Build vector of state IDs
+    std::vector<int> statesFrom;
+    for (auto &el : json_["TransitionableFrom"].get<std::vector<std::string>>())
+        statesFrom.push_back(m_currentCharacterRecipe->states[el]);
+    StateMarker transitionableFrom(m_currentCharacterRecipe->states.size(), statesFrom);
+
+    // Parsing regular data
+    m_currentActionRecipe->m_state = m_currentCharacterRecipe->states[json_["State"]];
+    m_currentActionRecipe->m_throwWhiffState = m_currentCharacterRecipe->states[json_["WhiffState"]];
+    m_currentActionRecipe->m_throwHoldState = m_currentCharacterRecipe->states[json_["HoldState"]];
+    m_currentActionRecipe->m_inputComparator = json_["InputComparator"];
+    m_currentActionRecipe->m_hurtboxes = parseHurtboxFramesVec(json_["Hurtboxes"]);
+    m_currentActionRecipe->m_animation = m_animManager->getAnimID(json_["Animation"]);
+    m_currentActionRecipe->m_gravityWindow = parseTimelineProperty<bool>(json_["GravityWindow"]);
+    m_currentActionRecipe->m_throwRange = json_["Range"];
+    m_currentActionRecipe->m_activeWindow = parseFrameWindow(json_["ActiveWindow"]);
+    m_currentActionRecipe->m_requireAirborne = json_["RequireAirborne"];
+    m_currentActionRecipe->m_throwID = strToThrowID(json_["Throw"]);
+    m_currentActionRecipe->m_transitionableFrom = transitionableFrom;
     m_currentActionRecipe->m_isAirborne = json_["isAirborne"];
 
     // Handle extentions
@@ -570,6 +611,20 @@ HITSTUN_ANIMATION RecipeParser::strToHitstunAnimation(const std::string &str_)
         return HITSTUN_ANIMATION::NONE;
 
     throw std::string("Cannot identify hitstun animation: " + str_);
+}
+
+int RecipeParser::strToThrowID(const std::string &str_)
+{
+    if (m_hits.contains(str_))
+    {
+        return m_throwIDs[str_];
+    }
+    else
+    {
+        int sz = m_throwIDs.size() + 1;
+        m_throwIDs[str_] = sz;
+        return sz;
+    }
 }
 
 template <typename T>
