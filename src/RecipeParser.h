@@ -11,10 +11,12 @@
 #include <memory>
 #include "AnimationManager.h"
 
+
 class ActionExtention
 {
 public:
     enum class ExtentionType {
+        ACTION_SWITCH_DATA,
         SWITCH_DATA,
         REALIGN_DATA,
         AIR_ACTION_TIMER,
@@ -27,6 +29,24 @@ public:
     ActionExtention(ExtentionType extType_);
 
     virtual ~ActionExtention() = default;
+};
+
+class ActionExtentionActionSwitchData : public ActionExtention
+{
+public:
+    ActionExtentionActionSwitchData();
+    virtual ~ActionExtentionActionSwitchData() = default;
+
+    bool realign = false;
+    int timerValue = 0;
+    bool velToInertia = false;
+    bool callForPriority = false;
+    Vector2<float> mulOwnVel = {1.0, 1.0};
+    Vector2<float> mulOwnInr = {1.0, 1.0};
+    Vector2<float> mulOwnDirVel = {0.0, 0.0};
+    Vector2<float> mulOwnDirInr = {0.0, 0.0};
+    Vector2<float> rawAddVel = {0.0, 0.0};
+    Vector2<float> rawAddInr = {0.0, 0.0};
 };
 
 class ActionExtentionSwitchData : public ActionExtention
@@ -161,6 +181,22 @@ struct CharacterRecipe
     ~CharacterRecipe();
 };
 
+struct PTRecipe
+{
+    ORIENTATION m_starterOrientation;
+    Vector2<float> m_starterPos;
+
+    std::string m_ptType;
+    int m_ptTypeID;
+    int m_initialState;
+    Vector2<float> m_mulOwnDirOffset;
+    Vector2<float> m_minPos;
+    Vector2<float> m_maxPos;
+
+    std::map<std::string, int> states;
+    std::vector<ActionRecipe> m_actions;
+};
+
 struct RecipeParser
 {
 public:
@@ -187,6 +223,10 @@ private:
     FrameWindow parseFrameWindow(const nlohmann::json &json_);
 
     void parseCharacter(const nlohmann::json &json_);
+    void parseProjectile(const nlohmann::json &json_);
+
+    void parsePTAction(const nlohmann::json &json_);
+    void parseActionProjectile(const nlohmann::json &json_);
 
     void parseAction(const nlohmann::json &json_);
     void parseActionExtentions(const nlohmann::json &json_);
@@ -202,6 +242,7 @@ private:
     void parseActionThrowTech(const nlohmann::json &json_);
     void parseActionThrownHold(const nlohmann::json &json_);
     
+    void parseExtentionActionSwitchData(const nlohmann::json &json_);
     void parseExtentionSwitchData(const nlohmann::json &json_);
     void parseExtentionRealignData(const nlohmann::json &json_);
     void parseExtentionAirActionTimer(const nlohmann::json &json_);
@@ -228,6 +269,11 @@ private:
     std::map<std::string, Hit> m_hits;
     std::map<std::string, int> m_throwIDs;
     std::map<std::string, int> m_techsIDs;
+
+    std::map<std::string, PTRecipe> m_projectiles;
+    PTRecipe *m_currentProjectile;
+
+    std::map<std::string, int> *m_currentStates;
 };
 
 #endif

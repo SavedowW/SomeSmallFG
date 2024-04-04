@@ -3,7 +3,6 @@
 #include "Application.h"
 #include "ProjectileManager.h"
 #include "ActionProjectile.h"
-#include "PTRecipe.h"
 
 class Projectile;
 

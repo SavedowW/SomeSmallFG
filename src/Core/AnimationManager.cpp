@@ -108,7 +108,7 @@ std::shared_ptr<TextureArr> AnimationManager::getTextureArr(int id_)
 
 void AnimationManager::preload(int toPreload_)
 {
-	if (m_textureArrs[toPreload_].m_preloaded)
+	if (m_textureArrs[toPreload_].m_preloaded == nullptr)
 	{
 		m_textureArrs[toPreload_].m_preloaded = std::shared_ptr<TextureArr>(getTextureArr(toPreload_));
 	}

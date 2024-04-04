@@ -26,6 +26,12 @@ RecipeParser::RecipeParser(AnimationManager *animManager_, const std::string &fi
         parseHitData(el);
     }
 
+    nlohmann::json projectiles = data["Projectiles"];
+    for (auto &el : projectiles)
+    {
+        parseProjectile(el);
+    }
+
     nlohmann::json chars = data["Characters"];
     for (auto &el : chars)
     {
@@ -51,9 +57,40 @@ void RecipeParser::parseCharacter(const nlohmann::json &json_)
     m_characterRecipes.push_back(crp);
     m_currentCharacterRecipe = &m_characterRecipes[m_characterRecipes.size() - 1];
 
+    m_currentStates = &m_currentCharacterRecipe->states;
+
     for (auto &action : actions)
     {
         parseAction(action);
+    }
+}
+
+void RecipeParser::parseProjectile(const nlohmann::json &json_)
+{
+    std::string ptName = json_["Name"];
+    std::cout << "Parsing projectile: " << ptName << std::endl;
+    std::map<std::string, int> states;
+    int i = 0;
+    nlohmann::json actions = json_["Actions"];
+    for (auto &action : actions)
+    {
+        if (!states.contains(action["State"]))
+            states[action["State"]] = i++;
+    }
+
+    std::cout << i << " states in total\n";
+
+    PTRecipe rp;
+    rp.states = states;
+    m_projectiles[ptName] = rp;
+    m_currentProjectile = &m_projectiles[ptName];
+    m_currentProjectile->m_ptType = json_["ProjectileType"];
+
+    m_currentStates = &m_currentProjectile->states;
+
+    for (auto &action : actions)
+    {
+        parsePTAction(action);
     }
 }
 
@@ -142,6 +179,42 @@ FrameWindow RecipeParser::parseFrameWindow(const nlohmann::json &json_)
     fw.second = json_["EndFrame"];
 
     return fw;
+}
+
+void RecipeParser::parsePTAction(const nlohmann::json &json_)
+{
+    std::cout << json_["State"] << ": " << m_currentProjectile->states[json_["State"]] << std::endl;
+    std::string actType = json_["ActionType"];
+    m_currentProjectile->m_actions.push_back({});
+    m_currentActionRecipe = &m_currentProjectile->m_actions[m_currentProjectile->m_actions.size() - 1];
+    m_currentActionRecipe->m_actionType = actType;
+
+    if (actType == "ActionProjectile")
+        parseActionProjectile(json_);
+    else
+        std::cout << "Unknown action type: " << actType << std::endl;
+}
+
+void RecipeParser::parseActionProjectile(const nlohmann::json &json_)
+{
+    std::cout << json_["ActionType"] << std::endl;
+
+    // Build vector of state IDs
+    std::vector<int> statesFrom;
+    for (auto &el : json_["TransitionableFrom"].get<std::vector<std::string>>())
+        statesFrom.push_back(m_currentProjectile->states[el]);
+    StateMarker transitionableFrom(m_currentProjectile->states.size(), statesFrom);
+
+    // Parsing regular data
+    m_currentActionRecipe->m_state = m_currentProjectile->states[json_["State"]];
+    m_currentActionRecipe->m_hurtboxes = parseHurtboxFramesVec(json_["Hurtboxes"]);
+    m_currentActionRecipe->m_animation = m_animManager->getAnimID(json_["Animation"]);
+    m_currentActionRecipe->m_transitionableFrom = transitionableFrom;
+    m_currentActionRecipe->m_isAttack = json_["isAttack"];
+    m_currentActionRecipe->m_isAirborne = json_["isAirborne"];
+
+    // Handle extentions
+    parseActionExtentions(json_);
 }
 
 void RecipeParser::parseAction(const nlohmann::json &json_)
@@ -438,6 +511,9 @@ void RecipeParser::parseActionThrownHold(const nlohmann::json &json_)
 
 void RecipeParser::parseActionExtentions(const nlohmann::json &json_)
 {
+    if (json_.contains("extentionActionSwitchData"))
+        parseExtentionActionSwitchData(json_["extentionActionSwitchData"]);
+
     if (json_.contains("extentionSwitchData"))
         parseExtentionSwitchData(json_["extentionSwitchData"]);
 
@@ -458,6 +534,35 @@ void RecipeParser::parseActionExtentions(const nlohmann::json &json_)
 
     if (json_.contains("extentionUpdateHitsToOpponent"))
         parseExtentionHitsToOpponent(json_["extentionUpdateHitsToOpponent"]);
+}
+
+void RecipeParser::parseExtentionActionSwitchData(const nlohmann::json &json_)
+{
+    std::cout << "Action switch data\n";
+    auto *extdata = new ActionExtentionActionSwitchData();
+
+    if (json_.contains("realign"))
+        extdata->realign = json_["realign"];
+    if (json_.contains("timerValue"))
+        extdata->timerValue = json_["timerValue"];
+    if (json_.contains("velToInertia"))
+        extdata->velToInertia = json_["velToInertia"];
+    if (json_.contains("callForPriority"))
+        extdata->callForPriority = json_["callForPriority"];
+    if (json_.contains("mulOwnVel"))
+        extdata->mulOwnVel = parseVector2<float>(json_["mulOwnVel"]);
+    if (json_.contains("mulOwnInr"))
+        extdata->mulOwnInr = parseVector2<float>(json_["mulOwnInr"]);
+    if (json_.contains("mulOwnDirVel"))
+        extdata->mulOwnDirVel = parseVector2<float>(json_["mulOwnDirVel"]);
+    if (json_.contains("mulOwnDirInr"))
+        extdata->mulOwnDirInr = parseVector2<float>(json_["mulOwnDirInr"]);
+    if (json_.contains("rawAddVel"))
+        extdata->rawAddVel = parseVector2<float>(json_["rawAddVel"]);
+    if (json_.contains("rawAddInr"))
+        extdata->rawAddInr = parseVector2<float>(json_["rawAddInr"]);
+
+    m_currentActionRecipe->m_extentions.push_back(extdata);
 }
 
 void RecipeParser::parseExtentionSwitchData(const nlohmann::json &json_)
@@ -547,7 +652,7 @@ void RecipeParser::parseExtentionLandingRecovery(const nlohmann::json &json_)
     auto *extdata = new ActionExtentionLandingRecovery();
 
     if (json_.contains("recoveryState"))
-        extdata->recoveryState = m_currentCharacterRecipe->states[json_["recoveryState"]];
+        extdata->recoveryState = (*m_currentStates)[json_["recoveryState"]];
 
     m_currentActionRecipe->m_extentions.push_back(extdata);
 }
@@ -558,7 +663,7 @@ void RecipeParser::parseExtentionOutdatedTransition(const nlohmann::json &json_)
     auto *extdata = new ActionExtentionOutdatedTransition();
 
     if (json_.contains("targetState"))
-        extdata->targetState = m_currentCharacterRecipe->states[json_["targetState"]];
+        extdata->targetState = (*m_currentStates)[json_["targetState"]];
 
     m_currentActionRecipe->m_extentions.push_back(extdata);
 }
@@ -853,5 +958,10 @@ ActionExtentionUpdateMovementData::ActionExtentionUpdateMovementData() :
 
 ActionExtentionUpdateHitsToOpponent::ActionExtentionUpdateHitsToOpponent() :
     ActionExtention(ExtentionType::HITS_TO_OPPONENT)
+{
+}
+
+ActionExtentionActionSwitchData::ActionExtentionActionSwitchData() :
+    ActionExtention(ExtentionType::ACTION_SWITCH_DATA)
 {
 }

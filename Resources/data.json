@@ -208,8 +208,45 @@
         }
     ],
 
+    "Projectiles": [
+        {
+            "Name": "Char1/Firewall",
+            "ProjectileType": "Projectile",
+            "PTTypeID": 1,
+            "Actions": [
+                {
+                    "ActionType": "ActionProjectile",
+                    "State": "char1/firewall/startup",
+                    "Hurtboxes": [
+                    ],
+                    "Animation": "Char1/ProjectileFirewallStartup",
+                    "TransitionableFrom": [
+                    ],
+                    "isAttack": false,
+                    "isAirborne": false,
+                    "extentionOutdatedTransition": {
+                        "targetState": "char1/firewall/filler"
+                    },
+                    "extentionActionSwitchData": {
+                        "realign": false,
+                        "timerValue": 29,
+                        "velToInertia": false,
+                        "callForPriority": false,
+                        "mulOwnVel": {"x": 1.0, "y": 1.0},
+                        "mulOwnInr": {"x": 1.0, "y": 1.0},
+                        "mulOwnDirVel": {"x": 0.0, "y": 0.0},
+                        "mulOwnDirInr": {"x": 0.0, "y": 0.0},
+                        "rawAddVel": {"x": 0.0, "y": 0.0},
+                        "rawAddInr": {"x": 0.0, "y": 0.0}
+                    }
+                }
+            ]
+        }
+    ],
+
     "Characters": [
         {
+            "Name": "Char1",
             "Actions": [
                 {
                     "ActionType": "ActionCharacter",
