@@ -598,6 +598,49 @@
                             "Hit": "Char1/throw"
                         }
                     ]
+                },
+                {
+                    "ActionType": "Action_throw_tech",
+                    "State": "char1/throw_tech",
+                    "InputComparator": "BCpress",
+                    "Animation": "Char1/ThrowTech",
+                    "GravityWindow": [
+                        {"frame": 0, "value": true}
+                    ],
+                    "BlockWindow": [
+                        {"frame": 0, "value": true}
+                    ],
+                    "Duration": 15,
+                    "Hurtboxes": [
+                        {
+                            "frames": [
+                                {"frame": 0, "value": true}
+                            ],
+                            "hurtbox": {"x": -70, "y": -375, "w": 140, "h": 375}
+                        }
+                    ],
+                    "Tech": "Char1/ground",
+                    "TransitionableFrom": [
+                        "char1/thrown_char1_normal_hold"
+                    ],
+                    "isAirborne": false,
+                    "IdleState": "char1/idle",
+                    "FloatState": "char1/float",
+                    "extentionSwitchData": {
+                        "realign": false,
+                        "timerValue": 15,
+                        "velToInertia": true,
+                        "resetDefenseState": true,
+                        "setAirAttackFlag": true,
+                        "resetPushback": false,
+                        "callForPriority": true,
+                        "mulOwnVel": {"x": 1.0, "y": 1.0},
+                        "mulOwnInr": {"x": 1.0, "y": 1.0},
+                        "mulOwnDirVel": {"x": 0.0, "y": 0.0},
+                        "mulOwnDirInr": {"x": -5.0, "y": 0.0},
+                        "rawAddVel": {"x": 0.0, "y": 0.0},
+                        "rawAddInr": {"x": 0.0, "y": 0.0}
+                    }
                 }
             ]
         }

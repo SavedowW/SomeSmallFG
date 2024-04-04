@@ -120,6 +120,7 @@ struct ActionRecipe
     int m_throwHoldState;
     int m_throwState;
     int m_throwID;
+    int m_techID;
     float m_throwRange;
     FrameWindow m_activeWindow;
     bool m_requireAirborne;
@@ -198,6 +199,7 @@ private:
     void parseActionThrowHold(const nlohmann::json &json_);
     void parseActionThrowWhiff(const nlohmann::json &json_);
     void parseActionLockedAnimation(const nlohmann::json &json_);
+    void parseActionThrowTech(const nlohmann::json &json_);
     
     void parseExtentionSwitchData(const nlohmann::json &json_);
     void parseExtentionRealignData(const nlohmann::json &json_);
@@ -214,6 +216,7 @@ private:
     BLOCK_STATE strToBlockState(const std::string &str_);
     HITSTUN_ANIMATION strToHitstunAnimation(const std::string &str_);
     int strToThrowID(const std::string &str_);
+    int strToTechID(const std::string &str_);
 
     std::vector<CharacterRecipe> m_characterRecipes;
     CharacterRecipe *m_currentCharacterRecipe = nullptr;
@@ -223,6 +226,7 @@ private:
     std::map<std::string, ParticlesSpawnData> m_particles;
     std::map<std::string, Hit> m_hits;
     std::map<std::string, int> m_throwIDs;
+    std::map<std::string, int> m_techsIDs;
 };
 
 #endif

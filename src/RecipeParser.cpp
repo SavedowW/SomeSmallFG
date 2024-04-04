@@ -169,6 +169,8 @@ void RecipeParser::parseAction(const nlohmann::json &json_)
         parseActionThrowWhiff(json_);
     else if (actType == "Action_locked_animation")
         parseActionLockedAnimation(json_);
+    else if (actType == "Action_throw_tech")
+        parseActionThrowTech(json_);
     else
         std::cout << "Unknown action type: " << actType << std::endl;
 }
@@ -385,6 +387,34 @@ void RecipeParser::parseActionLockedAnimation(const nlohmann::json &json_)
     m_currentActionRecipe->m_duration = json_["Duration"];
     m_currentActionRecipe->m_counterWindow = parseTimelineProperty<bool>(json_["CounterWindow"]);
     m_currentActionRecipe->m_blockWindow = parseTimelineProperty<bool>(json_["BlockWindow"]);
+
+    // Handle extentions
+    parseActionExtentions(json_);
+}
+
+void RecipeParser::parseActionThrowTech(const nlohmann::json &json_)
+{
+    std::cout << json_["ActionType"] << std::endl;
+
+    // Build vector of state IDs
+    std::vector<int> statesFrom;
+    for (auto &el : json_["TransitionableFrom"].get<std::vector<std::string>>())
+        statesFrom.push_back(m_currentCharacterRecipe->states[el]);
+    StateMarker transitionableFrom(m_currentCharacterRecipe->states.size(), statesFrom);
+
+    // Parsing regular data
+    m_currentActionRecipe->m_state = m_currentCharacterRecipe->states[json_["State"]];
+    m_currentActionRecipe->m_inputComparator = json_["InputComparator"];
+    m_currentActionRecipe->m_animation = m_animManager->getAnimID(json_["Animation"]);
+    m_currentActionRecipe->m_gravityWindow = parseTimelineProperty<bool>(json_["GravityWindow"]);
+    m_currentActionRecipe->m_blockWindow = parseTimelineProperty<bool>(json_["BlockWindow"]);
+    m_currentActionRecipe->m_duration = json_["Duration"];
+    m_currentActionRecipe->m_hurtboxes = parseHurtboxFramesVec(json_["Hurtboxes"]);
+    m_currentActionRecipe->m_techID = strToTechID(json_["Tech"]);
+    m_currentActionRecipe->m_transitionableFrom = transitionableFrom;
+    m_currentActionRecipe->m_isAirborne = json_["isAirborne"];
+    m_currentActionRecipe->m_idleState = m_currentCharacterRecipe->states[json_["IdleState"]];
+    m_currentActionRecipe->m_floatState = m_currentCharacterRecipe->states[json_["FloatState"]];
 
     // Handle extentions
     parseActionExtentions(json_);
@@ -689,7 +719,7 @@ HITSTUN_ANIMATION RecipeParser::strToHitstunAnimation(const std::string &str_)
 
 int RecipeParser::strToThrowID(const std::string &str_)
 {
-    if (m_hits.contains(str_))
+    if (m_throwIDs.contains(str_))
     {
         return m_throwIDs[str_];
     }
@@ -697,6 +727,20 @@ int RecipeParser::strToThrowID(const std::string &str_)
     {
         int sz = m_throwIDs.size() + 1;
         m_throwIDs[str_] = sz;
+        return sz;
+    }
+}
+
+int RecipeParser::strToTechID(const std::string &str_)
+{
+    if (m_techsIDs.contains(str_))
+    {
+        return m_techsIDs[str_];
+    }
+    else
+    {
+        int sz = m_techsIDs.size() + 1;
+        m_techsIDs[str_] = sz;
         return sz;
     }
 }
