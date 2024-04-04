@@ -284,6 +284,10 @@
             "Name": "Char1/Firewall",
             "ProjectileType": "Projectile",
             "PTTypeID": 1,
+            "InitialState": "char1/firewall/startup",
+            "MulDirOffset": {"x": 200.0, "y": 0.0},
+            "MinPos": {"x": 200.0, "y": 0.0},
+            "MaxPos": {"x": 2400.0, "y": 0.0},
             "Actions": [
                 {
                     "ActionType": "ActionProjectile",

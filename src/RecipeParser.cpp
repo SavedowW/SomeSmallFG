@@ -85,6 +85,7 @@ void RecipeParser::parseProjectile(const nlohmann::json &json_)
     m_projectiles[ptName] = rp;
     m_currentProjectile = &m_projectiles[ptName];
     m_currentProjectile->m_ptType = json_["ProjectileType"];
+    m_currentProjectile->m_ptTypeID = json_["PTTypeID"];
 
     m_currentStates = &m_currentProjectile->states;
 
@@ -92,6 +93,10 @@ void RecipeParser::parseProjectile(const nlohmann::json &json_)
     {
         parsePTAction(action);
     }
+
+    m_currentProjectile->m_initialState = m_currentProjectile->states[json_["InitialState"]];
+    m_currentProjectile->m_minPos = parseVector2<float>(json_["MinPos"]);
+    m_currentProjectile->m_maxPos = parseVector2<float>(json_["MaxPos"]);
 }
 
 HurtboxFramesVec RecipeParser::parseHurtboxFramesVec(const nlohmann::json &json_)
