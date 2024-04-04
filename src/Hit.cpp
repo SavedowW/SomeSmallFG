@@ -10,6 +10,12 @@ Hit::Hit(const HitData &hitData_, const std::vector<std::pair<FrameWindow, Colli
         
 }
 
+Hit::Hit(const Hit &hit_) :
+    HitData(*(HitData*)(&hit_)),
+    m_hitboxes(hit_.m_hitboxes)
+{
+}
+
 std::vector<std::pair<FrameWindow, Collider>> Hit::getHitboxes() const
 {
     return m_hitboxes;
@@ -31,9 +37,7 @@ HitData hitgeneration::generate_char1_normal_throw(int animIdHit_)
     pdatatemp.m_minLifeTime = pdatatemp.m_maxLifeTime = 10;
     hdata.particlesOnHit.push_back(pdatatemp);
     hdata.particlesOnCH.push_back(pdatatemp);
-
-    hdata.partOfThrow = true;
-
+    
     //hdata.cornerPushbackMaxRange = 390.0f;
     //hdata.cornerPushbackMinImpulse = 8.0f;
     //hdata.cornerPushbackMaxImpulse = 25.0f;

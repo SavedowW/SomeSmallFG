@@ -20,6 +20,12 @@ RecipeParser::RecipeParser(AnimationManager *animManager_, const std::string &fi
         parseParticlesSpawnData(el);
     }
 
+    nlohmann::json hits = data["Hits"];
+    for (auto &el : hits)
+    {
+        parseHitData(el);
+    }
+
     nlohmann::json chars = data["Characters"];
     for (auto &el : chars)
     {
@@ -77,6 +83,55 @@ std::vector<std::pair<FrameWindow, Collider>> RecipeParser::parseHitboxes(const 
     }
 
     return vec;
+}
+
+PostHitProperties RecipeParser::parsePostHitProperties(const nlohmann::json &json_)
+{
+    PostHitProperties php;
+
+    if (json_.contains("HardKnd"))
+        php.hardKnd = json_["HardKnd"];
+    if (json_.contains("GroundBounce"))
+        php.groundBounce = json_["GroundBounce"];
+    if (json_.contains("GroundBounceStrength"))
+        php.groundBounceStrength = json_["GroundBounceStrength"];
+    if (json_.contains("Wallbounce"))
+        php.wallBounce = json_["Wallbounce"];
+    if (json_.contains("WallbounceInertiaMultiplierX"))
+        php.wallbounceInertiaMultiplierX = json_["WallbounceInertiaMultiplierX"];
+    if (json_.contains("WallbounceInertiaMultiplierY"))
+        php.wallbounceInertiaMultiplierY = json_["WallbounceInertiaMultiplierY"];
+    if (json_.contains("Hitstun"))
+        php.hitstun = json_["Hitstun"];
+    if (json_.contains("Hitstop"))
+        php.hitstop = json_["Hitstop"];
+    if (json_.contains("Proratio"))
+        php.proratio = json_["Proratio"];
+    if (json_.contains("ForceCrouch"))
+        php.forceCrouch = json_["ForceCrouch"];
+    if (json_.contains("OpponentImpulseOnHit"))
+        php.opponentImpulseOnHit = parseVector2<float>(json_["OpponentImpulseOnHit"]);
+    if (json_.contains("OpponentImpulseOnAirhit"))
+        php.opponentImpulseOnAirHit = parseVector2<float>(json_["OpponentImpulseOnAirhit"]);
+    if (json_.contains("GroundHitstunAnimation"))
+        php.groundHitstunAnimation = strToHitstunAnimation(json_["GroundHitstunAnimation"]);
+    if (json_.contains("AirHitstunAnimation"))
+        php.airHitstunAnimation = strToHitstunAnimation(json_["AirHitstunAnimation"]);
+
+    return php;
+}
+
+CancelWindow RecipeParser::parseCancelWindow(const nlohmann::json &json_)
+{
+    CancelWindow cw;
+
+    cw.first.first = json_["BeginFrame"];
+    cw.first.second = json_["EndFrame"];
+
+    for (const auto &el : json_["Options"])
+        cw.second.insert(m_currentCharacterRecipe->states[el]);
+
+    return cw;
 }
 
 void RecipeParser::parseAction(const nlohmann::json &json_)
@@ -225,7 +280,8 @@ void RecipeParser::parseActionAttack(const nlohmann::json &json_)
     m_currentActionRecipe->m_state = m_currentCharacterRecipe->states[json_["State"]];
     m_currentActionRecipe->m_inputComparator = json_["InputComparator"];
     m_currentActionRecipe->m_duration = json_["Duration"];
-    // TODO: hits
+    for (const auto &el : json_["Hits"])
+        m_currentActionRecipe->m_hits.emplace_back(m_hits.at(el));
     m_currentActionRecipe->m_hurtboxes = parseHurtboxFramesVec(json_["Hurtboxes"]);
     m_currentActionRecipe->m_animation = m_animManager->getAnimID(json_["Animation"]);
     m_currentActionRecipe->m_gravityWindow = parseTimelineProperty<bool>(json_["GravityWindow"]);
@@ -410,6 +466,55 @@ void RecipeParser::parseParticlesSpawnData(const nlohmann::json &json_)
     m_particles[name] = psd;
 }
 
+void RecipeParser::parseHitData(const nlohmann::json &json_)
+{
+    std::string name = json_["HitName"];
+    std::cout << "Parsing hit \"" << name << "\"\n";
+
+    HitData hitdata;
+
+    if (json_.contains("Damage"))
+        hitdata.damage = json_["Damage"];
+    if (json_.contains("ForcedClash"))
+        hitdata.forcedClash = json_["ForcedClash"];
+    if (json_.contains("OpponentPushbackOnBlock"))
+        hitdata.opponentPushbackOnBlock = json_["OpponentPushbackOnBlock"];
+    if (json_.contains("Blockstun"))
+        hitdata.blockstun = json_["Blockstun"];
+    if (json_.contains("ChipDamage"))
+        hitdata.chipDamage = json_["ChipDamage"];
+    if (json_.contains("HitBlockShakeAmp"))
+        hitdata.hitBlockShakeAmp = json_["HitBlockShakeAmp"];
+    if (json_.contains("CanBeBlockedAs"))
+        for (auto &el : json_["CanBeBlockedAs"])
+            hitdata.canBeBlockedAs.insert(strToBlockState(el));
+    if (json_.contains("CancelsOnHit"))
+        hitdata.cancelsOnHit = parseCancelWindow(json_["CancelsOnHit"]);
+    if (json_.contains("CancelsOnBlock"))
+        hitdata.cancelsOnBlock = parseCancelWindow(json_["CancelsOnBlock"]);
+    if (json_.contains("HitProperties"))
+        hitdata.hitProps = parsePostHitProperties(json_["HitProperties"]);
+    if (json_.contains("CounterHitProperties"))
+        hitdata.chProps = parsePostHitProperties(json_["CounterHitProperties"]);
+    
+    if (json_.contains("ParticlesOnBlock"))
+        for (auto &el : json_["ParticlesOnBlock"])
+            hitdata.particlesOnBlock.push_back(m_particles[el]);
+
+    if (json_.contains("ParticlesOnHit"))
+        for (auto &el : json_["ParticlesOnHit"])
+            hitdata.particlesOnHit.push_back(m_particles[el]);
+
+    if (json_.contains("ParticlesOnCH"))
+        for (auto &el : json_["ParticlesOnCH"])
+            hitdata.particlesOnCH.push_back(m_particles[el]);
+
+    auto hboxes = parseHitboxes(json_["Hitboxes"]);
+    
+    Hit res(hitdata, hboxes);
+    m_hits.emplace(name, std::move(res));
+}
+
 LOOPMETHOD RecipeParser::strToLoopMethod(const std::string &str_)
 {
     if (str_ == "JUMP_LOOP")
@@ -422,6 +527,49 @@ LOOPMETHOD RecipeParser::strToLoopMethod(const std::string &str_)
         return LOOPMETHOD::SWITCH_DIR_LOOP;
 
     throw std::string("Cannot identify loop method: " + str_);
+}
+
+BLOCK_STATE RecipeParser::strToBlockState(const std::string &str_)
+{
+    if (str_ == "HIGH")
+        return BLOCK_STATE::HIGH;
+
+    if (str_ == "LOW")
+        return BLOCK_STATE::LOW;
+
+    if (str_ == "AIR")
+        return BLOCK_STATE::AIR;
+
+    if (str_ == "AUTO")
+        return BLOCK_STATE::AUTO;
+
+    if (str_ == "NONE")
+        return BLOCK_STATE::NONE;
+
+    throw std::string("Cannot identify block state: " + str_);
+}
+
+HITSTUN_ANIMATION RecipeParser::strToHitstunAnimation(const std::string &str_)
+{
+    if (str_ == "HIGH")
+        return HITSTUN_ANIMATION::HIGH;
+
+    if (str_ == "MID")
+        return HITSTUN_ANIMATION::MID;
+
+    if (str_ == "LOW")
+        return HITSTUN_ANIMATION::LOW;
+
+    if (str_ == "CROUCH")
+        return HITSTUN_ANIMATION::CROUCH;
+
+    if (str_ == "FLOAT")
+        return HITSTUN_ANIMATION::FLOAT;
+
+    if (str_ == "NONE")
+        return HITSTUN_ANIMATION::NONE;
+
+    throw std::string("Cannot identify hitstun animation: " + str_);
 }
 
 template <typename T>

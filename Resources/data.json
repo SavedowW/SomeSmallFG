@@ -88,6 +88,97 @@
         }
     ],
 
+    "Hits": [
+        {
+            "HitName": "Char1/JC",
+            "Hitboxes": [
+                {
+                    "BeginFrame": 12,
+                    "EndFrame": 17,
+                    "Hitbox": {"x": 0.0, "y": -280.0, "w": 180.0, "h": 130.0}
+                },
+                {
+                    "BeginFrame": 12,
+                    "EndFrame": 17,
+                    "Hitbox": {"x": -30.0, "y": -160.0, "w": 130.0, "h": 130.0}
+                },
+                {
+                    "BeginFrame": 12,
+                    "EndFrame": 17,
+                    "Hitbox": {"x": 100.0, "y": -385.0, "w": 40.0, "h": 300.0}
+                },
+                {
+                    "BeginFrame": 12,
+                    "EndFrame": 17,
+                    "Hitbox": {"x": -30.0, "y": -440.0, "w": 130.0, "h": 160.0}
+                }
+            ],
+            "Damage": 25,
+            "ForcedClash": false,
+            "OpponentPushbackOnBlock": 150.0,
+            "Blockstun": 15,
+            "ChipDamage": 2,
+            "HitBlockShakeAmp": 15,
+            "CanBeBlockedAs": [
+                "HIGH",
+                "LOW",
+                "AIR",
+                "AUTO"
+            ],
+            "CancelsOnHit": {
+                "BeginFrame": 1,
+                "EndFrame": 9,
+                "Options": []
+            },
+            "CancelsOnBlock": {
+                "BeginFrame": 1,
+                "EndFrame": 9,
+                "Options": []
+            },
+            "HitProperties": {
+                "HardKnd": false,
+                "GroundBounce": false,
+                "GroundBounceStrength": 0.0,
+                "Wallbounce": true,
+                "WallbounceInertiaMultiplierX": 1.0,
+                "WallbounceInertiaMultiplierY": 0.5,
+                "Hitstun": 12,
+                "Hitstop": 10,
+                "Proratio": 1.0,
+                "ForceCrouch": false,
+                "OpponentImpulseOnHit": {"x": 18.0, "y": -40.0},
+                "OpponentImpulseOnAirhit": {"x": 18.0, "y": -40.0},
+                "GroundHitstunAnimation": "HIGH",
+                "AirHitstunAnimation": "FLOAT"
+            },
+            "CounterHitProperties": {
+                "HardKnd": false,
+                "GroundBounce": false,
+                "GroundBounceStrength": 0.0,
+                "Wallbounce": true,
+                "WallbounceInertiaMultiplierX": 1.0,
+                "WallbounceInertiaMultiplierY": 0.5,
+                "Hitstun": 16,
+                "Hitstop": 15,
+                "Proratio": 1.0,
+                "ForceCrouch": false,
+                "OpponentImpulseOnHit": {"x": 18.0, "y": -40.0},
+                "OpponentImpulseOnAirhit": {"x": 18.0, "y": -40.0},
+                "GroundHitstunAnimation": "HIGH",
+                "AirHitstunAnimation": "FLOAT"
+            },
+            "ParticlesOnBlock": [
+                "Char1/JC/Block"
+            ],
+            "ParticlesOnHit": [
+                "Char1/JC/Hit"
+            ],
+            "ParticlesOnCH": [
+                "Char1/JC/Hit"
+            ]
+        }
+    ],
+
     "Characters": [
         {
             "Actions": [
@@ -273,7 +364,9 @@
                     "State": "char1_jc",
                     "InputComparator": "CPress",
                     "Duration": 200,
-                    "Hits": "TODO:",
+                    "Hits": [
+                        "Char1/JC"
+                    ],
                     "Hurtboxes": [
                         {
                             "frames": [

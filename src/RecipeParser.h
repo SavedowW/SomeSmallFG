@@ -124,6 +124,8 @@ struct ActionRecipe
     bool m_waitAirjumpTimer;
     bool m_isAirborne;
 
+    std::vector<Hit> m_hits;
+
     // To use a unique_ptr I would need to manually write constructors and assignments which is too much work
     std::vector<ActionExtention*> m_extentions;
 
@@ -159,6 +161,8 @@ private:
     Collider parseCollider(const nlohmann::json &json_);
     HurtboxFramesVec parseHurtboxFramesVec(const nlohmann::json &json_);
     std::vector<std::pair<FrameWindow, Collider>> parseHitboxes(const nlohmann::json &json_);
+    PostHitProperties parsePostHitProperties(const nlohmann::json &json_);
+    CancelWindow parseCancelWindow(const nlohmann::json &json_);
 
     void parseCharacter(const nlohmann::json &json_);
 
@@ -178,8 +182,11 @@ private:
     void parseExtentionOutdatedTransition(const nlohmann::json &json_);
 
     void parseParticlesSpawnData(const nlohmann::json &json_);
+    void parseHitData(const nlohmann::json &json_);
 
     LOOPMETHOD strToLoopMethod(const std::string &str_);
+    BLOCK_STATE strToBlockState(const std::string &str_);
+    HITSTUN_ANIMATION strToHitstunAnimation(const std::string &str_);
 
     std::vector<CharacterRecipe> m_characterRecipes;
     CharacterRecipe *m_currentCharacterRecipe = nullptr;
@@ -187,6 +194,7 @@ private:
     AnimationManager *m_animManager;
 
     std::map<std::string, ParticlesSpawnData> m_particles;
+    std::map<std::string, Hit> m_hits;
 };
 
 #endif

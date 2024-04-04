@@ -43,10 +43,8 @@ struct PostHitProperties
 
 struct HitData
 {
-    bool partOfThrow = false;
-
     int m_hitId;
-    float damage = 0;
+    int damage = 0;
     
     bool forcedClash = false;
 
@@ -78,6 +76,7 @@ struct HitData
 struct Hit : public HitData
 {
     Hit(const HitData &hitData_, const std::vector<std::pair<FrameWindow, Collider>> &hitboxes_);
+    Hit(const Hit &hit_);
 
     std::vector<std::pair<FrameWindow, Collider>> getHitboxes() const;
     HitData getHitData() const;
