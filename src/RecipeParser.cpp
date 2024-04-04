@@ -165,6 +165,8 @@ void RecipeParser::parseAction(const nlohmann::json &json_)
         parseActionThrowStartup(json_);
     else if (actType == "Action_throw_hold")
         parseActionThrowHold(json_);
+    else if (actType == "Action_throw_whiff")
+        parseActionThrowWhiff(json_);
     else
         std::cout << "Unknown action type: " << actType << std::endl;
 }
@@ -347,6 +349,23 @@ void RecipeParser::parseActionThrowHold(const nlohmann::json &json_)
     m_currentActionRecipe->m_duration = json_["Duration"];
     m_currentActionRecipe->m_sideSwitch = json_["SideSwitch"];
     m_currentActionRecipe->m_animation = m_animManager->getAnimID(json_["Animation"]);
+
+    // Handle extentions
+    parseActionExtentions(json_);
+}
+
+void RecipeParser::parseActionThrowWhiff(const nlohmann::json &json_)
+{
+    std::cout << json_["ActionType"] << std::endl;
+
+    // Parsing regular data
+    m_currentActionRecipe->m_state = m_currentCharacterRecipe->states[json_["State"]];
+    m_currentActionRecipe->m_animation = m_animManager->getAnimID(json_["Animation"]);
+    m_currentActionRecipe->m_gravityWindow = parseTimelineProperty<bool>(json_["GravityWindow"]);
+    m_currentActionRecipe->m_duration = json_["Duration"];
+    m_currentActionRecipe->m_hurtboxes = parseHurtboxFramesVec(json_["Hurtboxes"]);
+    m_currentActionRecipe->m_idleState = m_currentCharacterRecipe->states[json_["IdleState"]];
+    m_currentActionRecipe->m_floatState = m_currentCharacterRecipe->states[json_["FloatState"]];
 
     // Handle extentions
     parseActionExtentions(json_);

@@ -131,6 +131,8 @@ struct ActionRecipe
     bool m_waitAirdashTimer;
     bool m_waitAirjumpTimer;
     bool m_isAirborne;
+    int m_idleState;
+    int m_floatState;
 
     std::vector<Hit> m_hits;
 
@@ -184,6 +186,7 @@ private:
     void parseActionAttack(const nlohmann::json &json_);
     void parseActionThrowStartup(const nlohmann::json &json_);
     void parseActionThrowHold(const nlohmann::json &json_);
+    void parseActionThrowWhiff(const nlohmann::json &json_);
     
     void parseExtentionSwitchData(const nlohmann::json &json_);
     void parseExtentionRealignData(const nlohmann::json &json_);

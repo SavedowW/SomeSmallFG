@@ -523,6 +523,25 @@
                     "Duration": 10,
                     "SideSwitch": false,
                     "Animation": "Char1/ThrowStartup"
+                },
+                {
+                    "ActionType": "Action_throw_whiff",
+                    "State": "char1/throw_normal_whiff",
+                    "Animation": "Char1/ThrowWhiff",
+                    "GravityWindow": [
+                        {"frame": 0, "value": true}
+                    ],
+                    "Duration": 30,
+                    "Hurtboxes": [
+                        {
+                            "frames": [
+                                {"frame": 0, "value": true}
+                            ],
+                            "hurtbox": {"x": -70, "y": -375, "w": 140, "h": 375}
+                        }
+                    ],
+                    "IdleState": "char1/idle",
+                    "FloatState": "char1/float"
                 }
             ]
         }
