@@ -542,6 +542,9 @@ void RecipeParser::parseActionExtentions(const nlohmann::json &json_)
 
     if (json_.contains("extentionActionOutdatedExpire"))
         parseExtentionOutdatedExpire(json_["extentionActionOutdatedExpire"]);
+
+    if (json_.contains("extentionOutdatedMovementData"))
+        parseExtentionOutdatedMovementData(json_["extentionOutdatedMovementData"]);
 }
 
 void RecipeParser::parseExtentionActionSwitchData(const nlohmann::json &json_)
@@ -697,6 +700,27 @@ void RecipeParser::parseExtentionOutdatedExpire(const nlohmann::json &json_)
     auto *extdata = new ActionExtentionOutdatedExpire();
 
     extdata->m_expire = json_["Expire"];
+
+    m_currentActionRecipe->m_extentions.push_back(extdata);
+}
+
+void RecipeParser::parseExtentionOutdatedMovementData(const nlohmann::json &json_)
+{
+    std::cout << "Action switch data\n";
+    auto *extdata = new ActionExtentionOutdatedMovementData();
+
+    if (json_.contains("mulOwnVel"))
+        extdata->mulOwnVel = parseVector2<float>(json_["mulOwnVel"]);
+    if (json_.contains("mulOwnInr"))
+        extdata->mulOwnInr = parseVector2<float>(json_["mulOwnInr"]);
+    if (json_.contains("mulOwnDirVel"))
+        extdata->mulOwnDirVel = parseVector2<float>(json_["mulOwnDirVel"]);
+    if (json_.contains("mulOwnDirInr"))
+        extdata->mulOwnDirInr = parseVector2<float>(json_["mulOwnDirInr"]);
+    if (json_.contains("rawAddVel"))
+        extdata->rawAddVel = parseVector2<float>(json_["rawAddVel"]);
+    if (json_.contains("rawAddInr"))
+        extdata->rawAddInr = parseVector2<float>(json_["rawAddInr"]);
 
     m_currentActionRecipe->m_extentions.push_back(extdata);
 }
@@ -986,5 +1010,10 @@ ActionExtentionActionSwitchData::ActionExtentionActionSwitchData() :
 
 ActionExtentionOutdatedExpire::ActionExtentionOutdatedExpire() :
     ActionExtention(ExtentionType::OUTDATED_EXPIRE)
+{
+}
+
+ActionExtentionOutdatedMovementData::ActionExtentionOutdatedMovementData() :
+    ActionExtention(ExtentionType::OUTDATED_MOVEMENT_DATA)
 {
 }

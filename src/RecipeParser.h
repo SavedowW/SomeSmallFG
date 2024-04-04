@@ -24,7 +24,8 @@ public:
         LANDING_RECOVERY,
         OUTDATED_TRANSITION,
         HITS_TO_OPPONENT,
-        OUTDATED_EXPIRE
+        OUTDATED_EXPIRE,
+        OUTDATED_MOVEMENT_DATA
     } m_extentionType;
 
     ActionExtention(ExtentionType extType_);
@@ -138,6 +139,20 @@ public:
     virtual ~ActionExtentionOutdatedExpire() = default;
 
     bool m_expire;
+};
+
+class ActionExtentionOutdatedMovementData : public ActionExtention
+{
+public:
+    ActionExtentionOutdatedMovementData();
+    virtual ~ActionExtentionOutdatedMovementData() = default;
+
+    Vector2<float> mulOwnVel = {1.0, 1.0};
+    Vector2<float> mulOwnInr = {1.0, 1.0};
+    Vector2<float> mulOwnDirVel = {0.0, 0.0};
+    Vector2<float> mulOwnDirInr = {0.0, 0.0};
+    Vector2<float> rawAddVel = {0.0, 0.0};
+    Vector2<float> rawAddInr = {0.0, 0.0};
 };
 
 
@@ -262,6 +277,7 @@ private:
     void parseExtentionOutdatedTransition(const nlohmann::json &json_);
     void parseExtentionHitsToOpponent(const nlohmann::json &json_);
     void parseExtentionOutdatedExpire(const nlohmann::json &json_);
+    void parseExtentionOutdatedMovementData(const nlohmann::json &json_);
 
     void parseParticlesSpawnData(const nlohmann::json &json_);
     void parseHitData(const nlohmann::json &json_);
