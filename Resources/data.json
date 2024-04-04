@@ -98,6 +98,20 @@
             "MinLifeTime": 10,
             "MaxLifeTime": 10,
             "Animation": "Particles/Block"
+        },
+        {
+            "SetName": "Char1/JA/Block",
+            "Scale": 0.6,
+            "Angle": 45.0,
+            "MinLifeTime": 10,
+            "MaxLifeTime": 10,
+            "Animation": "Particles/Block"
+        },
+        {
+            "SetName": "Char1/JA/Hit",
+            "MinLifeTime": 10,
+            "MaxLifeTime": 10,
+            "Animation": "Particles/Hit1"
         }
     ],
 
@@ -181,13 +195,13 @@
                 "AirHitstunAnimation": "FLOAT"
             },
             "ParticlesOnBlock": [
-                "Char1/firewall/Block"
+                "Char1/JC/Block"
             ],
             "ParticlesOnHit": [
-                "Char1/firewall/Hit"
+                "Char1/JC/Hit"
             ],
             "ParticlesOnCH": [
-                "Char1/firewall/Hit"
+                "Char1/JC/Hit"
             ]
         },
         {
@@ -268,13 +282,83 @@
                 "AirHitstunAnimation": "FLOAT"
             },
             "ParticlesOnBlock": [
-                "Char1/JC/Block"
+                "Char1/firewall/Block"
             ],
             "ParticlesOnHit": [
-                "Char1/JC/Hit"
+                "Char1/firewall/Hit"
             ],
             "ParticlesOnCH": [
-                "Char1/JC/Hit"
+                "Char1/firewall/Hit"
+            ]
+        },
+        {
+            "HitName": "Char1/JA",
+            "Hitboxes": [
+                {
+                    "BeginFrame": 6,
+                    "EndFrame": 8,
+                    "Hitbox": {"x": 50.0, "y": -280.0, "w": 80.0, "h": 80.0}
+                },
+                {
+                    "BeginFrame": 6,
+                    "EndFrame": 8,
+                    "Hitbox": {"x": 110.0, "y": -220.0, "w": 50.0, "h": 50.0}
+                }
+            ],
+            "Damage": 7,
+            "OpponentPushbackOnBlock": 110.0,
+            "Blockstun": 9,
+            "HitBlockShakeAmp": 0,
+            "CanBeBlockedAs": [
+                "HIGH",
+                "AIR"
+            ],
+            "CancelsOnHit": {
+                "BeginFrame": 1,
+                "EndFrame": 9,
+                "Options": [
+                    "char1/jump",
+                    "char1/ja",
+                    "char1/jc",
+                    "char1/air_dash"
+                ]
+            },
+            "CancelsOnBlock": {
+                "BeginFrame": 1,
+                "EndFrame": 9,
+                "Options": [
+                    "char1/jump",
+                    "char1/ja",
+                    "char1/jc",
+                    "char1/air_dash"
+                ]
+            },
+            "HitProperties": {
+                "Hitstun": 12,
+                "Hitstop": 10,
+                "Proratio": 0.7,
+                "OpponentImpulseOnHit": {"x": 90.0, "y": 0.0},
+                "OpponentImpulseOnAirhit": {"x": 8.0, "y": -5.0},
+                "GroundHitstunAnimation": "HIGH",
+                "AirHitstunAnimation": "FLOAT"
+            },
+            "CounterHitProperties": {
+                "Hitstun": 14,
+                "Hitstop": 13,
+                "Proratio": 0.7,
+                "OpponentImpulseOnHit": {"x": 90.0, "y": 0.0},
+                "OpponentImpulseOnAirhit": {"x": 8.0, "y": -5.0},
+                "GroundHitstunAnimation": "HIGH",
+                "AirHitstunAnimation": "FLOAT"
+            },
+            "ParticlesOnBlock": [
+                "Char1/JA/Block"
+            ],
+            "ParticlesOnHit": [
+                "Char1/JA/Hit"
+            ],
+            "ParticlesOnCH": [
+                "Char1/JA/Hit"
             ]
         }
     ],
@@ -750,6 +834,285 @@
                     }
                 },
                 {
+                    "ActionType": "Action_airjump",
+                    "State": "char1/jump",
+                    "Impulse": {"x": -10.0, "y": -30.0},
+                    "InputComparator": "upBackwardPress",
+                    "Hurtboxes": [
+                        {
+                            "frames": [
+                                {"frame": 0, "value": true}
+                            ],
+                            "hurtbox": {"x": -70, "y": -350, "w": 140, "h": 300}
+                        }
+                    ],
+                    "Animation": "Char1/Jump",
+                    "TransitionableFrom": [
+                        "char1/air_dash_extention",
+                        "char1/jump"
+                    ]
+                },
+                {
+                    "ActionType": "Action_airjump",
+                    "State": "char1/jump",
+                    "Impulse": {"x": 10.0, "y": -30.0},
+                    "InputComparator": "upBackwardPress",
+                    "Hurtboxes": [
+                        {
+                            "frames": [
+                                {"frame": 0, "value": true}
+                            ],
+                            "hurtbox": {"x": -70, "y": -350, "w": 140, "h": 300}
+                        }
+                    ],
+                    "Animation": "Char1/Jump",
+                    "TransitionableFrom": [
+                        "char1/air_dash_extention",
+                        "char1/jump"
+                    ]
+                },
+                {
+                    "ActionType": "Action_airjump",
+                    "State": "char1/jump",
+                    "Impulse": {"x": 0.0, "y": -30.0},
+                    "InputComparator": "upPress",
+                    "Hurtboxes": [
+                        {
+                            "frames": [
+                                {"frame": 0, "value": true}
+                            ],
+                            "hurtbox": {"x": -70, "y": -350, "w": 140, "h": 300}
+                        }
+                    ],
+                    "Animation": "Char1/Jump",
+                    "TransitionableFrom": [
+                        "char1/air_dash_extention",
+                        "char1/jump"
+                    ]
+                },
+                {
+                    "ActionType": "Action_attack",
+                    "State": "char1/jc",
+                    "InputComparator": "CPress",
+                    "Duration": 200,
+                    "Hits": [
+                        "Char1/JC"
+                    ],
+                    "Hurtboxes": [
+                        {
+                            "frames": [
+                                {"frame": 0, "value": true}
+                            ],
+                            "hurtbox": {"x": -70, "y": -350, "w": 140, "h": 300}
+                        },
+                        {
+                            "frames": [
+                                {"frame": 10, "value": true},
+                                {"frame": 22, "value": false}
+                            ],
+                            "hurtbox": {"x": 0, "y": -450, "w": 120, "h": 250}
+                        }
+                    ],
+                    "Animation": "Char1/MoveJC",
+                    "GravityWindow": [
+                        {"frame": 0, "value": false},
+                        {"frame": 10, "value": true}
+                    ],
+                    "TransitionableFrom": [
+                        "char1/jump",
+                        "char1/air_dash_extention"
+                    ],
+                    "isCrouchState": false,
+                    "isAirborne": true,
+                    "extentionUpdateMovementData": {
+                        "mulOwnVel": [
+                            {
+                                "frame": 1,
+                                "value": {"x": 0.9, "y": 0.125}
+                            },
+                            {
+                                "frame": 10,
+                                "value": {"x": 1.0, "y": 1.0}
+                            },
+                            {
+                                "frame": 12,
+                                "value": {"x": 1.0, "y": 0.0}
+                            },
+                            {
+                                "frame": 13,
+                                "value": {"x": 1.0, "y": 1.0}
+                            }
+                        ],
+                        "mulOwnInr": [
+                            {
+                                "frame": 1,
+                                "value": {"x": 0.9, "y": 0.33}
+                            },
+                            {
+                                "frame": 10,
+                                "value": {"x": 1.0, "y": 0.0}
+                            },
+                            {
+                                "frame": 11,
+                                "value": {"x": 1.0, "y": 1.0}
+                            }
+                        ],
+                        "mulOwnDirVel": [
+                            {
+                                "frame": 12,
+                                "value": {"x": 3.0, "y": 0.0}
+                            },
+                            {
+                                "frame": 13,
+                                "value": {"x": 0.0, "y": 0.0}
+                            }
+                        ],
+                        "mulOwnDirInr": [
+                            {
+                                "frame": 0,
+                                "value": {"x": 0.0, "y": 0.0}
+                            }
+                        ],
+                        "rawAddVel": [
+                            {
+                                "frame": 12,
+                                "value": {"x": 0.0, "y": -20.0}
+                            },
+                            {
+                                "frame": 13,
+                                "value": {"x": 0.0, "y": 0.0}
+                            }
+                        ],
+                        "rawAddInr": [
+                            {
+                                "frame": 0,
+                                "value": {"x": 0.0, "y": 0.0}
+                            }
+                        ]
+                    },
+                    "extentionLandingRecoveryState": {
+                        "recoveryState": "char1/jc_landing_recovery"
+                    },
+                    "extentionSwitchData": {
+                        "realign": false,
+                        "timerValue": 200,
+                        "velToInertia": false,
+                        "resetDefenseState": true,
+                        "setAirAttackFlag": true,
+                        "resetPushback": false,
+                        "callForPriority": false,
+                        "mulOwnVel": {"x": 1.0, "y": 1.0},
+                        "mulOwnInr": {"x": 1.0, "y": 1.0},
+                        "mulOwnDirVel": {"x": 0.0, "y": 0.0},
+                        "mulOwnDirInr": {"x": 0.0, "y": 0.0},
+                        "rawAddVel": {"x": 0.0, "y": 0.0},
+                        "rawAddInr": {"x": 0.0, "y": 0.0}
+                    },
+                    "extentionOutdatedTransition": {
+                        "targetState": "char1/float"
+                    }
+                },
+                {
+                    "ActionType": "Action_attack",
+                    "State": "char1/ja",
+                    "InputComparator": "APress",
+                    "Duration": 17,
+                    "Hits": [
+                        "Char1/JA"
+                    ],
+                    "Hurtboxes": [
+                        {
+                            "frames": [
+                                {"frame": 0, "value": true},
+                                {"frame": 18, "value": true}
+                            ],
+                            "hurtbox": {"x": -70, "y": -350, "w": 140, "h": 300}
+                        },
+                        {
+                            "frames": [
+                                {"frame": 5, "value": true},
+                                {"frame": 12, "value": false}
+                            ],
+                            "hurtbox": {"x": 40, "y": -290, "w": 100, "h": 100}
+                        }
+                    ],
+                    "Animation": "Char1/MoveJA",
+                    "GravityWindow": [
+                        {"frame": 0, "value": true}
+                    ],
+                    "TransitionableFrom": [
+                        "char1/jump",
+                        "char1/air_dash_extention"
+                    ],
+                    "isCrouchState": false,
+                    "isAirborne": true,
+                    "extentionSwitchData": {
+                        "realign": false,
+                        "timerValue": 17,
+                        "velToInertia": false,
+                        "resetDefenseState": true,
+                        "setAirAttackFlag": true,
+                        "resetPushback": false,
+                        "callForPriority": false,
+                        "mulOwnVel": {"x": 1.0, "y": 1.0},
+                        "mulOwnInr": {"x": 1.0, "y": 1.0},
+                        "mulOwnDirVel": {"x": 0.0, "y": 0.0},
+                        "mulOwnDirInr": {"x": 0.0, "y": 0.0},
+                        "rawAddVel": {"x": 0.0, "y": 0.0},
+                        "rawAddInr": {"x": 0.0, "y": 0.0}
+                    },
+                    "extentionOutdatedTransition": {
+                        "targetState": "char1/float"
+                    }
+                },
+                {
+                    "ActionType": "Action_attack",
+                    "State": "char1/214c",
+                    "InputComparator": "214CPress",
+                    "Duration": 40,
+                    "Hits": [
+                        "Char1/214C"
+                    ],
+                    "Hurtboxes": [
+                        {
+                            "frames": [
+                                {"frame": 0, "value": true}
+                            ],
+                            "hurtbox": {"x": -70, "y": -375, "w": 140, "h": 375}
+                        },
+                        {
+                            "frames": [
+                                {"frame": 16, "value": true},
+                                {"frame": 18, "value": true}
+                            ],
+                            "hurtbox": {"x": -50, "y": -350, "w": 80, "h": 75}
+                        },
+                        {
+                            "frames": [
+                                {"frame": 18, "value": true},
+                                {"frame": 36, "value": false}
+                            ],
+                            "hurtbox": {"x": 50, "y": -120, "w": 30, "h": 120}
+                        }
+                    ],
+                    "Animation": "Char1/Move214C",
+                    "GravityWindow": [
+                        {"frame": 0, "value": true}
+                    ],
+                    "TransitionableFrom": [
+                        "char1/soft_landing_recovery",
+                        "char1/ground_dash",
+                        "char1/ground_dash_recovery",
+                        "char1/walk_bwd",
+                        "char1/walk_fwd",
+                        "char1/crouch",
+                        "char1/step_recovery",
+                        "char1/idle"
+                    ],
+                    "isCrouchState": false,
+                    "isAirborne": true
+                },
+                {
                     "ActionType": "ActionCharacter",
                     "State": "char1/idle",
                     "Hurtboxes": [
@@ -905,147 +1268,6 @@
                     "extentionAirActionTimers": {
                         "airjumpTimer": 5,
                         "airdashTimer": 6
-                    }
-                },
-                {
-                    "ActionType": "Action_airjump",
-                    "State": "char1/jump",
-                    "Impulse": {"x": 0.0, "y": -30.0},
-                    "InputComparator": "upPress",
-                    "Hurtboxes": [
-                        {
-                            "frames": [
-                                {"frame": 0, "value": true}
-                            ],
-                            "hurtbox": {"x": -70, "y": -350, "w": 140, "h": 300}
-                        }
-                    ],
-                    "Animation": "Char1/Jump",
-                    "TransitionableFrom": [
-                        "char1/air_dash_extention",
-                        "char1/jump"
-                    ]
-                },
-                {
-                    "ActionType": "Action_attack",
-                    "State": "char1/jc",
-                    "InputComparator": "CPress",
-                    "Duration": 200,
-                    "Hits": [
-                        "Char1/JC"
-                    ],
-                    "Hurtboxes": [
-                        {
-                            "frames": [
-                                {"frame": 0, "value": true}
-                            ],
-                            "hurtbox": {"x": -70, "y": -350, "w": 140, "h": 300}
-                        },
-                        {
-                            "frames": [
-                                {"frame": 10, "value": true},
-                                {"frame": 22, "value": false}
-                            ],
-                            "hurtbox": {"x": 0, "y": -450, "w": 120, "h": 250}
-                        }
-                    ],
-                    "Animation": "Char1/MoveJC",
-                    "GravityWindow": [
-                        {"frame": 0, "value": false},
-                        {"frame": 10, "value": true}
-                    ],
-                    "TransitionableFrom": [
-                        "char1/jump",
-                        "char1/air_dash_extention"
-                    ],
-                    "isCrouchState": false,
-                    "isAirborne": true,
-                    "extentionUpdateMovementData": {
-                        "mulOwnVel": [
-                            {
-                                "frame": 1,
-                                "value": {"x": 0.9, "y": 0.125}
-                            },
-                            {
-                                "frame": 10,
-                                "value": {"x": 1.0, "y": 1.0}
-                            },
-                            {
-                                "frame": 12,
-                                "value": {"x": 1.0, "y": 0.0}
-                            },
-                            {
-                                "frame": 13,
-                                "value": {"x": 1.0, "y": 1.0}
-                            }
-                        ],
-                        "mulOwnInr": [
-                            {
-                                "frame": 1,
-                                "value": {"x": 0.9, "y": 0.33}
-                            },
-                            {
-                                "frame": 10,
-                                "value": {"x": 1.0, "y": 0.0}
-                            },
-                            {
-                                "frame": 11,
-                                "value": {"x": 1.0, "y": 1.0}
-                            }
-                        ],
-                        "mulOwnDirVel": [
-                            {
-                                "frame": 12,
-                                "value": {"x": 3.0, "y": 0.0}
-                            },
-                            {
-                                "frame": 13,
-                                "value": {"x": 0.0, "y": 0.0}
-                            }
-                        ],
-                        "mulOwnDirInr": [
-                            {
-                                "frame": 0,
-                                "value": {"x": 0.0, "y": 0.0}
-                            }
-                        ],
-                        "rawAddVel": [
-                            {
-                                "frame": 12,
-                                "value": {"x": 0.0, "y": -20.0}
-                            },
-                            {
-                                "frame": 13,
-                                "value": {"x": 0.0, "y": 0.0}
-                            }
-                        ],
-                        "rawAddInr": [
-                            {
-                                "frame": 0,
-                                "value": {"x": 0.0, "y": 0.0}
-                            }
-                        ]
-                    },
-                    "extentionLandingRecoveryState": {
-                        "recoveryState": "char1/jc_landing_recovery"
-                    },
-                    "extentionSwitchData": {
-                        "realign": false,
-                        "timerValue": 200,
-                        "velToInertia": false,
-                        "resetDefenseState": true,
-                        "setAirAttackFlag": true,
-                        "resetPushback": false,
-                        "callForPriority": false,
-                        "mulOwnVel": {"x": 1.0, "y": 1.0},
-                        "mulOwnInr": {"x": 1.0, "y": 1.0},
-                        "mulOwnDirVel": {"x": 0.0, "y": 0.0},
-                        "mulOwnDirInr": {"x": 0.0, "y": 0.0},
-                        "rawAddVel": {"x": 0.0, "y": 0.0},
-                        "rawAddInr": {"x": 0.0, "y": 0.0}
-                    },
-                    "extentionOutdatedTransition": {
-                        "targetState": "char1/float"
                     }
                 },
                 {
