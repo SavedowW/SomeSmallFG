@@ -641,6 +641,13 @@
                         "rawAddVel": {"x": 0.0, "y": 0.0},
                         "rawAddInr": {"x": 0.0, "y": 0.0}
                     }
+                },
+                {
+                    "ActionType": "Action_thrown_hold",
+                    "State": "char1/thrown_char1_normal_hold",
+                    "ThrowState": "char1/thrown_char1_normal_anim",
+                    "Animation": "Char1/ThrownChar1Hold",
+                    "Duration": 10
                 }
             ]
         }

@@ -200,6 +200,7 @@ private:
     void parseActionThrowWhiff(const nlohmann::json &json_);
     void parseActionLockedAnimation(const nlohmann::json &json_);
     void parseActionThrowTech(const nlohmann::json &json_);
+    void parseActionThrownHold(const nlohmann::json &json_);
     
     void parseExtentionSwitchData(const nlohmann::json &json_);
     void parseExtentionRealignData(const nlohmann::json &json_);
