@@ -514,6 +514,15 @@
                         "char1/idle"
                     ],
                     "isAirborne": false
+                },
+                {
+                    "ActionType": "Action_throw_hold",
+                    "State": "char1/throw_normal_hold",
+                    "ThrowState": "char1/throw_normal_anim",
+                    "SetRange": 90.0,
+                    "Duration": 10,
+                    "SideSwitch": false,
+                    "Animation": "Char1/ThrowStartup"
                 }
             ]
         }

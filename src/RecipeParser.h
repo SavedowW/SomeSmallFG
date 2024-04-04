@@ -108,10 +108,12 @@ struct ActionRecipe
     int m_state;
     int m_throwWhiffState;
     int m_throwHoldState;
+    int m_throwState;
     int m_throwID;
     float m_throwRange;
     FrameWindow m_activeWindow;
     bool m_requireAirborne;
+    bool m_sideSwitch;
     HurtboxFramesVec m_hurtboxes;
     int m_animation;
     TimelineProperty<bool> m_counterWindow;
@@ -181,6 +183,7 @@ private:
     void parseActionAirjump(const nlohmann::json &json_);
     void parseActionAttack(const nlohmann::json &json_);
     void parseActionThrowStartup(const nlohmann::json &json_);
+    void parseActionThrowHold(const nlohmann::json &json_);
     
     void parseExtentionSwitchData(const nlohmann::json &json_);
     void parseExtentionRealignData(const nlohmann::json &json_);

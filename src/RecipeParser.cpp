@@ -163,6 +163,8 @@ void RecipeParser::parseAction(const nlohmann::json &json_)
         parseActionAttack(json_);
     else if (actType == "Action_throw_startup")
         parseActionThrowStartup(json_);
+    else if (actType == "Action_throw_hold")
+        parseActionThrowHold(json_);
     else
         std::cout << "Unknown action type: " << actType << std::endl;
 }
@@ -329,6 +331,22 @@ void RecipeParser::parseActionThrowStartup(const nlohmann::json &json_)
     m_currentActionRecipe->m_throwID = strToThrowID(json_["Throw"]);
     m_currentActionRecipe->m_transitionableFrom = transitionableFrom;
     m_currentActionRecipe->m_isAirborne = json_["isAirborne"];
+
+    // Handle extentions
+    parseActionExtentions(json_);
+}
+
+void RecipeParser::parseActionThrowHold(const nlohmann::json &json_)
+{
+    std::cout << json_["ActionType"] << std::endl;
+
+    // Parsing regular data
+    m_currentActionRecipe->m_state = m_currentCharacterRecipe->states[json_["State"]];
+    m_currentActionRecipe->m_throwState = m_currentCharacterRecipe->states[json_["ThrowState"]];
+    m_currentActionRecipe->m_throwRange = json_["SetRange"];
+    m_currentActionRecipe->m_duration = json_["Duration"];
+    m_currentActionRecipe->m_sideSwitch = json_["SideSwitch"];
+    m_currentActionRecipe->m_animation = m_animManager->getAnimID(json_["Animation"]);
 
     // Handle extentions
     parseActionExtentions(json_);
