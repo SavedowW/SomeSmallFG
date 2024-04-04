@@ -37,11 +37,6 @@ HitData hitgeneration::generate_char1_normal_throw(int animIdHit_)
     pdatatemp.m_minLifeTime = pdatatemp.m_maxLifeTime = 10;
     hdata.particlesOnHit.push_back(pdatatemp);
     hdata.particlesOnCH.push_back(pdatatemp);
-    
-    //hdata.cornerPushbackMaxRange = 390.0f;
-    //hdata.cornerPushbackMinImpulse = 8.0f;
-    //hdata.cornerPushbackMaxImpulse = 25.0f;
-    //hdata.opponentPushbackOnBlock = 7.0f;
 
     hdata.hitProps.hitstop = 10;
     hdata.hitProps.hitstun = 12;
@@ -49,8 +44,6 @@ HitData hitgeneration::generate_char1_normal_throw(int animIdHit_)
     hdata.hitProps.hardKnd = true;
     hdata.hitProps.groundBounce = true;
     hdata.hitProps.groundBounceStrength = 5.0f;
-    //hdata.hitProps.opponentImpulseOnHit = {6.0f, 0.0f};
-    //hdata.hitProps.opponentImpulseOnAirHit = {8.0f, -5.0f};
     hdata.hitProps.groundHitstunAnimation = HITSTUN_ANIMATION::FLOAT;
     hdata.hitProps.airHitstunAnimation = HITSTUN_ANIMATION::FLOAT;
 

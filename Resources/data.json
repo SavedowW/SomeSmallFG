@@ -176,6 +176,35 @@
             "ParticlesOnCH": [
                 "Char1/JC/Hit"
             ]
+        },
+        {
+            "HitName": "Char1/throw",
+            "Hitboxes": [
+            ],
+            "Damage": 50,
+            "HitBlockShakeAmp": 35,
+            "HitProperties": {
+                "HardKnd": true,
+                "GroundBounce": true,
+                "GroundBounceStrength": 5.0,
+                "Hitstun": 12,
+                "Hitstop": 10,
+                "Proratio": 1.0,
+                "ForceCrouch": false,
+                "GroundHitstunAnimation": "FLOAT",
+                "AirHitstunAnimation": "FLOAT"
+            },
+            "CounterHitProperties": {
+                "HardKnd": true,
+                "GroundBounce": true,
+                "GroundBounceStrength": 5.0,
+                "Hitstun": 12,
+                "Hitstop": 10,
+                "Proratio": 1.0,
+                "ForceCrouch": false,
+                "GroundHitstunAnimation": "FLOAT",
+                "AirHitstunAnimation": "FLOAT"
+            }
         }
     ],
 
@@ -542,6 +571,33 @@
                     ],
                     "IdleState": "char1/idle",
                     "FloatState": "char1/float"
+                },
+                {
+                    "ActionType": "Action_locked_animation",
+                    "State": "char1/throw_normal_anim",
+                    "TargetState": "char1/idle",
+                    "Hurtboxes": [
+                        {
+                            "frames": [
+                                {"frame": 0, "value": true}
+                            ],
+                            "hurtbox": {"x": -70, "y": -375, "w": 140, "h": 375}
+                        }
+                    ],
+                    "Animation": "Char1/Throw",
+                    "Duration": 50,
+                    "CounterWindow": [
+                        {"frame": 0, "value": false}
+                    ],
+                    "BlockWindow": [
+                        {"frame": 0, "value": false}
+                    ],
+                    "extentionUpdateHitsToOpponent": [
+                        {
+                            "Frame": 13,
+                            "Hit": "Char1/throw"
+                        }
+                    ]
                 }
             ]
         }

@@ -167,6 +167,8 @@ void RecipeParser::parseAction(const nlohmann::json &json_)
         parseActionThrowHold(json_);
     else if (actType == "Action_throw_whiff")
         parseActionThrowWhiff(json_);
+    else if (actType == "Action_locked_animation")
+        parseActionLockedAnimation(json_);
     else
         std::cout << "Unknown action type: " << actType << std::endl;
 }
@@ -371,6 +373,23 @@ void RecipeParser::parseActionThrowWhiff(const nlohmann::json &json_)
     parseActionExtentions(json_);
 }
 
+void RecipeParser::parseActionLockedAnimation(const nlohmann::json &json_)
+{
+    std::cout << json_["ActionType"] << std::endl;
+
+    // Parsing regular data
+    m_currentActionRecipe->m_state = m_currentCharacterRecipe->states[json_["State"]];
+    m_currentActionRecipe->m_idleState = m_currentCharacterRecipe->states[json_["TargetState"]];
+    m_currentActionRecipe->m_hurtboxes = parseHurtboxFramesVec(json_["Hurtboxes"]);
+    m_currentActionRecipe->m_animation = m_animManager->getAnimID(json_["Animation"]);
+    m_currentActionRecipe->m_duration = json_["Duration"];
+    m_currentActionRecipe->m_counterWindow = parseTimelineProperty<bool>(json_["CounterWindow"]);
+    m_currentActionRecipe->m_blockWindow = parseTimelineProperty<bool>(json_["BlockWindow"]);
+
+    // Handle extentions
+    parseActionExtentions(json_);
+}
+
 void RecipeParser::parseActionExtentions(const nlohmann::json &json_)
 {
     if (json_.contains("extentionSwitchData"))
@@ -390,6 +409,9 @@ void RecipeParser::parseActionExtentions(const nlohmann::json &json_)
 
     if (json_.contains("extentionOutdatedTransition"))
         parseExtentionOutdatedTransition(json_["extentionOutdatedTransition"]);
+
+    if (json_.contains("extentionUpdateHitsToOpponent"))
+        parseExtentionHitsToOpponent(json_["extentionUpdateHitsToOpponent"]);
 }
 
 void RecipeParser::parseExtentionSwitchData(const nlohmann::json &json_)
@@ -491,6 +513,21 @@ void RecipeParser::parseExtentionOutdatedTransition(const nlohmann::json &json_)
 
     if (json_.contains("targetState"))
         extdata->targetState = m_currentCharacterRecipe->states[json_["targetState"]];
+
+    m_currentActionRecipe->m_extentions.push_back(extdata);
+}
+
+void RecipeParser::parseExtentionHitsToOpponent(const nlohmann::json &json_)
+{
+    std::cout << "Update hits to opponent data\n";
+    auto *extdata = new ActionExtentionUpdateHitsToOpponent();
+
+    for (const auto &el : json_)
+    {
+        int frame = el["Frame"];
+        std::string hit = el["Hit"];
+        extdata->m_hits.push_back({frame, hit});
+    }
 
     m_currentActionRecipe->m_extentions.push_back(extdata);
 }
@@ -751,5 +788,10 @@ ActionExtentionOutdatedTransition::ActionExtentionOutdatedTransition() :
 
 ActionExtentionUpdateMovementData::ActionExtentionUpdateMovementData() :
     ActionExtention(ExtentionType::UPDATE_MOVEMENT_DATA)
+{
+}
+
+ActionExtentionUpdateHitsToOpponent::ActionExtentionUpdateHitsToOpponent() :
+    ActionExtention(ExtentionType::HITS_TO_OPPONENT)
 {
 }

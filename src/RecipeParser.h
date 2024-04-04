@@ -20,7 +20,8 @@ public:
         AIR_ACTION_TIMER,
         UPDATE_MOVEMENT_DATA,
         LANDING_RECOVERY,
-        OUTDATED_TRANSITION
+        OUTDATED_TRANSITION,
+        HITS_TO_OPPONENT
     } m_extentionType;
 
     ActionExtention(ExtentionType extType_);
@@ -98,6 +99,15 @@ public:
     virtual ~ActionExtentionOutdatedTransition() = default;
 
     int targetState;
+};
+
+class ActionExtentionUpdateHitsToOpponent : public ActionExtention
+{
+public:
+    ActionExtentionUpdateHitsToOpponent();
+    virtual ~ActionExtentionUpdateHitsToOpponent() = default;
+
+    std::vector<std::pair<int, std::string>> m_hits;
 };
 
 struct ActionRecipe
@@ -187,6 +197,7 @@ private:
     void parseActionThrowStartup(const nlohmann::json &json_);
     void parseActionThrowHold(const nlohmann::json &json_);
     void parseActionThrowWhiff(const nlohmann::json &json_);
+    void parseActionLockedAnimation(const nlohmann::json &json_);
     
     void parseExtentionSwitchData(const nlohmann::json &json_);
     void parseExtentionRealignData(const nlohmann::json &json_);
@@ -194,6 +205,7 @@ private:
     void parseExtentionUpdateMovementData(const nlohmann::json &json_);
     void parseExtentionLandingRecovery(const nlohmann::json &json_);
     void parseExtentionOutdatedTransition(const nlohmann::json &json_);
+    void parseExtentionHitsToOpponent(const nlohmann::json &json_);
 
     void parseParticlesSpawnData(const nlohmann::json &json_);
     void parseHitData(const nlohmann::json &json_);
