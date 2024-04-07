@@ -430,6 +430,10 @@ HIT_RESULT Character::applyHit(HitEvent &hitEvent_)
                 startShine({255, 255, 255, 255}, 4, 8);
                 m_notifyWidget->addNotification("INSTANT");
             }
+            else
+            {
+                m_blockstunType = BLOCK_FRAME::NONE;
+            }
 
             applyHitstop(hitEvent_.m_hitData.hitProps.hitstop);
             if (!isInstant)

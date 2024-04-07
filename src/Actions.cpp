@@ -59,7 +59,7 @@ void ActionCharacter::switchTo(InteractableStateMachine &character_)
 
     if (m_hitstunAnimation != -1)
         chr->m_hitstunAnimation = (HITSTUN_ANIMATION)m_hitstunAnimation;
-    chr->m_blockstunType = BLOCK_FRAME::NONE;
+    //chr->m_blockstunType = BLOCK_FRAME::NONE;
 
     if (chr->m_autoRealignAfter.getMark(oldState))
         character_.updateOwnOrientation();
