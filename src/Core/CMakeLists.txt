@@ -20,6 +20,7 @@ ParticleManager.cpp
 TimelineProperty.cpp
 ResourceCounter.cpp
 StateMarker.cpp
+EngineAnimation.cpp
 )
 
 add_library (Core ${CORE_SRC_FILES})

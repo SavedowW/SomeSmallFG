@@ -39,6 +39,14 @@ namespace utils
     	return p;
 	}
 
+    inline std::string removeExtention(const std::string &filePath_)
+	{
+		size_t lastindex = filePath_.find_last_of("."); 
+        std::string rawName = filePath_.substr(0, lastindex); 
+
+        return rawName;
+	}
+
 }
 
 template <typename T, size_t len>

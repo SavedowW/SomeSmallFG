@@ -8,8 +8,7 @@ AnimationManager::AnimationManager(Renderer* renderer_, const std::string &rootP
 {
 	auto sprPath = rootPath_ + "/Resources/Sprites/";
 	std::filesystem::path basePath(sprPath);
-	std::cout << "=== LISTING FOUND ANIMATIONS ===\n";
-	for (const auto &entry : std::filesystem::recursive_directory_iterator(sprPath))
+	/*for (const auto &entry : std::filesystem::recursive_directory_iterator(sprPath))
 	{
 		std::filesystem::path dirpath = entry.path();
 		std::filesystem::path filepath(entry.path().string() + "/animinfo.txt");
@@ -20,7 +19,23 @@ AnimationManager::AnimationManager(Renderer* renderer_, const std::string &rootP
 			m_textureArrs.push_back(cad);
 			auto idstring = utils::getRelativePath(sprPath, dirpath.string());
 			m_ids[idstring] = m_textureArrs.size() - 1;
-			std::cout << dirpath.filename() << std::endl;
+		}
+	}*/
+
+	std::cout << "=== LISTING FOUND ANIMATIONS ===\n";
+	for (const auto &entry : std::filesystem::recursive_directory_iterator(sprPath))
+	{
+		std::filesystem::path dirpath = entry.path();
+		if (entry.is_regular_file() && dirpath.extension() == ".panm")
+		{
+			auto path = utils::getRelativePath(sprPath, dirpath.string());
+			std::cout << utils::removeExtention(path) << std::endl;
+
+			ContainedAnimationData cad;
+			cad.m_path = dirpath.string();
+
+			m_textureArrs.push_back(cad);
+			m_ids[utils::removeExtention(path)] = m_textureArrs.size() - 1;
 		}
 	}
 	std::cout << "=== LISTING ENDS HERE ===\n";
@@ -45,59 +60,26 @@ std::shared_ptr<TextureArr> AnimationManager::getTextureArr(int id_)
 	{
 		//Logger::print("Texture arr does not exist, creating new\n");
 
-		//Parse data.txt
-		std::ifstream loadData(m_textureArrs[id_].m_path + "/animinfo.txt");
-		std::string prefix;
-		int ibegin, iend;
-		int w = 0;
-		int h = 0;
-		int ver = 1;
-		std::string temp;
-		loadData >> temp;
-		if (temp == "V.2.0")
+		EngineAnimation anim;
+		anim.loadAnimation(m_textureArrs[id_].m_path, *m_renderer);
+		SDL_Texture **texs = new SDL_Texture*[anim.m_frameCount];
+		SDL_Texture **whiteTexs = new SDL_Texture*[anim.m_frameCount];
+		for (int i = 0; i < anim.m_frameCount; ++i)
 		{
-			ver = 2;
-			loadData >> w;
-			loadData >> h;
-			loadData >> prefix;
-		}
-		else
-		{
-			prefix = temp;
-		}
-		loadData >> ibegin >> iend;
-		int amount = iend - ibegin + 1;
-
-		//Load all textures
-		SDL_Texture** texs = new SDL_Texture * [amount];
-		for (int i = ibegin; i <= iend; ++i)
-		{
-			texs[i - ibegin] = m_renderer->loadTexture((m_textureArrs[id_].m_path + "/" + prefix + std::to_string(i) + ".png").c_str());
+			texs[i] = m_renderer->createTextureFromSurface(anim.m_surfaces[i]);
+			whiteTexs[i] = m_renderer->createTextureFromSurface(anim.m_whiteSurfaces[i]);
 		}
 
-		int totalDuration = 0;
-		loadData >> totalDuration;
 		std::vector<int> framesData;
-		for (int i = 0; i < totalDuration; ++i)
+		for (int i = 0; i < anim.m_duration; ++i)
 		{
-			int temp;
-			loadData >> temp;
-			framesData.push_back(temp);
+			framesData.push_back(anim.m_framesData[i]);
 		}
 
 		//Create TextureArray with loaded textures
-		if (ver == 2)
-		{
-			std::shared_ptr<TextureArr> reqElem(new TextureArr(texs, amount, totalDuration, framesData, w, h));
-			m_textureArrs[id_].m_texArr = reqElem;
-			return reqElem;
-		}
-		else
-		{
-			std::shared_ptr<TextureArr> reqElem(new TextureArr(texs, amount, totalDuration, framesData));
-			m_textureArrs[id_].m_texArr = reqElem;
-			return reqElem;
-		}
+		std::shared_ptr<TextureArr> reqElem(new TextureArr(texs, whiteTexs, anim.m_frameCount, anim.m_duration, framesData, anim.m_width, anim.m_height, anim.m_origin));
+		m_textureArrs[id_].m_texArr = reqElem;
+		return reqElem;
 	}
 	else
 	{
@@ -150,33 +132,6 @@ Animation::Animation(AnimationManager &animationManager_, int id_, LOOPMETHOD is
 	m_textures = animationManager_.getTextureArr(id_);
 }
 
-void Animation::generateWhite(Renderer &renderer_)
-{
-	if (m_whiteTextures.get() != nullptr)
-		return;
-
-	SDL_Texture** texs = new SDL_Texture *[m_textures->amount];
-
-	auto blendmode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_MAXIMUM, SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ZERO, SDL_BLENDOPERATION_ADD);
-	for (int i = 0; i < m_textures->amount; ++i)
-	{
-		SDL_Texture *regtex = m_textures->tex[i];
-
-		texs[i] = renderer_.createTexture(m_textures->w, m_textures->h);
-
-		renderer_.setRenderTarget(texs[i]);
-        renderer_.fillRenderer({255, 255, 255, 0});
-
-        SDL_SetTextureBlendMode(regtex, blendmode);
-        renderer_.renderTexture(regtex, 0, 0, m_textures->w, m_textures->h);
-        SDL_SetTextureBlendMode(regtex, SDL_BLENDMODE_BLEND);
-        SDL_SetTextureBlendMode(texs[i], SDL_BLENDMODE_BLEND);
-	}
-
-	m_whiteTextures = std::make_unique<TextureArr>(texs, m_textures->amount, m_textures->totalDuration, m_textures->framesData);
-	renderer_.setRenderTarget(nullptr);
-}
-
 void Animation::update()
 {
 	if (isFinished())
@@ -195,13 +150,10 @@ SDL_Texture* Animation::getSprite()
 
 SDL_Texture* Animation::getWhiteSprite()
 {
-	if (m_whiteTextures.get() == nullptr)
-		return nullptr;
-
 	if (m_currentFrame == -1)
 		m_currentFrame = 0;
 		
-	return (*m_whiteTextures)[m_currentFrame];
+	return m_textures->getWhite(m_currentFrame);
 }
 
 bool Animation::isFinished()
@@ -260,6 +212,11 @@ Vector2<float> Animation::getSize()
 	return {(float)m_textures->w, (float)m_textures->h};
 }
 
+Vector2<float> Animation::getOrigin()
+{
+    return m_textures->m_origin;
+}
+
 int Animation::getDirection() const
 {
 	return m_direction;
@@ -268,7 +225,6 @@ int Animation::getDirection() const
 Animation::Animation(Animation &&anim_)
 {
 	m_textures = std::move(anim_.m_textures);
-	m_whiteTextures = std::move(anim_.m_whiteTextures);
 	m_currentFrame = anim_.m_currentFrame;
 	m_direction = anim_.m_direction;
 	m_isLoop = anim_.m_isLoop;
@@ -277,7 +233,6 @@ Animation::Animation(Animation &&anim_)
 Animation &Animation::operator=(Animation &&anim_)
 {
 	m_textures = std::move(anim_.m_textures);
-	m_whiteTextures = std::move(anim_.m_whiteTextures);
 	m_currentFrame = anim_.m_currentFrame;
 	m_direction = anim_.m_direction;
 	m_isLoop = anim_.m_isLoop;

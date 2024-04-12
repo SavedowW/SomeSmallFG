@@ -8,6 +8,7 @@ find_package(SDL2 REQUIRED)
 find_package(SDL2_IMAGE REQUIRED)
 find_package(SDL2_ttf REQUIRED)
 find_package(SDL2_mixer REQUIRED)
+find_package(lz4 REQUIRED)
 
 set(SRC_FILES 
 main.cpp
@@ -48,6 +49,7 @@ SDL2::SDL2
 SDL2_image::SDL2_image
 sdl_ttf::sdl_ttf
 ${SDL2_MIXER_LIBRARIES}
+LZ4::lz4_static
 )
 
 message(${LINK_LIBRARIES})

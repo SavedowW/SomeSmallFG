@@ -236,7 +236,7 @@ void InteractableStateMachine::draw(Renderer &renderer_, Camera &camera_)
     if (m_currentAnimation != nullptr)
     {
         auto texSize = m_currentAnimation->getSize();
-        auto texPos = m_pos - Vector2{texSize.x / 2, texSize.y};
+        auto texPos = m_pos - m_currentAnimation->getOrigin();
         SDL_RendererFlip flip = SDL_FLIP_NONE;
         if (m_ownOrientation == ORIENTATION::LEFT)
             flip = SDL_FLIP_HORIZONTAL;

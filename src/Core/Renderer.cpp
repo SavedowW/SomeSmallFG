@@ -42,12 +42,12 @@ Renderer::Renderer(Renderer &&rhs)
 
 SDL_Texture* Renderer::createTexture(int w_, int h_)
 {
-	return SDL_CreateTexture(m_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, w_, h_);
+	return SDL_CreateTexture(m_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, w_, h_);
 }
 
 SDL_Texture* Renderer::createTexture(const Vector2<int>& size_)
 {
-	return SDL_CreateTexture(m_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, size_.x, size_.y);
+	return SDL_CreateTexture(m_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, size_.x, size_.y);
 }
 
 SDL_Texture* Renderer::loadTexture(const char* file_)

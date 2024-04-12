@@ -1,6 +1,5 @@
 #ifndef CHARACTER_H_
 #define CHARACTER_H_
-#define DEBUG_
 
 #include <queue>
 #include "Level.h"
