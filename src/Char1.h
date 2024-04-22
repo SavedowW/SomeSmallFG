@@ -35,6 +35,8 @@ enum class CHAR1_STATE {
     MOVE_A,
     MOVE_B,
     MOVE_C,
+    MOVE_S_STARTUP,
+    MOVE_S_CHARGE,
     MOVE_STEP_C,
     MOVE_236C,
     MOVE_2B,

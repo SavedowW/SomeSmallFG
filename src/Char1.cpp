@@ -228,6 +228,45 @@ void Char1::provideActions(Application &application_)
         TimelineProperty<Vector2<float>>({0.0f, 0.0f}) // Raw inr
     )->setOutdatedTransition((int)CHAR1_STATE::IDLE)->setOutdatedMovementData({0.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f})));
 
+    // 5S startup
+    m_actionResolver.addAction(std::unique_ptr<Action>((new ActionCharacter((int)CHAR1_STATE::MOVE_S_STARTUP, std::make_unique<InputComparatorSPress>(),
+    {
+        {
+            TimelineProperty(true),
+            gamedata::characters::char1::standingHurtbox
+        }
+    }, animmgmgt.getAnimID("Char1/MoveSStartup"), TimelineProperty(true), TimelineProperty(true), TimelineProperty(false),
+    StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::SOFT_LANDING_RECOVERY, (int)CHAR1_STATE::GROUND_DASH, (int)CHAR1_STATE::GROUND_DASH_RECOVERY, (int)CHAR1_STATE::WALK_BWD,
+    (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::STEP_RECOVERY, (int)CHAR1_STATE::IDLE}),
+    false, false, false, false, false, false, false, false))->setSwitchData(
+        false, 20, true, true, true, false, false, {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}
+    )->setOutdatedTransition((int)CHAR1_STATE::MOVE_S_CHARGE)->setOutdatedMovementData({0.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f})->setUpdateMovementData(
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}), // Vel mul
+        TimelineProperty<Vector2<float>>({1.0f, 1.0f}), // Inr mul
+        TimelineProperty<Vector2<float>>(
+            {
+                {1, {-4.0f, 0.0f}},
+                {3, {-8.0f, 0.0f}},
+                {7, {-10.0f, 0}},
+                {14, {-4.0f, 0.0f}},
+                {17, {-2, 0}}
+            }),  // Dir vel mul
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}),  // Dir inr mul
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}), // Raw vel
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}) // Raw inr
+    )));
+
+    // 5S startup
+    m_actionResolver.addAction(std::unique_ptr<Action>((new Action_prolonged((int)CHAR1_STATE::MOVE_S_CHARGE, std::make_unique<InputComparatorIdle>(), std::make_unique<InputComparatorSHold>(),
+    {
+        {
+            TimelineProperty(true),
+            gamedata::characters::char1::standingHurtbox
+        }
+    }, animmgmgt.getAnimID("Char1/MoveSCharge"), TimelineProperty(true), TimelineProperty(true), TimelineProperty(false),
+    StateMarker(gamedata::characters::totalStateCount, {}),
+    false, 0, 0, false, false, false))));
+
     // 5A
     m_actionResolver.addAction(std::unique_ptr<Action>((new Action_attack((int)CHAR1_STATE::MOVE_A, std::make_unique<InputComparatorAPress>(), 16,
     {
@@ -495,6 +534,8 @@ void Char1::loadAnimations(Application &application_)
     m_animations[animmgmgt.getAnimID("Char1/ThrowTech")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/ThrowTech"), LOOPMETHOD::NOLOOP);
     m_animations[animmgmgt.getAnimID("Char1/ThrowWhiff")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/ThrowWhiff"), LOOPMETHOD::NOLOOP);
     m_animations[animmgmgt.getAnimID("Char1/MoveProjectileCharAnim")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/MoveProjectileCharAnim"), LOOPMETHOD::NOLOOP);
+    m_animations[animmgmgt.getAnimID("Char1/MoveSStartup")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/MoveSStartup"), LOOPMETHOD::NOLOOP);
+    m_animations[animmgmgt.getAnimID("Char1/MoveSCharge")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/MoveSCharge"), LOOPMETHOD::JUMP_LOOP);
 
     /*
     CHAR1_NORMAL_THROW_STARTUP,

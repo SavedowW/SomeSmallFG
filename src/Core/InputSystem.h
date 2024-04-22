@@ -73,7 +73,7 @@ private:
 		{SDLK_l, EVENTS::C_P1},
 		{SDLK_c, EVENTS::C_P2},
 		{SDLK_k, EVENTS::S_P1},
-		{SDLK_v, EVENTS::S_P1},
+		{SDLK_v, EVENTS::S_P2},
 		{SDLK_MINUS, EVENTS::FN1},
 		{SDLK_EQUALS, EVENTS::FN2},
 		{SDLK_0, EVENTS::FN3}

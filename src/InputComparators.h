@@ -115,6 +115,18 @@ public:
     bool operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_, int extendBuffer_) const final;
 };
 
+class InputComparatorSPress : public InputComparator
+{
+public:
+    bool operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_, int extendBuffer_) const final;
+};
+
+class InputComparatorSHold : public InputComparator
+{
+public:
+    bool operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_, int extendBuffer_) const final;
+};
+
 class InputComparator2CPress : public InputComparator
 {
 public:
