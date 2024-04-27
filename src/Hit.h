@@ -106,6 +106,7 @@ namespace hitgeneration
     std::pair<FrameWindow, Hit> generate_char1_jab(int animIdHit_, int animIdBlock_);
     std::pair<FrameWindow, Hit> generate_char1_moveB(int animIdHit_, int animIdBlock_);
     std::pair<FrameWindow, Hit> generate_char1_moveC(int animIdHit_, int animIdBlock_);
+    std::pair<FrameWindow, Hit> generate_char1_moveS(int animIdHit_, int animIdBlock_);
     std::pair<FrameWindow, Hit> generate_char1_moveStepC(int animIdHit_, int animIdBlock_);
     std::pair<FrameWindow, Hit> generate_char1_move2B(int animIdHit_, int animIdBlock_);
     std::pair<FrameWindow, Hit> generate_char1_move4A(int animIdHit_, int animIdBlock_);

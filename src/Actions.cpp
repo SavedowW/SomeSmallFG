@@ -607,7 +607,7 @@ void Action_float::switchTo(InteractableStateMachine &character_)
 // IDLE ACTION
 Action_char1_idle::Action_char1_idle(int animId_) :
     ActionCharacter((int)CHAR1_STATE::IDLE, std::make_unique<InputComparatorIdle>(), {{TimelineProperty(true), gamedata::characters::char1::standingHurtbox}}, animId_, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true),
-    StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::WALK_BWD, (int)CHAR1_STATE::MOVE_S_CHARGE}),
+    StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::CROUCH, (int)CHAR1_STATE::WALK_FWD, (int)CHAR1_STATE::WALK_BWD}),
     false, false, false,
     0, 0, false, false, false)
 {

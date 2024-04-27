@@ -245,18 +245,21 @@ void Char1::provideActions(Application &application_)
         TimelineProperty<Vector2<float>>({1.0f, 1.0f}), // Inr mul
         TimelineProperty<Vector2<float>>(
             {
-                {1, {-4.0f, 0.0f}},
-                {3, {-8.0f, 0.0f}},
-                {7, {-10.0f, 0}},
-                {14, {-4.0f, 0.0f}},
-                {17, {-2, 0}}
+                {1, {-25.0f, 0.0f}},
+                {3, {-24.0f, 0.0f}},
+                {5, {-22.0f, 0.0f}},
+                {7, {-20.0f, 0}},
+                {10, {-15.0f, 0.0f}},
+                {13, {-10.0f, 0.0f}},
+                {15, {-7.0f, 0.0f}},
+                {17, {-3, 0}}
             }),  // Dir vel mul
         TimelineProperty<Vector2<float>>({0.0f, 0.0f}),  // Dir inr mul
         TimelineProperty<Vector2<float>>({0.0f, 0.0f}), // Raw vel
         TimelineProperty<Vector2<float>>({0.0f, 0.0f}) // Raw inr
     )));
 
-    // 5S startup
+    // 5S charge
     m_actionResolver.addAction(std::unique_ptr<Action>((new Action_prolonged((int)CHAR1_STATE::MOVE_S_CHARGE, std::make_unique<InputComparatorIdle>(), std::make_unique<InputComparatorSHold>(),
     {
         {
@@ -266,6 +269,45 @@ void Char1::provideActions(Application &application_)
     }, animmgmgt.getAnimID("Char1/MoveSCharge"), TimelineProperty(true), TimelineProperty(true), TimelineProperty(false),
     StateMarker(gamedata::characters::totalStateCount, {}),
     false, 0, 0, false, false, false))));
+
+    // 5S attack
+    m_actionResolver.addAction(std::unique_ptr<Action>((new Action_attack((int)CHAR1_STATE::MOVE_S_ATTACK, std::make_unique<InputComparatorIdle>(), 30,
+    {
+        hitgeneration::generate_char1_moveS(animmgmgt.getAnimID("Particles/Hit1"), animmgmgt.getAnimID("Particles/Block"))
+    },
+    {
+        {
+            TimelineProperty(true),
+            gamedata::characters::char1::standingHurtbox
+        },
+        {
+            TimelineProperty<bool>({{8, true}, {12, false}}),
+            {70.0f, -330.0f, 170.0f, 60.0f}
+        },
+        {
+            TimelineProperty<bool>({{12, true}, {31, false}}),
+            {70.0f, -330.0f, 170.0f, 160.0f}
+        }
+    }, animmgmgt.getAnimID("Char1/MoveSAttack"), TimelineProperty(true),
+    StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::MOVE_S_CHARGE}),
+    false, false))->setUpdateMovementData(
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}), // Vel mul
+        TimelineProperty<Vector2<float>>(
+            {
+                {1, {1.0f, 1.0f}},
+                {15, {0.9f, 0.9f}},
+                {29, {1.0f, 1.0f}}
+            }), // Inr mul
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}),  // Dir vel mul
+        TimelineProperty<Vector2<float>>(
+            {
+                {1, {10.0f, 0.0f}},
+                {2, {30.0f, 0.0f}},
+                {3, {0.0f, 0.0f}}
+            }),  // Dir inr mul
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}), // Raw vel
+        TimelineProperty<Vector2<float>>({0.0f, 0.0f}) // Raw inr
+    )->setOutdatedTransition((int)CHAR1_STATE::IDLE)->setOutdatedMovementData({0.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f})));
 
     // 5A
     m_actionResolver.addAction(std::unique_ptr<Action>((new Action_attack((int)CHAR1_STATE::MOVE_A, std::make_unique<InputComparatorAPress>(), 16,
@@ -536,6 +578,7 @@ void Char1::loadAnimations(Application &application_)
     m_animations[animmgmgt.getAnimID("Char1/MoveProjectileCharAnim")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/MoveProjectileCharAnim"), LOOPMETHOD::NOLOOP);
     m_animations[animmgmgt.getAnimID("Char1/MoveSStartup")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/MoveSStartup"), LOOPMETHOD::NOLOOP);
     m_animations[animmgmgt.getAnimID("Char1/MoveSCharge")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/MoveSCharge"), LOOPMETHOD::JUMP_LOOP);
+    m_animations[animmgmgt.getAnimID("Char1/MoveSAttack")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/MoveSAttack"), LOOPMETHOD::NOLOOP);
 
     /*
     CHAR1_NORMAL_THROW_STARTUP,

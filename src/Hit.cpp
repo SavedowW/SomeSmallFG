@@ -100,11 +100,11 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_jab(int animIdHit_, in
 
     hit.cancelsOnHit.first.first = 1;
     hit.cancelsOnHit.first.second = 8;
-    hit.cancelsOnHit.second = {(int)CHAR1_STATE::PREJUMP, (int)CHAR1_STATE::MOVE_A, (int)CHAR1_STATE::MOVE_B, (int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_2B, (int)CHAR1_STATE::MOVE_4A, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::PROJECTILE_CHAR, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
+    hit.cancelsOnHit.second = {(int)CHAR1_STATE::PREJUMP, (int)CHAR1_STATE::MOVE_A, (int)CHAR1_STATE::MOVE_B, (int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_S_STARTUP, (int)CHAR1_STATE::MOVE_2B, (int)CHAR1_STATE::MOVE_4A, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::PROJECTILE_CHAR, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
 
     hit.cancelsOnBlock.first.first = 1;
     hit.cancelsOnBlock.first.second = 8;
-    hit.cancelsOnBlock.second = {(int)CHAR1_STATE::MOVE_A, (int)CHAR1_STATE::MOVE_B, (int)CHAR1_STATE::MOVE_2B, (int)CHAR1_STATE::MOVE_4A, (int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::PROJECTILE_CHAR, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
+    hit.cancelsOnBlock.second = {(int)CHAR1_STATE::MOVE_A, (int)CHAR1_STATE::MOVE_B, (int)CHAR1_STATE::MOVE_2B, (int)CHAR1_STATE::MOVE_4A, (int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_S_STARTUP, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::PROJECTILE_CHAR, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
 
     return {{5, 7}, hit};
 }
@@ -151,11 +151,11 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveB(int animIdHit_, 
 
     hit.cancelsOnHit.first.first = 1;
     hit.cancelsOnHit.first.second = 8;
-    hit.cancelsOnHit.second = {(int)CHAR1_STATE::PREJUMP, (int)CHAR1_STATE::MOVE_2B, (int)CHAR1_STATE::MOVE_4A, (int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::PROJECTILE_CHAR, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
+    hit.cancelsOnHit.second = {(int)CHAR1_STATE::PREJUMP, (int)CHAR1_STATE::MOVE_2B, (int)CHAR1_STATE::MOVE_4A, (int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_S_STARTUP, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::PROJECTILE_CHAR, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
 
     hit.cancelsOnBlock.first.first = 1;
     hit.cancelsOnBlock.first.second = 8;
-    hit.cancelsOnBlock.second = {(int)CHAR1_STATE::MOVE_2B, (int)CHAR1_STATE::MOVE_4A, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::PROJECTILE_CHAR, (int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::STEP};
+    hit.cancelsOnBlock.second = {(int)CHAR1_STATE::MOVE_2B, (int)CHAR1_STATE::MOVE_4A, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::PROJECTILE_CHAR, (int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_S_STARTUP, (int)CHAR1_STATE::STEP};
 
     return {{7, 10}, hit};
 }
@@ -203,13 +203,72 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveC(int animIdHit_, 
 
     hit.cancelsOnHit.first.first = 1;
     hit.cancelsOnHit.first.second = 10;
-    hit.cancelsOnHit.second = {(int)CHAR1_STATE::PREJUMP, (int)CHAR1_STATE::MOVE_4A, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::PROJECTILE_CHAR, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
+    hit.cancelsOnHit.second = {(int)CHAR1_STATE::PREJUMP, (int)CHAR1_STATE::MOVE_S_STARTUP, (int)CHAR1_STATE::MOVE_4A, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::PROJECTILE_CHAR, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
 
     hit.cancelsOnBlock.first.first = 1;
     hit.cancelsOnBlock.first.second = 10;
-    hit.cancelsOnBlock.second = {(int)CHAR1_STATE::MOVE_4A, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::PROJECTILE_CHAR, (int)CHAR1_STATE::STEP};
+    hit.cancelsOnBlock.second = {(int)CHAR1_STATE::MOVE_4A, (int)CHAR1_STATE::MOVE_S_STARTUP, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::PROJECTILE_CHAR, (int)CHAR1_STATE::STEP};
 
     return {{11, 16}, hit};
+}
+
+std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveS(int animIdHit_, int animIdBlock_)
+{
+    HitData hdata;
+
+    ParticlesSpawnData pdatatemp;
+
+    pdatatemp.m_animation = animIdBlock_;
+    pdatatemp.m_scale = 0.8f;
+    pdatatemp.m_minLifeTime = pdatatemp.m_maxLifeTime = 10;
+    hdata.particlesOnBlock.push_back(pdatatemp);
+
+    pdatatemp.m_animation = animIdHit_;
+    pdatatemp.m_minLifeTime = pdatatemp.m_maxLifeTime = 10;
+    hdata.particlesOnHit.push_back(pdatatemp);
+    hdata.particlesOnCH.push_back(pdatatemp);
+
+    hdata.opponentPushbackOnBlock = 100.0f;
+
+    hdata.hitProps.hitstop = 13;
+    hdata.hitProps.wallBounce = true;
+    hdata.hitProps.wallbounceInertiaMultiplierX = 1.0f;
+    hdata.hitProps.wallbounceInertiaMultiplierY = 0.5f;
+    hdata.hitProps.hitstun = 28;
+    hdata.hitProps.proratio = 1.0f;
+    hdata.hitProps.opponentImpulseOnHit = {120.0f, 0.0f};
+    hdata.hitProps.opponentImpulseOnAirHit = {20.0f, -15.0f};
+    hdata.hitProps.groundHitstunAnimation = HITSTUN_ANIMATION::MID;
+    hdata.hitProps.airHitstunAnimation = HITSTUN_ANIMATION::FLOAT;
+
+    hdata.chProps = hdata.hitProps;
+    hdata.chProps.hitstun += 4;
+    hdata.chProps.hitstop += 5;
+    hdata.chProps.groundBounce = true;
+    hdata.chProps.opponentImpulseOnHit = {15.0f, 10.0f};
+    hdata.chProps.groundBounceStrength = 25.0f;
+
+    hdata.canBeBlockedAs = {BLOCK_STATE::HIGH, BLOCK_STATE::LOW, BLOCK_STATE::AIR, BLOCK_STATE::AUTO};
+
+    hdata.blockstun = 16;
+    hdata.chipDamage = 0.0f;
+
+    hdata.hitBlockShakeAmp = 40;
+
+    hdata.damage = 50.0f / hdata.hitProps.proratio;
+
+    Hit hit(hdata, {{{8, 13}, {90.0f, -350.0f, 150.0f, 100.0f}},
+                    {{12, 13}, {120.0f, -250.0f, 120.0f, 100.0f}}});
+
+    hit.cancelsOnHit.first.first = 1;
+    hit.cancelsOnHit.first.second = 10;
+    hit.cancelsOnHit.second = {(int)CHAR1_STATE::PREJUMP, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::PROJECTILE_CHAR, (int)CHAR1_STATE::STEP};
+
+    hit.cancelsOnBlock.first.first = 1;
+    hit.cancelsOnBlock.first.second = 10;
+    hit.cancelsOnBlock.second = {(int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::PROJECTILE_CHAR, (int)CHAR1_STATE::STEP};
+
+    return {{8, 14}, hit};
 }
 
 std::pair<FrameWindow, Hit> hitgeneration::generate_char1_moveStepC(int animIdHit_, int animIdBlock_)
@@ -306,11 +365,11 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_move2B(int animIdHit_,
 
     hit.cancelsOnHit.first.first = 1;
     hit.cancelsOnHit.first.second = 15;
-    hit.cancelsOnHit.second = {(int)CHAR1_STATE::PREJUMP, (int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_4A, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::PROJECTILE_CHAR, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
+    hit.cancelsOnHit.second = {(int)CHAR1_STATE::PREJUMP, (int)CHAR1_STATE::MOVE_S_STARTUP, (int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_4A, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::PROJECTILE_CHAR, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
 
     hit.cancelsOnBlock.first.first = 1;
     hit.cancelsOnBlock.first.second = 15;
-    hit.cancelsOnBlock.second = {(int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_4A, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::PROJECTILE_CHAR, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
+    hit.cancelsOnBlock.second = {(int)CHAR1_STATE::MOVE_C, (int)CHAR1_STATE::MOVE_S_STARTUP, (int)CHAR1_STATE::MOVE_4A, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::MOVE_236C, (int)CHAR1_STATE::PROJECTILE_CHAR, (int)CHAR1_STATE::MOVE_214C, (int)CHAR1_STATE::STEP};
 
     return {{10, 12}, hit};
 }
