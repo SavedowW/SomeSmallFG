@@ -20,6 +20,7 @@ public:
     void unsubscribe_all();
     void receiveInput(EVENTS event_, const float scale_) override;
     Action *getAction(int state_) const;
+    InputQueue &getInputQueue();
 
     Vector2<int> getCurrentInputDir() const;
     INPUT_BUTTON_STATE getPostFrameButtonState(INPUT_BUTTON button_) const;

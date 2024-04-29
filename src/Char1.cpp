@@ -42,6 +42,30 @@ void Char1::provideActions(Application &application_)
     m_actionResolver.addAction(std::make_unique<Action_char1_move_214C>(animmgmgt.getAnimID("Char1/Move214C"), animmgmgt.getAnimID("Particles/Hit2_Slowed"), animmgmgt.getAnimID("Particles/Block")));
     m_actionResolver.addAction(std::make_unique<Action_char1_move_projectile>(animmgmgt.getAnimID("Char1/MoveProjectileCharAnim")));
 
+    // j.B
+    m_actionResolver.addAction(std::unique_ptr<Action>((new Action_attack((int)CHAR1_STATE::MOVE_JB, std::make_unique<InputComparatorBPress>(), 34,
+    {
+        hitgeneration::generate_char1_JB(animmgmgt.getAnimID("Particles/Hit1"), animmgmgt.getAnimID("Particles/Block"))
+    },
+    {
+        {
+            TimelineProperty<bool>({{1, true}, {35, false}}),
+            {-70, -400, 140, 300}
+        },
+        {
+            TimelineProperty<bool>({{8, true}, {25, false}}),
+            {50.0f, -330.0f, 275.0f, 90.0f}
+        },
+        {
+            TimelineProperty<bool>({{8, true}, {25, false}}),
+            {-160.0f, -380.0f, 100.0f, 150.0f}
+        }
+    }, animmgmgt.getAnimID("Char1/MoveJB"), TimelineProperty(true),
+    StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::AIR_DASH_EXTENTION, (int)CHAR1_STATE::JUMP}), false, true))->setSwitchData(false, 34, false, true, true, false, false, {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f})->setOutdatedTransition((int)CHAR1_STATE::FLOAT)));
+
+    m_actionResolver.addAction(std::make_unique<Action_char1_move_214C>(animmgmgt.getAnimID("Char1/Move214C"), animmgmgt.getAnimID("Particles/Hit2_Slowed"), animmgmgt.getAnimID("Particles/Block")));
+    m_actionResolver.addAction(std::make_unique<Action_char1_move_projectile>(animmgmgt.getAnimID("Char1/MoveProjectileCharAnim")));
+
     //4A
     m_actionResolver.addAction(std::unique_ptr<Action>((new Action_attack((int)CHAR1_STATE::MOVE_4A, std::make_unique<InputComparator4APress>(), 24,
     {
@@ -352,7 +376,7 @@ void Char1::provideActions(Application &application_)
             TimelineProperty(true),
             {-70, -350, 140, 300}
         }
-    }, animmgmgt.getAnimID("Char1/Jump")))->setAnimResetData(20, 1)));
+    }, animmgmgt.getAnimID("Char1/Jump"), 0.2f, 0.22f, 0.34f, 12.0f))->setAnimResetData(20, 1)));
 
 
     m_actionResolver.addAction(std::unique_ptr<Action>((new ActionCharacter( (int)CHAR1_STATE::HITSTUN_HIGH, std::make_unique<InputComparatorIdle>(), {
@@ -553,6 +577,7 @@ void Char1::loadAnimations(Application &application_)
     m_animations[animmgmgt.getAnimID("Char1/Move2B")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/Move2B"), LOOPMETHOD::NOLOOP);
     m_animations[animmgmgt.getAnimID("Char1/Move4A")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/Move4A"), LOOPMETHOD::NOLOOP);
     m_animations[animmgmgt.getAnimID("Char1/MoveJA")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/MoveJA"), LOOPMETHOD::NOLOOP);
+    m_animations[animmgmgt.getAnimID("Char1/MoveJB")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/MoveJB"), LOOPMETHOD::NOLOOP);
     m_animations[animmgmgt.getAnimID("Char1/MoveJC")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/MoveJC"), LOOPMETHOD::NOLOOP);
     m_animations[animmgmgt.getAnimID("Char1/Move214C")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/Move214C"), LOOPMETHOD::NOLOOP);
     m_animations[animmgmgt.getAnimID("Char1/Move236C")] = std::make_unique<Animation>(animmgmgt, animmgmgt.getAnimID("Char1/Move236C"), LOOPMETHOD::NOLOOP);

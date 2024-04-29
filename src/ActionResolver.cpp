@@ -144,6 +144,11 @@ Action *ActionResolver::getAction(int state_) const
     return nullptr;
 }
 
+InputQueue &ActionResolver::getInputQueue()
+{
+    return m_inputQueue;
+}
+
 INPUT_BUTTON_STATE ActionResolver::getPostFrameButtonState(INPUT_BUTTON button_) const
 {
     //return m_currentInput.inputs.at(button_);

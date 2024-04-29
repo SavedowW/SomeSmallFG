@@ -62,24 +62,25 @@
  * Aerial breakaway and fatal counter
  * * This game has no airtech, but aerial breakaway is a kind of combo breaker. If the character tries to guess if the next attack
  * * will be "from above" or "from below" and guesses correctly, he enters fully invulnerable state, escapes the combo and potentially punishes it.
- * * If he guesses wrong, he takes a "fatal counter" that has different properties and resets gravity scaling
+ * * If he guesses wrong, he takes a "fatal counter" that has different properties and higher damage
  * Blockstun scaling [DONE]
  * * When character begins to block, his internal 20-frame timer should begin to go. At frame 0 he takes 2x blockstun and
  * * from frame 19 he takes 1x blockstun. There should be a widget in the HUD that displays this scaling. The scaling only works
  * * when the character in the blockstun or holds block and is able to block. For example, if you press back, block and attack,
  * * release block and press it back before blockstun (with auto-block) ends, the timer does not stop, but if you start blocking
  * * during knockdown recovery, the timer begins to move only once you are fully recovered
- * instant block, IB reversals, failed block, block counter [DONE IB, IB cancels except IB reversals]
+ * instant block, IB reversals, block counter [DONE IB, IB cancels except IB reversals]
  * * Once you press and hold any block, you enter instant block state. IB window is 7 frames. After it, there is
  * * 3 frames of failed block state. These states are completely independent from character's actual state. For example,
  * * if you press back 2 frames before recovery from knd, you have only 5 IB frames and 3 FB frames. IB forces you to take
- * * only 1x blockstun no matter how would blockstun scaling work normally and can be cancelled into step, jumps, airdash
- * * and character-specific IB reversals
- * * FB forces increased blockstun. There is no auto-block during FB, and the first hit you take in this state causes block counter
- * * Block counter is similar to regular counter hits, but is better
+ * * only 1x blockstun no matter how would blockstun scaling work normally and can be cancelled into step, airdash,
+ * * character-specific IB reversals and universal command backdash / pushblock
  * FEAR gauge
  * * Guard gauge, scales chip damage
- * 
+ * * 50% of fear on opponent is required for supers to get evasion and superflash
+ * Air tilt [DONE]
+ * * By holding any direction while floating in the air (outside of blockstun, attacks, etc), you can add inertia
+ * * in that direction. That allows jumping higher, falling faster, adjusting horizontal speed, etc
  * 
  * Particles [DONE]
  * sounds

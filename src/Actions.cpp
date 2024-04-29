@@ -250,10 +250,11 @@ void Action_jump::switchTo(InteractableStateMachine &character_)
 
 
 // ABSTRACT AIR JUMP ACTION
-Action_airjump::Action_airjump(int actionState_, const Vector2<float> &impulse_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, int anim_, StateMarker transitionableFrom_) :
+Action_airjump::Action_airjump(int actionState_, const Vector2<float> &impulse_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, int anim_, StateMarker transitionableFrom_, int floatState_) :
     ActionCharacter(actionState_, std::move(incmp_), std::move(hurtboxes_), anim_, TimelineProperty(false), TimelineProperty(true), std::move(true), std::move(transitionableFrom_), false, false, false,
     0, 1, false, true, true),
-    m_impulse(impulse_)
+    m_impulse(impulse_),
+    m_floatState(floatState_)
 {
     setSwitchData(true, 0, false, true, false, false, false, {0.0f, 0.0f}, {1.0f, 0.0f}, {impulse_.x, 0.0f}, {0.0f, 0.0f}, {0.0f, impulse_.y}, {0.0f, 0.0f});
 }
@@ -288,6 +289,14 @@ int Action_airjump::isPossible(const InputQueue &inputQueue_, InteractableStateM
         return (isInputPossible(inputQueue_, char_->getOrientationToEnemy(), extendBuffer_) ? 1 : 0);
 
     return 0;
+}
+
+void Action_airjump::update(InteractableStateMachine &character_)
+{
+    ActionCharacter::update(character_);
+    character_.switchTo(m_floatState);
+    character_.m_currentAnimation = character_.m_animations[m_anim].get();
+    character_.m_currentAnimation->reset(m_animResetFrame, m_animResetDirection);
 }
 
 // ABSTRACT ATTACK ACTION
@@ -583,10 +592,14 @@ void Action_locked_animation::outdated(InteractableStateMachine &character_)
 
 
 // FLOAT ACTION
-Action_float::Action_float(int actionState_, int realState_, HurtboxFramesVec &&hurtboxes_, int anim_) :
+Action_float::Action_float(int actionState_, int realState_, HurtboxFramesVec &&hurtboxes_, int anim_, float horizontalTiltDelta_, float upTiltDelta_, float downTiltDelta_, float horizontalTiltInertiaLimit_) :
     ActionCharacter(actionState_, std::move(std::make_unique<InputComparatorUpHold>()), std::move(hurtboxes_), anim_, TimelineProperty(false), TimelineProperty(true), TimelineProperty(true), StateMarker(gamedata::characters::totalStateCount, {}), false, false, false,
     0, 0, false, false, true),
-    m_realState(realState_)
+    m_realState(realState_),
+    m_horizontalTiltDelta(horizontalTiltDelta_),
+    m_upTiltDelta(upTiltDelta_),
+    m_downTiltDelta(downTiltDelta_),
+    m_horizontalTiltInertiaLimit(horizontalTiltInertiaLimit_)
 {
 }
 
@@ -596,7 +609,22 @@ void Action_float::switchTo(InteractableStateMachine &character_)
     character_.m_currentState = m_realState;
 }
 
+void Action_float::update(InteractableStateMachine &character_)
+{
+    ActionCharacter::update(character_);
 
+    auto dir = character_.m_actionResolver.getCurrentInputDir();
+   
+    if (dir.x > 0 && abs(character_.m_inertia.x + m_horizontalTiltDelta) <= m_horizontalTiltInertiaLimit)
+        character_.m_inertia.x += m_horizontalTiltDelta;
+    else if (dir.x < 0 && abs(character_.m_inertia.x - m_horizontalTiltDelta) <= m_horizontalTiltInertiaLimit)
+        character_.m_inertia.x -= m_horizontalTiltDelta;
+
+    if (dir.y > 0)
+        character_.m_inertia.y += m_downTiltDelta;
+    else if (dir.y < 0)
+        character_.m_inertia.y -= m_upTiltDelta;
+}
 
 /* ============================
  *
@@ -739,7 +767,7 @@ Action_char1_neutral_doublejump::Action_char1_neutral_doublejump(int animId_) :
             {-70, -350, 140, 300}
         }
     }, animId_,
-    StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::AIR_DASH_EXTENTION, (int)CHAR1_STATE::JUMP}))
+    StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::AIR_DASH_EXTENTION, (int)CHAR1_STATE::JUMP}), (int)CHAR1_STATE::FLOAT)
 {
 }
 
@@ -751,7 +779,7 @@ Action_char1_forward_doublejump::Action_char1_forward_doublejump(int animId_) :
             {-70, -350, 140, 300}
         }
     }, animId_,
-    StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::AIR_DASH_EXTENTION, (int)CHAR1_STATE::JUMP}))
+    StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::AIR_DASH_EXTENTION, (int)CHAR1_STATE::JUMP}), (int)CHAR1_STATE::FLOAT)
 {
 }
 
@@ -763,7 +791,7 @@ Action_char1_backward_doublejump::Action_char1_backward_doublejump(int animId_) 
             {-70, -350, 140, 300}
         }
     }, animId_,
-    StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::AIR_DASH_EXTENTION, (int)CHAR1_STATE::JUMP}))
+    StateMarker(gamedata::characters::totalStateCount, {(int)CHAR1_STATE::AIR_DASH_EXTENTION, (int)CHAR1_STATE::JUMP}), (int)CHAR1_STATE::FLOAT)
 {
 }
 
@@ -852,7 +880,7 @@ Action_char1_ground_backdash::Action_char1_ground_backdash(int animId_) :
     0, 0, false, false, false),
     m_totalDuration(gamedata::characters::char1::backdashDuration)
 {
-    setSwitchData(false, m_totalDuration, true, false, false, false, false, {1.0f, 1.0f}, {0.0f, 0.0f}, {-gamedata::characters::char1::backdashSpd, 0.0f}, {0.0f, 0.0f}, {0.0f, -14.0f}, {0.0f, 0.0f});
+    setSwitchData(true, m_totalDuration, true, false, false, false, false, {1.0f, 1.0f}, {0.0f, 0.0f}, {-gamedata::characters::char1::backdashSpd, 0.0f}, {0.0f, 0.0f}, {0.0f, -14.0f}, {0.0f, 0.0f});
     setOutdatedTransition((int)CHAR1_STATE::IDLE);
     setLandingMovementData({0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, -0.0f}, {0.0f, 0.0f});
     setLandingRecoveryState(-2);

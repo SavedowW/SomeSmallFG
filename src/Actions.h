@@ -260,10 +260,14 @@ private:
 class Action_airjump : public ActionCharacter
 {
 public:
-    Action_airjump(int actionState_, const Vector2<float> &impulse_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, int anim_, StateMarker transitionableFrom_);
+    Action_airjump(int actionState_, const Vector2<float> &impulse_, InputComparator_ptr incmp_, HurtboxFramesVec &&hurtboxes_, int anim_, StateMarker transitionableFrom_, int floatState_);
     virtual int responseOnOwnState(const InputQueue &inputQueue_, ORIENTATION ownDirection_, int extendBuffer_) const override;
     virtual int isPossible(const InputQueue &inputQueue_, InteractableStateMachine *char_, int extendBuffer_) const;
+    virtual void update(InteractableStateMachine &character_) override;
     const Vector2<float> m_impulse;
+
+private:
+    int m_floatState;
 };
 
 
@@ -412,11 +416,17 @@ protected:
 class Action_float : public ActionCharacter
 {
 public:
-    Action_float(int actionState_, int realState_, HurtboxFramesVec &&hurtboxes_, int anim_);
+    Action_float(int actionState_, int realState_, HurtboxFramesVec &&hurtboxes_, int anim_, float horizontalTiltDelta_, float upTiltDelta_, float downTiltDelta_, float horizontalTiltInertiaLimit_);
     virtual void switchTo(InteractableStateMachine &character_) override;
+    virtual void update(InteractableStateMachine &character_) override;
 
 protected:
     int m_realState;
+    float m_horizontalTiltDelta;
+    float m_upTiltDelta;
+    float m_downTiltDelta;
+
+    float m_horizontalTiltInertiaLimit;
 };
 
 

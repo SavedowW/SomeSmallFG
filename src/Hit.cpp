@@ -470,13 +470,66 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_JA(int animIdHit_, int
 
     hit.cancelsOnHit.first.first = 1;
     hit.cancelsOnHit.first.second = 9;
-    hit.cancelsOnHit.second = {(int)CHAR1_STATE::JUMP, (int)CHAR1_STATE::MOVE_JA, (int)CHAR1_STATE::MOVE_JC, (int)CHAR1_STATE::AIR_DASH};
+    hit.cancelsOnHit.second = {(int)CHAR1_STATE::JUMP, (int)CHAR1_STATE::MOVE_JA, (int)CHAR1_STATE::MOVE_JB, (int)CHAR1_STATE::MOVE_JC, (int)CHAR1_STATE::AIR_DASH};
 
     hit.cancelsOnBlock.first.first = 1;
     hit.cancelsOnBlock.first.second = 9;
-    hit.cancelsOnBlock.second = {(int)CHAR1_STATE::JUMP, (int)CHAR1_STATE::MOVE_JA, (int)CHAR1_STATE::MOVE_JC, (int)CHAR1_STATE::AIR_DASH};
+    hit.cancelsOnBlock.second = {(int)CHAR1_STATE::JUMP, (int)CHAR1_STATE::MOVE_JA, (int)CHAR1_STATE::MOVE_JB, (int)CHAR1_STATE::MOVE_JC, (int)CHAR1_STATE::AIR_DASH};
 
     return {{6, 8}, hit};
+}
+
+std::pair<FrameWindow, Hit> hitgeneration::generate_char1_JB(int animIdHit_, int animIdBlock_)
+{
+    HitData hdata;
+
+    ParticlesSpawnData pdatatemp;
+
+    pdatatemp.m_animation = animIdBlock_;
+    pdatatemp.m_scale = 0.8f;
+    pdatatemp.m_angle = 45.0f;
+    pdatatemp.m_minLifeTime = pdatatemp.m_maxLifeTime = 10;
+    hdata.particlesOnBlock.push_back(pdatatemp);
+
+    pdatatemp.m_animation = animIdHit_;
+    pdatatemp.m_angle = 0.0f;
+    pdatatemp.m_minLifeTime = pdatatemp.m_maxLifeTime = 10;
+    hdata.particlesOnHit.push_back(pdatatemp);
+    hdata.particlesOnCH.push_back(pdatatemp);
+
+    hdata.opponentPushbackOnBlock = 110.0f;
+
+    hdata.hitProps.hitstop = 11;
+    hdata.hitProps.hitstun = 15;
+    hdata.hitProps.proratio = 0.8f;
+    hdata.hitProps.opponentImpulseOnHit = {90.0f, 0.0f};
+    hdata.hitProps.opponentImpulseOnAirHit = {13.0f, -20.0f};
+    hdata.hitProps.groundHitstunAnimation = HITSTUN_ANIMATION::HIGH;
+    hdata.hitProps.airHitstunAnimation = HITSTUN_ANIMATION::FLOAT;
+
+    hdata.chProps = hdata.hitProps;
+    hdata.chProps.hitstun += 3;
+    hdata.chProps.hitstop += 4;
+
+    hdata.canBeBlockedAs = {BLOCK_STATE::HIGH, BLOCK_STATE::AIR};
+
+    hdata.blockstun = 13;
+
+    hdata.hitBlockShakeAmp = 20;
+
+    hdata.damage = 20.0f / hdata.hitProps.proratio;
+
+    Hit hit(hdata, {{{8, 13}, {50.0f, -300.0f, 200.0f, 60.0f}}, {{8, 13}, {200.0f, -330.0f, 160.0f, 60.0f}}, {{8, 13}, {0.0f, -200.0f, 100.0f, 80.0f}}});
+
+    hit.cancelsOnHit.first.first = 1;
+    hit.cancelsOnHit.first.second = 9;
+    hit.cancelsOnHit.second = {(int)CHAR1_STATE::JUMP, (int)CHAR1_STATE::MOVE_JC, (int)CHAR1_STATE::AIR_DASH};
+
+    hit.cancelsOnBlock.first.first = 1;
+    hit.cancelsOnBlock.first.second = 9;
+    hit.cancelsOnBlock.second = {(int)CHAR1_STATE::JUMP, (int)CHAR1_STATE::MOVE_JC, (int)CHAR1_STATE::AIR_DASH};
+
+    return {{8, 13}, hit};
 }
 
 std::pair<FrameWindow, Hit> hitgeneration::generate_char1_JC(int animIdHit_, int animIdBlock_)
@@ -506,7 +559,7 @@ std::pair<FrameWindow, Hit> hitgeneration::generate_char1_JC(int animIdHit_, int
     hdata.hitProps.groundHitstunAnimation = HITSTUN_ANIMATION::HIGH;
     hdata.hitProps.airHitstunAnimation = HITSTUN_ANIMATION::FLOAT;
     hdata.hitProps.wallBounce = true;
-    hdata.hitProps.wallbounceInertiaMultiplierX = 1.0f;
+    hdata.hitProps.wallbounceInertiaMultiplierX = 0.75f;
     hdata.hitProps.wallbounceInertiaMultiplierY = 0.5f;
 
     hdata.chProps = hdata.hitProps;

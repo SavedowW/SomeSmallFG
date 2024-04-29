@@ -201,10 +201,19 @@ void Character::draw(Renderer &renderer_, Camera &camera_)
     if (m_currentAnimation != nullptr)
     {
         auto texSize = m_currentAnimation->getSize();
-        auto texPos = m_pos - m_currentAnimation->getOrigin();
+        auto animorigin = m_currentAnimation->getOrigin();
+        auto texPos = m_pos;
+        texPos.y -= animorigin.y;
         SDL_RendererFlip flip = SDL_FLIP_NONE;
         if (m_ownOrientation == ORIENTATION::LEFT)
+        {
             flip = SDL_FLIP_HORIZONTAL;
+            texPos.x -= (texSize.x - animorigin.x);
+        }
+        else
+        {
+            texPos.x -= animorigin.x;
+        }
 
         float xoffset = 0;
 
@@ -215,8 +224,8 @@ void Character::draw(Renderer &renderer_, Camera &camera_)
 
         auto spr = m_currentAnimation->getSprite();
         bool shining = m_shineLockedTimer.isActive() || m_shineAlphaTimer.isActive();
-
         auto sprsize = m_currentAnimation->getSize();
+
         renderer_.renderTexture(spr, texPos.x + xoffset, texPos.y, sprsize.x , sprsize.y, camera_, 0.0f, flip);
         if (shining)
         {

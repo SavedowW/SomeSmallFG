@@ -43,6 +43,7 @@ enum class CHAR1_STATE {
     MOVE_2B,
     MOVE_4A,
     MOVE_JA,
+    MOVE_JB,
     MOVE_JC,
     MOVE_JC_LANDING_RECOVERY,
     MOVE_214C,
