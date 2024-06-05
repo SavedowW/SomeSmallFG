@@ -270,13 +270,10 @@ void Char1::provideActions(Application &application_)
         TimelineProperty<Vector2<float>>(
             {
                 {1, {-25.0f, 0.0f}},
-                {3, {-24.0f, 0.0f}},
-                {5, {-22.0f, 0.0f}},
-                {7, {-20.0f, 0}},
-                {10, {-15.0f, 0.0f}},
-                {13, {-10.0f, 0.0f}},
-                {15, {-7.0f, 0.0f}},
-                {17, {-3, 0}}
+                {8, {-30.0f, 0}},
+                {11, {-15.0f, 0.0f}},
+                {13, {-8.0f, 0.0f}},
+                {16, {0.0f, 0.0f}}
             }),  // Dir vel mul
         TimelineProperty<Vector2<float>>({0.0f, 0.0f}),  // Dir inr mul
         TimelineProperty<Vector2<float>>({0.0f, 0.0f}), // Raw vel
