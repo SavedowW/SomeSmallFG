@@ -27,6 +27,6 @@ void Background::draw(Renderer &renderer_, Camera &camera_)
 
         auto pos = minPos + range.mulComponents(camPosNormalized);
         //std::cout << "Rendering texture at " << pos << std::endl;
-        renderer_.renderTexture(el.texture->getSprite(), pos.x, pos.y, el.texture->w / camera_.getScale(), el.texture->h / camera_.getScale());
+        renderer_.renderTexture(el.texture->getSprite(), pos.x, pos.y, el.texture->m_w / camera_.getScale(), el.texture->m_h / camera_.getScale());
     }
 }

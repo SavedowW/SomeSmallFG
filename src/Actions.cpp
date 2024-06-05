@@ -576,7 +576,7 @@ void Action_locked_animation::update(InteractableStateMachine &character_)
         ev.m_hittingPlayerId = character_.m_playerId;
         character_.m_otherCharacter->applyHit(ev);
         character_.applyHit(ev);
-        character_.m_cam->startShake(ev.m_hitData.hitBlockShakeAmp, ev.m_hitData.hitProps.hitstop + 1);
+        character_.m_cam->startShake(ev.m_hitData.m_hitBlockShakeAmp, ev.m_hitData.m_hitProps.hitstop + 1);
     }
 }
 

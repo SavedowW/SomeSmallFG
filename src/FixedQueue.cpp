@@ -3,28 +3,28 @@
 
 
 template <typename T, int len>
-const T& FixedQueue<T, len>::operator[](int rhs) const
+const T& FixedQueue<T, len>::operator[](int rhs_) const
 {
-    if (rhs >= filled)
+    if (rhs_ >= m_filled)
         throw std::runtime_error("Trying to access non-existing element");
 
-    int lastFilled = nextToFill-1;
+    int lastFilled = m_nextToFill-1;
     if (lastFilled < 0)
         lastFilled = len - 1;
 
-    int id = nextToFill - 1 - rhs;
+    int id = m_nextToFill - 1 - rhs_;
     if (id < 0)
         id = len + id;
 
-    return data[id];
+    return m_data[id];
 }
 
 template <typename T, int len>
-void FixedQueue<T, len>::push(const T &val)
+void FixedQueue<T, len>::push(const T &val_)
 {
-    data[nextToFill] = val;
-    nextToFill = (nextToFill + 1) % len;
-    filled = std::min(filled + 1, len);
+    m_data[m_nextToFill] = val_;
+    m_nextToFill = (m_nextToFill + 1) % len;
+    m_filled = std::min(m_filled + 1, len);
 }
 
 template <typename T, int len>
@@ -36,7 +36,7 @@ constexpr int FixedQueue<T, len>::getLen() const
 template <typename T, int len>
 int FixedQueue<T, len>::getFilled() const
 {
-    return filled;
+    return m_filled;
 }
 
 template FixedQueue<InputState, 30>;

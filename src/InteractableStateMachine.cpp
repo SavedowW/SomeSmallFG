@@ -135,11 +135,11 @@ void InteractableStateMachine::generateHitParticles(HitEvent &ev_, const Vector2
     hordir.y = 1;
     const std::vector<ParticlesSpawnData> *pdata;
     if (ev_.m_hitRes == HIT_RESULT::COUNTER)
-        pdata = &ev_.m_hitData.particlesOnCH;
+        pdata = &ev_.m_hitData.m_particlesOnCH;
     else if (ev_.m_hitRes == HIT_RESULT::HIT || ev_.m_hitRes == HIT_RESULT::THROWN)
-        pdata = &ev_.m_hitData.particlesOnHit;
+        pdata = &ev_.m_hitData.m_particlesOnHit;
     else
-        pdata = &ev_.m_hitData.particlesOnBlock;
+        pdata = &ev_.m_hitData.m_particlesOnBlock;
 
     for (const auto &el : *pdata)
     {
@@ -173,8 +173,8 @@ CharacterUpdateRes InteractableStateMachine::update()
         m_extendedBuffer = 0;
 
     CharacterUpdateRes res;
-    res.moveOffset = m_pos - initPos;
-    res.newPos = m_pos;
+    res.m_moveOffset = m_pos - initPos;
+    res.m_newPos = m_pos;
     return res;
 }
 

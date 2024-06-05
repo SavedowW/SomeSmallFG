@@ -14,14 +14,14 @@ namespace fonts
 
     struct Symbol
     {
-        SDL_Texture *tex = nullptr;
-        int minx, maxx, miny, maxy, advance;
-        int w, h;
+        SDL_Texture *m_tex = nullptr;
+        int m_minx, m_maxx, m_miny, m_maxy, m_advance;
+        int m_w, m_h;
         Symbol() = default;
-        Symbol& operator=(Symbol &rhs) = delete;
-        Symbol(Symbol &rhs) = delete;
-        Symbol& operator=(Symbol &&rhs);
-        Symbol(Symbol &&rhs);
+        Symbol& operator=(Symbol &rhs_) = delete;
+        Symbol(Symbol &rhs_) = delete;
+        Symbol& operator=(Symbol &&rhs_);
+        Symbol(Symbol &&rhs_);
         ~Symbol();
     };
 
@@ -29,8 +29,8 @@ namespace fonts
     {
     public:
         template<typename Func, typename... Args>
-        Font(Func generateSymbols, Args&&... args);
-        const Symbol &operator[](char ch);
+        Font(Func generateSymbols_, Args&&... args_);
+        const Symbol &operator[](char ch_);
 
     private:
         std::array<Symbol, 256> m_symbols;

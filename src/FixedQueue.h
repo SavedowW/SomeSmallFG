@@ -10,29 +10,29 @@ class FixedQueue
 public:
     FixedQueue() {};
 
-    const T& operator[](int rhs) const;
+    const T& operator[](int rhs_) const;
 
-    void push(const T &val);
+    void push(const T &val_);
 
     constexpr int getLen() const;
 
     int getFilled() const;
 
 private:
-    T data[len];
-    int nextToFill = 0;
-    int filled = 0;
+    T m_data[len];
+    int m_nextToFill = 0;
+    int m_filled = 0;
 
 };
 
 namespace utils
 {
     template <typename T, int len>
-    void printQueue(const FixedQueue<T, len> &q, char separator = ' ')
+    void printQueue(const FixedQueue<T, len> &q_, char separator_ = ' ')
     {
-        for (int i = 0; i < q.getFilled(); ++i)
+        for (int i = 0; i < q_.getFilled(); ++i)
         {
-            std::cout << q[i] << separator;
+            std::cout << q_[i] << separator_;
         }
         std::cout << "\n";
     }

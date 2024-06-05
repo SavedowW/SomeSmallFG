@@ -84,12 +84,12 @@ HIT_RESULT Projectile::applyHit(HitEvent &hitEvent_)
 
         callForPriority();
 
-        applyHitstop(hitEvent_.m_hitData.hitProps.hitstop - 2);
+        applyHitstop(hitEvent_.m_hitData.m_hitProps.hitstop - 2);
             
         if (hitEvent_.m_hitRes == HIT_RESULT::HIT || hitEvent_.m_hitRes == HIT_RESULT::COUNTER)
-            applyCancelWindow(hitEvent_.m_hitData.cancelsOnHit);
+            applyCancelWindow(hitEvent_.m_hitData.m_cancelsOnHit);
         else
-            applyCancelWindow(hitEvent_.m_hitData.cancelsOnBlock);
+            applyCancelWindow(hitEvent_.m_hitData.m_cancelsOnBlock);
 
 
         return HIT_RESULT::NONE;

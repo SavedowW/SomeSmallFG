@@ -21,7 +21,7 @@ struct BackgroundSegment
 
     const Vector2<float> getMaxPosition(const Vector2<float> &camSize, const float camScale) const
     {
-        auto realTexSize = Vector2{float(texture->w), float(texture->h)} / camScale;
+        auto realTexSize = Vector2{float(texture->m_w), float(texture->m_h)} / camScale;
         return (camSize - realTexSize);
     }
 };

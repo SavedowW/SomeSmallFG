@@ -8,7 +8,7 @@ bool recursivelySearchInput(const InputQueue &inputQueue_, Vector2<VecT> (&input
     for (int i = start_; i < lastToLook; ++i)
     {
         auto &inp = inputQueue_[i];
-        if (inp.dir == inputs_[toSearch_])
+        if (inp.m_dir == inputs_[toSearch_])
         {
             if (toSearch_ == len - 1)
                 return true;
@@ -32,11 +32,11 @@ bool InputComparatorForward::operator()(const InputQueue &inputQueue_, ORIENTATI
     switch (faceDirection_)
     {
         case (ORIENTATION::RIGHT):
-            return (inputQueue_[0].dir == Vector2{1.0f, 0.0f});
+            return (inputQueue_[0].m_dir == Vector2{1.0f, 0.0f});
             break;
 
         case (ORIENTATION::LEFT):
-            return (inputQueue_[0].dir == Vector2{-1.0f, 0.0f});
+            return (inputQueue_[0].m_dir == Vector2{-1.0f, 0.0f});
             break;
     }
 
@@ -51,11 +51,11 @@ bool InputComparatorBackward::operator()(const InputQueue &inputQueue_, ORIENTAT
     switch (faceDirection_)
     {
         case (ORIENTATION::RIGHT):
-            return (inputQueue_[0].dir == Vector2{-1.0f, 0.0f});
+            return (inputQueue_[0].m_dir == Vector2{-1.0f, 0.0f});
             break;
 
         case (ORIENTATION::LEFT):
-            return (inputQueue_[0].dir == Vector2{1.0f, 0.0f});
+            return (inputQueue_[0].m_dir == Vector2{1.0f, 0.0f});
             break;
     }
 
@@ -71,7 +71,7 @@ bool InputComparatorUpPress::operator()(const InputQueue &inputQueue_, ORIENTATI
     for (int i = 0; i <= lookAt; ++i)
     {
         auto &in = inputQueue_[i];
-        bool valid = in.dir == Vector2{0.0f, -1.0f} && in.inputs.at(INPUT_BUTTON::UP) == INPUT_BUTTON_STATE::PRESSED;
+        bool valid = in.m_dir == Vector2{0.0f, -1.0f} && in.m_inputs.at(INPUT_BUTTON::UP) == INPUT_BUTTON_STATE::PRESSED;
         if (valid)
             return true;
     }
@@ -86,7 +86,7 @@ bool InputComparatorUpHold::operator()(const InputQueue &inputQueue_, ORIENTATIO
     if (inputQueue_.getFilled() == 0)
         return false;
 
-    return (inputQueue_[0].dir == Vector2{0.0f, -1.0f});
+    return (inputQueue_[0].m_dir == Vector2{0.0f, -1.0f});
 }
 
 bool InputComparatorUpForwardPress::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_, int extendBuffer_) const
@@ -103,11 +103,11 @@ bool InputComparatorUpForwardPress::operator()(const InputQueue &inputQueue_, OR
         switch (faceDirection_)
         {
             case (ORIENTATION::RIGHT):
-                valid = (in.dir == Vector2{1.0f, -1.0f} && in.inputs.at(INPUT_BUTTON::UP) == INPUT_BUTTON_STATE::PRESSED);
+                valid = (in.m_dir == Vector2{1.0f, -1.0f} && in.m_inputs.at(INPUT_BUTTON::UP) == INPUT_BUTTON_STATE::PRESSED);
                 break;
 
             case (ORIENTATION::LEFT):
-                valid = (in.dir == Vector2{-1.0f, -1.0f} && in.inputs.at(INPUT_BUTTON::UP) == INPUT_BUTTON_STATE::PRESSED);
+                valid = (in.m_dir == Vector2{-1.0f, -1.0f} && in.m_inputs.at(INPUT_BUTTON::UP) == INPUT_BUTTON_STATE::PRESSED);
                 break;
         }
 
@@ -128,11 +128,11 @@ bool InputComparatorUpForwardHold::operator()(const InputQueue &inputQueue_, ORI
     switch (faceDirection_)
     {
         case (ORIENTATION::RIGHT):
-            return (lastInput.dir == Vector2{1.0f, -1.0f});
+            return (lastInput.m_dir == Vector2{1.0f, -1.0f});
             break;
 
         case (ORIENTATION::LEFT):
-            return (lastInput.dir == Vector2{-1.0f, -1.0f});
+            return (lastInput.m_dir == Vector2{-1.0f, -1.0f});
             break;
     }
 
@@ -153,11 +153,11 @@ bool InputComparatorUpBackwardPress::operator()(const InputQueue &inputQueue_, O
         switch (faceDirection_)
         {
             case (ORIENTATION::RIGHT):
-                valid = (in.dir == Vector2{-1.0f, -1.0f} && in.inputs.at(INPUT_BUTTON::UP) == INPUT_BUTTON_STATE::PRESSED);
+                valid = (in.m_dir == Vector2{-1.0f, -1.0f} && in.m_inputs.at(INPUT_BUTTON::UP) == INPUT_BUTTON_STATE::PRESSED);
                 break;
 
             case (ORIENTATION::LEFT):
-                valid = (in.dir == Vector2{1.0f, -1.0f} && in.inputs.at(INPUT_BUTTON::UP) == INPUT_BUTTON_STATE::PRESSED);
+                valid = (in.m_dir == Vector2{1.0f, -1.0f} && in.m_inputs.at(INPUT_BUTTON::UP) == INPUT_BUTTON_STATE::PRESSED);
                 break;
         }
 
@@ -178,11 +178,11 @@ bool InputComparatorUpBackwardHold::operator()(const InputQueue &inputQueue_, OR
     switch (faceDirection_)
     {
         case (ORIENTATION::RIGHT):
-            return (lastInput.dir == Vector2{-1.0f, -1.0f});
+            return (lastInput.m_dir == Vector2{-1.0f, -1.0f});
             break;
 
         case (ORIENTATION::LEFT):
-            return (lastInput.dir == Vector2{1.0f, -1.0f});
+            return (lastInput.m_dir == Vector2{1.0f, -1.0f});
             break;
     }
 
@@ -196,7 +196,7 @@ bool InputComparatorDownHold::operator()(const InputQueue &inputQueue_, ORIENTAT
 
     auto lastInput = inputQueue_[0];
 
-    return (lastInput.dir.y == 1);
+    return (lastInput.m_dir.y == 1);
 }
 
 bool InputComparator66::operator()(const InputQueue &inputQueue_, ORIENTATION faceDirection_, int extendBuffer_) const
@@ -214,14 +214,14 @@ bool InputComparator66::operator()(const InputQueue &inputQueue_, ORIENTATION fa
     {
         const auto &in = inputQueue_[i];
 
-        if (in.dir == forwardVec && in.inputs.at(forwardButton) == INPUT_BUTTON_STATE::PRESSED)
+        if (in.m_dir == forwardVec && in.m_inputs.at(forwardButton) == INPUT_BUTTON_STATE::PRESSED)
         {
             int lastToParse = std::min(i + 10, inputQueue_.getFilled() - 1);
 
             for (int k = i + 1; k <= lastToParse; ++k)
             {
                 const auto &in2 = inputQueue_[k];
-                if ((in2.dir == forwardVec || in2.dir == upForwardVec) && in2.inputs.at(forwardButton) == INPUT_BUTTON_STATE::PRESSED)
+                if ((in2.m_dir == forwardVec || in2.m_dir == upForwardVec) && in2.m_inputs.at(forwardButton) == INPUT_BUTTON_STATE::PRESSED)
                     return true;
             }
         }
@@ -245,14 +245,14 @@ bool InputComparator44::operator()(const InputQueue &inputQueue_, ORIENTATION fa
     {
         const auto &in = inputQueue_[i];
 
-        if (in.dir == backwardVec && in.inputs.at(backwardButton) == INPUT_BUTTON_STATE::PRESSED)
+        if (in.m_dir == backwardVec && in.m_inputs.at(backwardButton) == INPUT_BUTTON_STATE::PRESSED)
         {
             int lastToParse = std::min(i + 10, inputQueue_.getFilled() - 1);
 
             for (int k = i + 1; k <= lastToParse; ++k)
             {
                 const auto &in2 = inputQueue_[k];
-                if ((in2.dir == backwardVec || in2.dir == upBackwardVec) && in2.inputs.at(backwardButton) == INPUT_BUTTON_STATE::PRESSED)
+                if ((in2.m_dir == backwardVec || in2.m_dir == upBackwardVec) && in2.m_inputs.at(backwardButton) == INPUT_BUTTON_STATE::PRESSED)
                     return true;
             }
         }
@@ -270,7 +270,7 @@ bool InputComparatorAPress::operator()(const InputQueue &inputQueue_, ORIENTATIO
     for (int i = 0; i <= lookAt; ++i)
     {
         auto &in = inputQueue_[i];
-        if (in.inputs.at(INPUT_BUTTON::A) == INPUT_BUTTON_STATE::PRESSED)
+        if (in.m_inputs.at(INPUT_BUTTON::A) == INPUT_BUTTON_STATE::PRESSED)
         {
             return true;
         }
@@ -288,7 +288,7 @@ bool InputComparatorBPress::operator()(const InputQueue &inputQueue_, ORIENTATIO
     for (int i = 0; i <= lookAt; ++i)
     {
         auto &in = inputQueue_[i];
-        if (in.inputs.at(INPUT_BUTTON::B) == INPUT_BUTTON_STATE::PRESSED)
+        if (in.m_inputs.at(INPUT_BUTTON::B) == INPUT_BUTTON_STATE::PRESSED)
         {
             return true;
         }
@@ -306,7 +306,7 @@ bool InputComparatorCPress::operator()(const InputQueue &inputQueue_, ORIENTATIO
     for (int i = 0; i <= lookAt; ++i)
     {
         auto &in = inputQueue_[i];
-        if (in.inputs.at(INPUT_BUTTON::C) == INPUT_BUTTON_STATE::PRESSED)
+        if (in.m_inputs.at(INPUT_BUTTON::C) == INPUT_BUTTON_STATE::PRESSED)
         {
             return true;
         }
@@ -324,7 +324,7 @@ bool InputComparator2BPress::operator()(const InputQueue &inputQueue_, ORIENTATI
     for (int i = 0; i <= lookAt; ++i)
     {
         auto &in = inputQueue_[i];
-        if (in.inputs.at(INPUT_BUTTON::B) == INPUT_BUTTON_STATE::PRESSED && in.dir.y == 1)
+        if (in.m_inputs.at(INPUT_BUTTON::B) == INPUT_BUTTON_STATE::PRESSED && in.m_dir.y == 1)
         {
             return true;
         }
@@ -343,7 +343,7 @@ bool InputComparator4APress::operator()(const InputQueue &inputQueue_, ORIENTATI
     for (int i = 0; i <= lookAt; ++i)
     {
         auto &in = inputQueue_[i];
-        if (in.inputs.at(INPUT_BUTTON::A) == INPUT_BUTTON_STATE::PRESSED && in.dir.x == backdir)
+        if (in.m_inputs.at(INPUT_BUTTON::A) == INPUT_BUTTON_STATE::PRESSED && in.m_dir.x == backdir)
         {
             return true;
         }
@@ -361,7 +361,7 @@ bool InputComparator2CPress::operator()(const InputQueue &inputQueue_, ORIENTATI
     for (int i = 0; i <= lookAt; ++i)
     {
         auto &in = inputQueue_[i];
-        if (in.inputs.at(INPUT_BUTTON::C) == INPUT_BUTTON_STATE::PRESSED && in.dir.y == 1)
+        if (in.m_inputs.at(INPUT_BUTTON::C) == INPUT_BUTTON_STATE::PRESSED && in.m_dir.y == 1)
         {
             return true;
         }
@@ -382,7 +382,7 @@ bool InputComparator214CPress::operator()(const InputQueue &inputQueue_, ORIENTA
     for (int i = 0; i <= lookAt; ++i)
     {
         auto &in = inputQueue_[i];
-        if (in.inputs.at(INPUT_BUTTON::C) == INPUT_BUTTON_STATE::PRESSED)
+        if (in.m_inputs.at(INPUT_BUTTON::C) == INPUT_BUTTON_STATE::PRESSED)
         {
             return recursivelySearchInput(inputQueue_, inputs, i, 0, secondaryInputButtonWindow);
         }
@@ -403,7 +403,7 @@ bool InputComparator236CPress::operator()(const InputQueue &inputQueue_, ORIENTA
     for (int i = 0; i <= lookAt; ++i)
     {
         auto &in = inputQueue_[i];
-        if (in.inputs.at(INPUT_BUTTON::C) == INPUT_BUTTON_STATE::PRESSED)
+        if (in.m_inputs.at(INPUT_BUTTON::C) == INPUT_BUTTON_STATE::PRESSED)
         {
             return recursivelySearchInput(inputQueue_, inputs, i, 0, secondaryInputButtonWindow);
         }
@@ -430,7 +430,7 @@ bool InputComparatorBCPress::operator()(const InputQueue &inputQueue_, ORIENTATI
         if (allPressed)
         {
             for (const auto &btn : buttons)
-                if (in.inputs.at(btn) == INPUT_BUTTON_STATE::PRESSED)
+                if (in.m_inputs.at(btn) == INPUT_BUTTON_STATE::PRESSED)
                     return true;
         }
     }
@@ -451,7 +451,7 @@ bool InputComparator4BCPress::operator()(const InputQueue &inputQueue_, ORIENTAT
         auto &in = inputQueue_[i];
         bool allPressed = true;
 
-        if (in.dir.x == backDir)
+        if (in.m_dir.x == backDir)
         {
             for (const auto &btn : buttons)
                 if (!in.isInputActive(btn))
@@ -460,7 +460,7 @@ bool InputComparator4BCPress::operator()(const InputQueue &inputQueue_, ORIENTAT
             if (allPressed)
             {
                 for (const auto &btn : buttons)
-                    if (in.inputs.at(btn) == INPUT_BUTTON_STATE::PRESSED)
+                    if (in.m_inputs.at(btn) == INPUT_BUTTON_STATE::PRESSED)
                         return true;
             }
         }
@@ -481,7 +481,7 @@ bool InputComparator214APress::operator()(const InputQueue &inputQueue_, ORIENTA
     for (int i = 0; i <= lookAt; ++i)
     {
         auto &in = inputQueue_[i];
-        if (in.inputs.at(INPUT_BUTTON::A) == INPUT_BUTTON_STATE::PRESSED)
+        if (in.m_inputs.at(INPUT_BUTTON::A) == INPUT_BUTTON_STATE::PRESSED)
         {
             return recursivelySearchInput(inputQueue_, inputs, i, 0, secondaryInputButtonWindow);
         }
@@ -499,7 +499,7 @@ bool InputComparatorSPress::operator()(const InputQueue &inputQueue_, ORIENTATIO
     for (int i = 0; i <= lookAt; ++i)
     {
         auto &in = inputQueue_[i];
-        if (in.inputs.at(INPUT_BUTTON::S) == INPUT_BUTTON_STATE::PRESSED)
+        if (in.m_inputs.at(INPUT_BUTTON::S) == INPUT_BUTTON_STATE::PRESSED)
         {
             return true;
         }

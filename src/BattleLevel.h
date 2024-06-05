@@ -186,8 +186,8 @@ protected:
 
         m_projectileManager.update();
 
-        results[0].pushbox = m_characters[0]->getPushbox();
-        results[1].pushbox = m_characters[1]->getPushbox();
+        results[0].m_pushbox = m_characters[0]->getPushbox();
+        results[1].m_pushbox = m_characters[1]->getPushbox();
 
         // Solve pushbox interactions
 
@@ -195,10 +195,10 @@ protected:
         std::array<bool, 2> hitsWall = {false, false};
         for (const auto &i : priorityList)
         {
-            int stageBoundResult = results[i].pushbox.isWithinHorizontalBounds(0.0f, m_size.x);
+            int stageBoundResult = results[i].m_pushbox.isWithinHorizontalBounds(0.0f, m_size.x);
             if (stageBoundResult < 0)
             {
-                auto offset = Vector2<float>{results[i].pushbox.x, 0};
+                auto offset = Vector2<float>{results[i].m_pushbox.x, 0};
                 m_characters[i]->setPos(m_characters[i]->getPos() - offset);
                 float pushback = m_characters[i]->touchedWall(stageBoundResult);
                 hitsWall[i] = true;
@@ -208,7 +208,7 @@ protected:
             }
             else if (stageBoundResult > 0)
             {
-                auto offset = Vector2<float>{results[i].pushbox.x + results[i].pushbox.w - m_size.x, 0};
+                auto offset = Vector2<float>{results[i].m_pushbox.x + results[i].m_pushbox.w - m_size.x, 0};
                 m_characters[i]->setPos(m_characters[i]->getPos() - offset);
                 float pushback = m_characters[i]->touchedWall(stageBoundResult);
                 hitsWall[i] = true;
@@ -229,11 +229,11 @@ protected:
 
             auto horDirToEnemy = m_characters[1]->getPos().x - m_characters[0]->getPos().x;
 
-            if (utils::sameSign(-results[0].moveOffset.x, horDirToEnemy))
-                movement[0] = abs(results[0].moveOffset.x);
+            if (utils::sameSign(-results[0].m_moveOffset.x, horDirToEnemy))
+                movement[0] = abs(results[0].m_moveOffset.x);
 
-            if (utils::sameSign(results[1].moveOffset.x, horDirToEnemy))
-                movement[1] = abs(results[1].moveOffset.x);
+            if (utils::sameSign(results[1].m_moveOffset.x, horDirToEnemy))
+                movement[1] = abs(results[1].m_moveOffset.x);
 
             float totalMovement = movement[0] + movement[1];
             if (totalMovement <= 0)
@@ -253,7 +253,7 @@ protected:
         auto pbres = pb1.getHorizontalOverlap(pb2);
         if (pb1.isCollideWith(pb2) && pbres.overlapWidth != 0 && !m_characters[0]->passableThrough() && !m_characters[1]->passableThrough())
         {
-            float approachSpd = (results[0].moveOffset.x * m_characters[0]->getHorDirToEnemy().x + results[1].moveOffset.x * m_characters[1]->getHorDirToEnemy().x);
+            float approachSpd = (results[0].m_moveOffset.x * m_characters[0]->getHorDirToEnemy().x + results[1].m_moveOffset.x * m_characters[1]->getHorDirToEnemy().x);
             auto maxPushRange = gamedata::stages::maxPushRange;
             if (approachSpd >= (pb1.w + pb2.w) / gamedata::stages::maxPushRangeTreshold)
             {
@@ -266,17 +266,17 @@ protected:
 
             if (dirToP2.x == 0)
             {
-                if (results[0].newPos.y > results[1].newPos.y && results[0].moveOffset.x != 0)
+                if (results[0].m_newPos.y > results[1].m_newPos.y && results[0].m_moveOffset.x != 0)
                 {
-                    auto p1dir = results[0].moveOffset;
+                    auto p1dir = results[0].m_moveOffset;
                     p1dir.y = 0;
                     p1dir = p1dir.normalised();
                     directionToPush[0] = p1dir;
                     directionToPush[1] = p1dir * -1;
                 }
-                else if (results[1].newPos.y > results[0].newPos.y && results[1].moveOffset.x != 0)
+                else if (results[1].m_newPos.y > results[0].m_newPos.y && results[1].m_moveOffset.x != 0)
                 {
-                    auto p2dir = results[1].moveOffset;
+                    auto p2dir = results[1].m_moveOffset;
                     p2dir.y = 0;
                     p2dir = p2dir.normalised();
                     directionToPush[0] = p2dir * -1;
@@ -353,7 +353,7 @@ protected:
         {
             for (auto &hit2 : hits[1])
             {
-                if ((hit1.forcedClash || hit2.forcedClash) && !m_characters[0]->isHitTaken(hit2.m_hitId) && !m_characters[1]->isHitTaken(hit1.m_hitId)) // if any of them is forced
+                if ((hit1.m_forcedClash || hit2.m_forcedClash) && !m_characters[0]->isHitTaken(hit2.m_hitId) && !m_characters[1]->isHitTaken(hit1.m_hitId)) // if any of them is forced
                 {
                     auto res = hitutils::checkCollision(hit1, hit2);
                     if (res.first)
@@ -380,7 +380,7 @@ protected:
                     {
                         for (auto &ptHit: ptHits[i])
                         {
-                            if ((hit1.forcedClash || ptHit.forcedClash) && !m_characters[pid]->isHitTaken(ptHit.m_hitId) && !projectiles[i]->isHitTaken(hit1.m_hitId))
+                            if ((hit1.m_forcedClash || ptHit.m_forcedClash) && !m_characters[pid]->isHitTaken(ptHit.m_hitId) && !projectiles[i]->isHitTaken(hit1.m_hitId))
                             {
                                 auto res = hitutils::checkCollision(hit1, ptHit);
                                 if (res.first)
@@ -415,7 +415,7 @@ protected:
 
                     if (ev.m_hitRes != HIT_RESULT::NONE)
                     {
-                        m_camera.startShake(ev.m_hitData.hitBlockShakeAmp, ev.m_hitData.hitProps.hitstop + 1);
+                        m_camera.startShake(ev.m_hitData.m_hitBlockShakeAmp, ev.m_hitData.m_hitProps.hitstop + 1);
     
                         auto hitpos = res.second;
                         m_hitpos = hitpos - m_hitsize / 2;
@@ -445,7 +445,7 @@ protected:
 
                     if (ev.m_hitRes != HIT_RESULT::NONE)
                     {
-                        m_camera.startShake(ev.m_hitData.hitBlockShakeAmp, ev.m_hitData.hitProps.hitstop + 1);
+                        m_camera.startShake(ev.m_hitData.m_hitBlockShakeAmp, ev.m_hitData.m_hitProps.hitstop + 1);
     
                         auto hitpos = res.second;
                         m_hitpos = hitpos - m_hitsize / 2;

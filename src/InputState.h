@@ -9,7 +9,7 @@ enum class INPUT_BUTTON_STATE {PRESSED, HOLD, RELEASED, OFF};
 
 struct InputState
 {
-    std::map<INPUT_BUTTON, INPUT_BUTTON_STATE> inputs = {
+    std::map<INPUT_BUTTON, INPUT_BUTTON_STATE> m_inputs = {
         {INPUT_BUTTON::A, INPUT_BUTTON_STATE::OFF},
         {INPUT_BUTTON::B, INPUT_BUTTON_STATE::OFF},
         {INPUT_BUTTON::C, INPUT_BUTTON_STATE::OFF},
@@ -19,9 +19,9 @@ struct InputState
         {INPUT_BUTTON::LEFT, INPUT_BUTTON_STATE::OFF},
         {INPUT_BUTTON::RIGHT, INPUT_BUTTON_STATE::OFF}
     };
-    Vector2<int> dir{0, 0};
+    Vector2<int> m_dir{0, 0};
 
-    bool isInputActive(const INPUT_BUTTON &btn) const;
+    bool isInputActive(const INPUT_BUTTON &btn_) const;
 
     void setDirFromButtons();
 
@@ -34,14 +34,14 @@ struct InputState
     InputState &operator=(InputState &&rhs_);
 };
 
-inline std::ostream& operator<< (std::ostream& out, InputState& inState)
+inline std::ostream& operator<< (std::ostream& out_, InputState& inState_)
 {
-    out << "(" << inState.dir << "): ";
+    out_ << "(" << inState_.m_dir << "): ";
     for (auto &el : {INPUT_BUTTON::A, INPUT_BUTTON::B, INPUT_BUTTON::C, INPUT_BUTTON::S, INPUT_BUTTON::UP, INPUT_BUTTON::DOWN, INPUT_BUTTON::LEFT, INPUT_BUTTON::RIGHT})
     {
-        out << static_cast<int>(inState.inputs[el]);
+        out_ << static_cast<int>(inState_.m_inputs[el]);
     }
-    return out;
+    return out_;
 }
 
 #endif

@@ -44,28 +44,28 @@ struct PostHitProperties
 struct HitData
 {
     int m_hitId;
-    int damage = 0;
+    int m_damage = 0;
     
-    bool forcedClash = false;
+    bool m_forcedClash = false;
 
-    float opponentPushbackOnBlock = 0;
+    float m_opponentPushbackOnBlock = 0;
 
-    PostHitProperties hitProps;
-    PostHitProperties chProps;
+    PostHitProperties m_hitProps;
+    PostHitProperties m_chProps;
 
-    int blockstun = 0;
-    float chipDamage = 0;
+    int m_blockstun = 0;
+    float m_chipDamage = 0;
 
-    int hitBlockShakeAmp;
+    int m_hitBlockShakeAmp;
 
-    std::set<BLOCK_STATE> canBeBlockedAs;
+    std::set<BLOCK_STATE> m_canBeBlockedAs;
 
-    CancelWindow cancelsOnHit;
-    CancelWindow cancelsOnBlock;
+    CancelWindow m_cancelsOnHit;
+    CancelWindow m_cancelsOnBlock;
 
-    std::vector<ParticlesSpawnData> particlesOnBlock;
-    std::vector<ParticlesSpawnData> particlesOnHit;
-    std::vector<ParticlesSpawnData> particlesOnCH;
+    std::vector<ParticlesSpawnData> m_particlesOnBlock;
+    std::vector<ParticlesSpawnData> m_particlesOnHit;
+    std::vector<ParticlesSpawnData> m_particlesOnCH;
 
     static int nextHitID;
 
@@ -96,8 +96,8 @@ struct HitEvent
     bool m_isHitByProjectile = false;
     HitData m_hitData;
     HIT_RESULT m_hitRes = HIT_RESULT::NONE;
-    float realDamage;
-    int hitInSequence;
+    float m_realDamage;
+    int m_hitInSequence;
 };
 
 namespace hitgeneration

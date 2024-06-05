@@ -1,45 +1,45 @@
 #include "TextManager.h"
 
-fonts::Symbol& fonts::Symbol::operator=(fonts::Symbol &&rhs)
+fonts::Symbol& fonts::Symbol::operator=(fonts::Symbol &&rhs_)
 {
-    minx = rhs.minx;
-    maxx = rhs.maxx;
-    miny = rhs.miny;
-    maxy = rhs.maxy;
-    advance = rhs.advance;
+    m_minx = rhs_.m_minx;
+    m_maxx = rhs_.m_maxx;
+    m_miny = rhs_.m_miny;
+    m_maxy = rhs_.m_maxy;
+    m_advance = rhs_.m_advance;
     
-    tex = rhs.tex;
-    rhs.tex = nullptr;
+    m_tex = rhs_.m_tex;
+    rhs_.m_tex = nullptr;
 
     return *this;
 }
 
-fonts::Symbol::Symbol(fonts::Symbol &&rhs)
+fonts::Symbol::Symbol(fonts::Symbol &&rhs_)
 {
-    minx = rhs.minx;
-    maxx = rhs.maxx;
-    miny = rhs.miny;
-    maxy = rhs.maxy;
-    advance = rhs.advance;
+    m_minx = rhs_.m_minx;
+    m_maxx = rhs_.m_maxx;
+    m_miny = rhs_.m_miny;
+    m_maxy = rhs_.m_maxy;
+    m_advance = rhs_.m_advance;
     
-    tex = rhs.tex;
-    rhs.tex = nullptr;
+    m_tex = rhs_.m_tex;
+    rhs_.m_tex = nullptr;
 }
 
 fonts::Symbol::~Symbol()
 {
-    SDL_DestroyTexture(tex);
+    SDL_DestroyTexture(m_tex);
 }
 
 template<typename Func, typename... Args>
-fonts::Font::Font(Func generateSymbols, Args&&... args)
+fonts::Font::Font(Func generateSymbols_, Args&&... args_)
 {
-    generateSymbols(m_symbols, std::forward<Args>(args)...);
+    generateSymbols_(m_symbols, std::forward<Args>(args_)...);
 }
 
-const fonts::Symbol &fonts::Font::operator[](const char ch)
+const fonts::Symbol &fonts::Font::operator[](const char ch_)
 {
-    return m_symbols[ch];
+    return m_symbols[ch_];
 }
 
 TextManager::TextManager(Renderer *renderer_, const std::string &basePath_) :
@@ -105,14 +105,14 @@ void TextManager::generateOutlinedTexturedSymbols(std::array<fonts::Symbol, 256>
         SDL_RenderCopy(sdlrenderer, text2, nullptr, nullptr);
         SDL_RenderCopy(sdlrenderer, grad, nullptr, nullptr);
 
-        symbols_[i].tex = renderer_.createTexture(w1, h1);
-        symbols_[i].w = w1;
-        symbols_[i].h = h1;
+        symbols_[i].m_tex = renderer_.createTexture(w1, h1);
+        symbols_[i].m_w = w1;
+        symbols_[i].m_h = h1;
         
-        TTF_GlyphMetrics32(font, Uint32(i), &symbols_[i].minx, &symbols_[i].maxx, &symbols_[i].miny, &symbols_[i].maxy, &symbols_[i].advance);
-        SDL_SetTextureBlendMode(symbols_[i].tex, SDL_BLENDMODE_BLEND);
+        TTF_GlyphMetrics32(font, Uint32(i), &symbols_[i].m_minx, &symbols_[i].m_maxx, &symbols_[i].m_miny, &symbols_[i].m_maxy, &symbols_[i].m_advance);
+        SDL_SetTextureBlendMode(symbols_[i].m_tex, SDL_BLENDMODE_BLEND);
 
-        renderer_.setRenderTarget(symbols_[i].tex);
+        renderer_.setRenderTarget(symbols_[i].m_tex);
         SDL_RenderCopy(sdlrenderer, text1, nullptr, nullptr);
         SDL_RenderCopy(sdlrenderer, coloredTex, nullptr, &dst);
 
@@ -171,13 +171,13 @@ void TextManager::generateOutlinedSymbols(std::array<fonts::Symbol, 256> &symbol
         dst.h = h2;
 
 
-        symbols_[i].tex = renderer_.createTexture(w1, h1);
-        symbols_[i].w = w1;
-        symbols_[i].h = h1;
-        TTF_GlyphMetrics32(font, Uint32(i), &symbols_[i].minx, &symbols_[i].maxx, &symbols_[i].miny, &symbols_[i].maxy, &symbols_[i].advance);
-        SDL_SetTextureBlendMode(symbols_[i].tex, SDL_BLENDMODE_BLEND);
+        symbols_[i].m_tex = renderer_.createTexture(w1, h1);
+        symbols_[i].m_w = w1;
+        symbols_[i].m_h = h1;
+        TTF_GlyphMetrics32(font, Uint32(i), &symbols_[i].m_minx, &symbols_[i].m_maxx, &symbols_[i].m_miny, &symbols_[i].m_maxy, &symbols_[i].m_advance);
+        SDL_SetTextureBlendMode(symbols_[i].m_tex, SDL_BLENDMODE_BLEND);
 
-        renderer_.setRenderTarget(symbols_[i].tex);
+        renderer_.setRenderTarget(symbols_[i].m_tex);
         SDL_RenderCopy(sdlrenderer, text1, nullptr, nullptr);
         SDL_RenderCopy(sdlrenderer, text2, nullptr, &dst);
 
@@ -209,10 +209,10 @@ void TextManager::generateSimpleSymbols(std::array<fonts::Symbol, 256> &symbols_
         auto *text = SDL_CreateTextureFromSurface(sdlrenderer, surf);
         SDL_FreeSurface(surf);
 
-        symbols_[i].tex = text;
-        SDL_QueryTexture(text, nullptr, nullptr, &symbols_[i].w, &symbols_[i].h);
-        TTF_GlyphMetrics32(font, Uint32(i), &symbols_[i].minx, &symbols_[i].maxx, &symbols_[i].miny, &symbols_[i].maxy, &symbols_[i].advance);
-        SDL_SetTextureBlendMode(symbols_[i].tex, SDL_BLENDMODE_BLEND);
+        symbols_[i].m_tex = text;
+        SDL_QueryTexture(text, nullptr, nullptr, &symbols_[i].m_w, &symbols_[i].m_h);
+        TTF_GlyphMetrics32(font, Uint32(i), &symbols_[i].m_minx, &symbols_[i].m_maxx, &symbols_[i].m_miny, &symbols_[i].m_maxy, &symbols_[i].m_advance);
+        SDL_SetTextureBlendMode(symbols_[i].m_tex, SDL_BLENDMODE_BLEND);
     }
 
     TTF_CloseFont(font);
@@ -222,11 +222,11 @@ void TextManager::renderText(const std::string &text, int fontid, Vector2<float>
 {
     if (horAlign_ != fonts::HOR_ALIGN::LEFT)
     {
-        float len = m_fonts[fontid][text[0]].minx;
+        float len = m_fonts[fontid][text[0]].m_minx;
         for (auto &ch : text)
         {
             auto &sym = m_fonts[fontid][ch];
-            len += sym.advance;
+            len += sym.m_advance;
         }
 
         if (horAlign_ == fonts::HOR_ALIGN::CENTER)
@@ -239,11 +239,11 @@ void TextManager::renderText(const std::string &text, int fontid, Vector2<float>
         }
     }
 
-    pos.x += m_fonts[fontid][text[0]].minx;
+    pos.x += m_fonts[fontid][text[0]].m_minx;
     for (auto &ch : text)
     {
         auto &sym = m_fonts[fontid][ch];
-        m_renderer->renderTexture(sym.tex, pos.x, pos.y + sym.miny, sym.w, sym.h);
-        pos.x += sym.advance;
+        m_renderer->renderTexture(sym.m_tex, pos.x, pos.y + sym.m_miny, sym.m_w, sym.m_h);
+        pos.x += sym.m_advance;
     }
 }

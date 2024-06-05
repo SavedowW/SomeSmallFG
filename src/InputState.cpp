@@ -1,24 +1,24 @@
 #include "InputState.h"
 
-bool InputState::isInputActive(const INPUT_BUTTON &btn) const
+bool InputState::isInputActive(const INPUT_BUTTON &btn_) const
 {
-    return (inputs.at(btn) == INPUT_BUTTON_STATE::PRESSED || inputs.at(btn) == INPUT_BUTTON_STATE::HOLD);
+    return (m_inputs.at(btn_) == INPUT_BUTTON_STATE::PRESSED || m_inputs.at(btn_) == INPUT_BUTTON_STATE::HOLD);
 }
 
 void InputState::setDirFromButtons()
 {
-    dir = Vector2{0.0f, 0.0f};
-    dir.x += (isInputActive(INPUT_BUTTON::RIGHT) ? 1 : 0);
-    dir.x -= (isInputActive(INPUT_BUTTON::LEFT) ? 1 : 0);
+    m_dir = Vector2{0.0f, 0.0f};
+    m_dir.x += (isInputActive(INPUT_BUTTON::RIGHT) ? 1 : 0);
+    m_dir.x -= (isInputActive(INPUT_BUTTON::LEFT) ? 1 : 0);
 
-    dir.y += (isInputActive(INPUT_BUTTON::DOWN) ? 1 : 0);
-    dir.y -= (isInputActive(INPUT_BUTTON::UP) ? 1 : 0);
+    m_dir.y += (isInputActive(INPUT_BUTTON::DOWN) ? 1 : 0);
+    m_dir.y -= (isInputActive(INPUT_BUTTON::UP) ? 1 : 0);
 }
 
 InputState InputState::getNextFrameState() const
 {
     InputState newState(*this);
-    for (auto &el : newState.inputs)
+    for (auto &el : newState.m_inputs)
     {
         if (el.second == INPUT_BUTTON_STATE::PRESSED)
             el.second = INPUT_BUTTON_STATE::HOLD;
@@ -31,26 +31,26 @@ InputState InputState::getNextFrameState() const
 
 InputState::InputState(const InputState &inputState_)
 {
-    dir = inputState_.dir;
-    inputs = inputState_.inputs;
+    m_dir = inputState_.m_dir;
+    m_inputs = inputState_.m_inputs;
 }
 
 InputState &InputState::operator=(const InputState &rhs_)
 {
-    dir = rhs_.dir;
-    inputs = rhs_.inputs;
+    m_dir = rhs_.m_dir;
+    m_inputs = rhs_.m_inputs;
     return *this;
 }
 
 InputState::InputState(InputState &&inputState_)
 {
-    dir = inputState_.dir;
-    inputs = std::forward<std::map<INPUT_BUTTON, INPUT_BUTTON_STATE>>(inputState_.inputs);
+    m_dir = inputState_.m_dir;
+    m_inputs = std::forward<std::map<INPUT_BUTTON, INPUT_BUTTON_STATE>>(inputState_.m_inputs);
 }
 
 InputState &InputState::operator=(InputState &&rhs_)
 {
-    dir = rhs_.dir;
-    inputs = std::forward<std::map<INPUT_BUTTON, INPUT_BUTTON_STATE>>(rhs_.inputs);
+    m_dir = rhs_.m_dir;
+    m_inputs = std::forward<std::map<INPUT_BUTTON, INPUT_BUTTON_STATE>>(rhs_.m_inputs);
     return *this;
 }

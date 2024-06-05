@@ -6,8 +6,6 @@
 #include "Application.h"
 #include "TimelineProperty.h"
 
-#include "RecipeParser.h"
-
 int main(int argc, char* args[])
 {    
     Application app;

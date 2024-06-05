@@ -10,37 +10,37 @@ struct TextureArr
 {
 	//Makes sure textures actually exist
 	TextureArr(SDL_Texture** tex_, SDL_Texture** whiteTex_, int amount_, int totalDuration_, const std::vector<int> &framesData_, const Vector2<float> &origin_) :
-		tex(tex_), whiteTex(whiteTex_), amount(amount_), totalDuration(totalDuration_), framesData(framesData_), m_origin(origin_)
+		m_tex(tex_), m_whiteTex(whiteTex_), m_amount(amount_), m_totalDuration(totalDuration_), m_framesData(framesData_), m_origin(origin_)
 	{
 		//assert(t_tex);
 
 		//Sizes are based on first sprite
-		SDL_QueryTexture(tex[0], NULL, NULL, &w, &h);
+		SDL_QueryTexture(m_tex[0], NULL, NULL, &m_w, &m_h);
 	}
 
 	TextureArr(SDL_Texture** tex_, SDL_Texture** whiteTex_, int amount_, int totalDuration_, const std::vector<int> &framesData_, int w_, int h_, const Vector2<float> &origin_) :
-		tex(tex_), whiteTex(whiteTex_), amount(amount_), totalDuration(totalDuration_), framesData(framesData_), w(w_), h(h_), m_origin(origin_)
+		m_tex(tex_), m_whiteTex(whiteTex_), m_amount(amount_), m_totalDuration(totalDuration_), m_framesData(framesData_), m_w(w_), m_h(h_), m_origin(origin_)
 	{
 	}
 
 	SDL_Texture* operator[](const int rhs)
 	{
-		return tex[framesData[rhs]];
+		return m_tex[m_framesData[rhs]];
 	}
 
 	SDL_Texture *getWhite(const int rhs)
 	{
-		return whiteTex[framesData[rhs]];
+		return m_whiteTex[m_framesData[rhs]];
 	}
 
 	//Texture array and required info
-	SDL_Texture** tex;
-	SDL_Texture** whiteTex;
-	int amount;
-	int w, h;
-	int totalDuration;
+	SDL_Texture** m_tex;
+	SDL_Texture** m_whiteTex;
+	int m_amount;
+	int m_w, m_h;
+	int m_totalDuration;
 	Vector2<float> m_origin;
-	std::vector<int> framesData;
+	std::vector<int> m_framesData;
 
 	//Properly removes texture
 	virtual ~TextureArr();

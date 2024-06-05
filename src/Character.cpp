@@ -69,9 +69,9 @@ CharacterUpdateRes Character::update()
         m_extendedBuffer = 0;
 
     CharacterUpdateRes res;
-    res.moveOffset = m_pos - initPos;
-    res.newPos = m_pos;
-    res.pushbox = getPushbox();
+    res.m_moveOffset = m_pos - initPos;
+    res.m_newPos = m_pos;
+    res.m_pushbox = getPushbox();
     return res;
 }
 
@@ -316,16 +316,16 @@ HIT_RESULT Character::applyHit(HitEvent &hitEvent_)
         {
             m_notifyWidget->addNotification("COUNTER!");
         }
-        m_notifyWidget->addNotification(std::to_string(hitEvent_.realDamage));
+        m_notifyWidget->addNotification(std::to_string(hitEvent_.m_realDamage));
 
         if (!isInHitstun())
         {
-            applyHitstop(hitEvent_.m_hitData.hitProps.hitstop);
+            applyHitstop(hitEvent_.m_hitData.m_hitProps.hitstop);
             
             if (hitEvent_.m_hitRes == HIT_RESULT::HIT || hitEvent_.m_hitRes == HIT_RESULT::COUNTER)
-                applyCancelWindow(hitEvent_.m_hitData.cancelsOnHit);
+                applyCancelWindow(hitEvent_.m_hitData.m_cancelsOnHit);
             else
-                applyCancelWindow(hitEvent_.m_hitData.cancelsOnBlock);
+                applyCancelWindow(hitEvent_.m_hitData.m_cancelsOnBlock);
 
         }
 
@@ -341,7 +341,7 @@ HIT_RESULT Character::applyHit(HitEvent &hitEvent_)
         m_takenHits.insert(hitEvent_.m_hitData.m_hitId);
 
         auto blockState = m_blockHandler.getBlockState();
-        bool blocked = hitEvent_.m_hitData.canBeBlockedAs.contains(blockState);
+        bool blocked = hitEvent_.m_hitData.m_canBeBlockedAs.contains(blockState);
 
         // Took hit
         if (!blocked)
@@ -360,17 +360,17 @@ HIT_RESULT Character::applyHit(HitEvent &hitEvent_)
 
             if (isCounter)
             {
-                m_hitProps = hitEvent_.m_hitData.chProps;
+                m_hitProps = hitEvent_.m_hitData.m_chProps;
                 hitres = HIT_RESULT::COUNTER;
-                startShine({150, 0, 0, 225}, std::max(hitEvent_.m_hitData.chProps.hitstop - 3, 5), 3);
+                startShine({150, 0, 0, 225}, std::max(hitEvent_.m_hitData.m_chProps.hitstop - 3, 5), 3);
             }
             else
             {
-                m_hitProps = hitEvent_.m_hitData.hitProps;
+                m_hitProps = hitEvent_.m_hitData.m_hitProps;
             }
 
             hitEvent_.m_hitRes = hitres;
-            hitEvent_.realDamage = m_healthHandler.takeDamage(hitEvent_);
+            hitEvent_.m_realDamage = m_healthHandler.takeDamage(hitEvent_);
             m_comboPhysHandler.takeHit(hitEvent_);
 
             if (!m_lockedInAnimation)
@@ -439,25 +439,25 @@ HIT_RESULT Character::applyHit(HitEvent &hitEvent_)
                 m_blockstunType = BLOCK_FRAME::NONE;
             }
 
-            applyHitstop(hitEvent_.m_hitData.hitProps.hitstop);
+            applyHitstop(hitEvent_.m_hitData.m_hitProps.hitstop);
             if (!isInstant)
             {
                 turnVelocityToInertia();
                 m_inertia.x *= gamedata::characters::pushblockInertiaCarry;
-                takePushback(getHorDirToEnemy() * -1.0f * hitEvent_.m_hitData.opponentPushbackOnBlock);
+                takePushback(getHorDirToEnemy() * -1.0f * hitEvent_.m_hitData.m_opponentPushbackOnBlock);
             }
             else if (m_airborne)
             {
                 turnVelocityToInertia();
                 if (!isInstant)
-                    takePushback(getHorDirToEnemy() * -1.0f * hitEvent_.m_hitData.opponentPushbackOnBlock);
+                    takePushback(getHorDirToEnemy() * -1.0f * hitEvent_.m_hitData.m_opponentPushbackOnBlock);
             }
             else
             {
                 m_velocity = {0, 0};
                 m_inertia = {0, 0};
             }
-            auto blockstunDuration = m_blockHandler.getBlockstunDuration(hitEvent_.m_hitData.blockstun);
+            auto blockstunDuration = m_blockHandler.getBlockstunDuration(hitEvent_.m_hitData.m_blockstun);
             m_notifyWidget->addNotification(std::to_string(blockstunDuration));
             HIT_RESULT res = HIT_RESULT::BLOCK_HIGH;
 
@@ -487,7 +487,7 @@ HIT_RESULT Character::applyHit(HitEvent &hitEvent_)
             hitEvent_.m_hitRes = res;
             if (!isInstant)
             {
-                hitEvent_.realDamage = m_healthHandler.takeDamage(hitEvent_);
+                hitEvent_.m_realDamage = m_healthHandler.takeDamage(hitEvent_);
             }
             else
             {

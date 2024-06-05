@@ -6,7 +6,7 @@
 #include "AnimationManager.h"
 #include "TimelineProperty.h"
 #include "StateMarker.h"
-#include "RecipeParser.h"
+#include "ProjectileRecipe.h"
 
 class InteractableStateMachine;
 

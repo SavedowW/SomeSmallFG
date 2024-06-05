@@ -119,9 +119,9 @@ int AnimationManager::getAnimID(const std::string &animName_) const
 TextureArr::~TextureArr()
 {
 	//Logger::print("Release " + intToString(amount) + " textures\n");
-	for (int i = 0; i < amount; ++i)
-		SDL_DestroyTexture(tex[i]);
-	delete[] tex;
+	for (int i = 0; i < m_amount; ++i)
+		SDL_DestroyTexture(m_tex[i]);
+	delete[] m_tex;
 }
 
 Animation::Animation(AnimationManager &animationManager_, int id_, LOOPMETHOD isLoop_, int beginFrame_, int beginDirection_) :
@@ -159,7 +159,7 @@ SDL_Texture* Animation::getWhiteSprite()
 bool Animation::isFinished()
 {
 	if (m_direction > 0)
-		return m_currentFrame == m_textures->totalDuration - 1;
+		return m_currentFrame == m_textures->m_totalDuration - 1;
 	else
 		return !m_currentFrame;
 }
@@ -191,16 +191,16 @@ void Animation::animFinished()
 		break;
 
 	case (LOOPMETHOD::JUMP_LOOP):
-		if (m_currentFrame >= m_textures->totalDuration - 1)
+		if (m_currentFrame >= m_textures->m_totalDuration - 1)
 			m_currentFrame = 0;
 		else if (m_currentFrame <= 0)
-			m_currentFrame = m_textures->totalDuration - 1;
+			m_currentFrame = m_textures->m_totalDuration - 1;
 		break;
 
 	case (LOOPMETHOD::SWITCH_DIR_LOOP):
 		m_direction *= -1;
 		if (m_direction == -1)
-			m_currentFrame = m_textures->totalDuration - 1;
+			m_currentFrame = m_textures->m_totalDuration - 1;
 		else
 			m_currentFrame = 0;
 		break;
@@ -209,7 +209,7 @@ void Animation::animFinished()
 
 Vector2<float> Animation::getSize()
 {
-	return {(float)m_textures->w, (float)m_textures->h};
+	return {(float)m_textures->m_w, (float)m_textures->m_h};
 }
 
 Vector2<float> Animation::getOrigin()

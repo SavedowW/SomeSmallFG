@@ -128,9 +128,9 @@
 
 struct CharacterUpdateRes
 {
-    Vector2<float> moveOffset;
-    Vector2<float> newPos;
-    Collider pushbox;
+    Vector2<float> m_moveOffset;
+    Vector2<float> m_newPos;
+    Collider m_pushbox;
 };
 
 struct GenericCharacterData

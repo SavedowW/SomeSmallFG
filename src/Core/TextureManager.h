@@ -23,27 +23,27 @@ struct Texture
 		if (tex_ == NULL)
 			throw "Texture does not exist!\n";
 
-		tex = tex_;
+		m_tex = tex_;
 
-		SDL_QueryTexture(tex, NULL, NULL, &w, &h);
+		SDL_QueryTexture(m_tex, NULL, NULL, &m_w, &m_h);
 	}
 
 	//The texture and required info
 	SDL_Texture* getSprite()
     {
-	    return tex;
+	    return m_tex;
     }
-	int w, h;
+	int m_w, m_h;
 
 	//Properly removes texture
 	virtual ~Texture()
 	{
 		//Logger::print("Release single texture\n");
-		SDL_DestroyTexture(tex);
+		SDL_DestroyTexture(m_tex);
 	}
 
 private:
-	SDL_Texture* tex;
+	SDL_Texture* m_tex;
 };
 
 using Texture_t = std::shared_ptr<Texture>;

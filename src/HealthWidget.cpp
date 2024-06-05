@@ -10,10 +10,10 @@ HealthWidget::HealthWidget(Application &application_, bool rightSide_)
 
     updateRects();
 
-    m_barBackFrontDstRect.w = m_back->w;
-    m_barBackFrontDstRect.h = m_back->h;
-    m_barBackFrontDstRect.x = m_barDstRect.x - (m_back->w - m_barDstRect.w) / 2;
-    m_barBackFrontDstRect.y = m_barDstRect.y - (m_back->h - m_barDstRect.h) / 2;
+    m_barBackFrontDstRect.w = m_back->m_w;
+    m_barBackFrontDstRect.h = m_back->m_h;
+    m_barBackFrontDstRect.x = m_barDstRect.x - (m_back->m_w - m_barDstRect.w) / 2;
+    m_barBackFrontDstRect.y = m_barDstRect.y - (m_back->m_h - m_barDstRect.h) / 2;
 
     if (rightSide_)
         m_redHealthDir = 1.0f;
@@ -51,8 +51,8 @@ void HealthWidget::updateRects()
 {
     m_barSrcRect.x = m_barLen * (1.0f - m_displayedScale);
     m_barSrcRect.y = 0;
-    m_barSrcRect.w = (m_bar->w - 1) * m_displayedScale;
-    m_barSrcRect.h = m_bar->h - 1;
+    m_barSrcRect.w = (m_bar->m_w - 1) * m_displayedScale;
+    m_barSrcRect.h = m_bar->m_h - 1;
 
     m_barDstRect.y = m_topOffset;
     m_barDstRect.w = m_barLen * m_displayedScale;

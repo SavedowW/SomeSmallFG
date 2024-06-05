@@ -17,9 +17,9 @@ float HealthHandler::takeDamage(HitEvent &ev)
         if (m_currentHit == 0)
         {
             if (ev.m_hitRes == HIT_RESULT::HIT)
-                m_proratio = ev.m_hitData.hitProps.proratio;
+                m_proratio = ev.m_hitData.m_hitProps.proratio;
             else
-                m_proratio = ev.m_hitData.chProps.proratio;
+                m_proratio = ev.m_hitData.m_chProps.proratio;
         }
 
         if (m_currentHit < m_fixedScalingValues.size())
@@ -29,7 +29,7 @@ float HealthHandler::takeDamage(HitEvent &ev)
 
         m_currentHit++;
 
-        damage = m_currentScaling * ev.m_hitData.damage * m_proratio;
+        damage = m_currentScaling * ev.m_hitData.m_damage * m_proratio;
         if (ev.m_hitRes == HIT_RESULT::COUNTER)
             damage *= 1.1f;
 
@@ -37,19 +37,19 @@ float HealthHandler::takeDamage(HitEvent &ev)
 
         m_currentHealth -= damage;
 
-        ev.hitInSequence = m_currentHit;
+        ev.m_hitInSequence = m_currentHit;
 
     }
     else // Block options
     {
-        ev.hitInSequence = 0;
+        ev.m_hitInSequence = 0;
         
-        damage = ev.m_hitData.chipDamage;
+        damage = ev.m_hitData.m_chipDamage;
         std::cout << damage << std::endl;
 
         m_currentHealth -= damage;
 
-        ev.hitInSequence = m_currentHit;
+        ev.m_hitInSequence = m_currentHit;
     }
 
     if (m_widget)
