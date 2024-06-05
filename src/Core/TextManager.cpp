@@ -34,6 +34,7 @@ fonts::Symbol::~Symbol()
 template<typename Func, typename... Args>
 fonts::Font::Font(Func generateSymbols_, Args&&... args_)
 {
+    static_assert(std::is_invocable_v<Func, decltype(m_symbols)&, Args...>, "Function Func should be invokable with these arguments");
     generateSymbols_(m_symbols, std::forward<Args>(args_)...);
 }
 

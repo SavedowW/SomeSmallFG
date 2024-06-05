@@ -1,7 +1,7 @@
 #include "InputComparators.h"
 #include "GameData.h"
 
-template<int len, typename VecT>
+template<size_t len, typename VecT>
 bool recursivelySearchInput(const InputQueue &inputQueue_, Vector2<VecT> (&inputs_)[len], int start_, int toSearch_, int window_)
 {
     int lastToLook = std::min(inputQueue_.getFilled() - 1, start_ + window_ - 1);

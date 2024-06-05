@@ -2,7 +2,7 @@
 #include "InputState.h"
 
 
-template <typename T, int len>
+template <typename T, size_t len>
 const T& FixedQueue<T, len>::operator[](int rhs_) const
 {
     if (rhs_ >= m_filled)
@@ -19,7 +19,7 @@ const T& FixedQueue<T, len>::operator[](int rhs_) const
     return m_data[id];
 }
 
-template <typename T, int len>
+template <typename T, size_t len>
 void FixedQueue<T, len>::push(const T &val_)
 {
     m_data[m_nextToFill] = val_;
@@ -27,13 +27,13 @@ void FixedQueue<T, len>::push(const T &val_)
     m_filled = std::min(m_filled + 1, len);
 }
 
-template <typename T, int len>
+template <typename T, size_t len>
 constexpr int FixedQueue<T, len>::getLen() const
 {
     return len;
 }
 
-template <typename T, int len>
+template <typename T, size_t len>
 int FixedQueue<T, len>::getFilled() const
 {
     return m_filled;

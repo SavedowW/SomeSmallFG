@@ -3,6 +3,7 @@
 #include <cmath>
 #include <iostream>
 #include "Utils.h"
+#include <type_traits>
 
 enum class ORIENTATION {RIGHT, LEFT};
 
@@ -12,6 +13,8 @@ struct Vector2
 	T x, y;
 	constexpr inline Vector2(T nx = 0, T ny = 0)
 	{
+		static_assert(std::is_arithmetic_v<T>, "Type T must be an arithmetic type");
+
 		x = nx;
 		y = ny;
 	}

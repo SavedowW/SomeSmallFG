@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include <iostream>
 
-template <typename T, int len>
+template <typename T, size_t len>
 class FixedQueue
 {
 public:
@@ -21,13 +21,13 @@ public:
 private:
     T m_data[len];
     int m_nextToFill = 0;
-    int m_filled = 0;
+    size_t m_filled = 0;
 
 };
 
 namespace utils
 {
-    template <typename T, int len>
+    template <typename T, size_t len>
     void printQueue(const FixedQueue<T, len> &q_, char separator_ = ' ')
     {
         for (int i = 0; i < q_.getFilled(); ++i)

@@ -1,10 +1,12 @@
 #include "ResourceCounter.h"
+#include <type_traits>
 
 template <typename Resource_t>
 ResourceCounter<Resource_t>::ResourceCounter(Resource_t max_, Resource_t consumed_) :
     m_max(max_),
     m_consumed(consumed_)
 {
+    static_assert(std::is_arithmetic_v<Resource_t>, "Type Resource_t must be an arithmetic type");
 }
 
 template <typename Resource_t>

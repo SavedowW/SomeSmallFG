@@ -26,6 +26,8 @@ public:
         m_particleManager(application_->getRenderer(), application_->getAnimationManager()),
         m_projectileManager(application_, &m_priorityHandler)
     {
+        static_assert(std::is_base_of_v<Background, BackType>, "BackType of BattleLevel should be derived from Background class");
+
         subscribe(EVENTS::FN2);
     }
 
